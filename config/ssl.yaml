@@ -30,11 +30,11 @@ base_config: &BASE_CONFIG
     n_modes_dec:       [[100,200], [100,200]]
     n_modes_pred:       [[100,200], [100,200],[100,200]]
     
-    lr: 5E-4
-    lr_start: 1E-5
-    lr_warmup_steps: 0
+
     fft_type: 'fft' # might be also spherical harmonics transform or 'sht'
     tno_integral_op: 'fno'
+
+    ar_encoding: !!bool True
     var_enco_channels: 3
+
     add_static_feature: !!bool False
-    add_grid: !!bool True
