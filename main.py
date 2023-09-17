@@ -2,6 +2,7 @@ from models.codano import CodANO
 from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
 from torchsummary import summary
+from functools import partial
 
 
 token_codim = 1
