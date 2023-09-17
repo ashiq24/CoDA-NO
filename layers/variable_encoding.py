@@ -6,12 +6,11 @@ import torch_harmonics as th
 class VaribaleEncoding2d(nn.Module):
     def __init__(self, channel, mode_x, mode_y, basis='fft') -> None:
         super().__init__()
+        self.mode_x = mode_x
+        self.mode_y = mode_y
         self.coefficients_r = nn.Parameter(torch.empty(channel, mode_x, mode_y))
         self.coefficients_i = nn.Parameter(torch.empty(channel, mode_x, mode_y))
         self.reset_parameter()
-        self.mode_x = mode_x
-        self.mode_y = mode_y
-
         self.basis = basis
         if basis == 'fft':
             self.transform = torch.fft.ifft2
