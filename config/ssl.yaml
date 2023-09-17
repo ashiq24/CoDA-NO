@@ -1,6 +1,5 @@
 base_config: &BASE_CONFIG
     ## SSL parameters
-    pretrain_ssl : !!bool False
     evaluation_channel_drop: 1
     drop_type : 'zeros'
     max_block : 0.6
@@ -46,7 +45,7 @@ base_config: &BASE_CONFIG
 
     add_static_feature: !!bool False
 
-    pretrain_ssl : !!bool False #if true we pretrain the model by SSL
+    pretrain_ssl : !!bool True #if true we pretrain the model by SSL
 
     # if True, it will fine tune the encoder during SL
     # otherwise it will freeze the weight of the encoder 
