@@ -15,6 +15,7 @@ base_config: &BASE_CONFIG
     hidden_token_codim_en: 6
     lifting_token_codim_en: 12
     lifting_token_codim_pred: 12
+    out_token_codim_pred:  1
     
     n_layers_en: 2
     
