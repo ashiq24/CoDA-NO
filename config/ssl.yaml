@@ -1,0 +1,37 @@
+base_config: &BASE_CONFIG
+    ## SSL parameters
+    pretrain_ssl : !!bool False
+    evaluation_channel_drop: 1
+    drop_type : 'zeros'
+    max_block : 0.6
+    drop_pix: 0.7
+    channel_per: 0.3
+    channel_drop_per: 0.1
+    
+    batch_size: 4
+    hidden_token_codim_en: 6
+    lifting_token_codim_en: 12
+    n_layers_en: 2
+    
+    n_heads_en:      [2,2]  
+
+    n_heads_dec:      [2,2]
+
+    n_layers_pred: 3
+    n_heads_pred:    [2,2,2]
+    
+    scalings_pred:     [[1,1], [1,1], [1,1]]
+    scalings_en:     [[1,1], [1,1]]
+
+    n_modes_en:       [[100,200], [100,200]]
+    n_modes_dec:       [[100,200], [100,200]]
+    n_modes_pred:       [[100,200], [100,200],[100,200]]
+    
+    lr: 5E-4
+    lr_start: 1E-5
+    lr_warmup_steps: 0
+    
+    tno_integral_op: 'sfno'
+    var_enco_channels: 3
+    add_static_feature: !!bool False
+    add_grid: !!bool True
