@@ -16,7 +16,7 @@ base_config: &BASE_CONFIG
     lifting_token_codim_en: 12
     lifting_token_codim_pred: 12
     out_token_codim_pred:  1
-    
+
     n_layers_en: 2
     
     n_heads_en:      [2,2]  
@@ -45,3 +45,13 @@ base_config: &BASE_CONFIG
     enable_cls_token: !!bool True
 
     add_static_feature: !!bool False
+
+    pretrain_ssl : !!bool False #if true we pretrain the model by SSL
+
+    # if True, it will fine tune the encoder during SL
+    # otherwise it will freeze the weight of the encoder 
+    # which is trained by SSL
+    freeze_encoder : !!bool False
+
+
+
