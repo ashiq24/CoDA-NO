@@ -18,6 +18,7 @@ base_config: &BASE_CONFIG
     
     n_heads_en:      [2,2]  
 
+    n_layers_dec: 2
     n_heads_dec:      [2,2]
 
     n_layers_pred: 3
@@ -26,9 +27,9 @@ base_config: &BASE_CONFIG
     scalings_pred:     [[1,1], [1,1], [1,1]]
     scalings_en:     [[1,1], [1,1]]
 
-    n_modes_en:       [[100,200], [100,200]]
-    n_modes_dec:       [[100,200], [100,200]]
-    n_modes_pred:       [[100,200], [100,200],[100,200]]
+    n_modes_en:       [[100,100], [100,100]]
+    n_modes_dec:       [[100,100], [100,100]]
+    n_modes_pred:       [[100,100], [100,100],[100,100]]
     
 
     fft_type: 'fft' # might be also spherical harmonics transform or 'sht'
