@@ -58,7 +58,7 @@ def get_ssl_models(params):
                     var_num=params.var_num,
                     enable_cls_token=params.enable_cls_token,
                     static_channels_num=static_channels_num,
-                    static_features=static_features
+                    static_features=static_features,
                     per_channel_attention=params.per_channel_attention
             )
     print("*********************")
