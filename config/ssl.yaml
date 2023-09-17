@@ -34,7 +34,7 @@ base_config: &BASE_CONFIG
     lr_start: 1E-5
     lr_warmup_steps: 0
     
-    tno_integral_op: 'sfno'
+    tno_integral_op: 'fno'
     var_enco_channels: 3
     add_static_feature: !!bool False
     add_grid: !!bool True
