@@ -34,7 +34,7 @@ base_config: &BASE_CONFIG
     fft_type: 'fft' # might be also spherical harmonics transform or 'sht'
     tno_integral_op: 'fno'
 
-    ar_encoding: !!bool True
+    var_encoding: !!bool True
     var_enco_channels: 3
 
     add_static_feature: !!bool False
