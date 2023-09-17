@@ -132,7 +132,6 @@ class SslWrapper(nn.Module):
         
         self.stage = stage
         self.freeze_encoder = params.freeze_encoder
-        summary(self.encoder, (self.encoder.var_num,params.size_x,params.size_y))
                 
         print("Doing Wrapper for", self.stage)
         self.agumenter_masker = partial(mask_patches, drop_type=params.drop_type, max_block=params.max_block, drop_pix=params.drop_pix,\
@@ -148,7 +147,7 @@ class SslWrapper(nn.Module):
          # first append unpredicted features
 
         inp = x.clone()
-        
+
         if self.stage == 'ssl':
             with torch.no_grad():
                 inp_masked, mask = batched_masker(inp, self.agumenter_masker)
