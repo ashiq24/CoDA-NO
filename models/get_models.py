@@ -2,6 +2,7 @@ from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
 from data_utils.data_utils import mask_patches, batched_masker
 import torch.nn as nn
+from functools import partial
 
 
 def get_ssl_models(params):
