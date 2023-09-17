@@ -120,8 +120,7 @@ class SslWrapper(nn.Module):
     '''
     def __init__(self, params, encoder, decoder, contrastive, predictor, stage):
         super(SslWrapper, self).__init__()
-        self.preprocessor = Preprocessor2D(params)
-
+    
         self.encoder = encoder
         self.decoder = decoder
         self.contrastive = contrastive
@@ -147,16 +146,8 @@ class SslWrapper(nn.Module):
 
     def forward(self, x, static_random_tensor=None):
          # first append unpredicted features
-        inp = self.preprocessor.append_unpredicted_features(x)
 
-        # now normalize
-        self.preprocessor.history_compute_stats(inp)
-        inp = self.preprocessor.history_normalize(inp, target=False)
-
-        # now add static features if requested
-        #inp = self.preprocessor.add_static_features(inp)
-        
-        #print("printing x and added feature shape", x.shape, inp.shape)
+        inp = x.clone()
         
         if self.stage == 'ssl':
             with torch.no_grad():
