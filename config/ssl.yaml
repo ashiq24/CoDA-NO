@@ -37,4 +37,6 @@ base_config: &BASE_CONFIG
     var_encoding: !!bool True
     var_enco_channels: 3
 
+    enable_cls_token: !!bool True
+
     add_static_feature: !!bool False
