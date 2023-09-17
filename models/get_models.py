@@ -36,7 +36,7 @@ def get_ssl_models(params):
         static_channels_num = 0
         
     print("Token Dim-->", 1+params.var_enco_channels+static_channels_num)
-    print("var num", params.N_in_channels - static_channels_num, params.N_in_channels, static_channels_num)
+    print("var num", params.var_num, "static channels", static_channels_num)
 
     encoder = CodANO(params.in_token_codim_en,
                     hidden_token_codim=params.hidden_token_codim_en,
