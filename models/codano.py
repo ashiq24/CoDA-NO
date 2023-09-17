@@ -265,7 +265,7 @@ class CodANO(nn.Module):
         if self.var_encoding:
             x = torch.zeros((inp.shape[0],len(self.variable_channels)+len(self.encoding_channels)+len(self.static_cahnnels),\
                              inp.shape[2], inp.shape[3]), device=inp.device, dtype=inp.dtype)
-            var_encoding = self.var_encoding_funtions(x)
+            var_encoding = self.var_encoding_funtions(x).to(x.device)
             x[:,self.variable_channels,:,:] = inp
             x[:,self.encoding_channels,:,:] = var_encoding[None,:,:,:].repeat(x.shape[0],1,1,1)
             if self.static_channels_num !=0:

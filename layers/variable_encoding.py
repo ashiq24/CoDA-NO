@@ -19,8 +19,8 @@ class VaribaleEncoding2d(nn.Module):
             self.transform = th.InverseRealSHT(mode_x, mode_y, lmax=mode_x, mmax=mode_y, grid="legendre-gauss", norm="backward")
         
     def reset_parameter(self):
-        torch.nn.init.normal_(self.coefficients_r, mean=0.0, std=1)
-        torch.nn.init.normal_(self.coefficients_i, mean=0.0, std=1)
+        torch.nn.init.normal_(self.coefficients_r, mean=0.0, std=(1/(self.mode_x*self.mode_y))**0.5)
+        torch.nn.init.normal_(self.coefficients_i, mean=0.0, std=(1/(self.mode_x*self.mode_y))**0.5)
     
     def forward(self, x):
         '''
