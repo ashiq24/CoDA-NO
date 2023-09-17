@@ -2,10 +2,17 @@ base_config: &BASE_CONFIG
     ## SSL parameters
     evaluation_channel_drop: 1
     drop_type : 'zeros'
+
     max_block : 0.6
     drop_pix: 0.7
     channel_per: 0.3
     channel_drop_per: 0.1
+
+    validation_aug: !!bool False
+    max_block_val : 0.2
+    drop_pix_val: 0.15
+    channel_per_val: 0.5
+    channel_drop_per_val: 0.5
 
     batch_size: 4
 

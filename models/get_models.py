@@ -137,6 +137,7 @@ class SslWrapper(nn.Module):
         self.agumenter_masker = partial(mask_patches, drop_type=params.drop_type, max_block=params.max_block, drop_pix=params.drop_pix,\
                                                   channel_per=params.channel_per, channel_drop_per=params.channel_drop_per)
         
+        # If following augmenter is used by external method during testing 
         self.validation_agumenter = partial(mask_patches, drop_type= params.drop_type, max_block=params.max_block_val, drop_pix=params.drop_pix_val,\
                                                   channel_per = params.channel_per_val, channel_drop_per = params.channel_drop_per_val)
         self.params = params
