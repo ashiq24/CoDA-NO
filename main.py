@@ -15,9 +15,9 @@ modes = [[100,100],[100,100],[100,100],[100,100]]
 lifting = True
 projection = True
 operator_block = TnoBlock2d
-integral_operator = partial(SpectralConvKernel2d, frequency_mixer = False, fft_type='fft')
-integral_operator_top = integral_operator
-integral_operator_bottom = integral_operator
+int_op = partial(SpectralConvKernel2d, frequency_mixer = False, fft_type='fft')
+int_op_top = integral_operator
+int_op_top = integral_operator
 
 var_encoding=True, #b
 var_num=10, # denotes the number of varibales
@@ -27,7 +27,7 @@ enable_cls_token=True,
 
 model = CodANO(in_token_codim=token_codim, hidden_token_codim=hidden_token_codim, lifting_token_codim=lifting_token_codim,\
                 n_layers=4, n_heads=n_heads, n_modes=modes, scalings=scaling, integral_operator=int_op,\
-                integral_operator_top=int_op_top,integral_operator_bottom=int_op_bottom,\
+                integral_operator_top=int_op_top,integral_operator_bottom=int_op_top,\
                 var_encoding=var_encoding,
                 var_enco_channels = var_enco_channels,
                 var_num = var_num,
