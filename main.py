@@ -3,8 +3,11 @@ from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
 from torchsummary import summary
 from functools import partial
+from YParams import YParams
 import torch
 
+
+# example model
 
 token_codim = 1
 out_token_coken = 1
@@ -29,13 +32,16 @@ enable_cls_token=True
 model = CodANO(in_token_codim=token_codim, hidden_token_codim=hidden_token_codim, lifting_token_codim=lifting_token_codim,\
                 n_layers=4, n_heads=n_heads, n_modes=modes, scalings=scaling, integral_operator=int_op,\
                 integral_operator_top=int_op_top,integral_operator_bottom=int_op_top,\
-                var_encoding=var_encoding,
-                var_enco_channels = var_enco_channels,
-                var_num = var_num,
-                enable_cls_token = enable_cls_token)
+                var_encoding=var_encoding, var_enco_channels = var_enco_channels,\
+                var_num = var_num, enable_cls_token = enable_cls_token)
 
 summary(model, (var_num*token_codim, 100, 100)) 
 
 y = model(torch.randn(2,var_num*token_codim, 100, 100).cuda())
 
 print("Output shape",y.shape)
+
+
+## SSL model 
+params = YParams(os.path.abspath('/home/mdashiqurr/code/confg/ssl.yaml'), 'base_config', print_params=True)
+
