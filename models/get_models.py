@@ -4,7 +4,7 @@ from data_utils.data_utils import mask_patches, batched_masker
 import torch.nn as nn
 from functools import partial
 from models.codano import CodANO
-
+import torch
 
 def get_ssl_models(params):
     ## We use tno inside SSLtransformer model. That has a encoder and prediction/(decoder) part. 
