@@ -26,6 +26,7 @@ base_config: &BASE_CONFIG
     
     scalings_pred:     [[1,1], [1,1], [1,1]]
     scalings_en:     [[1,1], [1,1]]
+    scalings_dec:     [[1,1],[1,1]]
 
     n_modes_en:       [[100,100], [100,100]]
     n_modes_dec:       [[100,100], [100,100]]
