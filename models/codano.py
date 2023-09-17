@@ -92,6 +92,7 @@ class CodANO(nn.Module):
                  'implementation':'factorized',
                  'decomposition_kwargs':dict(),
                  'normalizer': False},
+                 per_channel_attention=False,
                  operator_block=TnoBlock2d,
                  integral_operator=SpectralConvKernel2d,
                  integral_operator_top=partial(SpectralConvKernel2d, sht_grid="legendre-gauss"), 
@@ -110,7 +111,7 @@ class CodANO(nn.Module):
                  var_enco_mode_y=40,
                  enable_cls_token=False,
                  static_channels_num=0,
-                 static_features=None
+                 static_features=None,
                 ):
         super().__init__()
         self.n_layers = n_layers
@@ -232,6 +233,7 @@ class CodANO(nn.Module):
                                             output_scaling_factor = [self.scalings[i]],
                                             SpectralConv = conv_op,
                                             codim_size=self.codim_size,
+                                            per_channel_attention=per_channel_attention,
                                             **self.layer_kwargs))
         if self.projection:
             print("Using Projection Layer")
