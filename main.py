@@ -19,11 +19,11 @@ int_op = partial(SpectralConvKernel2d, frequency_mixer = False, fft_type='fft')
 int_op_top = int_op
 int_op_top = int_op
 
-var_encoding=True, #b
-var_num=10, # denotes the number of varibales
-var_enco_basis='fft',
-var_enco_channels=1,
-enable_cls_token=True,
+var_encoding=True #b
+var_num=10 # denotes the number of varibales
+var_enco_basis='fft'
+var_enco_channels=1
+enable_cls_token=True
 
 model = CodANO(in_token_codim=token_codim, hidden_token_codim=hidden_token_codim, lifting_token_codim=lifting_token_codim,\
                 n_layers=4, n_heads=n_heads, n_modes=modes, scalings=scaling, integral_operator=int_op,\
