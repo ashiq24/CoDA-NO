@@ -7,8 +7,11 @@ base_config: &BASE_CONFIG
     drop_pix: 0.7
     channel_per: 0.3
     channel_drop_per: 0.1
-    
+
     batch_size: 4
+
+    var_num: 10
+    in_token_codim_en: 1
     hidden_token_codim_en: 6
     lifting_token_codim_en: 12
     n_layers_en: 2

@@ -4,6 +4,7 @@ from layers.fino import SpectralConvKernel2d
 from torchsummary import summary
 from functools import partial
 from YParams import YParams
+from models.get_models import get_ssl_models, SslWrapper
 import os
 import torch
 
@@ -46,3 +47,7 @@ print("Output shape",y.shape)
 ## SSL model 
 params = YParams('./config/ssl.yaml', 'base_config', print_params=True)
 
+
+encoder, decoder, contrastive, predictor = get_ssl_models(params)
+
+summary(model, (params.var_num*params.in_token_codim_en, 100, 100)) 
