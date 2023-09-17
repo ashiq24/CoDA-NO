@@ -14,7 +14,7 @@ def get_ssl_models(params):
     block = TnoBlock2d
 
     if params.tno_integral_op == 'fno':
-        int_op = SpectralConv
+        int_op = partial(SpectralConvKernel2d, fft_type = params.fft_type, frequency_mixer = False)
         int_op_top = int_op
         int_op_bottom = int_op
     elif params.tno_integral_op == 'fino':
