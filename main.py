@@ -44,5 +44,5 @@ print("Output shape",y.shape)
 
 
 ## SSL model 
-params = YParams(os.path.abspath('/home/mdashiqurr/code/confg/ssl.yaml'), 'base_config', print_params=True)
+params = YParams(os.path.abspath('./confg/ssl.yaml'), 'base_config', print_params=True)
 
