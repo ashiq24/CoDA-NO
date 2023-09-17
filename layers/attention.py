@@ -31,39 +31,46 @@ class TnoBlock2d(nn.Module):
                  decomposition_kwargs=dict(),
                  fft_norm='forward',
                  codim_size=None,
-                 per_var_attention=True,
+                 per_channel_attention=True,
                  permutation_eq=True,
                  **kwarg):
         
         super().__init__()
-        self.variable_codim = token_codim
-        self.token_codim = token_codim
-        self.head_codim = token_codim if head_codim is None else head_codim
-        self.n_head = n_head
-        self.output_scaling_factor = output_scaling_factor
-        self.per_var_attention = per_var_attention
-        self.permutation_eq = permutation_eq
+
+        self.variable_codim = token_codim # codim of each variable
+        self.token_codim = token_codim # codim of each toke, they are equal
+
+        self.head_codim = token_codim if head_codim is None else head_codim # codim of attention from each head
+        self.n_head = n_head #number of heads
+        self.output_scaling_factor = output_scaling_factor # output scalling factor
+
+        self.per_channel_attention = per_channel_attention # attention per channel not per varibales
+
+        self.permutation_eq = permutation_eq # making last mixer permutation equivariant
+
         if self.n_head is not None:
-            self.head_codim = max(token_codim//self.n_head, 1)
+            self.head_codim = max(token_codim//self.n_head, 1) #recaluculating the value of head_codim
         
         self.codim_size = codim_size
         self.mixer_token_codim = token_codim
         
-        if per_var_attention:
+        if per_channel_attention:
+            # for per channel attention, forcing the values of token dims
             self.token_codim = 1
             self.head_codim = 1
 
-            
+        # this scale used for downsampling Q,K functions    
         scale = min(self.n_head,2)
-        if self.per_var_attention:
+        if self.per_channel_attention:
             scale = 4
             
         mixer_modes = [i//scale for i in n_modes]
         
         print(rank, factorization,self.head_codim, scale, mixer_modes)
-        if not per_var_attention:
+
+        if not per_channel_attention:
             print("Token dim", self.token_codim, "number heads", self.n_head, 'Head co-dim', self.head_codim)
-            #assert self.token_codim == self.n_head * self.head_codim
+
         
         self.K = FNOBlocks(in_channels=self.token_codim, out_channels= self.n_head * self.head_codim, n_modes= mixer_modes,\
                                             use_mlp=use_mlp, mlp=mlp, output_scaling_factor=1/scale,non_linearity=lambda x: x, apply_skip=True,\
@@ -103,6 +110,8 @@ class TnoBlock2d(nn.Module):
 
         self.attention_normalizer = nn.InstanceNorm2d(self.token_codim, affine=True)
         
+        # we have an option to make the last operator (MLP in regular Transformer block) permutation eq.
+        # i.e., applying the operator per vairable or applying the operator on all the channel (like regular FNO)
         if permutation_eq:
             print("Permutation Equivariant with ", self.mixer_token_codim)
             self.mixer = FNOBlocks(in_channels=self.mixer_token_codim, out_channels=self.mixer_token_codim, n_modes= n_modes,\
@@ -174,17 +183,17 @@ class TnoBlock2d(nn.Module):
         if not self.permutation_eq:
             atten = rearrange(atten, '(b t) d h w -> b (t d) h w', b = batch)
             atten_normalized = self.norm2(atten)
-            #atten_normalized = rearrange(atten_normalized, 'b (t d) h w -> (b t) d h w', d=self.variable_codim)
             output = self.mixer(atten_normalized, output_shape=(in_res_x, in_res_y))
-            #output = rearrange(output, '(b t) d h w -> b (t d) h w', b = batch)
         else:
             atten = self.attention_normalizer(atten) + xa
             atten = rearrange(atten, '(b t) d h w -> b (t d) h w', b = batch)
             #print("Attention shape", atten.shape)
             atten = rearrange(atten, 'b (t d) h w -> (b t) d h w', d = self.mixer_token_codim)
             #print("Attention shape", atten.shape)
+
             atten_normalized = self.norm2(atten)
             output = self.mixer(atten_normalized, output_shape=(in_res_x, in_res_y)) 
+
             output = self.mixer_out_normalizer(output) + atten
             #print("outshape", output.shape)
             output = rearrange(output, '(b t) d h w -> b (t d) h w', b = batch)

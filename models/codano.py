@@ -146,7 +146,7 @@ class CodANO(nn.Module):
         self.operator_block = operator_block
         self.lifting = lifting
         self.projection = projection
-        #self.static_features = static_features
+
         self.register_buffer("static_features", static_features)
         self.static_channels_num = static_channels_num
         ## calculating scaling
@@ -172,7 +172,8 @@ class CodANO(nn.Module):
         if var_encoding:
             ###
             # Each variable along with its varibale concoding should remain consecutively to be considered a single token
-            # the channels can be [Variable1, varibale_encoding1, static_channel, varibale2, varibale_encoding2, static_channel, .....]
+            # for varibale_encoding with codim = 2
+            # the channels can be [Variable1, varibale_encoding1,varibale_encoding1, static_channel, varibale2, varibale_encoding2,varibale_encoding2, static_channel, .....]
             # Each token is extracted accordingly in the attention module
             ###
             

@@ -59,6 +59,7 @@ def get_ssl_models(params):
                     enable_cls_token=params.enable_cls_token,
                     static_channels_num=static_channels_num,
                     static_features=static_features
+                    per_channel_attention=params.per_channel_attention
             )
     print("*********************")
 
@@ -85,6 +86,7 @@ def get_ssl_models(params):
                         var_num=params.var_num,
                         integral_operator_top=int_op_top,
                         integral_operator_bottom=int_op_bottom,
+                        per_channel_attention=params.per_channel_attention
         )
     else:
         decoder = None
@@ -109,6 +111,7 @@ def get_ssl_models(params):
                     var_num=params.var_num,
                     integral_operator_top=int_op_top,
                     integral_operator_bottom=int_op_bottom,
+                    per_channel_attention=params.per_channel_attention
     )
     print("*********************")
     

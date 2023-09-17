@@ -40,6 +40,8 @@ base_config: &BASE_CONFIG
     n_modes_en:       [[100,100], [100,100]]
     n_modes_dec:       [[100,100], [100,100]]
     n_modes_pred:       [[100,100], [100,100],[100,100]]
+
+    per_channel_attention: !!bool True
     
 
     fft_type: 'fft' # might be also spherical harmonics transform or 'sht'
