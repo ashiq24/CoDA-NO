@@ -16,8 +16,8 @@ lifting = True
 projection = True
 operator_block = TnoBlock2d
 int_op = partial(SpectralConvKernel2d, frequency_mixer = False, fft_type='fft')
-int_op_top = integral_operator
-int_op_top = integral_operator
+int_op_top = int_op
+int_op_top = int_op
 
 var_encoding=True, #b
 var_num=10, # denotes the number of varibales
