@@ -35,4 +35,6 @@ model = CodANO(in_token_codim=token_codim, hidden_token_codim=hidden_token_codim
 
 summary(model, (var_num*token_codim, 100, 100)) 
 
+y = model(torch.normal(2,var_num*token_codim, 100, 100))
 
+print("Output shape",y.shape)
