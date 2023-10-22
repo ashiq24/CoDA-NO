@@ -54,6 +54,10 @@ class gno_layer(nn.Module):
         x = self.projection(x)
         print(x.shape)
         out = None
+        
+        print(self.input_grid)
+        print(self.output_grid)
+
         for i in range(x.shape[-2]):
             print(i)
             print(x[:,i,:].shape)
