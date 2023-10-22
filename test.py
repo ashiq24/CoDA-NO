@@ -30,3 +30,4 @@ out = GN(torch.randn(1,1370,2).cuda())
 
 out = GN(torch.randn(1,1370,2).cuda())
 out = GN(torch.randn(1,1370,2).cuda())
+
