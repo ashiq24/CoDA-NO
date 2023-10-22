@@ -57,7 +57,7 @@ class gno_layer(nn.Module):
         for i in range(x.shape[-2]):
             print(i)
             print(x[:,i,:].shape)
-            temp = self.it(self.input_grid, self.neighbour,self.output_grid, x[:,i,:])
+            temp = self.it(self.input_grid.clone(), self.neighbour.clone(),self.output_grid.clone(), x[:,i,:])
             if out is None:
                 out = temp[None,...]
             else:
