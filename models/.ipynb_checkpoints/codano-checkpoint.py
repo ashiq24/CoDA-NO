@@ -105,7 +105,7 @@ class CodANO(nn.Module):
                  domain_padding_mode='one-sided',
                  var_encoding=False, #b
                  var_num=None, # denotes the number of varibales
-                 var_enco_basis='sht',
+                 var_enco_basis='fft',
                  var_enco_channels=1,
                  var_enco_mode_x=20,
                  var_enco_mode_y=40,
@@ -302,6 +302,3 @@ class CodANO(nn.Module):
             x = self.output_regrider(x)
 
         return x
-####
-######
-####

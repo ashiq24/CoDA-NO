@@ -105,7 +105,7 @@ class CodANO(nn.Module):
                  domain_padding_mode='one-sided',
                  var_encoding=False, #b
                  var_num=None, # denotes the number of varibales
-                 var_enco_basis='sht',
+                 var_enco_basis='fft',
                  var_enco_channels=1,
                  var_enco_mode_x=20,
                  var_enco_mode_y=40,
@@ -137,6 +137,7 @@ class CodANO(nn.Module):
             self.input_regrider = Regird("equiangular","legendre-gauss")
         if self.re_grid_output:
             self.output_regrider = Regird("legendre-gauss","equiangular")
+            
         self.hidden_token_codim = hidden_token_codim
         self.n_modes = n_modes
         self.scalings = scalings
@@ -302,6 +303,3 @@ class CodANO(nn.Module):
             x = self.output_regrider(x)
 
         return x
-####
-######
-####
