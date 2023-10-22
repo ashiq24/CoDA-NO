@@ -68,4 +68,8 @@ class gno_layer(nn.Module):
                 out = temp[None,...]
             else:
                 out = torch.cat([out, temp[None,...]], dim=1)
+                
+            print(self.input_grid)
+            print(self.output_grid)
+
         return out[None, ...]
