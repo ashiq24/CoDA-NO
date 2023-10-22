@@ -47,7 +47,7 @@ class gno_layer(nn.Module):
             x[:,:,self.encoding_channels] = var_encoding[None,:,:].repeat(x.shape[0],1,1)
         else:
             x = inp
-        x  = rearrange(x, 'b n (v c) -> b n v c', c = self.in_channels+self.var_encoding_channels)
+        x  = rearrange(x, 'b n (v c) -> b n v c', c = self.in_dim+self.var_encoding_channels)
         x = self.projection(x)
         out = []
         for i in range(x.shape[-2]):
