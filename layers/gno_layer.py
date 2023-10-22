@@ -34,7 +34,7 @@ class gno_layer(nn.Module):
         for key, value in self.neighbour.items():
             self.neighbour[key] = self.neighbour[key].cuda()
         
-        self.it = IntegralTransform(self.mlp_layers)
+        self.it = IntegralTransform(mlp_layers=self.mlp_layers)
     
     def forward(self, inp):
         '''
