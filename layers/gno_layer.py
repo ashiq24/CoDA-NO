@@ -57,6 +57,6 @@ class gno_layer(nn.Module):
         # for i in range(x.shape[-2]):
         #     print(i)
         #     print(x[:,i,:].shape)
-        return self.it(self.input_grid, self.neighbour,self.output_grid, x[:,i,:])
+        return self.it(self.input_grid, self.neighbour,self.output_grid, x[:,0,:])
 
         #return torch.cat(out, 1)[None, ...]
