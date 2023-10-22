@@ -63,4 +63,4 @@ class gno_layer(nn.Module):
             else:
                 out = torch.cat([out, temp[None,...]], dim=1)
 
-        return torch.cat(out, 1)[None, ...]
+        return out[None, ...]
