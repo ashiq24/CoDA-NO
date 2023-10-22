@@ -49,6 +49,7 @@ class gno_layer(nn.Module):
             x = inp
         x  = rearrange(x, 'b n (v c) -> b n v c', c = 1+self.var_encoding_channels)
         x = self.projection(x)
+        print(x.shape)
         out = []
         for i in range(x.shape[-2]):
             out.append(self.it(self.input_grid, self.neighbour,self.output_grid, x[:,:,i,:]))
