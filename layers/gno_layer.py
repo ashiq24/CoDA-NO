@@ -53,10 +53,14 @@ class gno_layer(nn.Module):
         x  = rearrange(x, 'b n (v c) -> (b n) v c', c = 1+self.var_encoding_channels)
         x = self.projection(x)
         print(x.shape)
-        out = []
-        # for i in range(x.shape[-2]):
-        #     print(i)
-        #     print(x[:,i,:].shape)
-        return self.it(self.input_grid, self.neighbour,self.output_grid, x[:,0,:])
+        out = None
+        for i in range(x.shape[-2]):
+            print(i)
+            print(x[:,i,:].shape)
+            temp = self.it(self.input_grid, self.neighbour,self.output_grid, x[:,0,:])
+            if out is None:
+                out = temp[None,...]
+            else:
+                out = torch.cat([out, temp[None,...]], dim=1)
 
-        #return torch.cat(out, 1)[None, ...]
+        return torch.cat(out, 1)[None, ...]
