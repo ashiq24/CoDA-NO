@@ -30,7 +30,9 @@ class gno_layer(nn.Module):
         ### apply GNO to get  uniform grid
 
         NS = NeighborSearch(use_open3d=False)
-        self.neighbour = NS(input_grid.cpu(), output_grid.cpu(), radius=radius)
+
+        self.neighbour = NS(input_grid.clone().cpu(), output_grid.clone().cpu(), radius=radius)
+
         for key, value in self.neighbour.items():
             self.neighbour[key] = self.neighbour[key].cuda()
         
@@ -61,7 +63,7 @@ class gno_layer(nn.Module):
         for i in range(x.shape[-2]):
             print(i)
             print(x[:,i,:].shape)
-            temp = self.it(self.input_grid.clone(), self.neighbour,self.output_grid.clone(), x[:,i,:])
+            temp = self.it(self.input_grid, self.neighbour,self.output_grid, x[:,i,:])
             if out is None:
                 out = temp[None,...]
             else:
