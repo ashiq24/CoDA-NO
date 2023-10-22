@@ -7,7 +7,7 @@ import torch
 
 class gno_layer(nn.Module):
     def __init__(self, in_dim, out_dim, input_grid, output_grid, mlp_layers, radius, var_encoding=False, var_encoding_channels=1,):
-        
+        super().__init__()
         self.in_dim = in_dim
         self.out_dim = out_dim
         self.input_grid = input_grid
