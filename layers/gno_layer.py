@@ -59,4 +59,4 @@ class gno_layer(nn.Module):
             print(x[:,i,:].shape)
             out.append(self.it(self.input_grid, self.neighbour,self.output_grid, x[:,i,:]))
 
-        return torch.stack(out, dim=1)[None, ...]
+        return torch.cat(out, 1)[None, ...]
