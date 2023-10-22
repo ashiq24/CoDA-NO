@@ -47,11 +47,16 @@ class gno_layer(nn.Module):
             x[:,:,self.encoding_channels] = var_encoding[None,:,:].repeat(x.shape[0],1,1)
         else:
             x = inp
-        x  = rearrange(x, 'b n (v c) -> b n v c', c = 1+self.var_encoding_channels)
+        
+        ## Currently GNO only works for batch_size = 1
+
+        x  = rearrange(x, 'b n (v c) -> (b n) v c', c = 1+self.var_encoding_channels)
         x = self.projection(x)
         print(x.shape)
         out = []
         for i in range(x.shape[-2]):
-            out.append(self.it(self.input_grid, self.neighbour,self.output_grid, x[:,:,i,:]))
+            print(i)
+            print(x[:,i,:].shape)
+            out.append(self.it(self.input_grid, self.neighbour,self.output_grid, x[:,i,:]))
 
-        return torch.stack(out, dim=2)
+        return torch.stack(out, dim=1)[None, ...]
