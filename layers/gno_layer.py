@@ -42,7 +42,7 @@ class gno_layer(nn.Module):
         '''
         if self.var_encoding:
             x = torch.zeros((inp.shape[0], inp.shape[1],len(self.variable_channels)+len(self.encoding_channels)), device=inp.device, dtype=inp.dtype)
-            var_encoding = self.var_encoder(self.in_dim).to(x.device)
+            var_encoding = self.var_encoder(self.input_grid).to(x.device)
             x[:,:,self.variable_channels] = inp
             x[:,:,self.encoding_channels] = var_encoding[None,:,:].repeat(x.shape[0],1,1)
         else:
