@@ -98,7 +98,7 @@ class MakserNonuniformMest(object):
             n_drop_pix = drop_pix*L
             max_location = max_blocks
             while n_drop_pix >0:
-                j = random.randin(0, self.in_nbr.shape[0])
+                j = random.randint(0, self.in_nbr.shape[0])
                 mask[i,self.in_nbr[j]==1] = 0
                 n_drop_pix -= sum(self.in_nbr[j]).float()
                 max_location -= 1
