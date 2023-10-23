@@ -92,10 +92,12 @@ class MakserNonuniformMest(object):
         #print(augmented_channels)
         drop_len = int(channel_drop_rate* math.ceil(C*channel_aug_rate))
         mask[:, augmented_channels[:drop_len]] = 0.0
-        
+        print("aug channels", augmented_channels)
+        print('Dropped Channels', augmented_channels[:drop_len])
         for i in augmented_channels[drop_len:]:
             #print("Masking")
             n_drop_pix = drop_pix*L
+            print("Droping channel pixels",n_drop_pix. i )
             max_location = max_blocks
             while n_drop_pix >0:
                 j = random.randint(0, self.in_nbr.shape[0])
@@ -103,6 +105,7 @@ class MakserNonuniformMest(object):
                 n_drop_pix -= sum(self.in_nbr[j]).float()
                 max_location -= 1
                 if max_location == 0:
+                    print("Breaking of max locations", n_drop_pix)
                     break 
         return None, mask 
         
