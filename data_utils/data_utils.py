@@ -57,9 +57,7 @@ def mask_patches(size, drop_type='zeros', max_block=0.7, drop_pix=0.3,\
             mask[i, rnd_r:rnd_r+rnd_h, rnd_c:rnd_c+rnd_w] = 0
             n_drop_pix -= rnd_h*rnd_c
     #print("One data Done")   
-    return None, mask
-
-    
+    return None, mask   
 def batched_masker(data_i, aug):
     data = torch.zeros_like(data_i)
     data.copy_(data_i)
@@ -73,3 +71,15 @@ def batched_masker(data_i, aug):
     masks = torch.stack(mask, dim = 0)
     #print("returning from augmenter")
     return data*masks, masks
+
+
+class MakserNonuniformMest(object):
+    def __init__(self, grid_non_uni, gird_uni, radius):
+        self.grid_non_uni = grid_non_uni
+        self.grid_uni = gird_uni
+        dists = torch.cdist(gird_uni, grid_non_uni).to(gird_uni.device) # shaped num query points x num data points
+        self.in_nbr = torch.where(dists <= radius, 1., 0.)
+
+    def __call__(self, data_i, aug):
+        print(self.in_nbr.shape)
+        
