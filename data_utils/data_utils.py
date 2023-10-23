@@ -78,8 +78,32 @@ class MakserNonuniformMest(object):
         self.grid_non_uni = grid_non_uni
         self.grid_uni = gird_uni
         dists = torch.cdist(gird_uni, grid_non_uni).to(gird_uni.device) # shaped num query points x num data points
-        self.in_nbr = torch.where(dists <= radius, 1., 0.)
+        self.in_nbr = torch.where(dists <= radius, 1., 0.).long()
 
-    def __call__(self, data_i, aug):
-        print(self.in_nbr.shape)
+    def __call__(self, size, drop_type='zeros', max_block=0.7, drop_pix=0.3,\
+                 channel_aug_rate = 0.5, channel_drop_rate = 0.2, device='cpu', min_block=10, max_blocks=10):
+
+        L, C = size
+        mask = torch.ones(size, device = device)
+
+        drop_t = drop_type  # no effect now
+        
+        augmented_channels = np.random.choice(C, math.ceil(C*channel_aug_rate))
+        #print(augmented_channels)
+        drop_len = int(channel_drop_rate* math.ceil(C*channel_aug_rate))
+        mask[:, augmented_channels[:drop_len]] = 0.0
+        
+        for i in augmented_channels[drop_len:]:
+            #print("Masking")
+            n_drop_pix = drop_pix*L
+            max_location = max_blocks
+            while n_drop_pix >0:
+                j = random.randin(0, self.in_nbr.shape[0])
+                mask[i,self.in_nbr[j]==1] = 0
+                n_drop_pix -= sum(self.in_nbr[j]).float()
+                max_location -= 1
+                if max_location == 0:
+                    break 
+        return None, mask 
+        
         

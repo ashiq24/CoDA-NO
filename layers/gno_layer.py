@@ -40,7 +40,7 @@ class gno_layer(nn.Module):
     
     def forward(self, inp):
         '''
-        inp : (batch_size, n_points, in_dims)
+        inp : (batch_size, n_points, in_dims/Channels)
         '''
         if self.var_encoding:
             x = torch.zeros((inp.shape[0], inp.shape[1],len(self.variable_channels)+len(self.encoding_channels)), device=inp.device, dtype=inp.dtype)
