@@ -6,21 +6,24 @@ import torch.nn as nn
 import torch
 
 class gno_layer(nn.Module):
-    def __init__(self, in_dim, out_dim, input_grid, output_grid, mlp_layers, radius, var_encoding=False, var_encoding_channels=1,):
+    def __init__(self, var_num, in_dim, out_dim, input_grid, output_grid, mlp_layers, radius, var_encoding=False, var_encoding_channels=1,):
         super().__init__()
+
+        n_dim = input_grid.shape[-1]
+        self.var_num = var_num
         self.in_dim = in_dim
         self.out_dim = out_dim
         self.input_grid = input_grid
         self.output_grid = output_grid
-        self.mlp_layers = mlp_layers + [out_dim]
+        self.mlp_layers = [2*n_dim] +mlp_layers + [out_dim]
         self.var_encoding = var_encoding
         self.var_encoding_channels = var_encoding_channels
-        n_dim = input_grid.shape[-1]
+        
         ### get varibale encoding
         if self.var_encoding:
-            self.var_encoder = MLPLinear([n_dim, self.var_encoding_channels*in_dim])
-            self.variable_channels = [i*(var_encoding_channels+1) for i in range(in_dim)]
-            self.encoding_channels = list(set([i for i in range((var_encoding_channels+1)*in_dim)]) -set(self.variable_channels))
+            self.var_encoder = MLPLinear([n_dim, self.var_encoding_channels*var_num])
+            self.variable_channels = [i*(var_encoding_channels+self.in_dim) for i in range(var_num)]
+            self.encoding_channels = list(set([i for i in range((var_encoding_channels+1)*var_num)]) -set(self.variable_channels))
         else:
             self.var_encoding_channels = 0
 
