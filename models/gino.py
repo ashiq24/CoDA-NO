@@ -179,7 +179,7 @@ class Gino(nn.Module):
             # input and output grid is swapped
 
             print("Using Projection Layer")
-            self.projection = gno_layer(var_num=var_num,in_dim=self.hidden_token_codim, out_dim=in_token_codim,\
+            self.projection = gno_layer(var_num=var_num,in_dim=self.hidden_token_codim, out_dim=out_token_codim,\
                                      input_grid=self.output_grid, output_grid=self.input_grid, mlp_layers=self.gno_mlp_layers,\
                                     redius=self.redius, var_encoding=False, var_encoding_channels=0)
         
