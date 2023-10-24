@@ -217,10 +217,6 @@ class Gino(nn.Module):
             x =  rearrange(x, 'b (h w) c -> b c h w', h = self.grid_size[0])
         else:
             x = inp
-            
-
-        if self.lifting:
-            x = self.lifting(x)
         
         if self.enable_cls_token:
             cls_token = self.cls_token(x)
