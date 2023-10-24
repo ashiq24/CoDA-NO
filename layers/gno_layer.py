@@ -55,7 +55,7 @@ class gno_layer(nn.Module):
         
         ## Currently GNO only works for batch_size = 1
 
-        x  = rearrange(x, 'b n (v c) -> (b n) v c', c = 1+self.var_encoding_channels)
+        x  = rearrange(x, 'b n (v c) -> (b n) v c', c = self.in_dim+self.var_encoding_channels)
         x = self.projection(x)
         print(x.shape)
         out = None
