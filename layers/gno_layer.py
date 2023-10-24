@@ -28,7 +28,7 @@ class gno_layer(nn.Module):
             self.var_encoding_channels = 0
 
         ### project to higher dim
-        self.projection = MLPLinear([self.var_encoding_channels+1, out_dim])
+        self.projection = MLPLinear([self.var_encoding_channels+self.in_dim, out_dim])
 
         ### apply GNO to get  uniform grid
 
