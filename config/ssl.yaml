@@ -61,5 +61,14 @@ base_config: &BASE_CONFIG
     # which is trained by SSL
     freeze_encoder : !!bool False
 
+gino: &GINO
+    <<: *BASE_CONFIG
+    input_mesh_location : "../Data/MP_data/mesh.csv"
+    radius: 0.08
+    gno_mlp_layers: [6,8]
+    grid_size: [251, 42]
+    
+
+
 
 

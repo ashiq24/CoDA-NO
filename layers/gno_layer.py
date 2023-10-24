@@ -6,7 +6,9 @@ import torch.nn as nn
 import torch
 
 class gno_layer(nn.Module):
-    def __init__(self, var_num, in_dim, out_dim, input_grid, output_grid, mlp_layers, radius, var_encoding=False, var_encoding_channels=1,):
+    def __init__(self, var_num, in_dim, out_dim, \
+                input_grid, output_grid, mlp_layers, projection_hidden_dim, \
+                radius, var_encoding=False, var_encoding_channels=1,):
         super().__init__()
 
         n_dim = input_grid.shape[-1]
@@ -28,7 +30,8 @@ class gno_layer(nn.Module):
             self.var_encoding_channels = 0
 
         ### project to higher dim
-        self.projection = MLPLinear([self.var_encoding_channels+self.in_dim, out_dim])
+        self.projection = MLPLinear([self.var_encoding_channels+self.in_dim,\
+                                        projection_hidden_dim ,out_dim])
 
         ### apply GNO to get  uniform grid
 

@@ -58,7 +58,7 @@ class Gino(nn.Module):
                 lifting=True,
                 domain_padding=None,
                 domain_padding_mode='one-sided',
-                var_encoding=False, #b
+                var_encoding=False, #
                 var_num=None, # denotes the number of varibales
                 var_enco_basis='fft',
                 var_enco_channels=1,
@@ -141,9 +141,11 @@ class Gino(nn.Module):
             
             # a varibale + it's varibale encoding + the static channen together constitute a token
             
-            self.lifting = gno_layer(var_num=var_num,in_dim=self.in_token_codim,out_dim=hidden_token_codim,\
-                                     input_grid=self.input_grid, output_grid=self.output_grid, mlp_layers=self.gno_mlp_layers,\
-                                    radius=self.radius, var_encoding=var_encoding, var_encoding_channels=var_enco_channels)
+            self.lifting = gno_layer(var_num=var_num,in_dim=self.in_token_codim,\
+                                    out_dim=hidden_token_codim,input_grid=self.input_grid,\
+                                    output_grid=self.output_grid,projection_hidden_dim=lifting_token_codim,\
+                                    mlp_layers=self.gno_mlp_layers,radius=self.radius, var_encoding=var_encoding,\
+                                    var_encoding_channels=var_enco_channels)
                                      
 
         elif var_encoding:
@@ -179,9 +181,10 @@ class Gino(nn.Module):
             # input and output grid is swapped
 
             print("Using Projection Layer")
-            self.projection = gno_layer(var_num=var_num,in_dim=self.hidden_token_codim, out_dim=out_token_codim,\
-                                     input_grid=self.output_grid, output_grid=self.input_grid, mlp_layers=self.gno_mlp_layers,\
-                                    radius=self.radius, var_encoding=False, var_encoding_channels=0)
+            self.projection = gno_layer(var_num=var_num,in_dim=self.hidden_token_codim,\
+                                        out_dim=out_token_codim,input_grid=self.output_grid,\
+                                        output_grid=self.input_grid, mlp_layers=self.gno_mlp_layers,\
+                                        radius=self.radius, var_encoding=False, projection_hidden_dim=lifting_token_codim,var_encoding_channels=0)
         
         ### Code for varibale encoding
         
