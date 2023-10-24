@@ -137,7 +137,7 @@ def get_ssl_models_Gino(params):
     idx_x = torch.arange(start=minx,end=maxx + (maxx - minx)/size_x - 1e-5, step=(maxx - minx)/(size_x-1))
     idx_y = torch.arange(start=miny,end=maxy + (maxy - miny)/size_y - 1e-5, step=(maxy - miny)/(size_y-1))
     x, y  = torch.meshgrid(idx_x, idx_y, indexing='ij')
-    output_mesh = torch.stack([x.flatten(), y.flatten()]).type(torch.float).cuda()
+    output_mesh = torch.transpose(torch.stack([x.flatten(), y.flatten()]), 0, 1).type(torch.float).cuda()
 
     assert x.shape[0] == size_x
     assert x.shape[1] == size_y

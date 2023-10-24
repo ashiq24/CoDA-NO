@@ -4,7 +4,7 @@ from layers.fino import SpectralConvKernel2d
 from torchsummary import summary
 from functools import partial
 from YParams import YParams
-from models.get_models import get_ssl_models, SslWrapper
+from models.get_models import get_ssl_models_Gino, SslWrapper
 import os
 import torch
 
