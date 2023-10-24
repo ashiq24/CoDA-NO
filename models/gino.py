@@ -1,4 +1,4 @@
-from codano import CodANO
+from .codano import CodANO
 from layers.gno_layer import gno_layer
 from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
