@@ -45,6 +45,7 @@ class gno_layer(nn.Module):
         '''
         inp : (batch_size, n_points, in_dims/Channels)
         '''
+        print("Input Shape", inp.shape)
         if self.var_encoding:
             x = torch.zeros((inp.shape[0], inp.shape[1],len(self.variable_channels)+len(self.encoding_channels)), device=inp.device, dtype=inp.dtype)
             var_encoding = self.var_encoder(self.input_grid).to(x.device)
@@ -52,12 +53,12 @@ class gno_layer(nn.Module):
             x[:,:,self.encoding_channels] = var_encoding[None,:,:].repeat(x.shape[0],1,1)
         else:
             x = inp
-        
+        print("Input Shape after Var Encdoing", x.shape)
         ## Currently GNO only works for batch_size = 1
 
         x  = rearrange(x, 'b n (v c) -> (b n) v c', c = self.in_dim+self.var_encoding_channels)
         x = self.projection(x)
-        print(x.shape)
+        print("Input Shape after Rearrange", x.shape)
         out = None
 
         for i in range(x.shape[-2]):
@@ -69,5 +70,5 @@ class gno_layer(nn.Module):
                 out = temp[None,...]
             else:
                 out = torch.cat([out, temp[None,...]], dim=1)
-
+        print("Output Shape after Rearrange", out.shape)
         return out[None, ...]
