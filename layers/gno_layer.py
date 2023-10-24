@@ -71,4 +71,4 @@ class gno_layer(nn.Module):
             else:
                 out = torch.cat([out, temp[None,...]], dim=2)
         print("Output Shape after Rearrange", out.shape)
-        return out[None, ...]
+        return out
