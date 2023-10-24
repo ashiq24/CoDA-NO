@@ -17,7 +17,7 @@ class SpectralConvKernel2d(SpectralConv):
                  fixed_rank_modes=False, joint_factorization=False, decomposition_kwargs=dict(),
                  init_std='auto', fft_norm='forward', fft_type = 'sht',  sht_nlat = 180, sht_nlon = 360,\
                  sht_grid="legendre-gauss", isht_grid="legendre-gauss", sht_norm="backward", \
-                 frequency_mixer = True):
+                 frequency_mixer = False):
         super().__init__(in_channels, out_channels, n_modes, incremental_n_modes, bias=bias,\
                  n_layers=n_layers, separable=separable, output_scaling_factor=output_scaling_factor, fno_block_precision=fno_block_precision,\
                  rank=rank, factorization=factorization, implementation=implementation,fixed_rank_modes=fixed_rank_modes,\
