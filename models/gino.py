@@ -212,7 +212,7 @@ class Gino(nn.Module):
             inp = self.input_regrider(inp)
             
         if self.lifting:
-            x = self.lifting(x)[None, ...]
+            x = self.lifting(inp)[None, ...]
             x =  rearrange(x, 'b (h w) c -> b c h w', h = self.grid_size[0])
         else:
             x = inp
