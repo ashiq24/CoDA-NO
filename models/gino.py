@@ -143,7 +143,7 @@ class Gino(nn.Module):
             
             self.lifting = gno_layer(var_num=var_num,in_dim=self.in_token_codim,out_dim=hidden_token_codim,\
                                      input_grid=self.input_grid, output_grid=self.output_grid, mlp_layers=self.gno_mlp_layers,\
-                                    redius=self.redius, var_encoding=var_encoding, var_encoding_channels=var_enco_channels)
+                                    radius=self.radius, var_encoding=var_encoding, var_encoding_channels=var_enco_channels)
                                      
 
         elif var_encoding:
@@ -181,7 +181,7 @@ class Gino(nn.Module):
             print("Using Projection Layer")
             self.projection = gno_layer(var_num=var_num,in_dim=self.hidden_token_codim, out_dim=out_token_codim,\
                                      input_grid=self.output_grid, output_grid=self.input_grid, mlp_layers=self.gno_mlp_layers,\
-                                    redius=self.redius, var_encoding=False, var_encoding_channels=0)
+                                    radius=self.redius, var_encoding=False, var_encoding_channels=0)
         
         ### Code for varibale encoding
         
