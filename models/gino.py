@@ -213,7 +213,7 @@ class Gino(nn.Module):
             
         if self.lifting:
             print("In Lifting")
-            x = self.lifting(inp)[None, ...]
+            x = self.lifting(inp)
             x =  rearrange(x, 'b (h w) c -> b c h w', h = self.grid_size[0])
         else:
             x = inp
@@ -242,5 +242,5 @@ class Gino(nn.Module):
         if self.projection:
             print("projection")
             x = rearrange(x, 'b c h w -> b (h w) c')
-            x = self.projection(x)[None, ...]
+            x = self.projection(x)
         return x
