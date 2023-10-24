@@ -221,6 +221,7 @@ class Gino(nn.Module):
         else:
             x = inp
         
+        
         if self.enable_cls_token:
             cls_token = self.cls_token(x)
             x = torch.cat([cls_token[None,:,:,:].repeat(x.shape[0],1,1,1), x], dim=1)

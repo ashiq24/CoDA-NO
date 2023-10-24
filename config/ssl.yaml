@@ -68,6 +68,10 @@ gino: &GINO
     radius: 0.08
     gno_mlp_layers: [6,8]
     grid_size: [251, 42]
+
+    n_modes_en:       [[100,20], [100,20]]
+    n_modes_dec:       [[100,20], [100,20]]
+    n_modes_pred:       [[100,20], [100,20],[100,20]]
     
 
 
