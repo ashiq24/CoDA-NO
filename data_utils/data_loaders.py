@@ -2,14 +2,15 @@ import pickle
 import torch
 import random
 
-def get_onestep_dataloader(train_test_split=0.2, location='../Data/MP_data/', batch_size=1):
+def get_onestep_dataloader(train_test_split=0.2, location='../Data/MP_data/',\
+                            batch_size=1, dtype=torch.float):
     with open(location+'displacements0-5000.pkl', 'rb') as file:
-        displacements = torch.tensor(pickle.load(file))
+        displacements = torch.tensor(pickle.load(file), dtype=dtype)
     with open(location+'pressures0-5000.pkl', 'rb') as file:
         # scaler variable
-        pressure = torch.tensor(pickle.load(file))[:,:,None]
+        pressure = torch.tensor(pickle.load(file), dtype=dtype)[:,:,None]
     with open(location+'velocitoes0-5000.pkl', 'rb') as file:
-        velocities = torch.tensor(pickle.load(file))
+        velocities = torch.tensor(pickle.load(file), dtype=dtype)
 
     combined = torch.cat([displacements,velocities,pressure], dim= -1)
     step_t0 = combined[:-1, ...]
