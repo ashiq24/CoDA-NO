@@ -6,7 +6,8 @@ def get_onestep_dataloader(train_test_split=0.2, location='../Data/MP_data/', ba
     with open(location+'displacements0-5000.pkl', 'rb') as file:
         displacements = torch.tensor(pickle.load(file))
     with open(location+'pressures0-5000.pkl', 'rb') as file:
-        pressure = torch.tensor(pickle.load(file))
+        # scaler variable
+        pressure = torch.tensor(pickle.load(file))[:,:,None]
     with open(location+'velocitoes0-5000.pkl', 'rb') as file:
         velocities = torch.tensor(pickle.load(file))
     print(displacements.shape, pressure.shape, velocities.shape)
