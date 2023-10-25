@@ -1,8 +1,16 @@
 import pickle
 import torch
 import random
-from neuralop.datasets.transforms import Normalizer
 
+class Normalizer():
+    def __init__(self, mean, std, eps=1e-6):
+        self.mean = mean
+        self.std = std
+        self.eps = eps
+
+    def __call__(self, data):
+        return (data - self.mean)/(self.std + self.eps)
+    
 def get_onestep_dataloader(train_test_split=0.2, location='../Data/MP_data/',\
                             batch_size=1, dtype=torch.float):
     with open(location+'displacements0-5000.pkl', 'rb') as file:
