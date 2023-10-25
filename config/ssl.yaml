@@ -73,7 +73,7 @@ base_config: &BASE_CONFIG
 gino: &GINO
     <<: *BASE_CONFIG
     batch_size: 1
-    input_mesh_location : "../Data/MP_data/mesh.csv"
+    input_mesh_location: "../Data/MP_data/mesh.csv"
     radius: 0.08
     gno_mlp_layers: [6,8]
     grid_size: [251, 42]
