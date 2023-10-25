@@ -29,7 +29,7 @@ def simple_trainer(model,train_loader, test_loader, params):
             out, _, _, _ = model(x)
             train_count += 1
 
-            loss = loss_p(out.view(batch_size,-1), y.view(batch_size,-1))
+            loss = loss_p(out.reshape(batch_size,-1), y.reshape(batch_size,-1))
             loss.backward()
 
             optimizer.step()
@@ -51,7 +51,7 @@ def simple_trainer(model,train_loader, test_loader, params):
             batch_size = x.shape[0]
             out,_,_,_ = model(x)
             ntest +=1
-            test_l2 += loss_p(out.view(batch_size,-1), y.view(batch_size,-1)).item()
+            test_l2 += loss_p(out.reshape(batch_size,-1), y.reshape(batch_size,-1)).item()
 
     test_l2 /= ntest
 
