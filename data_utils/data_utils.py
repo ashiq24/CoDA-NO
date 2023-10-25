@@ -71,6 +71,7 @@ def batched_masker(data_i, aug):
     data = torch.zeros_like(data_i)
     data.copy_(data_i)
     mask = []
+    aug.device = data_i.device
     #print(data_i.device)
     for i in range(data.shape[0]):
         _,n = aug(data[i].shape)
