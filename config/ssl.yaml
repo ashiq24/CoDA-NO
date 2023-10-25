@@ -16,7 +16,7 @@ base_config: &BASE_CONFIG
 
     batch_size: 4
 
-    var_num: 10
+    var_num: 7
     in_token_codim_en: 1
     hidden_token_codim_en: 6
     lifting_token_codim_en: 12
