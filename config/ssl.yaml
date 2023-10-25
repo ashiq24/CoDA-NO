@@ -4,9 +4,9 @@ base_config: &BASE_CONFIG
     drop_type : 'zeros'
     grid_type: 'uniform'
     max_block : 0.6
-    drop_pix: 0.7
-    channel_per: 0.3
-    channel_drop_per: 0.1
+    drop_pix: 0.6
+    channel_per: 0.6
+    channel_drop_per: 0.3
 
     validation_aug: !!bool False
     max_block_val : 0.2
@@ -76,9 +76,9 @@ gino: &GINO
     gno_mlp_layers: [6,8]
     grid_size: [251, 42]
     grid_type: 'non uniform'
-    n_modes_en:       [[100,20], [100,20]]
-    n_modes_dec:       [[100,20], [100,20]]
-    n_modes_pred:       [[100,20], [100,20],[100,20]]
+    n_modes_en:       [[180,30], [180,30]]
+    n_modes_dec:       [[180,30], [180,30]]
+    n_modes_pred:       [[180,30], [180,30],[180,30]]
     masking_radius: 0.08
     
 
