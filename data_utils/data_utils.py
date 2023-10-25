@@ -85,7 +85,7 @@ class MakserNonuniformMest(object):
     def __init__(self, grid_non_uni, gird_uni, radius,\
                 drop_type='zeros', drop_pix=0.3,\
                 channel_aug_rate = 0.5, channel_drop_rate = 0.2,\
-                device='cpu', max_blocks=10):
+                device='cpu', max_block=10):
         self.grid_non_uni = grid_non_uni
         self.grid_uni = gird_uni
         dists = torch.cdist(gird_uni, grid_non_uni).to(gird_uni.device) # shaped num query points x num data points
@@ -96,7 +96,7 @@ class MakserNonuniformMest(object):
         self.channel_aug_rate = channel_aug_rate
         self.channel_drop_rate = channel_drop_rate
         self.device = device
-        self.max_blocks = max_blocks
+        self.max_block = max_block
 
     def __call__(self, size):
 
@@ -113,7 +113,7 @@ class MakserNonuniformMest(object):
             #print("Masking")
             n_drop_pix = self.drop_pix*L
 
-            max_location = self.max_blocks
+            max_location = self.max_block
             while n_drop_pix >0:
                 j = random.randint(0, self.in_nbr.shape[0])
                 mask[self.in_nbr[j]==1, i] = 0
