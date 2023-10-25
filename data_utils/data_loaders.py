@@ -10,7 +10,7 @@ def get_onestep_dataloader(train_test_split=0.2, location='../Data/MP_data/', ba
         pressure = torch.tensor(pickle.load(file))[:,:,None]
     with open(location+'velocitoes0-5000.pkl', 'rb') as file:
         velocities = torch.tensor(pickle.load(file))
-    print(displacements.shape, pressure.shape, velocities.shape)
+
     combined = torch.cat([displacements,velocities,pressure], dim= -1)
     step_t0 = combined[:-1, ...]
     step_t1 =  combined[1:, ...]

@@ -60,6 +60,14 @@ base_config: &BASE_CONFIG
     # otherwise it will freeze the weight of the encoder 
     # which is trained by SSL
     freeze_encoder : !!bool False
+    ssl_epochs: 3
+    sl_epochs: 3
+    weight_decay: 0.00001
+    scheduler_step: 20
+    scheduler_gamma: 0.5
+    epochs: 50
+    weigh_path: '../weights/ssl_weight.pt'
+
 
 gino: &GINO
     <<: *BASE_CONFIG
