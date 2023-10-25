@@ -1,6 +1,6 @@
 from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
-from data_utils.data_utils import mask_patches, batched_masker
+from data_utils.data_utils import MakserNonuniformMest, batched_masker, MaskerUniform
 import torch.nn as nn
 from models.gino import Gino
 from functools import partial
@@ -280,14 +280,37 @@ class SslWrapper(nn.Module):
         
         self.stage = stage
         self.freeze_encoder = params.freeze_encoder
-                
+        self.grid_type = params.grid_type
+
         print("Doing Wrapper for", self.stage)
-        self.agumenter_masker = partial(mask_patches, drop_type=params.drop_type, max_block=params.max_block, drop_pix=params.drop_pix,\
-                                                  channel_per=params.channel_per, channel_drop_per=params.channel_drop_per)
+        if params.grid_type == 'uniform':
+            self.agumenter_masker = MaskerUniform(drop_type=params.drop_type, max_block=params.max_block,\
+                                                drop_pix=params.drop_pix,channel_per=params.channel_per,\
+                                                channel_drop_per=params.channel_drop_per)
+            
+            # If following augmenter is used by external method during testing 
+            self.validation_agumenter = MaskerUniform(drop_type= params.drop_type, max_block=params.max_block_val,\
+                                                    drop_pix=params.drop_pix_val,channel_per = params.channel_per_val,\
+                                                    channel_drop_per = params.channel_drop_per_val)
+        else:
+            self.agumenter_masker = MakserNonuniformMest(grid_non_uni=encoder.input_grid.clone().detach(),\
+                                                        gird_uni=encoder.output_grid.clone().detach(),\
+                                                        drop_type=params.drop_type,drop_pix=params.drop_pix,\
+                                                        channel_per=params.channel_per,\
+                                                        channel_drop_per=params.channel_drop_per)
+            
+            # If following augmenter is used by external method during testing
+
+            self.validation_agumenter = MakserNonuniformMest(grid_non_uni=encoder.input_grid.clone().detach(),\
+                                                            gird_uni=encoder.output_grid.clone().detach(),\
+                                                            drop_type= params.drop_type, max_block=params.max_block_val,\
+                                                            drop_pix=params.drop_pix_val,channel_per = params.channel_per_val,\
+                                                            channel_drop_per = params.channel_drop_per_val)
+            
+
+
+            
         
-        # If following augmenter is used by external method during testing 
-        self.validation_agumenter = partial(mask_patches, drop_type= params.drop_type, max_block=params.max_block_val, drop_pix=params.drop_pix_val,\
-                                                  channel_per = params.channel_per_val, channel_drop_per = params.channel_drop_per_val)
         self.params = params
         
         
@@ -314,7 +337,10 @@ class SslWrapper(nn.Module):
                 reconstruced = self.decoder(augmented_inp_features)
                 #Removing the CLS token and also discarding if some additional channels if
                 # in the end
-                reconstruced =  reconstruced[:,cls_offset:cls_offset+x.shape[1],:,:]
+                if self.grid_type == 'uniform':
+                    reconstruced =  reconstruced[:,cls_offset:cls_offset+x.shape[1],:,:]
+                else:
+                    reconstruced =  reconstruced[:,:, cls_offset:]
             else:
                 reconstruced = None
 
@@ -340,5 +366,9 @@ class SslWrapper(nn.Module):
                 feature = self.encoder(inp)
             out = self.predictor(feature)
             # discarding CLS token and addtion static channels if added.
-            out =  out[:,cls_offset:cls_offset+x.shape[1],:,:]
+            if self.grid_type == 'uniform':
+                out =  out[:,cls_offset:cls_offset+x.shape[1],:,:]
+            else:
+                out =  out[:,:, cls_offset:]
+            
             return out, None, None, None

@@ -22,50 +22,58 @@ class ResizeDataset(Dataset):
         yp = F.interpolate(y[None,...] if len(y.shape) < 4 else y, size= self.resolution,mode = 'bicubic',align_corners=True)
         return torch.squeeze(xp), torch.squeeze(yp)
         
+class MaskerUniform(object):
+    def __init__(self,drop_type='zeros', max_block=0.7, drop_pix=0.3,\
+                    channel_per = 0.5, channel_drop_per = 0.2, device='cpu', min_block=10 ):
+        self.drop_type = drop_type
+        self.max_block = max_block
+        self.drop_pix = drop_pix
+        self.channel_per = channel_per
+        self.channel_drop_per = channel_drop_per
+        self.device = device
+        self.min_block = min_block
+    def __call__(self,size):
+        #######################
+        # max_block_sz: percentage of the maximum block to be dropped
+        # 
+        # funtion returns a mask with 0,1. Which is multiplied with the data tensor 
+        # To generate masked sample
+        # 
+        #######################
+        
+        np.random.seed()    
+        C, H, W = size
+        mask = torch.ones(size, device = self.device)
+        drop_t = self.drop_type
+        augmented_channels = np.random.choice(C, math.ceil(C*self.channel_per))
+        #print(augmented_channels)
+        drop_len = int(self.channel_drop_per* math.ceil(C*self.channel_per))
+        mask[augmented_channels[:drop_len], :, :] = 0.0
+        for i in augmented_channels[drop_len:]:
+            #print("Masking")
+            n_drop_pix = self.drop_pix*H*W
+            mx_blk_height = int(H*self.max_block)
+            mx_blk_width = int(W*self.max_block)
 
-def mask_patches(size, drop_type='zeros', max_block=0.7, drop_pix=0.3,\
-                 channel_per = 0.5, channel_drop_per = 0.2, device='cpu', min_block=10):
-    #######################
-    # max_block_sz: percentage of the maximum block to be dropped
-    # 
-    # funtion returns a mask with 0,1. Which is multiplied with the data tensor 
-    # To generate masked sample
-    # 
-    #######################
-    
-    np.random.seed()    
-    C, H, W = size
-    mask = torch.ones(size, device = device)
-    drop_t = drop_type
-    augmented_channels = np.random.choice(C, math.ceil(C*channel_per))
-    #print(augmented_channels)
-    drop_len = int(channel_drop_per* math.ceil(C*channel_per))
-    mask[augmented_channels[:drop_len], :, :] = 0.0
-    for i in augmented_channels[drop_len:]:
-        #print("Masking")
-        n_drop_pix = drop_pix*H*W
-        mx_blk_height = int(H*max_block)
-        mx_blk_width = int(W*max_block)
 
+            while n_drop_pix >0:
+                rnd_r = random.randint(0, H-2)
+                rnd_c = random.randint(0, W-2)
 
-        while n_drop_pix >0:
-            rnd_r = random.randint(0, H-2)
-            rnd_c = random.randint(0, W-2)
-
-            rnd_h = min(random.randint(min_block, mx_blk_height), H-rnd_r)
-            rnd_w = min(random.randint(min_block, mx_blk_width), W-rnd_c)
-            mask[i, rnd_r:rnd_r+rnd_h, rnd_c:rnd_c+rnd_w] = 0
-            n_drop_pix -= rnd_h*rnd_c
-    #print("One data Done")   
-    return None, mask   
+                rnd_h = min(random.randint(self.min_block, mx_blk_height), H-rnd_r)
+                rnd_w = min(random.randint(self.min_block, mx_blk_width), W-rnd_c)
+                mask[i, rnd_r:rnd_r+rnd_h, rnd_c:rnd_c+rnd_w] = 0
+                n_drop_pix -= rnd_h*rnd_c
+        #print("One data Done")   
+        return None, mask
+       
 def batched_masker(data_i, aug):
     data = torch.zeros_like(data_i)
     data.copy_(data_i)
     mask = []
-    b,c,h,w = data.shape
     #print(data_i.device)
     for i in range(data.shape[0]):
-        _,n = aug((c,h,w), device=data_i.device)
+        _,n = aug(i.shape, device=data_i.device)
         mask.append(n)
     #print("loop done")
     masks = torch.stack(mask, dim = 0)
@@ -74,29 +82,38 @@ def batched_masker(data_i, aug):
 
 
 class MakserNonuniformMest(object):
-    def __init__(self, grid_non_uni, gird_uni, radius):
+    def __init__(self, grid_non_uni, gird_uni, radius,\
+                drop_type='zeros', drop_pix=0.3,\
+                channel_aug_rate = 0.5, channel_drop_rate = 0.2,\
+                device='cpu', max_blocks=10):
         self.grid_non_uni = grid_non_uni
         self.grid_uni = gird_uni
         dists = torch.cdist(gird_uni, grid_non_uni).to(gird_uni.device) # shaped num query points x num data points
         self.in_nbr = torch.where(dists <= radius, 1., 0.).long()
 
-    def __call__(self, size, drop_type='zeros', max_block=0.7, drop_pix=0.3,\
-                 channel_aug_rate = 0.5, channel_drop_rate = 0.2, device='cpu', min_block=10, max_blocks=10):
+        self.drop_type = drop_type
+        self.drop_pix = drop_pix
+        self.channel_aug_rate = channel_aug_rate
+        self.channel_drop_rate = channel_drop_rate
+        self.device = device
+        self.max_blocks = max_blocks
+
+    def __call__(self, size):
 
         L, C = size
-        mask = torch.ones(size, device = device)
+        mask = torch.ones(size, device = self.device)
 
-        drop_t = drop_type  # no effect now
+        drop_t = self.drop_type  # no effect now
         
-        augmented_channels = np.random.choice(C, math.ceil(C*channel_aug_rate))
+        augmented_channels = np.random.choice(C, math.ceil(C*self.channel_aug_rate))
         #print(augmented_channels)
-        drop_len = int(channel_drop_rate* math.ceil(C*channel_aug_rate))
+        drop_len = int(self.channel_drop_rate* math.ceil(C*self.channel_aug_rate))
         mask[:, augmented_channels[:drop_len]] = 0.0
         for i in augmented_channels[drop_len:]:
             #print("Masking")
-            n_drop_pix = drop_pix*L
+            n_drop_pix = self.drop_pix*L
 
-            max_location = max_blocks
+            max_location = self.max_blocks
             while n_drop_pix >0:
                 j = random.randint(0, self.in_nbr.shape[0])
                 mask[self.in_nbr[j]==1, i] = 0

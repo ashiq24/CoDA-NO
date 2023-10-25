@@ -2,7 +2,7 @@ base_config: &BASE_CONFIG
     ## SSL parameters
     evaluation_channel_drop: 1
     drop_type : 'zeros'
-
+    grid_type: 'uniform'
     max_block : 0.6
     drop_pix: 0.7
     channel_per: 0.3
@@ -68,7 +68,7 @@ gino: &GINO
     radius: 0.08
     gno_mlp_layers: [6,8]
     grid_size: [251, 42]
-
+    grid_type: 'non uniform'
     n_modes_en:       [[100,20], [100,20]]
     n_modes_dec:       [[100,20], [100,20]]
     n_modes_pred:       [[100,20], [100,20],[100,20]]
