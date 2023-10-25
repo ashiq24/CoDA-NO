@@ -21,7 +21,8 @@ class ResizeDataset(Dataset):
         xp = F.interpolate(x[None,...] if len(x.shape) < 4 else x, size= self.resolution,mode = 'bicubic',align_corners=True)
         yp = F.interpolate(y[None,...] if len(y.shape) < 4 else y, size= self.resolution,mode = 'bicubic',align_corners=True)
         return torch.squeeze(xp), torch.squeeze(yp)
-        
+
+# this class is not used for dataset with irregular mesh     
 class MaskerUniform(object):
     def __init__(self,drop_type='zeros', max_block=0.7, drop_pix=0.3,\
                     channel_per = 0.5, channel_drop_per = 0.2, device='cpu', min_block=10 ):
@@ -85,8 +86,15 @@ def batched_masker(data_i, aug):
 class MakserNonuniformMest(object):
     def __init__(self, grid_non_uni, gird_uni, radius,\
                 drop_type='zeros', drop_pix=0.3,\
-                channel_aug_rate = 0.5, channel_drop_rate = 0.2,\
+                channel_aug_rate = 0.7, channel_drop_rate = 0.2,\
                 device='cpu', max_block=10):
+        '''
+        drop_type : dropped pixels are filled with zeros
+        drop_pix: Percentage of pixels to be dropped
+        channel_aug_rate: Percentage of channels to be augmented
+        channel_drop_rate: Percentage of (channel_aug_rate) channels to be masked completely (drop all pxiels)
+        max_block: Maxium number of regions to be dropped.
+        '''
         self.grid_non_uni = grid_non_uni
         self.grid_uni = gird_uni
         dists = torch.cdist(gird_uni, grid_non_uni).to(gird_uni.device) # shaped num query points x num data points
