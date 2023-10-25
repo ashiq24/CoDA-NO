@@ -73,7 +73,7 @@ def batched_masker(data_i, aug):
     mask = []
     #print(data_i.device)
     for i in range(data.shape[0]):
-        _,n = aug(i.shape, device=data_i.device)
+        _,n = aug(data[i].shape, device=data_i.device)
         mask.append(n)
     #print("loop done")
     masks = torch.stack(mask, dim = 0)
