@@ -60,7 +60,7 @@ base_config: &BASE_CONFIG
     # otherwise it will freeze the weight of the encoder 
     # which is trained by SSL
     freeze_encoder : !!bool False
-    lr: 0.001
+    lr: 0.0001
     weight_decay: 0.00001
     scheduler_step: 20
     scheduler_gamma: 0.5
