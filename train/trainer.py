@@ -38,6 +38,7 @@ def simple_trainer(model,train_loader, test_loader, params):
             gc.collect()
         torch.cuda.empty_cache()
         scheduler.step()
+        t2 = default_timer()
         print("Epochs :",ep,"time :", t2-t1, "loss :", train_l2/train_count)
 
     #torch.save(model.state_dict(), weigh_path)
