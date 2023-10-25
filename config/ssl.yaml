@@ -67,7 +67,7 @@ base_config: &BASE_CONFIG
     scheduler_step: 20
     scheduler_gamma: 0.5
     epochs: 50
-    weigh_path: '../weights/ssl_weight.pt'
+    weight_path: '../weights/ssl_weight.pt'
 
 
 gino: &GINO
