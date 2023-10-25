@@ -72,6 +72,7 @@ gino: &GINO
     n_modes_en:       [[100,20], [100,20]]
     n_modes_dec:       [[100,20], [100,20]]
     n_modes_pred:       [[100,20], [100,20],[100,20]]
+    masking_radius: 0.08
     
 
 

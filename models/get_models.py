@@ -295,6 +295,7 @@ class SslWrapper(nn.Module):
         else:
             self.agumenter_masker = MakserNonuniformMest(grid_non_uni=encoder.input_grid.clone().detach(),\
                                                         gird_uni=encoder.output_grid.clone().detach(),\
+                                                        radius=params.masking_radius,\
                                                         drop_type=params.drop_type,drop_pix=params.drop_pix,\
                                                         channel_aug_rate=params.channel_per,\
                                                         channel_drop_rate=params.channel_drop_per)
@@ -303,6 +304,7 @@ class SslWrapper(nn.Module):
 
             self.validation_agumenter = MakserNonuniformMest(grid_non_uni=encoder.input_grid.clone().detach(),\
                                                             gird_uni=encoder.output_grid.clone().detach(),\
+                                                            radius=params.masking_radius,\
                                                             drop_type= params.drop_type, max_block=params.max_block_val,\
                                                             drop_pix=params.drop_pix_val,\
                                                             channel_aug_rate=params.channel_per_val,\
