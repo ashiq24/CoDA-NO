@@ -1,6 +1,7 @@
 import pickle
 import torch
 import random
+from neuralop.datasets.transforms import Normalizer
 
 def get_onestep_dataloader(train_test_split=0.2, location='../Data/MP_data/',\
                             batch_size=1, dtype=torch.float):
@@ -22,10 +23,12 @@ def get_onestep_dataloader(train_test_split=0.2, location='../Data/MP_data/',\
     train_t0,test_t0 = step_t0[indexs[:ntrain]], step_t0[indexs[ntrain:]]
     train_t1,test_t1 = step_t1[indexs[:ntrain]], step_t1[indexs[ntrain:]]
 
-    train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_t0, train_t1),\
-                                           batch_size=batch_size, shuffle=True)
-    test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_t0, test_t1),\
-                                           batch_size=batch_size, shuffle=False)
+    mean, var = torch.mean(train_t0, dim=(0,1)), torch.var(train_t0, dim=(0,1))
+    normalizer = Normalizer(mean, var**0.5)
+    train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(normalizer(train_t0),\
+                                             normalizer(train_t1)),batch_size=batch_size, shuffle=True)
+    test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(normalizer(test_t0),\
+                                             normalizer(test_t1)),batch_size=batch_size, shuffle=False)
     
     return train_loader, test_loader
 
