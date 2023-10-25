@@ -62,6 +62,7 @@ base_config: &BASE_CONFIG
     freeze_encoder : !!bool False
     ssl_epochs: 3
     sl_epochs: 3
+    lr: 0.001
     weight_decay: 0.00001
     scheduler_step: 20
     scheduler_gamma: 0.5
