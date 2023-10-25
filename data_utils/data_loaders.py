@@ -4,6 +4,8 @@ import random
 
 class Normalizer():
     def __init__(self, mean, std, eps=1e-6):
+        print(mean)
+        print(std)
         self.mean = mean
         self.std = std
         self.eps = eps
