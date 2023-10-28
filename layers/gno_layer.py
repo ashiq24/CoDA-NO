@@ -89,3 +89,58 @@ class gno_layer(nn.Module):
                 out = torch.cat([out, temp[None,...]], dim=2)
         #print("Output Shape after Rearrange", out.shape)
         return out
+
+
+class GNO(nn.Module):
+    def __init__(self, in_dim, out_dim, \
+                input_grid, output_grid, mlp_layers, projection_hidden_dim, \
+                radius):
+        '''
+        var_num: number of variables
+        in_dim: Input Condim/channel per variables
+        out_dim: Output Condim/channel per variables
+        input_grid: Input grid (points)
+        output_grid: Output grid (points)
+        mlp_layers: MLP layers (for integral operator)
+        projection_hidden_dim: Before applying integral operator we have pointwise MLP. This parameter 
+                                determines the width of the multi-layered MLP
+        radius: radius of the neighbourhood
+        '''
+        super().__init__()
+
+        n_dim = input_grid.shape[-1]
+        self.in_dim = in_dim
+        self.out_dim = out_dim
+        self.input_grid = input_grid
+        self.output_grid = output_grid
+        self.mlp_layers = [2*n_dim] +mlp_layers + [out_dim]
+
+        ### project to higher dim
+        self.projection = MLPLinear([self.in_dim,\
+                                        projection_hidden_dim ,out_dim])
+
+        ### apply GNO to get  uniform grid
+
+        NS = NeighborSearch(use_open3d=False)
+
+        self.neighbour = NS(input_grid.clone().cpu(), output_grid.clone().cpu(), radius=radius)
+
+        for key, value in self.neighbour.items():
+            self.neighbour[key] = self.neighbour[key].cuda()
+        
+        self.it = IntegralTransform(mlp_layers=self.mlp_layers)
+    
+    def forward(self, inp):
+        '''
+        inp : (batch_size, n_points, in_dims/Channels)
+        '''
+        #print("Input Shape", inp.shape)
+        
+        x = inp
+        x = self.projection(x)
+        
+        out =  self.it(self.input_grid, self.neighbour,self.output_grid, x)
+
+        return out
+
+

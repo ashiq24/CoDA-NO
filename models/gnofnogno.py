@@ -1,5 +1,5 @@
 from .codano import CodANO
-from layers.gno_layer import gno_layer
+from layers.gno_layer import gno_layer, GNO
 from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
 from functools import partial
@@ -8,24 +8,27 @@ import torch.nn as nn
 import torch.nn.functional as F
 from layers.regrider import Regird
 from neuralop.layers.padding import DomainPadding
+from neuralop.layers.fno_block import FNOBlocks
 import numpy as np
 import torch
 from layers.variable_encoding import VaribaleEncoding2d
 
-class Gino(nn.Module):
+
+
+
+class FnoGno(nn.Module):
     def __init__(self, 
-                in_token_codim,
+                in_dim,
                 input_grid,
                 output_grid=None,
                 grid_size=None,
                 radius=None,
-                out_token_codim=None,
+                out_dim=None,
                 hidden_token_codim=None, 
                 lifting_token_codim=None,
                 n_layers=4,
                 n_modes=None,
                 scalings=None,
-                n_heads=1,
                 non_linearity=F.gelu,
                 layer_kwargs={'incremental_n_modes':None,
                 'use_mlp':False,
@@ -46,8 +49,7 @@ class Gino(nn.Module):
                 'implementation':'factorized',
                 'decomposition_kwargs':dict(),
                 'normalizer': False},
-                per_channel_attention=False,
-                operator_block=TnoBlock2d,
+                operator_block=FNOBlocks,
                 integral_operator=SpectralConvKernel2d,
                 integral_operator_top=None, 
                 integral_operator_bottom=None,
@@ -58,20 +60,10 @@ class Gino(nn.Module):
                 lifting=True,
                 domain_padding=None,
                 domain_padding_mode='one-sided',
-                var_encoding=False, #
-                var_num=None, # denotes the number of varibales
-                var_enco_basis='fft',
-                var_enco_channels=1,
-                var_enco_mode_x=20,
-                var_enco_mode_y=40,
-                enable_cls_token=False,
-                static_channels_num=0,
-                static_features=None,
                 ):
         super().__init__()
         self.n_layers = n_layers
         assert len(n_modes) == n_layers, "number of modes for all layers are not given"
-        assert len(n_heads) == n_layers, "number of Attention head for all layers are not given"
         if output_grid is None:
             output_grid = input_grid.clone()
         if integral_operator_bottom is None:
@@ -79,14 +71,13 @@ class Gino(nn.Module):
         if integral_operator_top is None:
             integral_operator_top = integral_operator
         self.n_dim = len(n_modes[0])
-        self.in_token_codim = in_token_codim
-        self.var_num = var_num
+        self.in_dim = in_dim
         if hidden_token_codim is None:
-            hidden_token_codim = in_token_codim
+            hidden_token_codim = in_dim
         if lifting_token_codim is None:
-            lifting_token_codim = in_token_codim
-        if out_token_codim is None:
-            out_token_codim = in_token_codim
+            lifting_token_codim = in_dim
+        if out_dim is None:
+            out_dim = in_dim
         self.re_grid_input = re_grid_input
         self.re_grid_output = re_grid_output
         
@@ -102,8 +93,6 @@ class Gino(nn.Module):
         self.hidden_token_codim = hidden_token_codim
         self.n_modes = n_modes
         self.scalings = scalings
-        self.var_enco_channels = var_enco_channels
-        self.n_heads = n_heads
         self.integral_operator = integral_operator
         self.layer_kwargs = layer_kwargs
         self.operator_block = operator_block
@@ -112,8 +101,6 @@ class Gino(nn.Module):
         self.radius = radius
         self.gno_mlp_layers = gno_mlp_layers
 
-        self.register_buffer("static_features", static_features)
-        self.static_channels_num = static_channels_num
         ## calculating scaling
         if self.scalings is not None:
             self.end_to_end_scaling = self.get_output_scaling_factor(np.ones_like(self.scalings[0]),self.scalings)
@@ -141,21 +128,12 @@ class Gino(nn.Module):
             
             # a varibale + it's varibale encoding + the static channen together constitute a token
             
-            self.lifting = gno_layer(var_num=var_num,in_dim=self.in_token_codim,\
+            self.lifting = GNO(in_dim=self.in_dim,\
                                     out_dim=hidden_token_codim,input_grid=self.input_grid,\
                                     output_grid=self.output_grid,projection_hidden_dim=lifting_token_codim,\
-                                    mlp_layers=self.gno_mlp_layers,radius=self.radius, var_encoding=var_encoding,\
-                                    var_encoding_channels=var_enco_channels)
+                                    mlp_layers=self.gno_mlp_layers,radius=self.radius)
                                      
 
-        elif var_encoding:
-            hidden_token_codim = self.in_token_codim+var_enco_channels+self.static_channels_num
-        
-        if enable_cls_token:
-            count = 1
-        else:
-            count = 0
-        self.codim_size = hidden_token_codim * (var_num+count) # +1 is for the CLS token
         
         print("expected number of channels", self.codim_size)
         
@@ -169,31 +147,20 @@ class Gino(nn.Module):
                 conv_op = self.integral_operator
 
             self.base.append(self.operator_block(
+                                            hidden_token_codim,
+                                            hidden_token_codim,
                                             n_modes=self.n_modes[i],
-                                            n_head = self.n_heads[i],
-                                            token_codim = hidden_token_codim,
                                             output_scaling_factor = [self.scalings[i]],
                                             SpectralConv = conv_op,
-                                            codim_size=self.codim_size,
-                                            per_channel_attention=per_channel_attention,
                                             **self.layer_kwargs))
         if self.projection:
             # input and output grid is swapped
 
             print("Using Projection Layer")
-            self.projection = gno_layer(var_num=var_num,in_dim=self.hidden_token_codim,\
-                                        out_dim=out_token_codim,input_grid=self.output_grid,\
+            self.projection = gno_layer(in_dim=self.hidden_token_codim,\
+                                        out_dim=out_dim,input_grid=self.output_grid,\
                                         output_grid=self.input_grid, mlp_layers=self.gno_mlp_layers,\
-                                        radius=self.radius, var_encoding=False, projection_hidden_dim=lifting_token_codim,var_encoding_channels=0)
-        
-        ### Code for varibale encoding
-        
-        self.enable_cls_token = enable_cls_token
-        if enable_cls_token:
-            print("intializing CLS token")
-            self.cls_token = VaribaleEncoding2d(hidden_token_codim, var_enco_mode_x, var_enco_mode_y, basis=var_enco_basis)
-
-            
+                                        radius=self.radius)
                                         
     def get_output_scaling_factor(self, initial_scale, scalings_per_layer):
         for k in scalings_per_layer:
