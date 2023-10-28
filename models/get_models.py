@@ -4,6 +4,7 @@ from data_utils.data_utils import MakserNonuniformMest, batched_masker, MaskerUn
 import torch.nn as nn
 from models.gino import Gino
 from functools import partial
+from neuralop.layers.
 from models.codano import CodANO
 import torch
 import numpy as np
@@ -27,6 +28,7 @@ def get_ssl_models_CodaNo(params):
         int_op_bottom = int_op
     else:
         raise( Exception('Int. Op. config Error'))
+
     print("Generating Encoder")
     
     static_features = None
