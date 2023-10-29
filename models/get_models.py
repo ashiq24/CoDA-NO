@@ -318,11 +318,6 @@ def get_model_fno_gno(params):
                     integral_operator_bottom=int_op_bottom,
             )
     print("*********************")
-
-    if params.enable_cls_token:
-        count = 1
-    else:
-        count = 0
         
     if params.reconstruction:
         print("Generating Decoder")
@@ -333,9 +328,8 @@ def get_model_fno_gno(params):
                         radius=params.radius,
                         grid_size=params.grid_size,
                         gno_mlp_layers=params.gno_mlp_layers,
-                        hidden_token_codim=params.hidden_dim_en,
-                        lifting_token_codim=params.lifting_dim_en,
-                        out_token_codim=params.in_token_codim_en,
+                        hidden_dim=params.hidden_dim_en,
+                        lifting_dim=params.lifting_dim_en,
                         n_layers=params.n_layers_dec,
                         n_modes = params.n_modes_dec,
                         scalings=params.scalings_dec,
@@ -361,8 +355,8 @@ def get_model_fno_gno(params):
                     radius=params.radius,
                     grid_size=params.grid_size,
                     gno_mlp_layers=params.gno_mlp_layers,
-                    hidden_token_codim=params.hidden_dim_en,
-                    lifting_token_codim=params.lifting_dim_pred,
+                    hidden_dim=params.hidden_dim_en,
+                    lifting_dim=params.lifting_dim_pred,
                     n_layers=params.n_layers_pred,
                     n_modes = params.n_modes_pred,
                     scalings=params.scalings_pred,
