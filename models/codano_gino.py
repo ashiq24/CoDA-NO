@@ -12,7 +12,7 @@ import numpy as np
 import torch
 from layers.variable_encoding import VaribaleEncoding2d
 
-class Gino(nn.Module):
+class CondnoGino(nn.Module):
     def __init__(self, 
                 in_token_codim,
                 input_grid,

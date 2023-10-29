@@ -2,15 +2,15 @@ from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
 from data_utils.data_utils import MakserNonuniformMest, batched_masker, MaskerUniform
 import torch.nn as nn
-from models.gino import Gino
-from models.gnofnogno import FnoGno
+from models.codano_gino import CondnoGino
+from models.fno_gino import FnoGno
 from functools import partial
 from neuralop.layers.fno_block import FNOBlocks
 from models.codano import CodANO
 import torch
 import numpy as np
 
-def get_ssl_models_CodaNo(params):
+def get_ssl_models_codaNo(params):
     ## We use tno inside SSLtransformer model. That has a encoder and prediction/(decoder) part. 
     ## Encoder part - encodes the input function
     ## Decoder part - does the prediction (eg. fuild flow of next time step)
@@ -122,7 +122,7 @@ def get_ssl_models_CodaNo(params):
     
     return encoder, decoder, contrastive, predictor
 
-def get_ssl_models_Gno_Codano(params):
+def get_ssl_models_codano_gino(params):
     ## We use tno inside SSLtransformer model. That has a encoder and prediction/(decoder) part. 
     ## Encoder part - encodes the input function
     ## Decoder part - does the prediction (eg. fuild flow of next time step)
@@ -172,7 +172,7 @@ def get_ssl_models_Gno_Codano(params):
     print("Token Dim-->", 1+params.var_enco_channels+static_channels_num)
     print("var num", params.var_num, "static channels", static_channels_num)
 
-    encoder = Gino(params.in_token_codim_en,
+    encoder = CondnoGino(params.in_token_codim_en,
                     input_grid= input_mesh,
                     output_grid= output_mesh,
                     radius=params.radius,
@@ -208,7 +208,7 @@ def get_ssl_models_Gno_Codano(params):
         
     if params.reconstruction:
         print("Generating Decoder")
-        decoder = Gino(params.hidden_token_codim_en,
+        decoder = CondnoGino(params.hidden_token_codim_en,
                         input_grid= input_mesh,
                         output_grid= output_mesh,
                         radius=params.radius,
@@ -238,7 +238,7 @@ def get_ssl_models_Gno_Codano(params):
     contrastive = None
 
     print('generating Predictor')
-    predictor = Gino(params.hidden_token_codim_en,
+    predictor = CondnoGino(params.hidden_token_codim_en,
                     input_grid= input_mesh,
                     output_grid= output_mesh,
                     radius=params.radius,
@@ -265,7 +265,7 @@ def get_ssl_models_Gno_Codano(params):
     
     return encoder, decoder, contrastive, predictor
 
-def get_model_fno_gno(params):
+def get_model_fno_gino(params):
     mesh = np.loadtxt(params.input_mesh_location, delimiter=',')
     input_mesh = torch.transpose(torch.stack([torch.tensor(mesh[0,:]),\
                                         torch.tensor(mesh[1,:])]), 0, 1).type(torch.float).cuda()
@@ -298,7 +298,7 @@ def get_model_fno_gno(params):
     print("Generating Encoder")
 
     encoder = FnoGno(params.in_dim,
-                     params.out_dim,
+                    params.hidden_dim_en,
                     input_grid=input_mesh,
                     output_grid=output_mesh,
                     radius=params.radius,

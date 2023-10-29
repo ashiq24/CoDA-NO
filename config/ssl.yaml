@@ -69,7 +69,7 @@ base_config: &BASE_CONFIG
     weight_path: '../weights/ssl_weight.pt'
 
 
-gino: &GINO
+codano_gino: &CODANO_GINO
     <<: *BASE_CONFIG
     batch_size: 1
     input_mesh_location: "../Data/MP_data/mesh.csv"
@@ -82,8 +82,8 @@ gino: &GINO
     n_modes_pred:       [[180,30], [180,30],[180,30]]
     masking_radius: 0.08
 
-gnofno: &gnofno
-    <<: *GINO
+fno_gino: &FNO_GINO
+    <<: *CODANO_GINO
     nettype: 'simple'
     in_dim: 7
     hidden_dim_en: 32
