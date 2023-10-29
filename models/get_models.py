@@ -5,7 +5,7 @@ import torch.nn as nn
 from models.gino import Gino
 from models.gnofnogno import FnoGno
 from functools import partial
-from neuralop.layers.fno_block import FNOblocks
+from neuralop.layers.fno_block import FNOBlocks
 from models.codano import CodANO
 import torch
 import numpy as np
