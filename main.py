@@ -25,9 +25,9 @@ else:
 
 model = model.cuda()
 train, test = get_onestep_dataloader()
-simple_trainer(model.cuda(), train, test, params)
+simple_trainer(model.cuda(), train, test, params, stage=model.stage)
 
 if params.pretrain_ssl:
     # if we were pre-training (ssl), then we will train (sl)
     model.stage = 'sl'
-    simple_trainer(model.cuda(), train, test, params)
+    simple_trainer(model.cuda(), train, test, params, stage=model.stage)
