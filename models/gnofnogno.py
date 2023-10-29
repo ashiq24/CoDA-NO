@@ -179,7 +179,6 @@ class FnoGno(nn.Module):
         '''
         if self.re_grid_input:
             inp = self.input_regrider(inp)
-            
         if self.lifting:
             #print("In Lifting")
             x = self.lifting(inp)

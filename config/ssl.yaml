@@ -88,9 +88,14 @@ gnofno: &gnofno
     lifting_dim_en: 64
     lifting_dim_pred: 64
     out_dim:  7
-
+    grid_size: [251, 42]
     pretrain_ssl : !!bool False
     freeze_encoder : !!bool False
+    
+    
+    # does not supporting turning on
+    var_enco_channels: 0
+    enable_cls_token: !!bool False
 
 
 

@@ -118,7 +118,8 @@ class GNO(nn.Module):
         ### project to higher dim
         self.projection = MLPLinear([self.in_dim,\
                                         projection_hidden_dim ,out_dim])
-
+        print([self.in_dim, projection_hidden_dim ,out_dim])
+        print(self.mlp_layers)
         ### apply GNO to get  uniform grid
 
         NS = NeighborSearch(use_open3d=False)
@@ -127,7 +128,7 @@ class GNO(nn.Module):
 
         for key, value in self.neighbour.items():
             self.neighbour[key] = self.neighbour[key].cuda()
-        
+            
         self.it = IntegralTransform(mlp_layers=self.mlp_layers)
     
     def forward(self, inp):
@@ -139,8 +140,8 @@ class GNO(nn.Module):
         x = inp
         x = self.projection(x)
         
-        out =  self.it(self.input_grid, self.neighbour,self.output_grid, x)
-
-        return out
+        out =  self.it(self.input_grid, self.neighbour,self.output_grid, x[0,...])
+        
+        return out[None, ...]
 
 

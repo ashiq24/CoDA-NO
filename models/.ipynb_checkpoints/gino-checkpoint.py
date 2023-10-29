@@ -184,7 +184,8 @@ class Gino(nn.Module):
             self.projection = gno_layer(var_num=var_num,in_dim=self.hidden_token_codim,\
                                         out_dim=out_token_codim,input_grid=self.output_grid,\
                                         output_grid=self.input_grid, mlp_layers=self.gno_mlp_layers,\
-                                        radius=self.radius, var_encoding=False, projection_hidden_dim=lifting_token_codim,var_encoding_channels=0)
+                                        radius=self.radius, var_encoding=False,\
+                                        projection_hidden_dim=lifting_token_codim,var_encoding_channels=0)
         
         ### Code for varibale encoding
         
