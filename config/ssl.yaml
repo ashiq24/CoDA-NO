@@ -88,7 +88,9 @@ gnofno: &gnofno
     lifting_dim_en: 64
     lifting_dim_pred: 64
     out_dim:  7
-    
+
+    pretrain_ssl : !!bool False
+    freeze_encoder : !!bool False
 
 
 
