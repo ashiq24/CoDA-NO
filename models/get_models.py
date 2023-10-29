@@ -283,7 +283,7 @@ def get_model_fno_gno(params):
     assert x.shape[1] == size_y
 
     block = None
-    block = FNOblocks
+    block = FNOBlocks
 
     if params.tno_integral_op == 'fno':
         int_op = partial(SpectralConvKernel2d, fft_type = params.fft_type, frequency_mixer = False)
