@@ -3,6 +3,7 @@ from layers.fino import SpectralConvKernel2d
 from data_utils.data_utils import MakserNonuniformMest, batched_masker, MaskerUniform
 import torch.nn as nn
 from models.gino import Gino
+from models.gnofnogno import FnoGno
 from functools import partial
 from neuralop.layers.
 from models.codano import CodANO
@@ -263,6 +264,121 @@ def get_ssl_models_Gino(params):
     print("*********************")
     
     return encoder, decoder, contrastive, predictor
+
+def get_fno_gno(params):
+    mesh = np.loadtxt(params.input_mesh_location, delimiter=',')
+    input_mesh = torch.transpose(torch.stack([torch.tensor(mesh[0,:]),\
+                                        torch.tensor(mesh[1,:])]), 0, 1).type(torch.float).cuda()
+    
+    minx, maxx = np.min(mesh[0,:]), np.max(mesh[0,:])
+    miny, maxy = np.min(mesh[1,:]), np.max(mesh[1,:])
+
+    size_x, size_y = params.grid_size
+    idx_x = torch.arange(start=minx,end=maxx + (maxx - minx)/size_x - 1e-5, step=(maxx - minx)/(size_x-1))
+    idx_y = torch.arange(start=miny,end=maxy + (maxy - miny)/size_y - 1e-5, step=(maxy - miny)/(size_y-1))
+    x, y  = torch.meshgrid(idx_x, idx_y, indexing='ij')
+    output_mesh = torch.transpose(torch.stack([x.flatten(), y.flatten()]), 0, 1).type(torch.float).cuda()
+
+    assert x.shape[0] == size_x
+    assert x.shape[1] == size_y
+
+    block = None
+    block = TnoBlock2d
+
+    if params.tno_integral_op == 'fno':
+        int_op = partial(SpectralConvKernel2d, fft_type = params.fft_type, frequency_mixer = False)
+        int_op_top = int_op
+        int_op_bottom = int_op
+    elif params.tno_integral_op == 'fino':
+        int_op = partial(SpectralConvKernel2d, fft_type = params.fft_type)
+        int_op_top = int_op
+        int_op_bottom = int_op
+    else:
+        raise( Exception('Int. Op. config Error'))
+    print("Generating Encoder")
+
+    encoder = FnoGno(params.in_dim,
+                     params.out_dim,
+                    input_grid=input_mesh,
+                    output_grid=output_mesh,
+                    radius=params.radius,
+                    gno_mlp_layers=params.gno_mlp_layers,
+                    grid_size=params.grid_size,
+                    hidden_dim=params.hidden_dim_en,
+                    lifting_dim=params.lifting_dim_en,
+                    n_layers=params.n_layers_en,
+                    n_modes = params.n_modes_en,
+                    scalings=params.scalings_en,
+                    lifting=True,
+                    projection=False,
+                    operator_block = block,
+                    re_grid_input=False,
+                    integral_operator=int_op,
+                    integral_operator_top=int_op_top,
+                    integral_operator_bottom=int_op_bottom,
+            )
+    print("*********************")
+
+    if params.enable_cls_token:
+        count = 1
+    else:
+        count = 0
+        
+    if params.reconstruction:
+        print("Generating Decoder")
+        decoder = FnoGno(params.hidden_dim_en,
+                        params.out_dim,
+                        input_grid= input_mesh,
+                        output_grid= output_mesh,
+                        radius=params.radius,
+                        grid_size=params.grid_size,
+                        gno_mlp_layers=params.gno_mlp_layers,
+                        hidden_token_codim=params.hidden_dim_en,
+                        lifting_token_codim=params.lifting_dim_en,
+                        out_token_codim=params.in_token_codim_en,
+                        n_layers=params.n_layers_dec,
+                        n_modes = params.n_modes_dec,
+                        scalings=params.scalings_dec,
+                        lifting=False,
+                        re_grid_output=False,
+                        projection=True,
+                        operator_block = block,
+                        integral_operator=int_op,
+                        integral_operator_top=int_op_top,
+                        integral_operator_bottom=int_op_bottom,
+        )
+    else:
+        decoder = None
+    print("*********************")
+ 
+    contrastive = None
+
+    print('generating Predictor')
+    predictor = FnoGno(params.hidden_odim_en,
+                    params.out_dim,
+                    input_grid= input_mesh,
+                    output_grid= output_mesh,
+                    radius=params.radius,
+                    grid_size=params.grid_size,
+                    gno_mlp_layers=params.gno_mlp_layers,
+                    hidden_token_codim=params.hidden_dim_en,
+                    lifting_token_codim=params.lifting_dim_pred,
+                    n_layers=params.n_layers_pred,
+                    n_modes = params.n_modes_pred,
+                    scalings=params.scalings_pred,
+                    lifting=False,
+                    projection=True,
+                    re_grid_output=False,
+                    operator_block = block,
+                    integral_operator=int_op,
+                    integral_operator_top=int_op_top,
+                    integral_operator_bottom=int_op_bottom,
+    )
+    print("*********************")
+    
+    return encoder, decoder, contrastive, predictor
+
+
 
 class SslWrapper(nn.Module):
     '''

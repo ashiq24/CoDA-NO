@@ -19,13 +19,13 @@ from layers.variable_encoding import VaribaleEncoding2d
 class FnoGno(nn.Module):
     def __init__(self, 
                 in_dim,
+                out_dim,
                 input_grid,
                 output_grid=None,
                 grid_size=None,
                 radius=None,
-                out_dim=None,
-                hidden_token_codim=None, 
-                lifting_token_codim=None,
+                hidden_dim=None, 
+                lifting_dim=None,
                 n_layers=4,
                 n_modes=None,
                 scalings=None,
@@ -72,10 +72,10 @@ class FnoGno(nn.Module):
             integral_operator_top = integral_operator
         self.n_dim = len(n_modes[0])
         self.in_dim = in_dim
-        if hidden_token_codim is None:
-            hidden_token_codim = in_dim
-        if lifting_token_codim is None:
-            lifting_token_codim = in_dim
+        if hidden_dim is None:
+            hidden_dim = in_dim
+        if lifting_dim is None:
+            lifting_dim = in_dim
         if out_dim is None:
             out_dim = in_dim
         self.re_grid_input = re_grid_input
@@ -90,7 +90,7 @@ class FnoGno(nn.Module):
         self.output_grid =output_grid
         self.grid_size = grid_size
 
-        self.hidden_token_codim = hidden_token_codim
+        self.hidden_dim = hidden_dim
         self.n_modes = n_modes
         self.scalings = scalings
         self.integral_operator = integral_operator
@@ -129,8 +129,8 @@ class FnoGno(nn.Module):
             # a varibale + it's varibale encoding + the static channen together constitute a token
             
             self.lifting = GNO(in_dim=self.in_dim,\
-                                    out_dim=hidden_token_codim,input_grid=self.input_grid,\
-                                    output_grid=self.output_grid,projection_hidden_dim=lifting_token_codim,\
+                                    out_dim=hidden_dim,input_grid=self.input_grid,\
+                                    output_grid=self.output_grid,projection_hidden_dim=lifting_dim,\
                                     mlp_layers=self.gno_mlp_layers,radius=self.radius)
                                      
 
@@ -147,8 +147,8 @@ class FnoGno(nn.Module):
                 conv_op = self.integral_operator
 
             self.base.append(self.operator_block(
-                                            hidden_token_codim,
-                                            hidden_token_codim,
+                                            hidden_dim,
+                                            hidden_dim,
                                             n_modes=self.n_modes[i],
                                             output_scaling_factor = [self.scalings[i]],
                                             SpectralConv = conv_op,
@@ -157,7 +157,7 @@ class FnoGno(nn.Module):
             # input and output grid is swapped
 
             print("Using Projection Layer")
-            self.projection = gno_layer(in_dim=self.hidden_token_codim,\
+            self.projection = gno_layer(in_dim=self.hidden_dim,\
                                         out_dim=out_dim,input_grid=self.output_grid,\
                                         output_grid=self.input_grid, mlp_layers=self.gno_mlp_layers,\
                                         radius=self.radius)
@@ -188,11 +188,6 @@ class FnoGno(nn.Module):
         else:
             x = inp
         
-        
-        if self.enable_cls_token:
-            cls_token = self.cls_token(x)
-            x = torch.cat([cls_token[None,:,:,:].repeat(x.shape[0],1,1,1), x], dim=1)
-
         if self.domain_padding is not None:
             x = self.domain_padding.pad(x)
 

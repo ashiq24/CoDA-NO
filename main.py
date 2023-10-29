@@ -11,7 +11,7 @@ from train.trainer import simple_trainer
 from data_utils.data_loaders import get_onestep_dataloader
 
 ## SSL model 
-params = YParams('./config/ssl.yaml', 'gino', print_params=True)
+params = YParams('./config/ssl.yaml', 'gnofno', print_params=True)
 encoder, decoder, contrastive, predictor = get_ssl_models_Gino(params)
 
 model = SslWrapper(params, encoder, decoder, contrastive, predictor, stage='ssl')
