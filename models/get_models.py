@@ -122,7 +122,7 @@ def get_ssl_models_CodaNo(params):
     
     return encoder, decoder, contrastive, predictor
 
-def get_ssl_models_Gino(params):
+def get_ssl_models_Gno_Codano(params):
     ## We use tno inside SSLtransformer model. That has a encoder and prediction/(decoder) part. 
     ## Encoder part - encodes the input function
     ## Decoder part - does the prediction (eg. fuild flow of next time step)
