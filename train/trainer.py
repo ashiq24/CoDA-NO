@@ -36,7 +36,7 @@ def simple_trainer(model,train_loader, test_loader, params, stage='ssl'):
                 terget = y.clone()
             
 
-            loss = loss_p(terget.reshape(batch_size,-1), y.reshape(batch_size,-1))
+            loss = loss_p(terget.reshape(batch_size,-1), out.reshape(batch_size,-1))
             loss.backward()
 
             optimizer.step()
@@ -64,7 +64,7 @@ def simple_trainer(model,train_loader, test_loader, params, stage='ssl'):
             else:
                 terget = y.clone()
 
-            test_l2 += loss_p(terget.reshape(batch_size,-1), y.reshape(batch_size,-1)).item()
+            test_l2 += loss_p(terget.reshape(batch_size,-1), out.reshape(batch_size,-1)).item()
 
     test_l2 /= ntest
 
