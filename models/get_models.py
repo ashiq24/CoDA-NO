@@ -348,7 +348,7 @@ def get_model_fno_gno(params):
     contrastive = None
 
     print('generating Predictor')
-    predictor = FnoGno(params.hidden_odim_en,
+    predictor = FnoGno(params.hidden_dim_en,
                     params.out_dim,
                     input_grid= input_mesh,
                     output_grid= output_mesh,
