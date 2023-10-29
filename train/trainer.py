@@ -5,7 +5,7 @@ import torch.nn as nn
 from timeit import default_timer
 import gc
 from tqdm import tqdm
-def simple_trainer(model,train_loader, test_loader, params):
+def simple_trainer(model,train_loader, test_loader, params, stage='ssl'):
     lr = params.lr
     weight_decay = params.weight_decay
     scheduler_step = params.scheduler_step
@@ -29,9 +29,14 @@ def simple_trainer(model,train_loader, test_loader, params):
             optimizer.zero_grad()
             out, _, _, _ = model(x)
             train_count += 1
+
+            if stage == 'ssl':
+                terget = x.clone().detach()
+            else:
+                terget = y.clone().detach()
             
 
-            loss = loss_p(out.reshape(batch_size,-1), y.reshape(batch_size,-1))
+            loss = loss_p(terget.reshape(batch_size,-1), y.reshape(batch_size,-1))
             loss.backward()
 
             optimizer.step()
@@ -54,7 +59,12 @@ def simple_trainer(model,train_loader, test_loader, params):
             batch_size = x.shape[0]
             out,_,_,_ = model(x)
             ntest +=1
-            test_l2 += loss_p(out.reshape(batch_size,-1), y.reshape(batch_size,-1)).item()
+            if stage == 'ssl':
+                terget = x.clone().detach()
+            else:
+                terget = y.clone().detach()
+
+            test_l2 += loss_p(terget.reshape(batch_size,-1), y.reshape(batch_size,-1)).item()
 
     test_l2 /= ntest
 
