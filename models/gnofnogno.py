@@ -135,7 +135,6 @@ class FnoGno(nn.Module):
                                      
 
         
-        print("expected number of channels", self.codim_size)
         
         self.base = nn.ModuleList([])
         for i in range(self.n_layers):
