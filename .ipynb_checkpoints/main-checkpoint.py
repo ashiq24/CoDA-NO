@@ -4,18 +4,24 @@ from layers.fino import SpectralConvKernel2d
 from torchsummary import summary
 from functools import partial
 from YParams import YParams
-from models.get_models import get_ssl_models_Gino, SslWrapper
+from models.get_models import *
 import os
 import torch
-
+from train.trainer import simple_trainer
+from data_utils.data_loaders import get_onestep_dataloader
 
 ## SSL model 
-params = YParams('./config/ssl.yaml', 'base_config', print_params=True)
-encoder, decoder, contrastive, predictor = get_ssl_models_Gino(params)
+params = YParams('./config/ssl.yaml', 'gnofno', print_params=True)
+encoder, decoder, contrastive, predictor = get_model_fno_gno(params)
 
-ssl_model = SslWrapper(params, encoder, decoder, contrastive, predictor, stage='ssl')
+if params.pretrain_ssl:
+    model = SslWrapper(params, encoder, decoder, contrastive, predictor, stage='ssl')
+else:
+    model = SslWrapper(params, encoder, decoder, contrastive, predictor, stage='sl')
 
-ssl_model = ssl_model.cuda()
-y,_,_,_ = ssl_model(torch.randn(2,params.var_num*params.in_token_codim_en, 100, 100).cuda())
+model = model.cuda()
+train, test = get_onestep_dataloader()
+simple_trainer(model.cuda(), train, test, params)
 
-print(y.shape)
+model.stage = 'sl'
+simple_trainer(model.cuda(), train, test, params)

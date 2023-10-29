@@ -29,6 +29,7 @@ def simple_trainer(model,train_loader, test_loader, params):
             optimizer.zero_grad()
             out, _, _, _ = model(x)
             train_count += 1
+            
 
             loss = loss_p(out.reshape(batch_size,-1), y.reshape(batch_size,-1))
             loss.backward()
