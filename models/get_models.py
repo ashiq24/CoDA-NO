@@ -5,7 +5,7 @@ import torch.nn as nn
 from models.gino import Gino
 from models.gnofnogno import FnoGno
 from functools import partial
-from neuralop.layers.
+from neuralop.layers.fno_block import FNOblocks
 from models.codano import CodANO
 import torch
 import numpy as np
@@ -283,7 +283,7 @@ def get_fno_gno(params):
     assert x.shape[1] == size_y
 
     block = None
-    block = TnoBlock2d
+    block = FNOblocks
 
     if params.tno_integral_op == 'fno':
         int_op = partial(SpectralConvKernel2d, fft_type = params.fft_type, frequency_mixer = False)
