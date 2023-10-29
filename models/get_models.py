@@ -265,7 +265,7 @@ def get_ssl_models_Gino(params):
     
     return encoder, decoder, contrastive, predictor
 
-def get_fno_gno(params):
+def get_model_fno_gno(params):
     mesh = np.loadtxt(params.input_mesh_location, delimiter=',')
     input_mesh = torch.transpose(torch.stack([torch.tensor(mesh[0,:]),\
                                         torch.tensor(mesh[1,:])]), 0, 1).type(torch.float).cuda()
