@@ -157,7 +157,7 @@ class FnoGno(nn.Module):
 
             print("Using Projection Layer")
             self.projection = GNO(in_dim=self.hidden_dim,\
-                                        out_dim=out_dim,input_grid=self.output_grid,\
+                                        out_dim=out_dim,input_grid=self.output_grid,projection_hidden_dim=lifting_dim,\
                                         output_grid=self.input_grid, mlp_layers=self.gno_mlp_layers,\
                                         radius=self.radius)
                                         
