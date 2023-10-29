@@ -11,7 +11,7 @@ from train.trainer import simple_trainer
 from data_utils.data_loaders import get_onestep_dataloader
 
 ## SSL model 
-params = YParams('./config/ssl.yaml', 'codano_gino', print_params=True)
+params = YParams('./config/ssl.yaml', 'fno_gino', print_params=True)
 
 if params.nettype == 'transformer':
     encoder, decoder, contrastive, predictor = get_ssl_models_codano_gino(params)
