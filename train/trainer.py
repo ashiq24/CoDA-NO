@@ -31,9 +31,9 @@ def simple_trainer(model,train_loader, test_loader, params, stage='ssl'):
             train_count += 1
 
             if stage == 'ssl':
-                terget = x.clone().detach()
+                terget = x.clone()
             else:
-                terget = y.clone().detach()
+                terget = y.clone()
             
 
             loss = loss_p(terget.reshape(batch_size,-1), y.reshape(batch_size,-1))
@@ -60,9 +60,9 @@ def simple_trainer(model,train_loader, test_loader, params, stage='ssl'):
             out,_,_,_ = model(x)
             ntest +=1
             if stage == 'ssl':
-                terget = x.clone().detach()
+                terget = x.clone()
             else:
-                terget = y.clone().detach()
+                terget = y.clone()
 
             test_l2 += loss_p(terget.reshape(batch_size,-1), y.reshape(batch_size,-1)).item()
 
