@@ -87,9 +87,12 @@ fno_gino: &FNO_GINO
     <<: *CODANO_GINO
     nettype: 'simple'
     in_dim: 7
-    hidden_dim_en: 32
-    lifting_dim_en: 64
-    lifting_dim_pred: 64
+    hidden_dim: 32
+    lifting_dim: 64
+    lifting_dim: 64
+    n_modes:  [[180,30], [180,30],[180,30], [180,30]]
+    scalings:     [[1,1], [1,1],[1,1], [1,1]]
+    n_layer: 4
     out_dim:  7
     grid_size: [251, 42]
     pretrain_ssl : !!bool False
@@ -99,6 +102,10 @@ fno_gino: &FNO_GINO
     # does not supporting turning on
     var_enco_channels: 0
     enable_cls_token: !!bool False
+
+fno: &FNO
+    <<: *FNO_GINO
+    grid_type: 'uniform'
 
 
 

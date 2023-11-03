@@ -10,18 +10,24 @@ import torch
 from train.trainer import simple_trainer
 from data_utils.data_loaders import get_onestep_dataloader
 
-## SSL model 
+## SSL model
+
 params = YParams('./config/ssl.yaml', 'codano_gino', print_params=True)
 
 if params.nettype == 'transformer':
-    encoder, decoder, contrastive, predictor = get_ssl_models_codano_gino(params)
+    if params.gird_type == 'uniform':
+        encoder, decoder, contrastive, predictor = get_ssl_models_codaNo(params)
+    else:
+        encoder, decoder, contrastive, predictor = get_ssl_models_codano_gino(params)
+    
+    if params.pretrain_ssl:
+        model = SslWrapper(params, encoder, decoder, contrastive, predictor, stage='ssl')
+    else:
+        model = SslWrapper(params, encoder, decoder, contrastive, predictor, stage='sl')
 elif params.nettype == 'simple':
-    encoder, decoder, contrastive, predictor = get_model_fno_gino(params)
+    model = get_model_fno(params)
 
-if params.pretrain_ssl:
-    model = SslWrapper(params, encoder, decoder, contrastive, predictor, stage='ssl')
-else:
-    model = SslWrapper(params, encoder, decoder, contrastive, predictor, stage='sl')
+
 
 model = model.cuda()
 train, test = get_onestep_dataloader()
