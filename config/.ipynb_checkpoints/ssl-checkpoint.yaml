@@ -1,5 +1,6 @@
 base_config: &BASE_CONFIG
     ## SSL parameters
+    nettype: 'transformer'
     evaluation_channel_drop: 1
     drop_type : 'zeros'
     grid_type: 'uniform'
@@ -68,8 +69,9 @@ base_config: &BASE_CONFIG
     weight_path: '../weights/ssl_weight.pt'
 
 
-gino: &GINO
+codano_gino: &CODANO_GINO
     <<: *BASE_CONFIG
+    epochs: 20
     batch_size: 1
     input_mesh_location: "../Data/MP_data/mesh.csv"
     radius: 0.08
@@ -81,8 +83,9 @@ gino: &GINO
     n_modes_pred:       [[180,30], [180,30],[180,30]]
     masking_radius: 0.08
 
-gnofno: &gnofno
-    <<: *GINO
+fno_gino: &FNO_GINO
+    <<: *CODANO_GINO
+    nettype: 'simple'
     in_dim: 7
     hidden_dim_en: 32
     lifting_dim_en: 64

@@ -1,0 +1,204 @@
+------------------ Configuration ------------------
+epochs 20
+batch_size 1
+input_mesh_location ../Data/MP_data/mesh.csv
+radius 0.08
+gno_mlp_layers [6, 8]
+grid_size [251, 42]
+grid_type non uniform
+n_modes_en [[180, 30], [180, 30]]
+n_modes_dec [[180, 30], [180, 30]]
+n_modes_pred [[180, 30], [180, 30], [180, 30]]
+masking_radius 0.08
+nettype transformer
+evaluation_channel_drop 1
+drop_type zeros
+max_block 0.6
+drop_pix 0.6
+channel_per 0.6
+channel_drop_per 0.3
+validation_aug False
+max_block_val 0.2
+drop_pix_val 0.15
+channel_per_val 0.5
+channel_drop_per_val 0.5
+var_num 7
+in_token_codim_en 1
+hidden_token_codim_en 6
+lifting_token_codim_en 12
+lifting_token_codim_pred 12
+out_token_codim_pred 1
+n_layers_en 2
+n_heads_en [2, 2]
+n_layers_dec 2
+n_heads_dec [2, 2]
+n_layers_pred 3
+n_heads_pred [2, 2, 2]
+scalings_pred [[1, 1], [1, 1], [1, 1]]
+scalings_en [[1, 1], [1, 1]]
+scalings_dec [[1, 1], [1, 1]]
+per_channel_attention True
+fft_type fft
+tno_integral_op fno
+var_encoding True
+var_enco_channels 3
+reconstruction True
+enable_cls_token True
+add_static_feature False
+pretrain_ssl True
+freeze_encoder False
+lr 0.0001
+weight_decay 1e-05
+scheduler_step 20
+scheduler_gamma 0.5
+weight_path ../weights/ssl_weight.pt
+---------------------------------------------------
+Generating Encoder
+Token Dim--> 4
+var num 7 static channels 0
+End to End Scaling [1, 1]
+Using lifing Layer
+expected number of channels 48
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+intializing CLS token
+*********************
+Generating Decoder
+End to End Scaling [1, 1]
+expected number of channels 42
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+Using Projection Layer
+*********************
+generating Predictor
+End to End Scaling [1, 1]
+expected number of channels 42
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+Using Projection Layer
+*********************
+Doing Wrapper for ssl
+tensor([-2.2453e-04,  2.2125e-04,  0.0000e+00,  1.5900e+00,  1.4183e-03,
+         0.0000e+00, -3.1627e+02])
+tensor([8.6154e-04, 5.5680e-03, 0.0000e+00, 1.4190e+00, 5.1100e-01, 0.0000e+00,
+        1.8457e+03])
+Epoch 0: Time: 477.80s, Loss: 0.1835
+Epoch 1: Time: 470.66s, Loss: 0.0799
+Epoch 2: Time: 470.73s, Loss: 0.0574
+Epoch 3: Time: 469.14s, Loss: 0.0426
+Epoch 4: Time: 464.92s, Loss: 0.0342
+Epoch 5: Time: 464.74s, Loss: 0.0295
+Epoch 6: Time: 464.33s, Loss: 0.0274
+Epoch 7: Time: 463.97s, Loss: 0.0263
+Epoch 8: Time: 465.51s, Loss: 0.0217
+Epoch 9: Time: 465.50s, Loss: 0.0227
+Epoch 10: Time: 462.82s, Loss: 0.0201
+Epoch 11: Time: 460.74s, Loss: 0.0193
+Epoch 12: Time: 464.48s, Loss: 0.0201
+Epoch 13: Time: 465.52s, Loss: 0.0169
+Epoch 14: Time: 465.02s, Loss: 0.0157
+Epoch 15: Time: 462.18s, Loss: 0.0167
+Epoch 16: Time: 464.35s, Loss: 0.0163
+Epoch 17: Time: 464.10s, Loss: 0.0143
+Epoch 18: Time: 464.63s, Loss: 0.0144
+Epoch 19: Time: 466.06s, Loss: 0.0136
+Test Error :  0.01278825043188408
+Epoch 0: Time: 129.05s, Loss: 0.2251
+Epoch 1: Time: 131.99s, Loss: 0.0354
+Epoch 2: Time: 126.83s, Loss: 0.0199
+Epoch 3: Time: 126.90s, Loss: 0.0138
+Epoch 4: Time: 125.92s, Loss: 0.0106
+Epoch 5: Time: 126.60s, Loss: 0.0085
+Epoch 6: Time: 126.88s, Loss: 0.0070
+Epoch 7: Time: 128.63s, Loss: 0.0057
+Epoch 8: Time: 127.38s, Loss: 0.0052
+Epoch 9: Time: 127.01s, Loss: 0.0044
+Epoch 10: Time: 127.47s, Loss: 0.0041
+Epoch 11: Time: 127.14s, Loss: 0.0037
+Epoch 12: Time: 126.90s, Loss: 0.0036
+Epoch 13: Time: 127.16s, Loss: 0.0030
+Epoch 14: Time: 126.59s, Loss: 0.0030
+Epoch 15: Time: 126.22s, Loss: 0.0033
+Epoch 16: Time: 127.06s, Loss: 0.0025
+Epoch 17: Time: 126.72s, Loss: 0.0025
+Epoch 18: Time: 127.07s, Loss: 0.0025
+Epoch 19: Time: 127.75s, Loss: 0.0027
+Test Error :  0.0030312430327758193

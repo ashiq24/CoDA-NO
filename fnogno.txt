@@ -1,0 +1,118 @@
+------------------ Configuration ------------------
+nettype simple
+in_dim 7
+hidden_dim_en 32
+lifting_dim_en 64
+lifting_dim_pred 64
+out_dim 7
+grid_size [251, 42]
+pretrain_ssl False
+freeze_encoder False
+var_enco_channels 0
+enable_cls_token False
+epochs 20
+batch_size 1
+input_mesh_location ../Data/MP_data/mesh.csv
+radius 0.08
+gno_mlp_layers [6, 8]
+grid_type non uniform
+n_modes_en [[180, 30], [180, 30]]
+n_modes_dec [[180, 30], [180, 30]]
+n_modes_pred [[180, 30], [180, 30], [180, 30]]
+masking_radius 0.08
+evaluation_channel_drop 1
+drop_type zeros
+max_block 0.6
+drop_pix 0.6
+channel_per 0.6
+channel_drop_per 0.3
+validation_aug False
+max_block_val 0.2
+drop_pix_val 0.15
+channel_per_val 0.5
+channel_drop_per_val 0.5
+var_num 7
+in_token_codim_en 1
+hidden_token_codim_en 6
+lifting_token_codim_en 12
+lifting_token_codim_pred 12
+out_token_codim_pred 1
+n_layers_en 2
+n_heads_en [2, 2]
+n_layers_dec 2
+n_heads_dec [2, 2]
+n_layers_pred 3
+n_heads_pred [2, 2, 2]
+scalings_pred [[1, 1], [1, 1], [1, 1]]
+scalings_en [[1, 1], [1, 1]]
+scalings_dec [[1, 1], [1, 1]]
+per_channel_attention True
+fft_type fft
+tno_integral_op fno
+var_encoding True
+reconstruction True
+add_static_feature False
+lr 0.0001
+weight_decay 1e-05
+scheduler_step 20
+scheduler_gamma 0.5
+weight_path ../weights/ssl_weight.pt
+---------------------------------------------------
+Generating Encoder
+End to End Scaling [1, 1]
+Using lifing Layer
+[7, 64, 32]
+[4, 6, 8, 32]
+std 0.0007607257743127308
+Using Half modes 90 15
+std 0.0007607257743127308
+Using Half modes 90 15
+*********************
+Generating Decoder
+End to End Scaling [1, 1]
+std 0.0007607257743127308
+Using Half modes 90 15
+std 0.0007607257743127308
+Using Half modes 90 15
+Using Projection Layer
+[32, 64, 7]
+[4, 6, 8, 7]
+*********************
+generating Predictor
+End to End Scaling [1, 1]
+std 0.0007607257743127308
+Using Half modes 90 15
+std 0.0007607257743127308
+Using Half modes 90 15
+std 0.0007607257743127308
+Using Half modes 90 15
+Using Projection Layer
+[32, 64, 7]
+[4, 6, 8, 7]
+*********************
+Doing Wrapper for sl
+tensor([-2.2909e-04,  2.0621e-04,  0.0000e+00,  1.5976e+00,  1.4443e-03,
+         0.0000e+00, -3.3955e+02])
+tensor([8.7196e-04, 5.7102e-03, 0.0000e+00, 1.4208e+00, 5.1315e-01, 0.0000e+00,
+        1.8338e+03])
+Epoch 0: Time: 84.30s, Loss: 0.3274
+Epoch 1: Time: 79.36s, Loss: 0.0759
+Epoch 2: Time: 79.55s, Loss: 0.0518
+Epoch 3: Time: 78.57s, Loss: 0.0420
+Epoch 4: Time: 78.60s, Loss: 0.0355
+Epoch 5: Time: 78.71s, Loss: 0.0306
+Epoch 6: Time: 78.01s, Loss: 0.0273
+Epoch 7: Time: 78.27s, Loss: 0.0249
+Epoch 8: Time: 77.73s, Loss: 0.0224
+Epoch 9: Time: 77.76s, Loss: 0.0208
+Epoch 10: Time: 77.57s, Loss: 0.0186
+Epoch 11: Time: 79.24s, Loss: 0.0174
+Epoch 12: Time: 78.17s, Loss: 0.0167
+Epoch 13: Time: 77.72s, Loss: 0.0149
+Epoch 14: Time: 78.16s, Loss: 0.0139
+Epoch 15: Time: 79.48s, Loss: 0.0126
+Epoch 16: Time: 78.24s, Loss: 0.0123
+Epoch 17: Time: 79.04s, Loss: 0.0116
+Epoch 18: Time: 79.06s, Loss: 0.0118
+Epoch 19: Time: 78.26s, Loss: 0.0091
+Test Error :  0.0086624734881334
