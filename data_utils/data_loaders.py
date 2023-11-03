@@ -14,7 +14,7 @@ class Normalizer():
         return (data - self.mean)/(self.std + self.eps)
     
 def get_onestep_dataloader(train_test_split=0.2, location='../Data/MP_data/',\
-                            batch_size=1, dtype=torch.float):
+                            batch_size=1, dtype=torch.float, ntrain=None, ntest=None):
     with open(location+'displacements0-5000.pkl', 'rb') as file:
         displacements = torch.tensor(pickle.load(file), dtype=dtype)
     with open(location+'pressures0-5000.pkl', 'rb') as file:
@@ -28,10 +28,13 @@ def get_onestep_dataloader(train_test_split=0.2, location='../Data/MP_data/',\
     step_t1 =  combined[1:, ...]
 
     indexs = [i for i in range(step_t0.shape[0])]
-    ntrain = int(train_test_split*len(indexs))
+    if not ntrain:
+        ntrain = int(train_test_split*len(indexs))
+    if not ntest:
+        ntest = len(indexs) - ntrain
     random.shuffle(indexs)
-    train_t0,test_t0 = step_t0[indexs[:ntrain]], step_t0[indexs[ntrain:]]
-    train_t1,test_t1 = step_t1[indexs[:ntrain]], step_t1[indexs[ntrain:]]
+    train_t0,test_t0 = step_t0[indexs[:ntrain]], step_t0[indexs[ntrain:ntrain+ntest]]
+    train_t1,test_t1 = step_t1[indexs[:ntrain]], step_t1[indexs[ntrain:ntrain+ntest]]
 
     mean, var = torch.mean(train_t0, dim=(0,1)), torch.var(train_t0, dim=(0,1))
     normalizer = Normalizer(mean, var**0.5)
@@ -39,7 +42,7 @@ def get_onestep_dataloader(train_test_split=0.2, location='../Data/MP_data/',\
                                              normalizer(train_t1)),batch_size=batch_size, shuffle=True)
     test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(normalizer(test_t0),\
                                              normalizer(test_t1)),batch_size=batch_size, shuffle=False)
-    
+
     return train_loader, test_loader
 
 
