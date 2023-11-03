@@ -15,7 +15,9 @@ base_config: &BASE_CONFIG
     channel_per_val: 0.5
     channel_drop_per_val: 0.5
 
-    batch_size: 4
+    batch_size: 2 #4
+    ntrain: 2
+    ntest: 2
 
     var_num: 7
     in_token_codim_en: 1
@@ -38,9 +40,9 @@ base_config: &BASE_CONFIG
     scalings_en:     [[1,1], [1,1]]
     scalings_dec:     [[1,1],[1,1]]
 
-    n_modes_en:       [[100,100], [100,100]]
-    n_modes_dec:       [[100,100], [100,100]]
-    n_modes_pred:       [[100,100], [100,100],[100,100]]
+    n_modes_en:       [[10,20], [10,10]]
+    n_modes_dec:       [[10,10], [10,10]]
+    n_modes_pred:       [[10,10], [10,10],[10,10]]
 
     per_channel_attention: !!bool True
     
@@ -71,42 +73,37 @@ base_config: &BASE_CONFIG
 
 codano_gino: &CODANO_GINO
     <<: *BASE_CONFIG
-    epochs: 20
+    epochs: 1
     batch_size: 1
     input_mesh_location: "../Data/MP_data/mesh.csv"
-    radius: 0.08
+    radius: 0.02 # 0.08
     gno_mlp_layers: [6,8]
     grid_size: [251, 42]
     grid_type: 'non uniform'
-    n_modes_en:       [[180,30], [180,30]]
-    n_modes_dec:       [[180,30], [180,30]]
-    n_modes_pred:       [[180,30], [180,30],[180,30]]
-    masking_radius: 0.08
+    n_modes_en:       [[10,10], [10,10]]
+    n_modes_dec:       [[10,10], [10,10]]
+    n_modes_pred:       [[10,10], [10,10],[10,10]]
+    masking_radius: 0.02 # 0.08
+
+    ntrain: 2
+    ntest: 2
 
 fno_gino: &FNO_GINO
     <<: *CODANO_GINO
     nettype: 'simple'
     in_dim: 7
-    hidden_dim: 32
-    lifting_dim: 64
-    projection_dim: 64
-    n_modes:       [[180,30], [180,30],[180,30], [180,30]]
-    scalings:      [[1,1],[1,1],[1,1], [1,1]]
-    n_layers: 4
+    hidden_dim_en: 8 #32
+    lifting_dim_en: 16 #64
+    lifting_dim_pred: 16 #64
     out_dim:  7
     grid_size: [251, 42]
     pretrain_ssl : !!bool False
     freeze_encoder : !!bool False
-    
-    
+
     # does not supporting turning on
     var_enco_channels: 0
     enable_cls_token: !!bool False
 
-fno: &FNO
-    <<: *FNO_GINO
-    n_modes:       [180,30]
-    grid_type: 'uniform'
 
 
 

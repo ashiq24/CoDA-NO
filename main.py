@@ -8,24 +8,43 @@ from models.get_models import *
 import os
 import torch
 from train.trainer import simple_trainer
-from data_utils.data_loaders import get_onestep_dataloader
+from data_utils.data_loaders import *
+
 
 ## SSL model 
-params = YParams('./config/ssl.yaml', 'fno_gino', print_params=True)
+params = YParams('./config/ssl.yaml', 'codano_gino', print_params=True)
 
-if params.nettype == 'transformer':
-    encoder, decoder, contrastive, predictor = get_ssl_models_codano_gino(params)
-elif params.nettype == 'simple':
-    encoder, decoder, contrastive, predictor = get_model_fno_gino(params)
+
+#params = YParams('./config/ssl.yaml', 'base_config', print_params=True)
 
 if params.pretrain_ssl:
-    model = SslWrapper(params, encoder, decoder, contrastive, predictor, stage='ssl')
+    stage = 'ssl'
 else:
-    model = SslWrapper(params, encoder, decoder, contrastive, predictor, stage='sl')
+    stage = 'sl'
+    
+if params.nettype == 'transformer':
+    if params.grid_type == 'uniform':
+        encoder, decoder, contrastive, predictor = get_ssl_models_codaNo(params)
+    else:
+        encoder, decoder, contrastive, predictor = get_ssl_models_codano_gino(params)
+    
+    if params.pretrain_ssl:
+        model = SslWrapper(params, encoder, decoder, contrastive, predictor, stage='ssl')
+    else:
+        model = SslWrapper(params, encoder, decoder, contrastive, predictor, stage='sl')
+elif params.nettype == 'simple':
+    model = get_model_fno(params)
+
+
 
 model = model.cuda()
-train, test = get_onestep_dataloader()
-simple_trainer(model.cuda(), train, test, params, stage=model.stage)
+# non-uniform dataset
+train, test = get_onestep_dataloader(ntrain=params.get('ntrain'),
+                                     ntest=params.get('ntest'))
+
+# uniform dataset dummy
+#train, test = get_dummy_dataloaders()
+simple_trainer(model.cuda(), train, test, params, stage=stage)
 
 if params.pretrain_ssl:
     # if we were pre-training (ssl), then we will train (sl)

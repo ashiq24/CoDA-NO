@@ -27,7 +27,9 @@ def simple_trainer(model,train_loader, test_loader, params, stage='ssl'):
             x, y = x.cuda(), y.cuda()
             batch_size = x.shape[0]
             optimizer.zero_grad()
-            out, _, _, _ = model(x)
+            out = model(x)
+            if isinstance(out, (list, tuple)):
+                out = out[0]
             train_count += 1
 
             if stage == 'ssl':
