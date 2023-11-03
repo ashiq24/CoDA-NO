@@ -30,7 +30,8 @@ elif params.nettype == 'simple':
 
 
 model = model.cuda()
-train, test = get_onestep_dataloader()
+train, test = get_onestep_dataloader(ntrain=params.get('ntrain'),
+                                     ntest=params.get('ntest'))
 simple_trainer(model.cuda(), train, test, params, stage=model.stage)
 
 if params.pretrain_ssl:
