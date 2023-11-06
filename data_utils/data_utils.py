@@ -91,17 +91,102 @@ class MaskerUniform:
                 rnd_c = random.randint(0, W - 2)
 
                 rnd_h = min(
-                    random.randint(
-                        self.min_block,
-                        mx_blk_height),
-                    H - rnd_r)
+                    random.randint(self.min_block, mx_blk_height),
+                    H - rnd_r
+                )
                 rnd_w = min(
-                    random.randint(
-                        self.min_block,
-                        mx_blk_width),
-                    W - rnd_c)
+                    random.randint(self.min_block, mx_blk_width),
+                    W - rnd_c
+                )
                 mask[i, rnd_r:rnd_r + rnd_h, rnd_c:rnd_c + rnd_w] = 0
                 n_drop_pix -= rnd_h * rnd_c
+        # print("One data Done")
+        return None, mask
+
+
+class MaskerUniformTemporal:
+    """Performs masking on temporal datasets with regular meshes.
+
+    Datapoints are expected to be _trajectories_ with a history over multiple
+    time steps shaped like (C, T, H, W).
+
+    Parameters
+    ---
+    drop_pix : float; defaults to 0.3
+        Minimum fraction of pixels to be masked.
+    """
+    def __init__(
+        self,
+        drop_type='zeros',
+        max_block=0.7,
+        drop_pix=0.3,
+        channel_per=0.5,
+        channel_drop_per=0.2,
+        device='cpu',
+        min_block=10,
+    ):
+        self.drop_type = drop_type
+        self.max_block = max_block
+        self.drop_pix = drop_pix
+        self.channel_per = channel_per
+        self.channel_drop_per = channel_drop_per
+        self.device = device
+        self.min_block = min_block
+
+    def __call__(self, size):
+        """Returns a mask to be multiplied into a data tensor.
+
+        Generates a binary mask of 0s and 1s to be point-wise multiplied into a
+        data tensor to create a masked sample. By training on masked data, we
+        expect the model to be resilient to missing data.
+
+        Generates prisms (with uniformly distributed (starting) corners and
+        side-lengths) to mask until the fraction of masked grid points is at
+        least ``drop_pix``.
+        """
+
+        np.random.seed()
+        C, T, H, W = size
+        mask = torch.ones(size, device=self.device)
+        augmented_channels = np.random.choice(C, math.ceil(C * self.channel_per))
+        # print(augmented_channels)
+        drop_len = int(self.channel_drop_per * math.ceil(C * self.channel_per))
+        mask[augmented_channels[:drop_len], :, :, :] = 0.0
+        for i in augmented_channels[drop_len:]:
+            # print("Masking")
+            n_drop_pix = self.drop_pix * T * H * W
+            mx_blk_height = int(H * self.max_block)
+            mx_blk_width = int(W * self.max_block)
+            mx_blk_duration = int(T * self.max_block)
+
+            while n_drop_pix > 0:
+                # Pick one corner of the mask:
+                y0 = random.randint(0, H - 2)
+                x0 = random.randint(0, W - 2)
+                t0 = random.randint(0, T - 2)
+
+                # Pick lengths of the mask along each dimension:
+                mask_height = min(
+                    random.randint(self.min_block, mx_blk_height),
+                    H - y0
+                )
+                mask_width = min(
+                    random.randint(self.min_block, mx_blk_width),
+                    W - x0
+                )
+                mask_duration = min(
+                    random.randint(self.min_block, mx_blk_duration),
+                    T - t0,
+                )
+
+                chunk = [
+                    i,
+                    slice(t0, t0 + mask_duration),
+                    slice(y0, y0 + mask_height),
+                    slice(x0, x0 + mask_width),
+                ]
+                mask[chunk] = 0
+                n_drop_pix -= mask_height * mask_width * mask_duration
         # print("One data Done")
         return None, mask
 

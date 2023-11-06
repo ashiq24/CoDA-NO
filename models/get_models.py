@@ -6,7 +6,12 @@ import torch.nn as nn
 from neuralop.layers.fno_block import FNOBlocks
 from neuralop.models import FNO
 
-from data_utils.data_utils import MaskerNonuniformMesh, batched_masker, MaskerUniform
+from data_utils.data_utils import (
+    MaskerNonuniformMesh,
+    MaskerUniform,
+    MaskerUniformTemporal,
+    batched_masker,
+)
 from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
 from models.codano import CodANO
@@ -401,7 +406,8 @@ class SslWrapper(nn.Module):
 
         print("Doing Wrapper for", self.stage)
         if params.grid_type == 'uniform':
-            self.augmenter_masker = MaskerUniform(
+            Masker = MaskerUniformTemporal if params.time_axis else MaskerUniform
+            self.augmenter_masker = Masker(
                 drop_type=params.drop_type,
                 max_block=params.max_block,
                 drop_pix=params.drop_pix,
@@ -410,7 +416,7 @@ class SslWrapper(nn.Module):
             )
 
             # If following augmenter is used by external method during testing
-            self.validation_augmenter = MaskerUniform(
+            self.validation_augmenter = Masker(
                 drop_type=params.drop_type,
                 max_block=params.max_block_val,
                 drop_pix=params.drop_pix_val,

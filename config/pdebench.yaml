@@ -4,6 +4,7 @@ base_config: &BASE_CONFIG
     evaluation_channel_drop: 1
     drop_type : 'zeros'
     grid_type: 'uniform'
+    time_axis: True
     max_block : 0.6
     drop_pix: 0.6
     channel_per: 0.6
