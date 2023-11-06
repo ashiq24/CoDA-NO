@@ -59,7 +59,8 @@ class SWEDataset:
         self.items_per_sample: int = (
             (CLS.TIME_DURATION - self.offset) //
             (CLS.TRAJECTORY_LENGTH + self.stride))
-        self.len = self.items_per_sample * np.floor(CLS.SAMPLE_SIZE * train_test_split)
+        self.len = int(
+            self.items_per_sample * np.floor(CLS.SAMPLE_SIZE * train_test_split))
 
         # expect strings like: "0000", ..., "0999"
         self.samples = list(self.file.keys())
@@ -87,18 +88,18 @@ class SWEDataset:
         sample_idx, local_idx = divmod(index, self.items_per_sample)
         time_idx = self.offset + local_idx * (CLS.TRAJECTORY_LENGTH + self.stride)
 
-        try:
+        # try:
             # print(self.files[file_idx], sample_idx, time_idx, index)
-            sample = self._reconstruct_sample(
+        sample = self._reconstruct_sample(
                 self.file,
                 sample_idx,
                 time_idx,
                 t_steps=CLS.TRAJECTORY_LENGTH,
-            )
-        except:
-            raise RuntimeError(
-                f'Failed to reconstruct sample for file {self.path} '
-                f'sample {sample_idx} time {time_idx}')
+        )
+        # except Exception as e:
+        #    raise RuntimeError(
+        #        f'Failed to reconstruct sample for file {self.path} '
+        #        f'sample {sample_idx} time {time_idx}', e)
 
         mid = CLS.TRAJECTORY_LENGTH // 2
         return Pair(torch.as_tensor(sample[:mid]), torch.as_tensor(sample[mid:]))
@@ -121,13 +122,11 @@ class SWEDataset:
           water depth.
         """
         sample_key = self.samples[sample_idx]
-        _slice = [
-            slice(time_idx, time_idx + t_steps),
-            slice(None, None, self.subsampling_rate),
-            slice(None, None, self.subsampling_rate),
+        return h5_file[sample_key]['data'][
+            time_idx : time_idx+t_steps,
+            ::self.subsampling_rate,
+            ::self.subsampling_rate
         ]
-
-        return h5_file[sample_key]['data'][_slice]
 
 
 class DiffusionReaction2DDataset:
@@ -168,7 +167,8 @@ class DiffusionReaction2DDataset:
         self.items_per_sample: int = (
             (CLS.TIME_DURATION - self.offset) //
             (CLS.TRAJECTORY_LENGTH + self.stride))
-        self.len = self.items_per_sample * np.floor(CLS.SAMPLE_SIZE * train_test_split)
+        self.len = int(
+            self.items_per_sample * np.floor(CLS.SAMPLE_SIZE * train_test_split))
 
         # expect strings like: "0000", ..., "0999"
         self.samples = list(self.file.keys())
@@ -196,18 +196,18 @@ class DiffusionReaction2DDataset:
         sample_idx, local_idx = divmod(index, self.items_per_sample)
         time_idx = self.offset + local_idx * (CLS.TRAJECTORY_LENGTH + self.stride)
 
-        try:
+        # try:
             # print(self.files[file_idx], sample_idx, time_idx, index)
-            sample = self._reconstruct_sample(
+        sample = self._reconstruct_sample(
                 self.file,
                 sample_idx,
                 time_idx,
                 t_steps=CLS.TRAJECTORY_LENGTH,
-            )
-        except:
-            raise RuntimeError(
-                f'Failed to reconstruct sample for file {self.path} '
-                f'sample {sample_idx} time {time_idx}')
+        )
+        # except Exception as e:
+        #    raise RuntimeError(
+        #        f'Failed to reconstruct sample for file {self.path} '
+        #        f'sample {sample_idx} time {time_idx}', e)
 
         mid = CLS.TRAJECTORY_LENGTH // 2
         return Pair(torch.as_tensor(sample[:mid]), torch.as_tensor(sample[mid:]))
@@ -228,13 +228,11 @@ class DiffusionReaction2DDataset:
         Shape: (time, x, y, channel)
         """
         sample_key = self.samples[sample_idx]
-        _slice = [
-            slice(time_idx, time_idx + t_steps),
-            slice(None, None, self.subsampling_rate),
-            slice(None, None, self.subsampling_rate),
+        return h5_file[sample_key]['data'][
+            time_idx : time_idx+t_steps,
+            ::self.subsampling_rate,
+            ::self.subsampling_rate
         ]
-
-        return h5_file[sample_key]['data'][_slice]
 
 
 class NSIncompressibleSample(NamedTuple):
@@ -307,7 +305,7 @@ class NSIncompressibleDataset:
              (CLS.TRAJECTORY_LENGTH + self.stride))
             * train_test_split)
         # Each item within the file has 4 samples
-        self.len = len(paths) * self.items_per_file * 4
+        self.len = int(len(paths) * self.items_per_file * 4)
 
     @property
     def subsampling_rate(self):
@@ -335,22 +333,22 @@ class NSIncompressibleDataset:
         # local_idx : which index to address within that file.
         file_idx, local_idx = divmod(index2, self.items_per_file)
 
-        time_idx = self.offset + local_idx * (
-            CLS.TRAJECTORY_LENGTH + self.stride)
+        time_idx = int(self.offset + local_idx * (
+            CLS.TRAJECTORY_LENGTH + self.stride))
 
-        try:
-            # print(self.files[file_idx], sample_idx, time_idx, index)
-            sample = self._reconstruct_sample(
-                self.files[file_idx],
+        # try:
+        # print(self.files[int(file_idx)], sample_idx, time_idx, CLS.TRAJECTORY_LENGTH)
+        sample = self._reconstruct_sample(
+                self.files[int(file_idx)],
                 sample_idx,
                 time_idx,
                 t_steps=CLS.TRAJECTORY_LENGTH,
-            )
-            trajectory = np.concatenate([sample.particles, sample.velocity], axis=-1)
-        except:
-            raise RuntimeError(
-                f'Failed to reconstruct sample for file {self.paths[file_idx]} '
-                f'sample {sample_idx} time {time_idx}')
+        )
+        trajectory = np.concatenate([sample.particles, sample.velocity], axis=-1)
+        # except Exception as e:
+        #    raise RuntimeError(
+        #        f'Failed to reconstruct sample for file {self.paths[file_idx]} '
+        #        f'sample {sample_idx} time {time_idx}', e)
 
         mid = CLS.TRAJECTORY_LENGTH // 2
         return Pair(
@@ -373,14 +371,18 @@ class NSIncompressibleDataset:
 
         Shape (within each field) : (time, x, y, channel)
         """
-        _slice = [
+        particles = h5_file['particles'][
             sample_idx,
-            slice(time_idx, time_idx + t_steps),
-            slice(None, None, self.subsampling_rate),
-            slice(None, None, self.subsampling_rate),
+            time_idx : time_idx+t_steps,
+            ::self.subsampling_rate,
+            ::self.subsampling_rate,
         ]
-        particles = h5_file['particles'][_slice]
-        velocity = h5_file['velocity'][_slice]
+        velocity = h5_file['velocity'][
+            sample_idx,
+            time_idx : time_idx+t_steps,
+            ::self.subsampling_rate,
+            ::self.subsampling_rate,
+        ]
         force = h5_file['force'][sample_idx]
 
         return NSIncompressibleSample(particles, velocity, force)
