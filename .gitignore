@@ -3,3 +3,6 @@
 *__pycache__/*
 */__pycache__/*
 *.out
+
+# Virtual environment(s):
+.venv/*
