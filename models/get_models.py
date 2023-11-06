@@ -1,6 +1,6 @@
 from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
-from data_utils.data_utils import MakserNonuniformMest, batched_masker, MaskerUniform
+from data_utils.data_utils import MaskerNonuniformMesh, batched_masker, MaskerUniform
 import torch.nn as nn
 from models.codano_gino import CondnoGino
 from models.fno_gino import FnoGno
@@ -365,22 +365,22 @@ class SslWrapper(nn.Module):
                                                     drop_pix=params.drop_pix_val,channel_per = params.channel_per_val,\
                                                     channel_drop_per = params.channel_drop_per_val)
         else:
-            self.agumenter_masker = MakserNonuniformMest(grid_non_uni=encoder.input_grid.clone().detach(),\
-                                                        gird_uni=encoder.output_grid.clone().detach(),\
-                                                        radius=params.masking_radius,\
-                                                        drop_type=params.drop_type,drop_pix=params.drop_pix,\
-                                                        channel_aug_rate=params.channel_per,\
-                                                        channel_drop_rate=params.channel_drop_per)
+            self.agumenter_masker = MaskerNonuniformMesh(grid_non_uni=encoder.input_grid.clone().detach(), \
+                                                         gird_uni=encoder.output_grid.clone().detach(), \
+                                                         radius=params.masking_radius, \
+                                                         drop_type=params.drop_type, drop_pix=params.drop_pix, \
+                                                         channel_aug_rate=params.channel_per, \
+                                                         channel_drop_rate=params.channel_drop_per)
             
             # If following augmenter is used by external method during testing
 
-            self.validation_agumenter = MakserNonuniformMest(grid_non_uni=encoder.input_grid.clone().detach(),\
-                                                            gird_uni=encoder.output_grid.clone().detach(),\
-                                                            radius=params.masking_radius,\
-                                                            drop_type= params.drop_type, max_block=params.max_block_val,\
-                                                            drop_pix=params.drop_pix_val,\
-                                                            channel_aug_rate=params.channel_per_val,\
-                                                            channel_drop_rate=params.channel_drop_per_val)
+            self.validation_agumenter = MaskerNonuniformMesh(grid_non_uni=encoder.input_grid.clone().detach(), \
+                                                             gird_uni=encoder.output_grid.clone().detach(), \
+                                                             radius=params.masking_radius, \
+                                                             drop_type= params.drop_type, max_block=params.max_block_val, \
+                                                             drop_pix=params.drop_pix_val, \
+                                                             channel_aug_rate=params.channel_per_val, \
+                                                             channel_drop_rate=params.channel_drop_per_val)
             
 
 

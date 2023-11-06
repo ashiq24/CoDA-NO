@@ -89,17 +89,14 @@ class SWEDataset:
         time_idx = self.offset + local_idx * (CLS.TRAJECTORY_LENGTH + self.stride)
 
         # try:
-            # print(self.files[file_idx], sample_idx, time_idx, index)
         sample = self._reconstruct_sample(
-                self.file,
-                sample_idx,
-                time_idx,
-                t_steps=CLS.TRAJECTORY_LENGTH,
+            self.file,
+            sample_idx,
+            time_idx,
+            t_steps=CLS.TRAJECTORY_LENGTH,
         )
-        # except Exception as e:
-        #    raise RuntimeError(
-        #        f'Failed to reconstruct sample for file {self.path} '
-        #        f'sample {sample_idx} time {time_idx}', e)
+        # except:
+        #    raise RuntimeError
 
         mid = CLS.TRAJECTORY_LENGTH // 2
         return Pair(torch.as_tensor(sample[:mid]), torch.as_tensor(sample[mid:]))
@@ -136,7 +133,7 @@ class DiffusionReaction2DDataset:
     For each dataset on .h5 file:
     data=<HDF5 dataset "data": shape (101, 128, 128, 2), type "<f4">
     with shape (T, W, H, C), channels=["activator", "inhibitor"]
-    T is linearly spaced in [0.0, 5.0], inclusive, with steps=101 and step_size=0.05.
+    T is linearly spaced in [0.0, 5.0], inclusive, with steps=101 and step_size=0.05
     X and Y are between: [-0.9941406, 0.9902344]
     """
 
@@ -197,17 +194,14 @@ class DiffusionReaction2DDataset:
         time_idx = self.offset + local_idx * (CLS.TRAJECTORY_LENGTH + self.stride)
 
         # try:
-            # print(self.files[file_idx], sample_idx, time_idx, index)
         sample = self._reconstruct_sample(
-                self.file,
-                sample_idx,
-                time_idx,
-                t_steps=CLS.TRAJECTORY_LENGTH,
+            self.file,
+            sample_idx,
+            time_idx,
+            t_steps=CLS.TRAJECTORY_LENGTH,
         )
-        # except Exception as e:
-        #    raise RuntimeError(
-        #        f'Failed to reconstruct sample for file {self.path} '
-        #        f'sample {sample_idx} time {time_idx}', e)
+        # except:
+        #    raise RuntimeError
 
         mid = CLS.TRAJECTORY_LENGTH // 2
         return Pair(torch.as_tensor(sample[:mid]), torch.as_tensor(sample[mid:]))
@@ -339,16 +333,14 @@ class NSIncompressibleDataset:
         # try:
         # print(self.files[int(file_idx)], sample_idx, time_idx, CLS.TRAJECTORY_LENGTH)
         sample = self._reconstruct_sample(
-                self.files[int(file_idx)],
-                sample_idx,
-                time_idx,
-                t_steps=CLS.TRAJECTORY_LENGTH,
+            self.files[int(file_idx)],
+            sample_idx,
+            time_idx,
+            t_steps=CLS.TRAJECTORY_LENGTH,
         )
         trajectory = np.concatenate([sample.particles, sample.velocity], axis=-1)
-        # except Exception as e:
-        #    raise RuntimeError(
-        #        f'Failed to reconstruct sample for file {self.paths[file_idx]} '
-        #        f'sample {sample_idx} time {time_idx}', e)
+        # except:
+        #    raise RuntimeError
 
         mid = CLS.TRAJECTORY_LENGTH // 2
         return Pair(

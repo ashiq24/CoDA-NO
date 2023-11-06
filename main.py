@@ -44,8 +44,8 @@ elif params.nettype == 'simple':
 
 model = model.cuda()
 # non-uniform dataset
-train, test = get_onestep_dataloader(ntrain=params.get('ntrain'),
-                                     ntest=params.get('ntest'))
+train, test = get_onestep_dataloader(n_train=params.get('ntrain'),
+                                     n_test=params.get('ntest'))
 
 # uniform dataset dummy
 #train, test = get_dummy_dataloaders()
