@@ -20,6 +20,113 @@ class Pair(NamedTuple):
     """Ground-truth tensor against model's prediction."""
 
 
+class DiffusionReaction2DDataset:
+    """
+    Represents one HDF5 dataset of a 2D Diffusion-Reaction trajectory from PDEBench.
+
+    For each dataset on .h5 file:
+    data=<HDF5 dataset "data": shape (101, 128, 128, 2), type "<f4">
+    with shape (T, W, H, C), channels=["activator", "inhibitor"]
+    T is linearly spaced in [0.0, 5.0], inclusive, with steps=101 and step_size=0.05.
+    X and Y are between: [-0.9941406, 0.9902344]
+    """
+
+    TRAJECTORY_LENGTH = 10
+    """Allow for 5 frames in input and 5 in output."""
+
+    TIME_DURATION = 101
+    """Each sample contains 101 time frames."""
+
+    SAMPLE_SIZE = 1000
+    """Each file contains 1,000 samples."""
+
+    def __init__(
+        self,
+        path: str,
+        train_test_split=1.0,
+        subsampling_rate=None,
+        stride=TRAJECTORY_LENGTH,
+        offset=0,
+    ):
+        self.path = path
+        self.file = h5py.File(path)
+        self._subsampling_rate = subsampling_rate
+        self.stride = stride
+        self.offset = offset
+
+        CLS = self.__class__
+        self.items_per_sample: int = (
+            (CLS.TIME_DURATION - self.offset) //
+            (CLS.TRAJECTORY_LENGTH + self.stride))
+        self.len = self.items_per_sample * np.floor(CLS.SAMPLE_SIZE * train_test_split)
+
+        # expect strings like: "0000", ..., "0999"
+        self.samples = list(self.file.keys())
+
+    @property
+    def subsampling_rate(self):
+        return (
+            self._subsampling_rate
+            if self._subsampling_rate is not None
+            else 1
+        )
+
+    @subsampling_rate.setter
+    def subsampling_rate(self, value):
+        self._subsampling_rate = value
+
+    def __len__(self):
+        return self.len
+
+    def __getitem__(self, index) -> Pair:
+        if index >= self.len:
+            raise IndexError(f"Cannot access item {index} of {self.len}")
+
+        CLS = self.__class__
+        sample_idx, local_idx = divmod(index, self.items_per_sample)
+        time_idx = self.offset + local_idx * (CLS.TRAJECTORY_LENGTH + self.stride)
+
+        try:
+            # print(self.files[file_idx], sample_idx, time_idx, index)
+            sample = self._reconstruct_sample(
+                self.file,
+                sample_idx,
+                time_idx,
+                t_steps=CLS.TRAJECTORY_LENGTH,
+            )
+        except:
+            raise RuntimeError(
+                f'Failed to reconstruct sample for file {self.path} '
+                f'sample {sample_idx} time {time_idx}')
+
+        mid = CLS.TRAJECTORY_LENGTH // 2
+        return Pair(torch.as_tensor(sample[:mid]), torch.as_tensor(sample[mid:]))
+
+    def _reconstruct_sample(
+        self,
+        h5_file,
+        sample_idx,
+        time_idx,
+        t_steps,
+    ) -> np.ndarray:
+        """
+        Reconstructs a sample with ordering: "activator", "inhibitor"
+
+        Reconstructs a sample from the target H5 file from times
+        ``[time_idx, time_idx + t_steps)`` (inclusive/exclusive, respectively).
+
+        Shape: (time, x, y, channel)
+        """
+        sample_key = self.samples[sample_idx]
+        _slice = [
+            slice(time_idx, time_idx + t_steps),
+            slice(None, None, self.subsampling_rate),
+            slice(None, None, self.subsampling_rate),
+        ]
+
+        return h5_file[sample_key]['data'][_slice]
+
+
 class NSIncompressibleSample(NamedTuple):
     particles: np.ndarray
     velocity: np.ndarray
@@ -30,6 +137,16 @@ class NSIncompressibleDataset:
     """
     Represents one or more HDF5 datasets of incompressible Navier-Stokes
     trajectories from PDEBench.
+
+    For a .h5 file on disk:
+    * f_ns['force']=
+      <HDF5 dataset "force": shape (4, 512, 512, 2), type "<f4">
+    * f_ns['particles']=
+      <HDF5 dataset "particles": shape (4, 1000, 512, 512, 1), type "<f4">
+    * f_ns['t']=
+      <HDF5 dataset "t": shape (4, 1000), type "<f4">
+    * f_ns['velocity']=
+      <HDF5 dataset "velocity": shape (4, 1000, 512, 512, 2), type "<f4">
 
     Parameters
     ---
@@ -67,24 +184,41 @@ class NSIncompressibleDataset:
     ):
         self.paths = paths
         self.files = [h5py.File(p) for p in paths]
-        self.subsampling_rate = subsampling_rate
+        self._subsampling_rate = subsampling_rate
         self.stride = stride
         self.offset = offset
 
+        CLS = self.__class__
         # This isn't quite right (ex. with offset=stride=TRAJECTORY_LENGTH,
         # there should still be 50 items, but this would result in 49). Maybe
         # padding TIME_DURATION with an additional stride?
         self.items_per_file: int = np.floor(
-            ((NSIncompressibleDataset.TIME_DURATION - self.offset) //
-             (NSIncompressibleDataset.TRAJECTORY_LENGTH + self.stride))
+            ((CLS.TIME_DURATION - self.offset) //
+             (CLS.TRAJECTORY_LENGTH + self.stride))
             * train_test_split)
         # Each item within the file has 4 samples
         self.len = len(paths) * self.items_per_file * 4
+
+    @property
+    def subsampling_rate(self):
+        return (
+            self._subsampling_rate
+            if self._subsampling_rate is not None
+            else 1
+        )
+
+    @subsampling_rate.setter
+    def subsampling_rate(self, value):
+        self._subsampling_rate = value
+
+    def __len__(self):
+        return self.len
 
     def __getitem__(self, index) -> Pair:
         if index >= self.len:
             raise IndexError(f"Cannot access item f{index} of f{self.len}")
 
+        CLS = self.__class__
         # Each item within the file has 4 samples
         index2, sample_idx = divmod(index, 4)
         # file_idx : which file we should read from,
@@ -92,7 +226,7 @@ class NSIncompressibleDataset:
         file_idx, local_idx = divmod(index2, self.items_per_file)
 
         time_idx = self.offset + local_idx * (
-            NSIncompressibleDataset.TRAJECTORY_LENGTH + self.stride)
+            CLS.TRAJECTORY_LENGTH + self.stride)
 
         try:
             # print(self.files[file_idx], sample_idx, time_idx, index)
@@ -100,7 +234,7 @@ class NSIncompressibleDataset:
                 self.files[file_idx],
                 sample_idx,
                 time_idx,
-                t_steps=NSIncompressibleDataset.TRAJECTORY_LENGTH,
+                t_steps=CLS.TRAJECTORY_LENGTH,
             )
             trajectory = np.concatenate([sample.particles, sample.velocity], axis=-1)
         except:
@@ -108,14 +242,11 @@ class NSIncompressibleDataset:
                 f'Failed to reconstruct sample for file {self.paths[file_idx]} '
                 f'sample {sample_idx} time {time_idx}')
 
-        mid = NSIncompressibleDataset.TRAJECTORY_LENGTH // 2
+        mid = CLS.TRAJECTORY_LENGTH // 2
         return Pair(
             torch.as_tensor(trajectory[:mid]),
             torch.as_tensor(trajectory[mid:])
         )
-
-    def __len__(self):
-        return self.len
 
     def _reconstruct_sample(
         self,
@@ -125,23 +256,18 @@ class NSIncompressibleDataset:
         t_steps,
     ) -> NSIncompressibleSample:
         """
-        Reconstructs a sample with ordering: "particles", Vx, Vy
+        Reconstructs a sample with ordering: "particles", [Vx, Vy], force
 
         Reconstructs a sample from the target H5 file from times
         ``[time_idx, time_idx + t_steps)`` (inclusive/exclusive, respectively).
 
-        Shape: (time, x, y, channel)
+        Shape (within each field) : (time, x, y, channel)
         """
-        subsampling_rate = (
-            self.subsampling_rate
-            if self.subsampling_rate is not None
-            else 1
-        )
         _slice = [
             sample_idx,
             slice(time_idx, time_idx + t_steps),
-            slice(None, None, subsampling_rate),
-            slice(None, None, subsampling_rate),
+            slice(None, None, self.subsampling_rate),
+            slice(None, None, self.subsampling_rate),
         ]
         particles = h5_file['particles'][_slice]
         velocity = h5_file['velocity'][_slice]
