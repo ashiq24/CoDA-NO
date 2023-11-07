@@ -174,18 +174,17 @@ class MaskerUniformTemporal:
                     random.randint(self.min_block, mx_blk_width),
                     W - x0
                 )
-                mask_duration = min(
-                    random.randint(self.min_block, mx_blk_duration),
-                    T - t0,
-                )
+                # The spatial `min_block` arg is the wrong scale
+                # for the short-duration time axis.
+                mask_duration = min(random.randint(1, mx_blk_duration), T - t0)
 
-                chunk = [
+                block = [
                     i,
                     slice(t0, t0 + mask_duration),
                     slice(y0, y0 + mask_height),
                     slice(x0, x0 + mask_width),
                 ]
-                mask[chunk] = 0
+                mask[block] = 0
                 n_drop_pix -= mask_height * mask_width * mask_duration
         # print("One data Done")
         return None, mask
