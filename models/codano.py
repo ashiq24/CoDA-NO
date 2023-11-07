@@ -438,3 +438,43 @@ class CodANO(nn.Module):
                     .repeat(batch_size, n_static_copies, 1, 1)
 
         return x
+
+class CoDANOTemporal(CodANO):
+    def encode_variables(self, inp):
+        """Applies variable encodings to given input tensor.
+
+        Transform the low-dimensional input tensor to a higher-dimensional
+        representation where each variable channel has been augmented with both
+        learned encodings and static channels (where the latter may be
+        positional encoding, etc).
+        """
+        # Token dimensionality supersedes channel dimensionality:
+        batch_size, _c, duration, width, height = inp.shape
+        token_size = (len(self.variable_channels) +
+                      len(self.encoding_channels) +
+                      len(self.static_channels))
+        x = torch.zeros(
+            (batch_size, token_size, duration, width, height),
+            device=inp.device,
+            dtype=inp.dtype,
+        )
+
+        x[:, self.variable_channels, :, :] = inp
+
+        var_encoding = self.var_encoding_functions(x).to(x.device)
+        # Unsqueeze variable encoding in 0th dimension and repeat it
+        # until it matches the dimension of ``batch_size``
+        x[:, self.encoding_channels, :, :] = \
+            var_encoding[None, :, :, :].repeat(batch_size, 1, 1, 1)
+
+        # if self.n_static_channels != 0:
+        if len(self.static_channels) > 0:
+            # Repeat `static_features` as many times as we can
+            # within the space of `static_channels`
+            n_static_copies = \
+                len(self.static_channels) // self.static_features.shape[1]
+            x[:, self.static_channels, :, :] = \
+                self.static_features[:, :, :, :] \
+                    .repeat(batch_size, n_static_copies, 1, 1)
+
+        return x

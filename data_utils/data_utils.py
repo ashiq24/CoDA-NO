@@ -146,37 +146,37 @@ class MaskerUniformTemporal:
         """
 
         np.random.seed()
-        C, T, H, W = size
+        c, t, h, w = size
         mask = torch.ones(size, device=self.device)
-        augmented_channels = np.random.choice(C, math.ceil(C * self.channel_per))
+        augmented_channels = np.random.choice(c, math.ceil(c * self.channel_per))
         # print(augmented_channels)
-        drop_len = int(self.channel_drop_per * math.ceil(C * self.channel_per))
+        drop_len = int(self.channel_drop_per * math.ceil(c * self.channel_per))
         mask[augmented_channels[:drop_len], :, :, :] = 0.0
         for i in augmented_channels[drop_len:]:
             # print("Masking")
-            n_drop_pix = self.drop_pix * T * H * W
-            mx_blk_height = int(H * self.max_block)
-            mx_blk_width = int(W * self.max_block)
-            mx_blk_duration = int(T * self.max_block)
+            n_drop_pix = self.drop_pix * t * h * w
+            mx_blk_height = int(h * self.max_block)
+            mx_blk_width = int(w * self.max_block)
+            mx_blk_duration = int(t * self.max_block)
 
             while n_drop_pix > 0:
                 # Pick one corner of the mask:
-                y0 = random.randint(0, H - 2)
-                x0 = random.randint(0, W - 2)
-                t0 = random.randint(0, T - 2)
+                y0 = random.randint(0, h - 2)
+                x0 = random.randint(0, w - 2)
+                t0 = random.randint(0, t - 2)
 
                 # Pick lengths of the mask along each dimension:
                 mask_height = min(
                     random.randint(self.min_block, mx_blk_height),
-                    H - y0
+                    h - y0
                 )
                 mask_width = min(
                     random.randint(self.min_block, mx_blk_width),
-                    W - x0
+                    w - x0
                 )
                 # The spatial `min_block` arg is the wrong scale
                 # for the short-duration time axis.
-                mask_duration = min(random.randint(1, mx_blk_duration), T - t0)
+                mask_duration = min(random.randint(1, mx_blk_duration), t - t0)
 
                 block = [
                     i,
