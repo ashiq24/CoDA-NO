@@ -53,7 +53,7 @@ def get_ssl_models_codaNo(params):
         static_features = None
         static_channels_num = 0
 
-    print("Token Dim-->", 1 + params.var_enco_channels + static_channels_num)
+    print("Token Dim-->", 1 + params.n_encoding_channels + static_channels_num)
     print("var num", params.var_num, "static channels", static_channels_num)
 
     encoder = CodANO(
@@ -71,8 +71,8 @@ def get_ssl_models_codaNo(params):
         integral_operator=int_op,
         integral_operator_top=int_op_top,
         integral_operator_bottom=int_op_bottom,
-        var_encoding=params.var_encoding,
-        var_enco_channels=params.var_enco_channels,
+        var_encoding=params.use_variable_encoding,
+        var_enco_channels=params.n_encoding_channels,
         var_num=params.var_num,
         enable_cls_token=params.enable_cls_token,
         static_channels_num=static_channels_num,
@@ -202,7 +202,7 @@ def get_ssl_models_codano_gino(params):
         static_features = None
         static_channels_num = 0
 
-    print("Token Dim-->", 1 + params.var_enco_channels + static_channels_num)
+    print("Token Dim-->", 1 + params.n_encoding_channels + static_channels_num)
     print("var num", params.var_num, "static channels", static_channels_num)
 
     encoder = CondnoGino(
@@ -225,8 +225,8 @@ def get_ssl_models_codano_gino(params):
             integral_operator=int_op,
             integral_operator_top=int_op_top,
             integral_operator_bottom=int_op_bottom,
-            var_encoding=params.var_encoding,
-            var_enco_channels=params.var_enco_channels,
+            var_encoding=params.use_variable_encoding,
+            var_enco_channels=params.n_encoding_channels,
             var_num=params.var_num,
             enable_cls_token=params.enable_cls_token,
             static_channels_num=static_channels_num,
