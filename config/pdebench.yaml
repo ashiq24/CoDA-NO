@@ -18,7 +18,7 @@ base_config: &BASE_CONFIG
 
     batch_size: 4
 
-    var_num: 7
+    var_num: 6
     in_token_codim_en: 1
     hidden_token_codim_en: 6
     lifting_token_codim_en: 12
@@ -48,8 +48,8 @@ base_config: &BASE_CONFIG
     fft_type: 'fft' # might be also spherical harmonics transform or 'sht'
     tno_integral_op: 'fno'
 
-    var_encoding: !!bool True
-    var_enco_channels: 3
+    use_variable_encoding: !!bool True
+    n_encoding_channels: 3
     reconstruction: !!bool True
     enable_cls_token: !!bool True
 

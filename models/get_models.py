@@ -1,7 +1,7 @@
 from functools import partial
 import numpy as np
 import torch
-import torch.nn as nn
+from torch import nn
 
 from neuralop.layers.fno_block import FNOBlocks
 from neuralop.models import FNO
@@ -19,7 +19,7 @@ from models.codano_gino import CondnoGino
 from models.fno_gino import FnoGno
 
 
-def get_ssl_models_codaNo(params):
+def get_ssl_models_codaNo(params, Module: nn.Module):
     # We use tno inside SSLtransformer model. That has a encoder and prediction/(decoder) part.
     # Encoder part - encodes the input function
     # Decoder part - does the prediction (eg. fuild flow of next time step)
@@ -56,7 +56,7 @@ def get_ssl_models_codaNo(params):
     print("Token Dim-->", 1 + params.n_encoding_channels + static_channels_num)
     print("var num", params.var_num, "static channels", static_channels_num)
 
-    encoder = CodANO(
+    encoder = Module(
         params.in_token_codim_en,
         hidden_token_codim=params.hidden_token_codim_en,
         lifting_token_codim=params.lifting_token_codim_en,
@@ -88,7 +88,7 @@ def get_ssl_models_codaNo(params):
 
     if params.reconstruction:
         print("Generating Decoder")
-        decoder = CodANO(
+        decoder = Module(
             params.hidden_token_codim_en,
             hidden_token_codim=params.hidden_token_codim_en,
             lifting_token_codim=params.lifting_token_codim_en,
@@ -114,7 +114,7 @@ def get_ssl_models_codaNo(params):
     contrastive = None
 
     print('generating Predictor')
-    predictor = CodANO(
+    predictor = Module(
         params.hidden_token_codim_en,
             hidden_token_codim=params.hidden_token_codim_en,
             lifting_token_codim=params.lifting_token_codim_pred,

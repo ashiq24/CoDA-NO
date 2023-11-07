@@ -459,13 +459,13 @@ class CoDANOTemporal(CodANO):
             dtype=inp.dtype,
         )
 
-        x[:, self.variable_channels, :, :] = inp
+        x[:, self.variable_channels, :, :, :] = inp
 
         var_encoding = self.var_encoding_functions(x).to(x.device)
         # Unsqueeze variable encoding in 0th dimension and repeat it
         # until it matches the dimension of ``batch_size``
-        x[:, self.encoding_channels, :, :] = \
-            var_encoding[None, :, :, :].repeat(batch_size, 1, 1, 1)
+        x[:, self.encoding_channels, :, :, :] = \
+            var_encoding[None, :, :, :, :].repeat(batch_size, 1, 1, 1, 1)
 
         # if self.n_static_channels != 0:
         if len(self.static_channels) > 0:
@@ -473,8 +473,8 @@ class CoDANOTemporal(CodANO):
             # within the space of `static_channels`
             n_static_copies = \
                 len(self.static_channels) // self.static_features.shape[1]
-            x[:, self.static_channels, :, :] = \
-                self.static_features[:, :, :, :] \
-                    .repeat(batch_size, n_static_copies, 1, 1)
+            x[:, self.static_channels, :, :, :] = \
+                self.static_features[:, :, :, :, :] \
+                    .repeat(batch_size, n_static_copies, 1, 1, 1)
 
         return x
