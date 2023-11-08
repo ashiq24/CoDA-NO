@@ -62,10 +62,9 @@ class Projection(nn.Module):
 class ProjectionT(Projection):
     """Time-aware projection MLP layer"""
 
-    def __init__(self, hidden_channels, **kwargs):
-        super().__init__(hidden_channels=hidden_channels, **kwargs)
-        self.norm = nn.InstanceNorm3d(hidden_channels, affine=True)
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.norm = nn.InstanceNorm3d(kwargs["hidden_channels"], affine=True)
 
     def forward(self, x):
         batch_size = x.shape[0]
@@ -484,58 +483,6 @@ class CodANO(nn.Module):
 
 class CoDANOTemporal(CodANO):
     """Time-aware Co-domain Attention Operator that acts on 2+1 dim states"""
-
-    """ I think we can delete this after refactoring to _make_variable_encoder
-    def _initialize_variable_encoding_channels(
-        self,
-        n_variables,
-        ve_args,
-    ):
-        " " "
-        Each variable along with its variable encoding should remain
-        consecutive to be considered a single token
-        for variable_encoding with codim = 2
-        the channels can be:
-        ```python
-        [
-            variable1, variable_encoding1, variable_encoding1, static_channel,
-            variable2, variable_encoding2, variable_encoding2, static_channel,
-            ...
-        ]
-        ```
-        Each token is extracted accordingly in the attention module
-        " " "
-
-        assert n_variables is not None
-        print("Using Variable encoding")
-
-        # TODO concat re + im
-        self.var_encoding_functions = FourierVariableEncoding3D(
-            n_variables * self.n_encoding_channels,
-            modes=(ve_args.modes_t, ve_args.modes_x, ve_args.modes_y),
-        )
-
-        expansion_factor = 1 + self.n_static_channels + self.n_encoding_channels
-        # Allocate every Nth channel for the untransformed variable
-        # where N=``expansion_factor``
-        self.variable_channels = [i * expansion_factor for i in range(n_variables)]
-
-        # Allocate N static channels for each known variable,
-        # where N=``n_static_channels``
-        self.static_channels = []
-        if self.n_static_channels != 0:
-            for v in self.variable_channels:
-                self.static_channels.extend(
-                    range(v + 1, v + self.n_static_channels + 1))
-
-        # Allocate all remaining channels as encoding channels
-        # for the preceding variable:
-        self.encoding_channels = list(
-            set(range(n_variables * expansion_factor))
-            - set(self.variable_channels)
-            - set(self.static_channels)
-        )
-    """
 
     def _mk_variable_encoder(self, ve_args):
         modes = (ve_args.modes_t, ve_args.modes_x, ve_args.modes_y,)
