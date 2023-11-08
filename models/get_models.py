@@ -72,20 +72,20 @@ def get_ssl_models_codaNo(params, Module: CodANO):
         integral_operator=int_op,
         integral_operator_top=int_op_top,
         integral_operator_bottom=int_op_bottom,
-        use_variable_encoding=params.use_variable_encoding,
-        n_encoding_channels=params.n_encoding_channels,
+        use_variable_encodings=params.use_variable_encodings,
+        # n_encoding_channels=params.n_encoding_channels,
         n_variables=params.n_variables,
         enable_cls_token=params.enable_cls_token,
         static_channels_num=static_channels_num,
         static_features=static_features,
         per_channel_attention=params.per_channel_attention,
         variable_encoding_args=VariableEncodingArgs(
-            basis="sht",
+            basis="fft",
             n_channels=params.n_encoding_channels,
             modes_x=params.encoding_modes_x,
             modes_y=params.encoding_modes_y,
             modes_t=params.encoding_modes_t,
-        )
+        ),
     )
     print("*********************")
 
@@ -105,11 +105,18 @@ def get_ssl_models_codaNo(params, Module: CodANO):
             projection=True,
             operator_block=block,
             integral_operator=int_op,
-            var_num=params.n_variables,
+            n_variables=params.n_variables,
             integral_operator_top=int_op_top,
             integral_operator_bottom=int_op_bottom,
             per_channel_attention=params.per_channel_attention,
-            enable_cls_token=params.enable_cls_token
+            enable_cls_token=params.enable_cls_token,
+            variable_encoding_args=VariableEncodingArgs(
+                basis="fft",
+                n_channels=params.n_encoding_channels,
+                modes_x=params.encoding_modes_x,
+                modes_y=params.encoding_modes_y,
+                modes_t=params.encoding_modes_t,
+            ),
         )
     else:
         decoder = None
@@ -132,10 +139,17 @@ def get_ssl_models_codaNo(params, Module: CodANO):
             re_grid_output=False,
             operator_block=block,
             integral_operator=int_op,
-            var_num=params.n_variables,
+            n_variables=params.n_variables,
             integral_operator_top=int_op_top,
             integral_operator_bottom=int_op_bottom,
             per_channel_attention=params.per_channel_attention,
+            variable_encoding_args=VariableEncodingArgs(
+                basis="fft",
+                n_channels=params.n_encoding_channels,
+                modes_x=params.encoding_modes_x,
+                modes_y=params.encoding_modes_y,
+                modes_t=params.encoding_modes_t,
+            ),
         )
     print("*********************")
 

@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Literal, NamedTuple
+from typing import Literal, NamedTuple, Optional
 
 import numpy as np
 from einops import rearrange
@@ -59,13 +59,40 @@ class Projection(nn.Module):
         return x
 
 
+class ProjectionT(Projection):
+    """Time-aware projection MLP layer"""
+
+    def __init__(self, hidden_channels, **kwargs):
+        super().__init__(hidden_channels=hidden_channels, **kwargs)
+        self.norm = nn.InstanceNorm3d(hidden_channels, affine=True)
+
+
+    def forward(self, x):
+        batch_size = x.shape[0]
+
+        if self.permutation_invariant:
+            assert x.shape[1] % self.in_channels == 0,\
+                "Total Number of Channels is not divisible by number of tokens"
+            x = rearrange(x, 'b (g c) t h w -> (b g) c t h w', c=self.in_channels)
+
+        x = self.fc1(x)
+        x = self.norm(x)
+        x = self.non_linearity(x)
+        x = self.fc2(x)
+
+        if self.permutation_invariant:
+            x = rearrange(x, '(b g) c t h w -> b (g c) t h w', b=batch_size)
+
+        return x
+
+
 class VariableEncodingArgs(NamedTuple):
     basis: Literal["sht", "fft"]
     n_channels: int
     """Number of extra encoding channels per variable."""
-    modes_t: int
     modes_x: int
     modes_y: int
+    modes_t: Optional[int] = None
 
 
 class CodANO(nn.Module):
@@ -122,10 +149,6 @@ class CodANO(nn.Module):
         use_variable_encodings=False,  # b
         n_variables=None,  # denotes the number of variables
         variable_encoding_args: VariableEncodingArgs = None,
-        # var_enco_basis='fft',
-        # var_enco_channels=1,
-        # var_enco_mode_x=20,
-        # var_enco_mode_y=40,
         enable_cls_token=False,
         static_channels_num=0,
         static_features=None,
@@ -225,29 +248,21 @@ class CodANO(nn.Module):
             self._initialize_variable_encoding_channels(
                 n_variables,
                 variable_encoding_args,
-                # VariableEncodingArgs(
-                #     n_channels=self.n_encoding_channels,
-                #     # modes_t=
-                #     modes_x=var_enco_mode_x,
-                #     modes_y=var_enco_mode_y,
-                #     basis=var_enco_basis,
-                # )
             )
         else:
             var_enco_channels = 0
 
         # A variable + it's variable encoding + the static channel(s)
         # together constitute a token
-        n_lifted_channels = self.in_token_codim + var_enco_channels + self.n_static_channels
+        n_lifted_channels = self.in_token_codim + \
+                            variable_encoding_args.n_channels + \
+                            self.n_static_channels
         if self.lifting:
             print('Using lifting Layer')
-
-            self.lifting = Projection(
-                in_channels=n_lifted_channels,
-                out_channels=hidden_token_codim,
-                hidden_channels=lifting_token_codim,
-                n_dim=self.n_dim,
-                permutation_invariant=True,   # Permutation
+            self.lifting = self._mk_lifting_operator(
+                n_lifted_channels,
+                hidden_token_codim,
+                lifting_token_codim,
             )
         elif self.use_variable_encoding:
             hidden_token_codim = n_lifted_channels
@@ -299,12 +314,9 @@ class CodANO(nn.Module):
         self.enable_cls_token = enable_cls_token
         if enable_cls_token:
             print("initializing CLS token")
-            self.cls_token = VariableEncoding2d(
-                hidden_token_codim,
-                mode_x=variable_encoding_args.modes_x,
-                mode_y=variable_encoding_args.modes_y,
-                basis=variable_encoding_args.basis,
-            )
+            cls_token_args = variable_encoding_args._replace(
+                n_channels=hidden_token_codim)
+            self.cls_token = self._mk_variable_encoder(cls_token_args)
 
     def _initialize_variable_encoding_channels(
         self,
@@ -329,12 +341,8 @@ class CodANO(nn.Module):
         assert n_variables is not None
         print("Using Variable encoding")
 
-        self.var_encoding_functions = VariableEncoding2d(
-            n_variables * self.n_encoding_channels,
-            mode_x=ve_args.modes_x,
-            mode_y=ve_args.modes_y,
-            basis=ve_args.basis,
-        )
+        args = ve_args._replace(n_channels=n_variables * self.n_encoding_channels)
+        self.var_encoding_functions = self._mk_variable_encoder(args)
 
         expansion_factor = 1 + self.n_static_channels + self.n_encoding_channels
         # Allocate every Nth channel for the untransformed variable
@@ -355,6 +363,28 @@ class CodANO(nn.Module):
             set(range(n_variables * expansion_factor))
             - set(self.variable_channels)
             - set(self.static_channels)
+        )
+
+    def _mk_variable_encoder(self, ve_args):
+        return VariableEncoding2d(
+            channel=ve_args.n_channels,
+            mode_x=ve_args.modes_x,
+            mode_y=ve_args.modes_y,
+            basis=ve_args.basis,
+        )
+
+    def _mk_lifting_operator(
+        self,
+        n_lifted_channels,
+        hidden_token_codimension,
+        lifting_token_codimension,
+    ):
+        return Projection(
+            in_channels=n_lifted_channels,
+            out_channels=hidden_token_codimension,
+            hidden_channels=lifting_token_codimension,
+            n_dim=self.n_dim,
+            permutation_invariant=True,   # Permutation
         )
 
     @staticmethod
@@ -382,11 +412,12 @@ class CodANO(nn.Module):
             x = self.lifting(x)
 
         if self.enable_cls_token:
-            cls_token = self.cls_token(x)
+            cls_token = self.cls_token(x).unsqueeze(0)
+            repeat_shape = [1 for _ in x.shape]
+            repeat_shape[0] = x.shape[0]
             x = torch.cat(
                 [
-                    # Unsqueeze ``cls_token``
-                    cls_token[None, :, :, :].repeat(x.shape[0], 1, 1, 1),
+                    cls_token.repeat(*repeat_shape),
                     x,
                 ],
                 dim=1,
@@ -452,12 +483,15 @@ class CodANO(nn.Module):
         return x
 
 class CoDANOTemporal(CodANO):
+    """Time-aware Co-domain Attention Operator that acts on 2+1 dim states"""
+
+    """ I think we can delete this after refactoring to _make_variable_encoder
     def _initialize_variable_encoding_channels(
         self,
         n_variables,
         ve_args,
     ):
-        """
+        " " "
         Each variable along with its variable encoding should remain
         consecutive to be considered a single token
         for variable_encoding with codim = 2
@@ -470,7 +504,7 @@ class CoDANOTemporal(CodANO):
         ]
         ```
         Each token is extracted accordingly in the attention module
-        """
+        " " "
 
         assert n_variables is not None
         print("Using Variable encoding")
@@ -501,6 +535,29 @@ class CoDANOTemporal(CodANO):
             - set(self.variable_channels)
             - set(self.static_channels)
         )
+    """
+
+    def _mk_variable_encoder(self, ve_args):
+        modes = (ve_args.modes_t, ve_args.modes_x, ve_args.modes_y,)
+        return FourierVariableEncoding3D(
+            channel_size=ve_args.n_channels,
+            modes=modes,
+        )
+
+    def _mk_lifting_operator(
+        self,
+        n_lifted_channels,
+        hidden_token_codimension,
+        lifting_token_codimension,
+    ):
+        return ProjectionT(
+            in_channels=n_lifted_channels,
+            out_channels=hidden_token_codimension,
+            hidden_channels=lifting_token_codimension,
+            n_dim=self.n_dim,
+            permutation_invariant=True,   # Permutation
+        )
+
 
     def encode_variables(self, inp):
         """Applies variable encodings to given input tensor.

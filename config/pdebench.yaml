@@ -18,7 +18,7 @@ base_config: &BASE_CONFIG
 
     batch_size: 4
 
-    var_num: 6
+    n_variables: 6
     in_token_codim_en: 1
     hidden_token_codim_en: 6
     lifting_token_codim_en: 12
@@ -38,16 +38,16 @@ base_config: &BASE_CONFIG
     scalings_en: [[1,1], [1,1]]
     scalings_dec: [[1,1],[1,1]]
 
-    n_modes_en: [[100,100], [100,100]]
-    n_modes_dec: [[100,100], [100,100]]
-    n_modes_pred: [[100,100], [100,100],[100,100]]
+    n_modes_en:   [[8, 12, 12], [8, 12, 12]]
+    n_modes_dec:  [[8, 12, 12], [8, 12, 12]]
+    n_modes_pred: [[8, 12, 12], [8, 12, 12], [8, 12, 12]]
 
     per_channel_attention: !!bool True
 
     fft_type: 'fft' # might be also spherical harmonics transform or 'sht'
     tno_integral_op: 'fno'
 
-    use_variable_encoding: !!bool True
+    use_variable_encodings: !!bool True
     n_encoding_channels: 3
     encoding_modes_t: 8
     encoding_modes_x: 12
@@ -89,9 +89,9 @@ codano_gino: &CODANO_GINO
     gno_mlp_layers: [6,8]
     grid_size: [251, 42]
     grid_type: 'uniform'
-    n_modes_en:       [[180,30], [180,30]]
-    n_modes_dec:       [[180,30], [180,30]]
-    n_modes_pred:       [[180,30], [180,30],[180,30]]
+    n_modes_en:   [[12, 16, 16], [12, 16, 16]]
+    n_modes_dec:  [[12, 16, 16], [12, 16, 16]]
+    n_modes_pred: [[12, 16, 16], [12, 16, 16], [12, 16, 16]]
     masking_radius: 0.08
 
 
