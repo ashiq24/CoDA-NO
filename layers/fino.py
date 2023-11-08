@@ -9,7 +9,9 @@ class SpectralConvKernel2d(SpectralConv):
     """
     Parameters
     ---
-    fft_type = {'sph', 'norm'}, if 'sph' it uses the spherical Fourier Transform
+    transform_type : {'sht', 'fft'}
+        * If "sht" it uses the Spherical Fourier Transform.
+        * If "fft" it uses the Fast Fourier Transform.
     """
 
     def __init__(
@@ -28,10 +30,10 @@ class SpectralConvKernel2d(SpectralConv):
         fno_block_precision='full',
         fixed_rank_modes=False,
         joint_factorization=False,
-        decomposition_kwargs=dict(),
+        decomposition_kwargs=None,
         init_std='auto',
         fft_norm='forward',
-        fft_type='sht',
+        transform_type="sht",
         sht_nlat=180,
         sht_nlon=360,
         sht_grid="legendre-gauss",
@@ -39,6 +41,8 @@ class SpectralConvKernel2d(SpectralConv):
         sht_norm="backward",
         frequency_mixer=False,
     ):
+        if decomposition_kwargs is None:
+            decomposition_kwargs = {}
         super().__init__(
             in_channels,
             out_channels,
@@ -88,7 +92,7 @@ class SpectralConvKernel2d(SpectralConv):
         self.sht_grid = sht_grid
         self.isht_grid = isht_grid
         self.sht_norm = sht_norm
-        self.fft_type = fft_type
+        self.transform_type = transform_type
         self.frequency_mixer = frequency_mixer
 
         ####
@@ -102,11 +106,19 @@ class SpectralConvKernel2d(SpectralConv):
             out_nlat = sht_nlat
             out_nlon = sht_nlon
 
-        if fft_type == 'sht':
-            self.forward_fft = th.RealSHT(
-                sht_nlat, sht_nlon, grid=self.sht_grid, norm=self.sht_norm)
-            self.inverse_fft = th.InverseRealSHT(
-                out_nlat, out_nlon, grid=self.isht_grid, norm=self.sht_norm)
+        if self.transform_type == "sht":
+            self.forward_sht = th.RealSHT(
+                sht_nlat,
+                sht_nlon,
+                grid=self.sht_grid,
+                norm=self.sht_norm,
+            )
+            self.inverse_sht = th.InverseRealSHT(
+                out_nlat,
+                out_nlon,
+                grid=self.isht_grid,
+                norm=self.sht_norm,
+            )
 
     def reset_parameter(self):
         # Initial model parameters.
@@ -121,23 +133,87 @@ class SpectralConvKernel2d(SpectralConv):
     def mode_mixer(input, weights):
         return torch.einsum("bimn,mnop->biop", input, weights)
 
+    def forward_transform(self, x):
+        height, width = x.shape[-2:]
+        if self.transform_type == "fft":
+            return torch.fft.rfft2(x.float(), norm=self.fft_norm)
+
+        if self.transform_type == "sht":
+            # The SHT is expensive to initialize, and during training we expect
+            # the data to all be of the same shape. If we have a correct SHT,
+            # let's use it:
+            if (
+                self.forward_sht.nlat == height and
+                self.forward_sht.nlon == width
+            ):
+                return self.forward_sht(x.double()).to(dtype=torch.cfloat)
+
+            # Otherwise, initialize a new SHT:
+            self.forward_sht = th.RealSHT(
+                height,
+                width,
+                grid=self.sht_grid,
+                norm=self.sht_norm,
+            ).to(x.device)
+            return self.forward_sht(x.double()).to(dtype=torch.cfloat)
+
+        raise ValueError(
+            'Expected `transform_type` to be one of "fft" or "sht"; '
+            f'Got {self.transform_type=}'
+        )
+
+    # Although a previous implementation kept an initialized
+    # ``th.InverseRealSHT`` in its state, it always checked if its lat/lon grid
+    # size matched the input's
+    # resolution. Thus, it never really mattered that an object was in state.
+    def inverse_transform(
+        self,
+        x: torch.Tensor,
+        target_height: int,
+        target_width: int,
+        device,
+    ):
+        source_height, source_width = x.shape[-2:]
+        if self.transform_type == "fft":
+            return torch.fft.irfft2(
+                x,
+                s=(target_height, target_width),
+                dim=(-2, -1),
+                norm=self.fft_norm,
+            )
+
+        if self.transform_type == "sht":
+            # The SHT is expensive to initialize, and during training we expect
+            # the data to all be of the same shape. If we have a correct SHT,
+            # let's use it:
+            if (
+                self.inverse_sht.lmax == source_height and
+                self.inverse_sht.mmax == source_width and
+                self.inverse_sht.nlat == target_height and
+                self.inverse_sht.nlon == target_width
+            ):
+                return self.inverse_sht(x.to(dtype=torch.cdouble)).float()
+
+            # Otherwise, initialize a new SHT:
+            self.inverse_sht = th.InverseRealSHT(
+                target_height,
+                target_width,
+                lmax=source_height,
+                mmax=source_width,
+                grid=self.sht_grid,
+                norm=self.sht_norm,
+            ).to(device)
+            return self.inverse_sht(x.to(dtype=torch.cdouble)).float()
+
+        raise ValueError(
+            'Expected `transform_type` to be one of "fft" or "sht"; '
+            f'Got {self.transform_type=}'
+        )
+
     def forward(self, x, indices=0, output_shape=None):
         batch_size, channels, height, width = x.shape
 
-        if self.fft_type == 'sht':
-            if (
-                self.forward_fft.nlat != height or
-                self.forward_fft.nlon != width
-            ):
-                self.forward_fft = th.RealSHT(
-                    height,
-                    width,
-                    grid=self.sht_grid,
-                    norm=self.sht_norm,
-                ).to(x.device)
-            x = self.forward_fft(x.double()).to(dtype=torch.cfloat)
-        else:
-            x = torch.fft.rfft2(x.float(), norm=self.fft_norm)
+        x = self.forward_transform(x)
 
         upper_modes = [
             slice(None),
@@ -149,6 +225,7 @@ class SpectralConvKernel2d(SpectralConv):
 
         Equivalent to: ``x[:, :, :self.half_n_modes[0], :self.half_n_modes[1]]``
         """
+
         lower_modes = [
             slice(None),
             slice(None),
@@ -179,13 +256,13 @@ class SpectralConvKernel2d(SpectralConv):
             device=x.device,
         )
 
-        # Upper block (truncate high freq)
+        # Upper block (truncate high frequencies):
         out_fft[upper_modes] = self._contract(
             x[upper_modes],
             self._get_weight(2 * indices),
             separable=self.separable,
         )
-        # Lower block
+        # Lower block (truncate low frequencies):
         out_fft[lower_modes] = self._contract(
             x[lower_modes],
             self._get_weight(2 * indices + 1),
@@ -193,36 +270,14 @@ class SpectralConvKernel2d(SpectralConv):
         )
 
         if self.output_scaling_factor is not None and output_shape is None:
-            height = int(round(height * self.output_scaling_factor[indices][0]))
-            width = int(round(width * self.output_scaling_factor[indices][1]))
+            height = round(height * self.output_scaling_factor[indices][0])
+            width = round(width * self.output_scaling_factor[indices][1])
 
         if output_shape is not None:
             height = output_shape[0]
             width = output_shape[1]
 
-        if self.fft_type == 'sht':
-            if (
-                self.inverse_fft.lmax != out_fft.shape[-2] or
-                self.inverse_fft.mmax != out_fft.shape[-1] or
-                self.inverse_fft.nlat != height or
-                self.inverse_fft.nlon != width
-            ):
-                self.inverse_fft = th.InverseRealSHT(
-                    height,
-                    width,
-                    lmax=out_fft.shape[-2],
-                    mmax=out_fft.shape[-1],
-                    grid=self.sht_grid,
-                    norm=self.sht_norm,
-                ).to(x.device)
-            x = self.inverse_fft(out_fft.to(dtype=torch.cdouble)).float()
-        else:
-            x = torch.fft.irfft2(
-                out_fft,
-                s=(height, width),
-                dim=(-2, -1),
-                norm=self.fft_norm,
-            )
+        x = self.inverse_transform(out_fft, height, width, x.device)
 
         if self.bias is not None:
             x = x + self.bias[indices, ...]
