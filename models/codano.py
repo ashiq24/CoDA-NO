@@ -11,7 +11,7 @@ from neuralop.layers.padding import DomainPadding
 from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
 from layers.regrider import Regird
-from layers.variable_encoding import VariableEncoding2d
+from layers.variable_encoding import VariableEncoding2d, FourierVariableEncoding3D
 
 
 class Projection(nn.Module):
@@ -60,12 +60,12 @@ class Projection(nn.Module):
 
 
 class VariableEncodingArgs(NamedTuple):
-    basis: Literal["sht", "fft"] = "sht"
-    n_channels: int = 1
+    basis: Literal["sht", "fft"]
+    n_channels: int
     """Number of extra encoding channels per variable."""
-    modes_t: int = 8
-    modes_x: int = 20
-    modes_y: int = 20
+    modes_t: int
+    modes_x: int
+    modes_y: int
 
 
 class CodANO(nn.Module):
@@ -452,6 +452,56 @@ class CodANO(nn.Module):
         return x
 
 class CoDANOTemporal(CodANO):
+    def _initialize_variable_encoding_channels(
+        self,
+        n_variables,
+        ve_args,
+    ):
+        """
+        Each variable along with its variable encoding should remain
+        consecutive to be considered a single token
+        for variable_encoding with codim = 2
+        the channels can be:
+        ```python
+        [
+            variable1, variable_encoding1, variable_encoding1, static_channel,
+            variable2, variable_encoding2, variable_encoding2, static_channel,
+            ...
+        ]
+        ```
+        Each token is extracted accordingly in the attention module
+        """
+
+        assert n_variables is not None
+        print("Using Variable encoding")
+
+        # TODO concat re + im
+        self.var_encoding_functions = FourierVariableEncoding3D(
+            n_variables * self.n_encoding_channels,
+            modes=(ve_args.modes_t, ve_args.modes_x, ve_args.modes_y),
+        )
+
+        expansion_factor = 1 + self.n_static_channels + self.n_encoding_channels
+        # Allocate every Nth channel for the untransformed variable
+        # where N=``expansion_factor``
+        self.variable_channels = [i * expansion_factor for i in range(n_variables)]
+
+        # Allocate N static channels for each known variable,
+        # where N=``n_static_channels``
+        self.static_channels = []
+        if self.n_static_channels != 0:
+            for v in self.variable_channels:
+                self.static_channels.extend(
+                    range(v + 1, v + self.n_static_channels + 1))
+
+        # Allocate all remaining channels as encoding channels
+        # for the preceding variable:
+        self.encoding_channels = list(
+            set(range(n_variables * expansion_factor))
+            - set(self.variable_channels)
+            - set(self.static_channels)
+        )
+
     def encode_variables(self, inp):
         """Applies variable encodings to given input tensor.
 

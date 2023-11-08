@@ -14,12 +14,13 @@ from data_utils.data_utils import (
 )
 from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
-from models.codano import CodANO
+from models.codano import CodANO, VariableEncodingArgs
 from models.codano_gino import CondnoGino
 from models.fno_gino import FnoGno
 
 
-def get_ssl_models_codaNo(params, Module: nn.Module):
+# TODO merge methods get_ssl_models_coda*()
+def get_ssl_models_codaNo(params, Module: CodANO):
     # We use tno inside SSLtransformer model. That has a encoder and prediction/(decoder) part.
     # Encoder part - encodes the input function
     # Decoder part - does the prediction (eg. fuild flow of next time step)
@@ -54,7 +55,7 @@ def get_ssl_models_codaNo(params, Module: nn.Module):
         static_channels_num = 0
 
     print("Token Dim-->", 1 + params.n_encoding_channels + static_channels_num)
-    print("var num", params.var_num, "static channels", static_channels_num)
+    print("var num", params.n_variables, "static channels", static_channels_num)
 
     encoder = Module(
         params.in_token_codim_en,
@@ -71,20 +72,22 @@ def get_ssl_models_codaNo(params, Module: nn.Module):
         integral_operator=int_op,
         integral_operator_top=int_op_top,
         integral_operator_bottom=int_op_bottom,
-        var_encoding=params.use_variable_encoding,
-        var_enco_channels=params.n_encoding_channels,
-        var_num=params.var_num,
+        use_variable_encoding=params.use_variable_encoding,
+        n_encoding_channels=params.n_encoding_channels,
+        n_variables=params.n_variables,
         enable_cls_token=params.enable_cls_token,
         static_channels_num=static_channels_num,
         static_features=static_features,
         per_channel_attention=params.per_channel_attention,
+        variable_encoding_args=VariableEncodingArgs(
+            basis="sht",
+            n_channels=params.n_encoding_channels,
+            modes_x=params.encoding_modes_x,
+            modes_y=params.encoding_modes_y,
+            modes_t=params.encoding_modes_t,
+        )
     )
     print("*********************")
-
-    if params.enable_cls_token:
-        count = 1
-    else:
-        count = 0
 
     if params.reconstruction:
         print("Generating Decoder")
@@ -102,10 +105,11 @@ def get_ssl_models_codaNo(params, Module: nn.Module):
             projection=True,
             operator_block=block,
             integral_operator=int_op,
-            var_num=params.var_num,
+            var_num=params.n_variables,
             integral_operator_top=int_op_top,
             integral_operator_bottom=int_op_bottom,
             per_channel_attention=params.per_channel_attention,
+            enable_cls_token=params.enable_cls_token
         )
     else:
         decoder = None
@@ -128,7 +132,7 @@ def get_ssl_models_codaNo(params, Module: nn.Module):
             re_grid_output=False,
             operator_block=block,
             integral_operator=int_op,
-            var_num=params.var_num,
+            var_num=params.n_variables,
             integral_operator_top=int_op_top,
             integral_operator_bottom=int_op_bottom,
             per_channel_attention=params.per_channel_attention,
@@ -203,7 +207,7 @@ def get_ssl_models_codano_gino(params):
         static_channels_num = 0
 
     print("Token Dim-->", 1 + params.n_encoding_channels + static_channels_num)
-    print("var num", params.var_num, "static channels", static_channels_num)
+    print("var num", params.n_variables, "static channels", static_channels_num)
 
     encoder = CondnoGino(
         params.in_token_codim_en,
@@ -235,37 +239,33 @@ def get_ssl_models_codano_gino(params):
         )
     print("*********************")
 
-    # if params.enable_cls_token:
-    #     count = 1
-    # else:
-    #     count = 0
-
     if params.reconstruction:
         print("Generating Decoder")
         decoder = CondnoGino(
             params.hidden_token_codim_en,
-                 input_grid=input_mesh,
-                 output_grid=output_mesh,
-                 radius=params.radius,
-                 grid_size=params.grid_size,
-                 gno_mlp_layers=params.gno_mlp_layers,
-                 hidden_token_codim=params.hidden_token_codim_en,
-                 lifting_token_codim=params.lifting_token_codim_en,
-                 out_token_codim=params.in_token_codim_en,
-                 n_layers=params.n_layers_dec,
-                 n_heads=params.n_heads_dec,
-                 n_modes=params.n_modes_dec,
-                 scalings=params.scalings_dec,
-                 lifting=False,
-                 re_grid_output=False,
-                 projection=True,
-                 operator_block=block,
-                 integral_operator=int_op,
-                 var_num=params.var_num,
-                 integral_operator_top=int_op_top,
-                 integral_operator_bottom=int_op_bottom,
-                 per_channel_attention=params.per_channel_attention,
-             )
+            input_grid=input_mesh,
+            output_grid=output_mesh,
+            radius=params.radius,
+            grid_size=params.grid_size,
+            gno_mlp_layers=params.gno_mlp_layers,
+            hidden_token_codim=params.hidden_token_codim_en,
+            lifting_token_codim=params.lifting_token_codim_en,
+            out_token_codim=params.in_token_codim_en,
+            n_layers=params.n_layers_dec,
+            n_heads=params.n_heads_dec,
+            n_modes=params.n_modes_dec,
+            scalings=params.scalings_dec,
+            lifting=False,
+            re_grid_output=False,
+            projection=True,
+            operator_block=block,
+            integral_operator=int_op,
+            var_num=params.n_variables,
+            integral_operator_top=int_op_top,
+            integral_operator_bottom=int_op_bottom,
+            per_channel_attention=params.per_channel_attention,
+            enable_cls_token=params.enable_cls_token,
+        )
     else:
         decoder = None
     print("*********************")
@@ -292,7 +292,7 @@ def get_ssl_models_codano_gino(params):
             re_grid_output=False,
             operator_block=block,
             integral_operator=int_op,
-            var_num=params.var_num,
+            var_num=params.n_variables,
             integral_operator_top=int_op_top,
             integral_operator_bottom=int_op_bottom,
             per_channel_attention=params.per_channel_attention,

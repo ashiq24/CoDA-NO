@@ -43,13 +43,16 @@ base_config: &BASE_CONFIG
     n_modes_pred: [[100,100], [100,100],[100,100]]
 
     per_channel_attention: !!bool True
-    
 
     fft_type: 'fft' # might be also spherical harmonics transform or 'sht'
     tno_integral_op: 'fno'
 
     use_variable_encoding: !!bool True
     n_encoding_channels: 3
+    encoding_modes_t: 8
+    encoding_modes_x: 12
+    encoding_modes_y: 12
+
     reconstruction: !!bool True
     enable_cls_token: !!bool True
 

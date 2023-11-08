@@ -1,3 +1,7 @@
+from functools import reduce
+from typing import Tuple
+
+import numpy as np
 import torch
 from torch import nn
 import torch_harmonics as th
@@ -54,3 +58,32 @@ class VariableEncoding2d(nn.Module):
                 self.coefficients_r + 1.0j *self.coefficients_i,
                 s=(size_x, size_y)
             ).real
+
+
+# SHT doesn't make sense for 3 variables
+class FourierVariableEncoding3D(nn.Module):
+    def __init__(self, channel_size: int, modes: Tuple[int, ...]) -> None:
+        super().__init__()
+        if len(modes) != 3:
+            raise ValueError(
+                f"Expected 3 frequency modes, but got {len(modes)}\n{modes=}")
+
+        self.modes = modes
+        self.weights_re = nn.Parameter(torch.empty(channel_size, *modes))
+        self.weights_im = nn.Parameter(torch.empty(channel_size, *modes))
+        self.reset_parameters()
+        self.transform = torch.fft.ifftn
+
+    def reset_parameters(self):
+        std = 1 / np.sqrt(reduce(lambda a, b: a * b, self.modes))
+        torch.nn.init.normal_(self.weights_re, mean=0.0, std=std)
+        torch.nn.init.normal_(self.weights_im, mean=0.0, std=std)
+
+    def forward(self, x):
+        """Take a resolution and outputs the positional encodings"""
+        size_t, size_x, size_y = x.shape[-3], x.shape[-2], x.shape[-1]
+        return torch.fft.ifftn(
+            self.weights_re + 1.0j * self.weights_im,
+            s=(size_t, size_x, size_y),
+            norm="backward",  # normalize by 1/n
+        ).real

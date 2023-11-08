@@ -11,7 +11,7 @@ from neuralop.layers.padding import DomainPadding
 from neuralop.layers.fno_block import FNOBlocks
 import numpy as np
 import torch
-from layers.variable_encoding import VaribaleEncoding2d
+from layers.variable_encoding import VariableEncoding2d
 
 
 
@@ -170,7 +170,7 @@ class FnoGno(nn.Module):
         return initial_scale
         
     def get_device(self,):
-        return self.cls_token.coefficients_r.device
+        return self.cls_token.weights_re.device
     
     def forward(self, inp):
         '''
