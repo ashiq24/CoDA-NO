@@ -211,35 +211,25 @@ class TnoBlock2d(nn.Module):
             self.norm2 = nn.InstanceNorm2d(codim_size, affine=True)
             self.mixer_out_normalizer = nn.InstanceNorm2d(codim_size, affine=True)
 
-    def forward(self, x, output_shape=None):
-        batch = x.shape[0]
-        n_token = x.shape[1] // self.token_codim,
-        in_res_x = x.shape[-2]
-        in_res_y = x.shape[-1]
+    def compute_attention(self, xa, batch_size):
+        """Compute the key-query-value variant of the attention matrix.
 
-        assert x.shape[1] % self.token_codim == 0
+        Assumes input ``xa`` has been normalized.
+        """
+        k = self.K.convs(xa)
+        q = self.Q.convs(xa)
+        v = self.V.convs(xa)
 
-        if not self.permutation_eq:
-            x_norm = self.norm1(x)
-        else:
-            x_norm = x
-        xa = rearrange(x_norm, 'b (t d) h w -> (b t) d h w', d=self.token_codim)
+        value_x, value_y = v.shape[-2], v.shape[-1]
 
-        if self.permutation_eq:
-            xa_norm = self.norm1(xa)
-        else:
-            xa_norm = xa
-
-        k = self.K.convs(xa_norm)
-        q = self.Q.convs(xa_norm)
-        v = self.V.convs(xa_norm)
-
-        res_x, res_y = k.shape[-2], k.shape[-1]
-        value_res_x, value_res_y = v.shape[-2], v.shape[-1]
-
-        k = rearrange(k, '(b t) (a d) h w -> b a t (d h w)', b=batch, a=self.n_head)
-        q = rearrange(q, '(b t) (a d) h w -> b a t (d h w)', b=batch, a=self.n_head)
-        v = rearrange(v, '(b t) (a d) h w -> b a t (d h w)', b=batch, a=self.n_head)
+        rearrangement = dict(
+            pattern='(b t) (a d) h w -> b a t (d h w)',
+            b=batch_size,
+            a=self.n_head,
+        )
+        k = rearrange(k, **rearrangement)
+        q = rearrange(q, **rearrangement)
+        v = rearrange(v, **rearrangement)
 
         dprod = torch.matmul(q, k.transpose(-1, -2)) * np.sqrt(k.shape[-1])
         dprod = F.softmax(dprod, dim=-1)
@@ -249,32 +239,66 @@ class TnoBlock2d(nn.Module):
             attention,
             'b a t (d h w) -> b t a d h w',
             d=self.head_codim,
-            h=value_res_x,
-            w=value_res_y,
+            h=value_x,
+            w=value_y,
         )
         attention = rearrange(attention, 'b t a d h w -> (b t) (a d) h w')
+        return attention
 
+    def forward(self, x, output_shape=None):
+        if self.permutation_eq:
+            return self._forward_equivariant(x)
+        else:
+            return self._forward_non_equivariant(x)
+
+    def _forward_equivariant(self, x):
+        batch_size = x.shape[0]
+        in_res_x = x.shape[-2]
+        in_res_y = x.shape[-1]
+
+        assert x.shape[1] % self.token_codim == 0
+
+        xa = rearrange(x, 'b (t d) h w -> (b t) d h w', d=self.token_codim)
+        xa_norm = self.norm1(xa)
+
+        attention = self.compute_attention(xa_norm, batch_size)
         if self.proj is not None:
             attention = self.proj.convs(attention)
 
-        if not self.permutation_eq:
-            attention = rearrange(attention, '(b t) d h w -> b (t d) h w', b=batch)
-            attention_normalized = self.norm2(attention)
-            output = self.mixer(attention_normalized, output_shape=(in_res_x, in_res_y))
-        else:
-            attention = self.attention_normalizer(attention) + xa
-            attention = rearrange(attention, '(b t) d h w -> b (t d) h w', b=batch)
-            # print("Attention shape", attention.shape)
-            attention = rearrange(
-                attention,
-                'b (t d) h w -> (b t) d h w',
-                d=self.mixer_token_codim)
-            # print("Attention shape", attention.shape)
+        attention = self.attention_normalizer(attention) + xa
+        attention = rearrange(attention, '(b t) d h w -> b (t d) h w', b=batch_size)
+        # print("{attention.shape=}")
+        attention = rearrange(
+            attention,
+            'b (t d) h w -> (b t) d h w',
+            d=self.mixer_token_codim)
+        # print("{attention.shape=}")
 
-            attention_normalized = self.norm2(attention)
-            output = self.mixer(attention_normalized, output_shape=(in_res_x, in_res_y))
+        attention_normalized = self.norm2(attention)
+        output = self.mixer(attention_normalized, output_shape=(in_res_x, in_res_y))
 
-            output = self.mixer_out_normalizer(output) + attention
-            # print("outshape", output.shape)
-            output = rearrange(output, '(b t) d h w -> b (t d) h w', b=batch)
+        output = self.mixer_out_normalizer(output) + attention
+        # print(f"{output.shape=}")
+        output = rearrange(output, '(b t) d h w -> b (t d) h w', b=batch_size)
+
+        return output
+
+    def _forward_non_equivariant(self, x):
+        batch_size = x.shape[0]
+        in_res_x = x.shape[-2]
+        in_res_y = x.shape[-1]
+
+        assert x.shape[1] % self.token_codim == 0
+
+        x_norm = self.norm1(x)
+        xa = rearrange(x_norm, 'b (t d) h w -> (b t) d h w', d=self.token_codim)
+
+        attention = self.compute_attention(xa, batch_size)
+        if self.proj is not None:
+            attention = self.proj.convs(attention)
+
+        attention = rearrange(attention, '(b t) d h w -> b (t d) h w', b=batch_size)
+        attention_normalized = self.norm2(attention)
+        output = self.mixer(attention_normalized, output_shape=(in_res_x, in_res_y))
+
         return output
