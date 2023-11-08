@@ -11,7 +11,7 @@ from neuralop.layers.padding import DomainPadding
 from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
 from layers.regrider import Regird
-from layers.variable_encoding import VaribaleEncoding2d
+from layers.variable_encoding import VariableEncoding2d
 
 
 class Projection(nn.Module):
@@ -60,9 +60,12 @@ class Projection(nn.Module):
 
 
 class VariableEncodingArgs(NamedTuple):
-    mode_x: int
-    mode_y: int
-    basis: Literal["sht", "fft"]
+    basis: Literal["sht", "fft"] = "sht"
+    n_channels: int = 1
+    """Number of extra encoding channels per variable."""
+    modes_t: int = 8
+    modes_x: int = 20
+    modes_y: int = 20
 
 
 class CodANO(nn.Module):
@@ -116,12 +119,13 @@ class CodANO(nn.Module):
         lifting=True,
         domain_padding=None,
         domain_padding_mode='one-sided',
-        var_encoding=False,  # b
-        var_num=None,  # denotes the number of variables
-        var_enco_basis='fft',
-        var_enco_channels=1,
-        var_enco_mode_x=20,
-        var_enco_mode_y=40,
+        use_variable_encodings=False,  # b
+        n_variables=None,  # denotes the number of variables
+        variable_encoding_args: VariableEncodingArgs = None,
+        # var_enco_basis='fft',
+        # var_enco_channels=1,
+        # var_enco_mode_x=20,
+        # var_enco_mode_y=40,
         enable_cls_token=False,
         static_channels_num=0,
         static_features=None,
@@ -137,7 +141,7 @@ class CodANO(nn.Module):
             integral_operator_top = integral_operator
         self.n_dim = len(n_modes[0])
         self.in_token_codim = in_token_codim
-        self.var_num = var_num
+        self.n_variables = n_variables
         if hidden_token_codim is None:
             hidden_token_codim = in_token_codim
         if lifting_token_codim is None:
@@ -155,7 +159,8 @@ class CodANO(nn.Module):
         self.hidden_token_codim = hidden_token_codim
         self.n_modes = n_modes
         self.scalings = scalings
-        self.n_encoding_channels = var_enco_channels
+        # self.n_encoding_channels = var_enco_channels
+        self.n_encoding_channels = variable_encoding_args.n_channels
         self.n_heads = n_heads
         self.integral_operator = integral_operator
         self.lifting = lifting
@@ -211,15 +216,22 @@ class CodANO(nn.Module):
         self.domain_padding_mode = domain_padding_mode
 
         # Code for variable encoding
-        self.use_variable_encoding = var_encoding
+        self.use_variable_encoding = use_variable_encodings
         if self.use_variable_encoding:
+            if variable_encoding_args is None:
+                raise ValueError(
+                    "Must provide a value for `variable_encoding_args`\n"
+                    f"Got {variable_encoding_args=}")
             self._initialize_variable_encoding_channels(
-                var_num,
-                VariableEncodingArgs(
-                    mode_x=var_enco_mode_x,
-                    mode_y=var_enco_mode_y,
-                    basis=var_enco_basis,
-                )
+                n_variables,
+                variable_encoding_args,
+                # VariableEncodingArgs(
+                #     n_channels=self.n_encoding_channels,
+                #     # modes_t=
+                #     modes_x=var_enco_mode_x,
+                #     modes_y=var_enco_mode_y,
+                #     basis=var_enco_basis,
+                # )
             )
         else:
             var_enco_channels = 0
@@ -246,7 +258,7 @@ class CodANO(nn.Module):
         else:
             count = 0
 
-        self.codim_size = hidden_token_codim * (var_num + count)
+        self.codim_size = hidden_token_codim * (n_variables + count)
 
         print("expected number of channels", self.codim_size)
 
@@ -287,11 +299,11 @@ class CodANO(nn.Module):
         self.enable_cls_token = enable_cls_token
         if enable_cls_token:
             print("initializing CLS token")
-            self.cls_token = VaribaleEncoding2d(
+            self.cls_token = VariableEncoding2d(
                 hidden_token_codim,
-                var_enco_mode_x,
-                var_enco_mode_y,
-                basis=var_enco_basis,
+                mode_x=variable_encoding_args.modes_x,
+                mode_y=variable_encoding_args.modes_y,
+                basis=variable_encoding_args.basis,
             )
 
     def _initialize_variable_encoding_channels(
@@ -317,10 +329,10 @@ class CodANO(nn.Module):
         assert n_variables is not None
         print("Using Variable encoding")
 
-        self.var_encoding_functions = VaribaleEncoding2d(
+        self.var_encoding_functions = VariableEncoding2d(
             n_variables * self.n_encoding_channels,
-            mode_x=ve_args.mode_x,
-            mode_y=ve_args.mode_y,
+            mode_x=ve_args.modes_x,
+            mode_y=ve_args.modes_y,
             basis=ve_args.basis,
         )
 
@@ -462,8 +474,8 @@ class CoDANOTemporal(CodANO):
         x[:, self.variable_channels, :, :, :] = inp
 
         var_encoding = self.var_encoding_functions(x).to(x.device)
-        # Unsqueeze variable encoding in 0th dimension and repeat it
-        # until it matches the dimension of ``batch_size``
+        # Unsqueeze variable encoding in 0th dimension (indexed by `None` below)
+        # and repeat it until it matches the dimension of ``batch_size``
         x[:, self.encoding_channels, :, :, :] = \
             var_encoding[None, :, :, :, :].repeat(batch_size, 1, 1, 1, 1)
 
