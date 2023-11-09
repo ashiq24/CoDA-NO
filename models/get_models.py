@@ -12,7 +12,7 @@ from data_utils.data_utils import (
     MaskerUniformTemporal,
     batched_masker,
 )
-from layers.attention import TnoBlock2d
+from layers.attention import TnoBlock2d, TNOBlock
 from layers.fino import SpectralConvKernel2d
 from models.codano import CodANO, VariableEncodingArgs
 from models.codano_gino import CondnoGino
@@ -20,14 +20,14 @@ from models.fno_gino import FnoGno
 
 
 # TODO merge methods get_ssl_models_coda*()
-def get_ssl_models_codaNo(params, Module: CodANO):
+def get_ssl_models_codaNo(params, module: CodANO, block: TNOBlock):
     # We use tno inside SSLtransformer model. That has a encoder and prediction/(decoder) part.
     # Encoder part - encodes the input function
     # Decoder part - does the prediction (eg. fuild flow of next time step)
     # For SLL it has a reconstruction head and a dense contarstive head
 
-    block = None
-    block = TnoBlock2d
+    # block = None
+    # block = TnoBlock2d
 
     if params.tno_integral_op == 'fno':
         int_op = partial(
@@ -57,7 +57,7 @@ def get_ssl_models_codaNo(params, Module: CodANO):
     print("Token Dim-->", 1 + params.n_encoding_channels + static_channels_num)
     print("var num", params.n_variables, "static channels", static_channels_num)
 
-    encoder = Module(
+    encoder = module(
         params.in_token_codim_en,
         hidden_token_codim=params.hidden_token_codim_en,
         lifting_token_codim=params.lifting_token_codim_en,
@@ -91,7 +91,7 @@ def get_ssl_models_codaNo(params, Module: CodANO):
 
     if params.reconstruction:
         print("Generating Decoder")
-        decoder = Module(
+        decoder = module(
             params.hidden_token_codim_en,
             hidden_token_codim=params.hidden_token_codim_en,
             lifting_token_codim=params.lifting_token_codim_en,
@@ -125,7 +125,7 @@ def get_ssl_models_codaNo(params, Module: CodANO):
     contrastive = None
 
     print('generating Predictor')
-    predictor = Module(
+    predictor = module(
         params.hidden_token_codim_en,
             hidden_token_codim=params.hidden_token_codim_en,
             lifting_token_codim=params.lifting_token_codim_pred,
