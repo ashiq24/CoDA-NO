@@ -1,3 +1,5 @@
+from functools import reduce
+
 import numpy as np
 import torch
 from torch import nn
@@ -130,8 +132,8 @@ class SpectralConvKernel2d(SpectralConv):
         torch.nn.init.normal_(self.W2i, mean=0.0, std=scaling_factor)
 
     @staticmethod
-    def mode_mixer(input, weights):
-        return torch.einsum("bimn,mnop->biop", input, weights)
+    def mode_mixer(x, weights):
+        return torch.einsum("bimn,mnop->biop", x, weights)
 
     def forward_transform(self, x):
         height, width = x.shape[-2:]
@@ -278,6 +280,213 @@ class SpectralConvKernel2d(SpectralConv):
             width = output_shape[1]
 
         x = self.inverse_transform(out_fft, height, width, x.device)
+
+        if self.bias is not None:
+            x = x + self.bias[indices, ...]
+
+        return x
+
+class SpectralConvolutionKernel3D(SpectralConv):
+    """
+    Parameters
+    ---
+    transform_type : {"fft"}
+        * If "fft" it uses the Fast Fourier Transform.
+        * Type "sht" is not well-defined on a 3D domain.
+    """
+
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        n_modes,
+        incremental_n_modes=None,
+        bias=True,
+        n_layers=1,
+        separable=False,
+        output_scaling_factor=None,
+        rank=0.5,
+        factorization="dense",
+        implementation="reconstructed",
+        fno_block_precision="full",
+        fixed_rank_modes=False,
+        joint_factorization=False,
+        decomposition_kwargs=None,
+        init_std="auto",
+        fft_norm="forward",
+        transform_type="fft",
+        frequency_mixer=False,
+        verbose=True,
+    ):
+        if decomposition_kwargs is None:
+            decomposition_kwargs = {}
+        super().__init__(
+            in_channels,
+            out_channels,
+            n_modes,
+            incremental_n_modes,
+            bias=bias,
+            n_layers=n_layers,
+            separable=separable,
+            output_scaling_factor=output_scaling_factor,
+            fno_block_precision=fno_block_precision,
+            rank=rank,
+            factorization=factorization,
+            implementation=implementation,
+            fixed_rank_modes=fixed_rank_modes,
+            joint_factorization=joint_factorization,
+            decomposition_kwargs=decomposition_kwargs,
+            init_std=init_std,
+            fft_norm=fft_norm,
+        )
+
+        # self.shared = shared
+
+        # readjusting initialization
+        if init_std == "auto":
+            init_std = 1 / np.sqrt(in_channels * n_modes[-1] * n_modes[-2])
+        else:
+            init_std = init_std
+
+        for w in self.weight:
+            w.normal_(0, init_std)
+
+        # weights for frequency mixers
+
+        modes = tuple(self.half_n_modes[:3])
+        if verbose:
+            print(f"using half modes: {modes=}")
+        if frequency_mixer:
+            # if frequency mixer is true
+            # then initializing weights for frequency mixing
+            if verbose:
+                print("using mixer")
+
+            s = np.sqrt(self.in_channels) * reduce(lambda x, y: x * y, modes)
+            scaling_factor = 1 / s
+            # XXX why are we not using `dtype=cfloat` ?
+            weights_shape = modes * 2
+            self.weights_re = nn.ParameterList([
+                nn.Parameter(torch.normal(
+                    mean=0.0,
+                    std=scaling_factor,
+                    size=weights_shape,
+                    dtype=torch.float,
+                ))
+                for _ in range(4)
+            ])
+            self.weights_im = nn.ParameterList([
+                nn.Parameter(torch.normal(
+                    mean=0.0,
+                    std=scaling_factor,
+                    size=weights_shape,
+                    dtype=torch.float,
+                ))
+                for _ in range(4)
+            ])
+
+        self.transform_type = transform_type
+        self.frequency_mixer = frequency_mixer
+
+    @staticmethod
+    def mode_mixer(x, weights):
+        return torch.einsum("bimno,mnopqr->bipqr", x, weights)
+
+    def forward_transform(self, x):
+        if self.transform_type == "fft":
+            return torch.fft.rfftn(x.float(), norm=self.fft_norm, dim=(-3, -2, -1))
+
+        raise ValueError(
+            f'Expected `transform_type` to be "fft"; Got {self.transform_type=}'
+        )
+
+    def inverse_transform(
+        self,
+        x: torch.Tensor,
+        duration: int,
+        height: int,
+        width: int,
+    ):
+        if self.transform_type == "fft":
+            return torch.fft.irfftn(
+                x,
+                s=(duration, height, width),
+                dim=(-3, -2, -1),
+                norm=self.fft_norm,
+            )
+
+        raise ValueError(
+            f'Expected `transform_type` to be "fft"; Got {self.transform_type=}'
+        )
+
+    def forward(self, x, indices=0, output_shape=None):
+        batch_size, channels, duration, height, width = x.shape
+
+        x = self.forward_transform(x)
+
+        m1, m2, m3 = self.half_n_modes[:3]
+        slices = [
+            (slice(None), slice(None), s1, s2, slice(m3))
+            for s1 in [slice(m1), slice(-m1, None)]
+            for s2 in [slice(m2), slice(-m2, None)]
+        ]
+        """
+        These ``slices`` encompass each relevant lo/hi frequency combination.
+        
+        For an N-dimensional Fourier transform (here N=3), we are interested in
+        `m` modes the first N-1 transformed dimensions and only the first (i.e. 
+        low-frequency) `m/2` modes in the last dimension. Therefore, we generate
+        the Cartesian product of slice indices:
+         
+        {`0:m1`, `-m1:`} x {`0:m2`, `-m2:`}
+        
+        Recall that only the last N dimensions of the input tensor have been
+        transformed. We thus take all of the first D-N dimensions, as noted by
+        `slice(None)`. In this case, we expect the first 2 dimensions to
+        correspond to batches and channels, respectively.
+        
+        As an example, the last element of ``slices`` would be used equivalently:
+        ```python
+        x[((slice(None), slice(None), slice(-m1, None), slice(-m2, None), slice(m3))]
+            ==
+        x[:, :, -m1:, -m2:, m3:]
+        ```
+        """
+
+        # mode mixer
+        # uses separate MLP to mix mode along each co-dim/channels
+        if self.frequency_mixer:
+            for w_re, w_im, _slice in zip(
+                self.weights_re, self.weights_im, slices
+            ):
+                weights = w_re + 1.0j * w_im
+                x[_slice] = self.mode_mixer(x[_slice].clone(), weights)
+
+        # Spectral conv / channel mixer
+        # The output will be of size:
+        # (batch_size, self.out_channels, x.size(-3), x.size(-2), x.size(-1) // 2 + 1)
+        out_fft = torch.zeros(
+            [batch_size, self.out_channels, duration, height, width // 2 + 1],
+            dtype=x.dtype,
+            device=x.device,
+        )
+
+        for i, _slice in enumerate(slices):
+            out_fft[_slice] = self._contract(
+                x[_slice],
+                self._get_weight(4 * indices + i),
+                separable=self.separable
+            )
+
+        if self.output_scaling_factor is not None and output_shape is None:
+            duration = round(duration * self.output_scaling_factor[indices][0])
+            height = round(height * self.output_scaling_factor[indices][1])
+            width = round(width * self.output_scaling_factor[indices][2])
+
+        if output_shape is not None:
+            duration, height, width = output_shape[:3]
+
+        x = self.inverse_transform(out_fft, duration, height, width)
 
         if self.bias is not None:
             x = x + self.bias[indices, ...]
