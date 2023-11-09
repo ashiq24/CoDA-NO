@@ -317,6 +317,7 @@ class TnoBlock2d(TNOBlock):
 
         return output
 
+
 class TNOBlock3D(TNOBlock):
     def __init__(self, *args, **kwargs):
         Normalizer = kwargs.get("Normalizer")

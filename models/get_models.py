@@ -32,12 +32,12 @@ def get_ssl_models_codaNo(params, module: CodANO, block: TNOBlock):
     if params.tno_integral_op == 'fno':
         int_op = partial(
             SpectralConvKernel2d,
-            fft_type=params.fft_type,
+            fft_type=params.transform_type,
             frequency_mixer=False)
         int_op_top = int_op
         int_op_bottom = int_op
     elif params.tno_integral_op == 'fino':
-        int_op = partial(SpectralConvKernel2d, fft_type=params.fft_type)
+        int_op = partial(SpectralConvKernel2d, fft_type=params.transform_type)
         int_op_top = int_op
         int_op_bottom = int_op
     else:
@@ -199,12 +199,12 @@ def get_ssl_models_codano_gino(params):
 
     if params.tno_integral_op == 'fno':
         int_op = partial(SpectralConvKernel2d,
-                         fft_type=params.fft_type,
+                         fft_type=params.transform_type,
                          frequency_mixer=False)
         int_op_top = int_op
         int_op_bottom = int_op
     elif params.tno_integral_op == 'fino':
-        int_op = partial(SpectralConvKernel2d, fft_type=params.fft_type)
+        int_op = partial(SpectralConvKernel2d, fft_type=params.transform_type)
         int_op_top = int_op
         int_op_bottom = int_op
     else:
@@ -349,12 +349,12 @@ def get_model_fno(params):
 
     if params.tno_integral_op == 'fno':
         int_op = partial(SpectralConvKernel2d,
-                         fft_type=params.fft_type,
+                         fft_type=params.transform_type,
                          frequency_mixer=False)
         int_op_top = int_op
         int_op_bottom = int_op
     elif params.tno_integral_op == 'fino':
-        int_op = partial(SpectralConvKernel2d, fft_type=params.fft_type)
+        int_op = partial(SpectralConvKernel2d, fft_type=params.transform_type)
         int_op_top = int_op
         int_op_bottom = int_op
     else:
