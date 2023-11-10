@@ -8,8 +8,14 @@ from tqdm import tqdm
 import wandb
 
 
-def simple_trainer(model, train_loader, test_loader, params, wandb_log=False,
-                  log_test_interval=1, stage='ssl'):
+def simple_trainer(
+    model,
+    train_loader,
+    test_loader,
+    params,
+    wandb_log=False,
+    log_test_interval=1,
+    stage='ssl'):
 
     lr = params.lr
     weight_decay = params.weight_decay
@@ -31,8 +37,19 @@ def simple_trainer(model, train_loader, test_loader, params, wandb_log=False,
         for x, y in train_loader_iter:
             x, y = x.cuda(), y.cuda()
             batch_size = x.shape[0]
+            if params.grid_type == "non uniform":
+                '''
+                Assume non uniform grids requires
+                updating grid for every sample. We need to
+                suppy the grid.
+                '''
+                out_grid_displacement = y[0,:,-3:].clone().detach()
+            else:
+                out_grid_displacement = None
             optimizer.zero_grad()
-            out = model(x)
+            
+            out = model(x, out_grid_displacement)
+
             if isinstance(out, (list, tuple)):
                 out = out[0]
             train_count += 1
@@ -87,3 +104,4 @@ def simple_trainer(model, train_loader, test_loader, params, wandb_log=False,
 
     wandb.log({'test_error':test_l2}, commit=True)
     print("Test Error : ", test_l2)
+

@@ -23,7 +23,7 @@ def get_onestep_dataloader(train_test_split=0.2, location='../Data/MP_data/',\
     with open(location+'velocitoes0-5000.pkl', 'rb') as file:
         velocities = torch.tensor(pickle.load(file), dtype=dtype)
 
-    combined = torch.cat([displacements,velocities,pressure], dim= -1)
+    combined = torch.cat([velocities,pressure,displacements], dim= -1)
     step_t0 = combined[:-1, ...]
     step_t1 =  combined[1:, ...]
 
