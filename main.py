@@ -34,10 +34,14 @@ if params.nettype == 'transformer':
     else:
         encoder, decoder, contrastive, predictor = get_ssl_models_codano_gino(params)
     
-    if params.pretrain_ssl:
-        model = SslWrapper(params, encoder, decoder, contrastive, predictor, stage='ssl')
+    if params.grid_type == 'uniform':
+        model = SslWrapper(params, encoder, decoder, contrastive, predictor, stage=stage)
     else:
-        model = SslWrapper(params, encoder, decoder, contrastive, predictor, stage='sl')
+        model = SslWrapChangingMesh(params, encoder, decoder, contrastive, predictor, stage='sl')
+        mesh = np.loadtxt(params.input_mesh_location, delimiter=',')
+        input_mesh = torch.transpose(torch.stack([torch.tensor(mesh[0,:]),\
+                                                 torch.tensor(mesh[1,:])]), 0, 1).type(torch.float).cuda()
+        model.update_set_initial_mesh(input_mesh)
 elif params.nettype == 'simple':
     model = get_model_fno(params)
 
