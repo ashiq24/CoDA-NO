@@ -451,8 +451,6 @@ class SslWrapChangingMesh(nn.Module):
         self.grid_type = params.grid_type
 
         print("Doing Wrapper for", self.stage)
-                                      channel_drop_per = params.channel_drop_per_val)
-
         '''
         Assuming grid will be non_uniform
         '''
