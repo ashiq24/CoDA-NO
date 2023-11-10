@@ -34,6 +34,7 @@ class GnoPremEq(nn.Module):
         super().__init__()
 
         n_dim = input_grid.shape[-1]
+        self.radius = radius
         self.var_num = var_num 
         self.in_dim = in_dim
         self.out_dim = out_dim
