@@ -42,12 +42,14 @@ def simple_trainer(
                 Assume non uniform grids requires
                 updating grid for every sample. We need to
                 suppy the grid.
+                
+                last 3 channel is displacement, taking (x,y), z is 0
                 '''
-                out_grid_displacement = y[0,:,-3:].clone().detach()
+                out_grid_displacement = y[0,:,-3:-1].clone().detach()
             else:
                 out_grid_displacement = None
             optimizer.zero_grad()
-            
+
             out = model(x, out_grid_displacement)
 
             if isinstance(out, (list, tuple)):

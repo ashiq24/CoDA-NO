@@ -476,8 +476,8 @@ class SslWrapChangingMesh(nn.Module):
         inp = x.clone()
         if self.stage == 'ssl':
             with torch.no_grad():
-                # last 3 channel is displacement
-                displacement = x[0,:,-3:].clone().detach()
+                # last 3 channel is displacement, taking (x,y), z is 0
+                displacement = x[0,:,-3:-1].clone().detach()
                 self.encoder.lifting.update_grid(self.initial_mesh + displacement, None)
                 self.decoder.projection.update_grid(None, self.initial_mesh + displacement)
 
@@ -506,8 +506,8 @@ class SslWrapChangingMesh(nn.Module):
         else:
 
             with torch.no_grad():
-                # last 3 channel is displacement
-                displacement_inp = x[0,:,-3:].clone().detach()
+                # last 3 channel is displacement, taking (x,y), z is 0
+                displacement_inp = x[0,:,-3:-1].clone().detach()
                 self.encoder.lifting.update_grid(self.initial_mesh + displacement_inp, None)
                 self.predictor.projection.update_grid(None, self.initial_mesh + out_grid_displacement)
                 
