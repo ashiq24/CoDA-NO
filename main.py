@@ -41,7 +41,7 @@ if params.nettype == 'transformer':
         mesh = np.loadtxt(params.input_mesh_location, delimiter=',')
         input_mesh = torch.transpose(torch.stack([torch.tensor(mesh[0,:]),\
                                                  torch.tensor(mesh[1,:])]), 0, 1).type(torch.float).cuda()
-        model.update_set_initial_mesh(input_mesh)
+        model.set_initial_mesh(input_mesh)
 elif params.nettype == 'simple':
     model = get_model_fno(params)
 
