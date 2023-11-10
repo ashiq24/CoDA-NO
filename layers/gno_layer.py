@@ -140,7 +140,7 @@ class GNO(nn.Module):
         self.input_grid = input_grid
         self.output_grid = output_grid
         self.mlp_layers = [2*n_dim] +mlp_layers + [out_dim]
-
+        self.radius = radius
         ### project to higher dim
         self.projection = MLPLinear([self.in_dim,\
                                         projection_hidden_dim ,out_dim])
@@ -170,7 +170,7 @@ class GNO(nn.Module):
         NS = NeighborSearch(use_open3d=False)
 
         self.neighbour = NS(input_grid.clone(), output_grid.clone(), radius=self.radius)
-        
+
     def forward(self, inp):
         '''
         inp : (batch_size, n_points, in_dims/Channels)
