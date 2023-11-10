@@ -1,5 +1,5 @@
 from .codano import CodANO
-from layers.gno_layer import gno_layer, GNO
+from layers.gno_layer import GNO
 from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
 from functools import partial
