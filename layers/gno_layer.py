@@ -5,10 +5,19 @@ from einops import rearrange
 import torch.nn as nn
 import torch
 
-class gno_layer(nn.Module):
-    def __init__(self, var_num, in_dim, out_dim, \
-                input_grid, output_grid, mlp_layers, projection_hidden_dim, \
-                radius, var_encoding=False, var_encoding_channels=1,):
+class GnoPremEq(nn.Module):
+    def __init__(
+        self,
+        var_num,
+        in_dim, out_dim, 
+        input_grid,
+        output_grid,
+        mlp_layers,
+        projection_hidden_dim,
+        radius,
+        var_encoding=False,
+        var_encoding_channels=1,
+        ):
         '''
         var_num: number of variables
         in_dim: Input Condim/channel per variables
@@ -57,6 +66,23 @@ class gno_layer(nn.Module):
         
         self.it = IntegralTransform(mlp_layers=self.mlp_layers)
     
+    def update_grid(
+        self,
+        input_grid=None,
+        output_grid=None
+        ):
+        if input_grid is None:
+            input_grid = self.input_grid
+        if output_grid is None:
+            output_grid = self.output_grid
+        
+        NS = NeighborSearch(use_open3d=False)
+
+        self.neighbour = NS(input_grid.clone(), output_grid.clone(), radius=self.radius)
+
+        # for key, value in self.neighbour.items():
+        #     self.neighbour[key] = self.neighbour[key].cuda()
+        
     def forward(self, inp):
         '''
         inp : (batch_size, n_points, in_dims/Channels)
@@ -130,7 +156,21 @@ class GNO(nn.Module):
             self.neighbour[key] = self.neighbour[key].cuda()
             
         self.it = IntegralTransform(mlp_layers=self.mlp_layers)
-    
+
+    def update_grid(
+        self,
+        input_grid=None,
+        output_grid=None
+        ):
+        if input_grid is None:
+            input_grid = self.input_grid
+        if output_grid is None:
+            output_grid = self.output_grid
+        
+        NS = NeighborSearch(use_open3d=False)
+
+        self.neighbour = NS(input_grid.clone(), output_grid.clone(), radius=self.radius)
+        
     def forward(self, inp):
         '''
         inp : (batch_size, n_points, in_dims/Channels)

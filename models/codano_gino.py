@@ -1,5 +1,5 @@
 from .codano import CodANO
-from layers.gno_layer import gno_layer
+from layers.gno_layer import GnoPremEq
 from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
 from functools import partial
@@ -141,7 +141,7 @@ class CondnoGino(nn.Module):
             
             # a varibale + it's varibale encoding + the static channen together constitute a token
             
-            self.lifting = gno_layer(var_num=var_num,in_dim=self.in_token_codim,\
+            self.lifting = GnoPremEq(var_num=var_num,in_dim=self.in_token_codim,\
                                     out_dim=hidden_token_codim,input_grid=self.input_grid,\
                                     output_grid=self.output_grid,projection_hidden_dim=lifting_token_codim,\
                                     mlp_layers=self.gno_mlp_layers,radius=self.radius, var_encoding=var_encoding,\
@@ -181,7 +181,7 @@ class CondnoGino(nn.Module):
             # input and output grid is swapped
 
             print("Using Projection Layer")
-            self.projection = gno_layer(var_num=var_num,in_dim=self.hidden_token_codim,\
+            self.projection = GnoPremEq(var_num=var_num,in_dim=self.hidden_token_codim,\
                                         out_dim=out_token_codim,input_grid=self.output_grid,\
                                         output_grid=self.input_grid, mlp_layers=self.gno_mlp_layers,\
                                         radius=self.radius, var_encoding=False,\
