@@ -437,7 +437,7 @@ class SslWrapChangingMesh(nn.Module):
     Wrapper of complex non_uniform changing mesh.
     '''
     def __init__(self, params, encoder, decoder, contrastive, predictor, stage):
-        super(SslWrapper, self).__init__()
+        super(SslWrapChangingMesh, self).__init__()
     
         self.encoder = encoder
         self.decoder = decoder
