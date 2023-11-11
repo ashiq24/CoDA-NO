@@ -45,10 +45,10 @@ def simple_trainer(
                 
                 last 3 channel is displacement, taking (x,y), z is 0
                 '''
-                out_grid_displacement = y[0,:,-3:-1].clone().detach()
-
-            # else:
-            #     out_grid_displacement = None
+                with torch.no_grad():
+                    out_grid_displacement = y[0,:,-3:-1].clone().detach()
+            else:
+                out_grid_displacement = None
             optimizer.zero_grad()
 
             out = model(x, out_grid_displacement)
@@ -92,8 +92,22 @@ def simple_trainer(
     with torch.no_grad():
         for x, y in test_loader:
             x, y = x.cuda(), y.cuda()
+
+            if params.grid_type == "non uniform":
+                '''
+                Assume non uniform grids requires
+                updating grid for every sample. We need to
+                suppy the grid.
+                
+                last 3 channel is displacement, taking (x,y), z is 0
+                '''
+                with torch.no_grad():
+                    out_grid_displacement = y[0,:,-3:-1].clone().detach()
+            else:
+                out_grid_displacement = None
+
             batch_size = x.shape[0]
-            out,_,_,_ = model(x)
+            out,_,_,_ = model(x, out_grid_displacement)
             ntest +=1
             if stage == 'ssl':
                 target = x.clone()
