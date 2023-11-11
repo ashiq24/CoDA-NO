@@ -77,7 +77,7 @@ def simple_trainer(
 
         if ep % log_test_interval == 0: 
 
-            values_to_log = {'train_err_'+stage=avg_train_l2, 'time_'+stage=epoch_train_time}
+            values_to_log = {'train_err_'+stage: avg_train_l2, 'time_'+stage: epoch_train_time}
             print(f"Epoch {ep}: Time: {epoch_train_time:.2f}s, Loss: {avg_train_l2:.4f}")
 
             wandb.log(values_to_log, step=ep, commit=True)
