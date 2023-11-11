@@ -1,0 +1,138 @@
+Generating Encoder
+Token Dim--> 17
+var num 7 static channels 0
+End to End Scaling [1, 1]
+Using lifing Layer
+expected number of channels 160
+1.0 None 1 4 [63, 11]
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.00299718396998085
+Using Half modes 126 22
+std 0.0005472084231171328
+Using Half modes 126 22
+Permutation Equivariant with  20
+std 0.000670190709794987
+Using Half modes 126 22
+1.0 None 1 4 [63, 11]
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.00299718396998085
+Using Half modes 126 22
+std 0.0005472084231171328
+Using Half modes 126 22
+Permutation Equivariant with  20
+std 0.000670190709794987
+Using Half modes 126 22
+intializing CLS token
+*********************
+Generating Decoder
+End to End Scaling [1, 1]
+expected number of channels 140
+1.0 None 1 4 [63, 11]
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.00299718396998085
+Using Half modes 126 22
+std 0.0005472084231171328
+Using Half modes 126 22
+Permutation Equivariant with  20
+std 0.000670190709794987
+Using Half modes 126 22
+1.0 None 1 4 [63, 11]
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.00299718396998085
+Using Half modes 126 22
+std 0.0005472084231171328
+Using Half modes 126 22
+Permutation Equivariant with  20
+std 0.000670190709794987
+Using Half modes 126 22
+Using Projection Layer
+*********************
+generating Predictor
+End to End Scaling [1, 1]
+expected number of channels 140
+1.0 None 1 4 [63, 11]
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.00299718396998085
+Using Half modes 126 22
+std 0.000670190709794987
+Using Half modes 126 22
+Permutation Equivariant with  20
+std 0.000670190709794987
+Using Half modes 126 22
+1.0 None 1 4 [63, 11]
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.00299718396998085
+Using Half modes 126 22
+std 0.000670190709794987
+Using Half modes 126 22
+Permutation Equivariant with  20
+std 0.000670190709794987
+Using Half modes 126 22
+1.0 None 1 4 [63, 11]
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.00299718396998085
+Using Half modes 126 22
+std 0.000670190709794987
+Using Half modes 126 22
+Permutation Equivariant with  20
+std 0.000670190709794987
+Using Half modes 126 22
+Using Projection Layer
+*********************
+Doing Wrapper for sl
+tensor([ 1.6210e+00,  3.8417e-03,  0.0000e+00, -4.3381e+02, -4.0895e-04,
+        -1.9561e-03,  0.0000e+00])
+tensor([1.4268e+00, 5.1685e-01, 0.0000e+00, 1.7845e+03, 1.2553e-03, 7.2158e-03,
+        0.0000e+00])
+Epoch 0: Time: 1.51s, Loss sl: 0.6031
+Epoch 1: Time: 0.49s, Loss sl: 0.5897
+Epoch 2: Time: 0.46s, Loss sl: 0.5959
+Epoch 5/1000:   0%|                                                           | 0/1 [00:00<?, ?it/s]
+Epoch 3: Time: 0.45s, Loss sl: 0.5995
+Epoch 4: Time: 0.46s, Loss sl: 0.5833
+Epoch 5: Time: 0.45s, Loss sl: 0.5812
+
+Epoch 9/1000:   0%|                                                           | 0/1 [00:00<?, ?it/s]
+Epoch 7: Time: 0.45s, Loss sl: 0.5759
+Epoch 8: Time: 0.46s, Loss sl: 0.5721
+Epoch 9: Time: 0.45s, Loss sl: 0.5662
+Epoch 10: Time: 0.46s, Loss sl: 0.5617
+
+Epoch 14/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]
+Epoch 12: Time: 0.45s, Loss sl: 0.5548
+Epoch 13: Time: 0.45s, Loss sl: 0.5503
+Epoch 14: Time: 0.45s, Loss sl: 0.5531
+
+Epoch 18/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]
+Epoch 16: Time: 0.45s, Loss sl: 0.5516
+Epoch 17: Time: 0.46s, Loss sl: 0.5438
+Epoch 18: Time: 0.51s, Loss sl: 0.5363
+
+Epoch 22/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]
+Epoch 20: Time: 0.46s, Loss sl: 0.5328
+Epoch 21: Time: 0.46s, Loss sl: 0.5257
+Epoch 22: Time: 0.45s, Loss sl: 0.5199
+Epoch 23: Time: 0.47s, Loss sl: 0.5160
+
+Epoch 26/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]

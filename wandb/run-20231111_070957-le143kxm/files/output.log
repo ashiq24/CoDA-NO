@@ -1,0 +1,165 @@
+Generating Encoder
+Token Dim--> 4
+var num 7 static channels 0
+End to End Scaling [1, 1]
+Using lifing Layer
+expected number of channels 48
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+intializing CLS token
+*********************
+Generating Decoder
+End to End Scaling [1, 1]
+expected number of channels 42
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+Using Projection Layer
+*********************
+generating Predictor
+End to End Scaling [1, 1]
+expected number of channels 42
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+Using Projection Layer
+*********************
+Doing Wrapper for sl
+tensor([ 1.4853e+00,  2.0428e-03,  0.0000e+00,  2.5747e+02, -2.0775e-04,
+        -2.6408e-04,  0.0000e+00])
+tensor([1.3419e+00, 4.7259e-01, 0.0000e+00, 2.2837e+03, 8.2318e-04, 4.2163e-03,
+        0.0000e+00])
+
+Epoch 2/20:   0%|                                                             | 0/5 [00:00<?, ?it/s]
+Epoch 0: Time: 2.73s, Loss: 0.7134
+Epoch 1: Time: 0.70s, Loss: 0.7119
+
+Epoch 4/20:  80%|██████████████████████████████████████████▍          | 4/5 [00:00<00:00,  7.01it/s]
+Epoch 3: Time: 0.71s, Loss: 0.7090
+Epoch 4: Time: 0.73s, Loss: 0.7073
+
+Epoch 7/20:  80%|██████████████████████████████████████████▍          | 4/5 [00:00<00:00,  7.49it/s]
+Epoch 6: Time: 0.68s, Loss: 0.7029
+Epoch 7: Time: 0.68s, Loss: 0.7004
+
+Epoch 10/20:  40%|████████████████████▊                               | 2/5 [00:00<00:00,  7.09it/s]
+Epoch 9: Time: 0.70s, Loss: 0.6947
+Epoch 10: Time: 0.71s, Loss: 0.6921
+
+Epoch 13/20:  40%|████████████████████▊                               | 2/5 [00:00<00:00,  7.53it/s]
+Epoch 12: Time: 0.67s, Loss: 0.6862
+Epoch 13: Time: 0.66s, Loss: 0.6827
+
+Epoch 16/20:  20%|██████████▍                                         | 1/5 [00:00<00:00,  7.05it/s]
+Epoch 15: Time: 0.70s, Loss: 0.6761
+
+Epoch 19/20:  20%|██████████▍                                         | 1/5 [00:00<00:00,  6.85it/s]
+Epoch 17: Time: 0.70s, Loss: 0.6693
+Epoch 18: Time: 0.70s, Loss: 0.6663
+Epoch 19: Time: 0.67s, Loss: 0.6629
+
+Epoch 1/20:  80%|██████████████████████████████████████████▍          | 4/5 [00:00<00:00,  7.12it/s]
+Epoch 0: Time: 0.70s, Loss: 0.5239
+Epoch 1: Time: 0.71s, Loss: 0.5219
+
+Epoch 4/20:  80%|██████████████████████████████████████████▍          | 4/5 [00:00<00:00,  7.21it/s]
+Epoch 3: Time: 0.70s, Loss: 0.5158
+Epoch 4: Time: 0.69s, Loss: 0.5134
+
+Epoch 7/20:  60%|███████████████████████████████▊                     | 3/5 [00:00<00:00,  7.30it/s]
+Epoch 6: Time: 0.70s, Loss: 0.5082
+Epoch 7: Time: 0.70s, Loss: 0.5056
+
+Epoch 10/20:  40%|████████████████████▊                               | 2/5 [00:00<00:00,  6.90it/s]
+Epoch 9: Time: 0.70s, Loss: 0.5004
+
+Epoch 13/20:  20%|██████████▍                                         | 1/5 [00:00<00:00,  6.53it/s]
+Epoch 11: Time: 0.71s, Loss: 0.4952
+Epoch 12: Time: 0.73s, Loss: 0.4929
+
+Epoch 16/20:   0%|                                                            | 0/5 [00:00<?, ?it/s]
+Epoch 14: Time: 0.72s, Loss: 0.4877
+Epoch 15: Time: 0.74s, Loss: 0.4853
+
+Epoch 18/20:  80%|█████████████████████████████████████████▌          | 4/5 [00:00<00:00,  7.05it/s]
+Epoch 17: Time: 0.67s, Loss: 0.4804
+Epoch 18: Time: 0.70s, Loss: 0.4779
+Epoch 19: Time: 0.72s, Loss: 0.4751
+
+Test Error :  0.9513811111450196

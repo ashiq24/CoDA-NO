@@ -1,0 +1,364 @@
+wandb_version: 1
+
+_original_attrs:
+  desc: null
+  value:
+  - _original_attrs
+  - params
+params:
+  desc: null
+  value:
+    epochs: 1000
+    batch_size: 1
+    ntrain: 1
+    ntest: 1
+    input_mesh_location: ../Data/MP_data/mesh.csv
+    radius: '0.25'
+    gno_mlp_layers:
+    - 6
+    - 8
+    grid_size:
+    - 377
+    - 64
+    grid_type: non uniform
+    var_enco_channels: 16
+    n_modes_en:
+    - - 253
+      - 44
+    - - 253
+      - 44
+    n_modes_dec:
+    - - 253
+      - 44
+    - - 253
+      - 44
+    n_modes_pred:
+    - - 253
+      - 44
+    - - 253
+      - 44
+    - - 253
+      - 44
+    masking_radius: '0.08'
+    in_token_codim_en: 1
+    hidden_token_codim_en: 20
+    lifting_token_codim_en: 36
+    lifting_token_codim_pred: 36
+    out_token_codim_pred: 1
+    n_layers_en: 2
+    n_heads_en:
+    - 30
+    - 30
+    n_layers_dec: 2
+    n_heads_dec:
+    - 30
+    - 30
+    n_layers_pred: 3
+    n_heads_pred:
+    - 20
+    - 20
+    - 20
+    pretrain_ssl: false
+    freeze_encoder: false
+    nettype: transformer
+    evaluation_channel_drop: 1
+    drop_type: zeros
+    max_block: '0.6'
+    drop_pix: '0.6'
+    channel_per: -1
+    channel_drop_per: '0.3'
+    validation_aug: false
+    max_block_val: '0.2'
+    drop_pix_val: '0.15'
+    channel_per_val: '0.5'
+    channel_drop_per_val: '0.5'
+    var_num: 7
+    scalings_pred:
+    - - 1
+      - 1
+    - - 1
+      - 1
+    - - 1
+      - 1
+    scalings_en:
+    - - 1
+      - 1
+    - - 1
+      - 1
+    scalings_dec:
+    - - 1
+      - 1
+    - - 1
+      - 1
+    per_channel_attention: true
+    fft_type: fft
+    tno_integral_op: fno
+    var_encoding: true
+    reconstruction: true
+    enable_cls_token: true
+    add_static_feature: false
+    lr: '0.01'
+    weight_decay: '0.0'
+    scheduler_step: 50
+    scheduler_gamma: '0.5'
+    weight_path: ../weights/ssl_weight.pt
+    wandb_log: true
+    wandb_name: codano_gino
+    wandb_group: neuraloperator
+    wandb_project: CoDA-NO
+    wandb_entity: ashiq24
+    wandb_log_test_interval: 1
+_yaml_filename:
+  desc: null
+  value: ./config/ssl.yaml
+_config_name:
+  desc: null
+  value: codano_gino
+epochs:
+  desc: null
+  value: 1000
+batch_size:
+  desc: null
+  value: 1
+ntrain:
+  desc: null
+  value: 1
+ntest:
+  desc: null
+  value: 1
+input_mesh_location:
+  desc: null
+  value: ../Data/MP_data/mesh.csv
+radius:
+  desc: null
+  value: '0.25'
+gno_mlp_layers:
+  desc: null
+  value:
+  - 6
+  - 8
+grid_size:
+  desc: null
+  value:
+  - 377
+  - 64
+grid_type:
+  desc: null
+  value: non uniform
+var_enco_channels:
+  desc: null
+  value: 16
+n_modes_en:
+  desc: null
+  value:
+  - - 253
+    - 44
+  - - 253
+    - 44
+n_modes_dec:
+  desc: null
+  value:
+  - - 253
+    - 44
+  - - 253
+    - 44
+n_modes_pred:
+  desc: null
+  value:
+  - - 253
+    - 44
+  - - 253
+    - 44
+  - - 253
+    - 44
+masking_radius:
+  desc: null
+  value: '0.08'
+in_token_codim_en:
+  desc: null
+  value: 1
+hidden_token_codim_en:
+  desc: null
+  value: 20
+lifting_token_codim_en:
+  desc: null
+  value: 36
+lifting_token_codim_pred:
+  desc: null
+  value: 36
+out_token_codim_pred:
+  desc: null
+  value: 1
+n_layers_en:
+  desc: null
+  value: 2
+n_heads_en:
+  desc: null
+  value:
+  - 30
+  - 30
+n_layers_dec:
+  desc: null
+  value: 2
+n_heads_dec:
+  desc: null
+  value:
+  - 30
+  - 30
+n_layers_pred:
+  desc: null
+  value: 3
+n_heads_pred:
+  desc: null
+  value:
+  - 20
+  - 20
+  - 20
+pretrain_ssl:
+  desc: null
+  value: false
+freeze_encoder:
+  desc: null
+  value: false
+nettype:
+  desc: null
+  value: transformer
+evaluation_channel_drop:
+  desc: null
+  value: 1
+drop_type:
+  desc: null
+  value: zeros
+max_block:
+  desc: null
+  value: '0.6'
+drop_pix:
+  desc: null
+  value: '0.6'
+channel_per:
+  desc: null
+  value: -1
+channel_drop_per:
+  desc: null
+  value: '0.3'
+validation_aug:
+  desc: null
+  value: false
+max_block_val:
+  desc: null
+  value: '0.2'
+drop_pix_val:
+  desc: null
+  value: '0.15'
+channel_per_val:
+  desc: null
+  value: '0.5'
+channel_drop_per_val:
+  desc: null
+  value: '0.5'
+var_num:
+  desc: null
+  value: 7
+scalings_pred:
+  desc: null
+  value:
+  - - 1
+    - 1
+  - - 1
+    - 1
+  - - 1
+    - 1
+scalings_en:
+  desc: null
+  value:
+  - - 1
+    - 1
+  - - 1
+    - 1
+scalings_dec:
+  desc: null
+  value:
+  - - 1
+    - 1
+  - - 1
+    - 1
+per_channel_attention:
+  desc: null
+  value: true
+fft_type:
+  desc: null
+  value: fft
+tno_integral_op:
+  desc: null
+  value: fno
+var_encoding:
+  desc: null
+  value: true
+reconstruction:
+  desc: null
+  value: true
+enable_cls_token:
+  desc: null
+  value: true
+add_static_feature:
+  desc: null
+  value: false
+lr:
+  desc: null
+  value: '0.01'
+weight_decay:
+  desc: null
+  value: '0.0'
+scheduler_step:
+  desc: null
+  value: 50
+scheduler_gamma:
+  desc: null
+  value: '0.5'
+weight_path:
+  desc: null
+  value: ../weights/ssl_weight.pt
+wandb_log:
+  desc: null
+  value: true
+wandb_name:
+  desc: null
+  value: codano_gino
+wandb_group:
+  desc: null
+  value: neuraloperator
+wandb_project:
+  desc: null
+  value: CoDA-NO
+wandb_entity:
+  desc: null
+  value: ashiq24
+wandb_log_test_interval:
+  desc: null
+  value: 1
+_wandb:
+  desc: null
+  value:
+    python_version: 3.8.10
+    cli_version: 0.15.9
+    framework: torch
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    start_time: 1699692622.488471
+    t:
+      1:
+      - 1
+      - 41
+      - 55
+      2:
+      - 1
+      - 41
+      - 55
+      3:
+      - 13
+      - 16
+      - 23
+      4: 3.8.10
+      5: 0.15.9
+      8:
+      - 5

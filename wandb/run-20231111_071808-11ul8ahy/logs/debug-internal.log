@@ -1,0 +1,828 @@
+2023-11-11 07:18:08,574 INFO    StreamThr :100914 [internal.py:wandb_internal():86] W&B internal server running at pid: 100914, started at: 2023-11-11 07:18:08.571513
+2023-11-11 07:18:08,576 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: status
+2023-11-11 07:18:08,583 INFO    WriterThread:100914 [datastore.py:open_for_write():85] open: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/run-11ul8ahy.wandb
+2023-11-11 07:18:08,586 DEBUG   SenderThread:100914 [sender.py:send():379] send: header
+2023-11-11 07:18:08,636 DEBUG   SenderThread:100914 [sender.py:send():379] send: run
+2023-11-11 07:18:08,960 INFO    SenderThread:100914 [dir_watcher.py:__init__():211] watching files in: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files
+2023-11-11 07:18:08,961 INFO    SenderThread:100914 [sender.py:_start_run_threads():1121] run started: 11ul8ahy with start time 1699687088.57194
+2023-11-11 07:18:08,961 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:08,964 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:08,972 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: check_version
+2023-11-11 07:18:08,972 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: check_version
+2023-11-11 07:18:09,054 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: run_start
+2023-11-11 07:18:09,063 DEBUG   HandlerThread:100914 [system_info.py:__init__():31] System info init
+2023-11-11 07:18:09,064 DEBUG   HandlerThread:100914 [system_info.py:__init__():46] System info init done
+2023-11-11 07:18:09,064 INFO    HandlerThread:100914 [system_monitor.py:start():181] Starting system monitor
+2023-11-11 07:18:09,064 INFO    SystemMonitor:100914 [system_monitor.py:_start():145] Starting system asset monitoring threads
+2023-11-11 07:18:09,064 INFO    HandlerThread:100914 [system_monitor.py:probe():201] Collecting system info
+2023-11-11 07:18:09,065 INFO    SystemMonitor:100914 [interfaces.py:start():190] Started cpu monitoring
+2023-11-11 07:18:09,065 INFO    SystemMonitor:100914 [interfaces.py:start():190] Started disk monitoring
+2023-11-11 07:18:09,066 INFO    SystemMonitor:100914 [interfaces.py:start():190] Started gpu monitoring
+2023-11-11 07:18:09,066 INFO    SystemMonitor:100914 [interfaces.py:start():190] Started memory monitoring
+2023-11-11 07:18:09,067 INFO    SystemMonitor:100914 [interfaces.py:start():190] Started network monitoring
+2023-11-11 07:18:09,200 DEBUG   HandlerThread:100914 [system_info.py:probe():195] Probing system
+2023-11-11 07:18:09,207 DEBUG   HandlerThread:100914 [system_info.py:_probe_git():180] Probing git
+2023-11-11 07:18:09,247 DEBUG   HandlerThread:100914 [system_info.py:_probe_git():188] Probing git done
+2023-11-11 07:18:09,248 DEBUG   HandlerThread:100914 [system_info.py:probe():240] Probing system done
+2023-11-11 07:18:09,248 DEBUG   HandlerThread:100914 [system_monitor.py:probe():210] {'os': 'Linux-5.15.0-1021-oracle-x86_64-with-glibc2.29', 'python': '3.8.10', 'heartbeatAt': '2023-11-11T07:18:09.200973', 'startedAt': '2023-11-11T07:18:08.467885', 'docker': None, 'cuda': None, 'args': (), 'state': 'running', 'program': 'main.py', 'codePath': 'main.py', 'git': {'remote': 'https://github.com/ashiq24/CoDA-NO.git', 'commit': '371e54a1aabe06ebe72d13b8ec8e76f905ce2035'}, 'email': None, 'root': '/workspace/CoDA-NO', 'host': '5415524', 'username': 'root', 'executable': '/usr/bin/python', 'cpu_count': 128, 'cpu_count_logical': 255, 'cpu_freq': {'current': 1563.7825764705883, 'min': 1500.0, 'max': 2550.0}, 'cpu_freq_per_core': [{'current': 2305.776, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1819.224, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 3248.018, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2325.897, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}], 'disk': {'total': 4062.62100982666, 'used': 1134.4837646484375}, 'gpu': 'NVIDIA A100-SXM4-80GB', 'gpu_count': 1, 'gpu_devices': [{'name': 'NVIDIA A100-SXM4-80GB', 'memory_total': 85899345920}], 'memory': {'total': 2015.7575073242188}}
+2023-11-11 07:18:09,248 INFO    HandlerThread:100914 [system_monitor.py:probe():211] Finished collecting system info
+2023-11-11 07:18:09,248 INFO    HandlerThread:100914 [system_monitor.py:probe():214] Publishing system info
+2023-11-11 07:18:09,248 DEBUG   HandlerThread:100914 [system_info.py:_save_pip():51] Saving list of pip packages installed into the current environment
+2023-11-11 07:18:09,252 DEBUG   HandlerThread:100914 [system_info.py:_save_pip():67] Saving pip packages done
+2023-11-11 07:18:09,256 INFO    HandlerThread:100914 [system_monitor.py:probe():216] Finished publishing system info
+2023-11-11 07:18:09,262 DEBUG   SenderThread:100914 [sender.py:send():379] send: files
+2023-11-11 07:18:09,262 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-metadata.json with policy now
+2023-11-11 07:18:09,270 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: stop_status
+2023-11-11 07:18:09,270 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: stop_status
+2023-11-11 07:18:09,367 DEBUG   SenderThread:100914 [sender.py:send():379] send: telemetry
+2023-11-11 07:18:09,653 INFO    wandb-upload_0:100914 [upload_job.py:push():131] Uploaded file /tmp/tmp81v3_gugwandb/cq9kp4j5-wandb-metadata.json
+2023-11-11 07:18:10,034 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_created():271] file/dir created: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:10,034 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_created():271] file/dir created: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-metadata.json
+2023-11-11 07:18:10,034 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_created():271] file/dir created: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-summary.json
+2023-11-11 07:18:10,034 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_created():271] file/dir created: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/requirements.txt
+2023-11-11 07:18:12,131 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:13,643 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 07:18:14,145 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:15,826 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:15,827 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:15,828 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:15,831 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:15,965 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:15,966 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:15,966 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:15,968 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:16,100 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:16,101 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:16,101 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:16,103 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:16,145 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:16,146 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-summary.json
+2023-11-11 07:18:16,241 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:16,242 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:16,243 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:16,245 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:16,377 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:16,377 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:16,378 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:16,380 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:16,508 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:16,509 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:16,509 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:16,512 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:16,646 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:16,647 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:16,648 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:16,650 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:16,778 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:16,779 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:16,779 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:16,782 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:16,909 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:16,910 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:16,910 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:16,913 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:17,041 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:17,042 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:17,042 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:17,045 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:17,148 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-summary.json
+2023-11-11 07:18:17,174 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:17,175 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:17,175 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:17,178 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:17,306 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:17,307 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:17,308 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:17,311 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:17,438 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:17,439 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:17,439 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:17,441 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:17,569 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:17,570 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:17,570 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:17,572 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:17,701 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:17,701 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:17,701 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:17,705 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:17,835 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:17,841 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:17,841 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:17,844 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:17,973 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:17,974 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:17,974 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:17,976 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:18,116 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:18,117 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:18,117 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:18,119 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:18,151 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:18,151 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-summary.json
+2023-11-11 07:18:18,252 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:18,253 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:18,253 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:18,255 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:18,387 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:18,388 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:18,388 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:18,390 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:18,526 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:18,526 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:18,526 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:18,528 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:18,659 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 07:18:18,661 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:18,661 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:18,662 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:18,663 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:18,795 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:18,796 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:18,796 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:18,798 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:18,933 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:18,934 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:18,934 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:18,936 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:19,066 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:19,067 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:19,067 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:19,069 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:19,153 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-summary.json
+2023-11-11 07:18:19,203 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:19,203 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:19,203 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:19,205 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:19,341 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:19,341 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:19,341 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:19,344 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:19,471 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:19,471 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:19,472 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:19,474 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:19,608 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:19,608 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:19,609 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:19,611 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:19,743 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:19,744 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:19,744 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:19,746 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:19,880 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:19,881 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:19,881 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:19,883 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:20,021 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:20,021 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:20,021 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:20,024 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:20,156 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:20,157 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-summary.json
+2023-11-11 07:18:20,165 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:20,166 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:20,167 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:20,169 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:20,308 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:20,309 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:20,309 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:20,312 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:20,439 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:20,440 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:20,440 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:20,443 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:20,569 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:20,570 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:20,570 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:20,573 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:20,699 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:20,700 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:20,700 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:20,703 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:20,832 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:20,833 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:20,833 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:20,836 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:20,962 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:20,963 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:20,963 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:20,966 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:21,092 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:21,093 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:21,093 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:21,096 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:21,159 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-summary.json
+2023-11-11 07:18:21,221 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:21,222 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:21,222 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:21,225 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:21,358 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:21,359 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:21,359 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:21,362 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:21,494 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:21,495 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:21,495 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:21,498 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:21,624 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:21,625 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:21,625 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:21,628 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:21,752 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:21,754 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:21,754 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:21,757 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:21,883 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:21,884 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:21,884 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:21,886 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:22,014 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:22,015 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:22,015 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:22,017 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:22,149 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:22,149 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:22,150 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:22,152 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:22,162 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:22,162 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-summary.json
+2023-11-11 07:18:22,288 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:22,288 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:22,289 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:22,291 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:22,456 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:22,457 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:22,457 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:22,460 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:22,603 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:22,604 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:22,604 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:22,606 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:22,742 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:22,742 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:22,742 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:22,746 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:22,871 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:22,872 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:22,872 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:22,874 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:23,003 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:23,004 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:23,004 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:23,006 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:23,136 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:23,137 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:23,137 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:23,142 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:23,164 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-summary.json
+2023-11-11 07:18:23,274 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:23,274 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:23,274 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:23,276 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:23,416 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:23,417 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:23,417 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:23,419 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:23,551 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:23,552 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:23,552 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:23,554 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:23,690 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 07:18:23,691 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:23,692 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:23,692 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:23,694 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:23,826 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:23,827 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:23,827 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:23,829 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:23,963 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:23,964 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:23,964 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:23,966 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:24,095 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:24,096 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:24,096 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:24,098 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:24,167 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:24,167 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-summary.json
+2023-11-11 07:18:24,229 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:24,229 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:24,229 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:24,232 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:24,268 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: stop_status
+2023-11-11 07:18:24,269 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: stop_status
+2023-11-11 07:18:24,364 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:24,365 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:24,365 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:24,368 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:24,495 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:24,496 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:24,497 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:24,499 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:24,630 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:24,631 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:24,632 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:24,635 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:24,771 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:24,772 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:24,772 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:24,775 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:24,903 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:24,904 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:24,905 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:24,907 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:25,035 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:25,036 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:25,037 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:25,039 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:25,168 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:25,169 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:25,169 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:25,170 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-summary.json
+2023-11-11 07:18:25,172 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:25,301 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:25,302 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:25,302 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:25,305 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:25,434 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:25,435 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:25,435 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:25,438 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:25,571 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:25,572 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:25,572 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:25,575 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:25,715 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:25,716 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:25,717 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:25,719 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:25,862 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:25,863 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:25,864 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:25,866 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:26,012 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:26,013 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:26,014 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:26,016 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:26,151 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:26,152 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:26,153 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:26,155 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:26,174 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:26,174 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-summary.json
+2023-11-11 07:18:26,290 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:26,290 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:26,291 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:26,293 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:26,427 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:26,428 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:26,429 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:26,437 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:26,569 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:26,569 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:26,570 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:26,572 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:26,702 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:26,702 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:26,703 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:26,705 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:26,842 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:26,843 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:26,843 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:26,846 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:26,980 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:26,980 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:26,981 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:26,983 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:27,118 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:27,119 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:27,119 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:27,121 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:27,176 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-summary.json
+2023-11-11 07:18:27,252 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:27,252 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:27,252 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:27,255 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:27,390 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:27,390 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:27,391 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:27,393 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:27,526 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:27,527 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:27,527 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:27,530 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:27,663 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:27,664 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:27,664 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:27,666 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:27,803 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:27,804 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:27,804 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:27,806 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:27,937 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:27,938 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:27,938 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:27,941 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:28,071 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:28,072 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:28,072 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:28,075 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:28,179 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:28,180 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-summary.json
+2023-11-11 07:18:28,206 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:28,207 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:28,208 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:28,210 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:28,345 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:28,346 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:28,346 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:28,349 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:28,486 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:28,486 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:28,486 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:28,489 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:28,621 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:28,621 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:28,621 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:28,623 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:28,753 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 07:18:28,754 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:28,755 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:28,756 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:28,758 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:28,886 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:28,887 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:28,888 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:28,890 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:29,027 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:29,028 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:29,028 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:29,031 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:29,161 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:29,162 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:29,162 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:29,167 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:29,182 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-summary.json
+2023-11-11 07:18:29,302 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:29,303 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:29,304 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:29,306 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:29,329 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:29,330 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:29,330 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:29,333 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:29,471 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:29,471 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 0 < 101. Dropping entry: {'train_err_sl': 0.9349752068519592, 'time_sl': 0.1393356528133154, '_timestamp': 1699687109.4710023}.
+2023-11-11 07:18:29,605 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:29,606 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 1 < 101. Dropping entry: {'train_err_sl': 7.530149936676025, 'time_sl': 0.13329867646098137, '_timestamp': 1699687109.6055465}.
+2023-11-11 07:18:29,744 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:29,744 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 2 < 101. Dropping entry: {'train_err_sl': 0.9632936120033264, 'time_sl': 0.1370533686131239, '_timestamp': 1699687109.7438467}.
+2023-11-11 07:18:29,889 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:29,890 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 3 < 101. Dropping entry: {'train_err_sl': 0.9475164413452148, 'time_sl': 0.14438613504171371, '_timestamp': 1699687109.8895054}.
+2023-11-11 07:18:30,021 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:30,021 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 4 < 101. Dropping entry: {'train_err_sl': 0.9532945156097412, 'time_sl': 0.130095012485981, '_timestamp': 1699687110.0209036}.
+2023-11-11 07:18:30,152 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:30,152 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 5 < 101. Dropping entry: {'train_err_sl': 0.9623866081237793, 'time_sl': 0.12970895506441593, '_timestamp': 1699687110.151856}.
+2023-11-11 07:18:30,185 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:30,297 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:30,297 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 6 < 101. Dropping entry: {'train_err_sl': 0.9628275036811829, 'time_sl': 0.14374319463968277, '_timestamp': 1699687110.296862}.
+2023-11-11 07:18:30,438 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:30,439 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 7 < 101. Dropping entry: {'train_err_sl': 0.9580919146537781, 'time_sl': 0.14031809754669666, '_timestamp': 1699687110.4384391}.
+2023-11-11 07:18:30,579 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:30,579 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 8 < 101. Dropping entry: {'train_err_sl': 0.9566892981529236, 'time_sl': 0.1390960980206728, '_timestamp': 1699687110.5788245}.
+2023-11-11 07:18:30,712 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:30,712 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 9 < 101. Dropping entry: {'train_err_sl': 0.9559069275856018, 'time_sl': 0.13176515325903893, '_timestamp': 1699687110.7118213}.
+2023-11-11 07:18:30,848 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:30,849 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 10 < 101. Dropping entry: {'train_err_sl': 0.9535542130470276, 'time_sl': 0.13555284775793552, '_timestamp': 1699687110.8486145}.
+2023-11-11 07:18:30,980 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:30,980 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 11 < 101. Dropping entry: {'train_err_sl': 0.953079342842102, 'time_sl': 0.13050825521349907, '_timestamp': 1699687110.9803576}.
+2023-11-11 07:18:31,117 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:31,117 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 12 < 101. Dropping entry: {'train_err_sl': 0.9515420198440552, 'time_sl': 0.13527478463947773, '_timestamp': 1699687111.1168714}.
+2023-11-11 07:18:31,253 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:31,253 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 13 < 101. Dropping entry: {'train_err_sl': 0.9517949819564819, 'time_sl': 0.1346862092614174, '_timestamp': 1699687111.2528064}.
+2023-11-11 07:18:31,387 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:31,387 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 14 < 101. Dropping entry: {'train_err_sl': 0.951427161693573, 'time_sl': 0.1328013390302658, '_timestamp': 1699687111.3868895}.
+2023-11-11 07:18:31,523 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:31,523 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 15 < 101. Dropping entry: {'train_err_sl': 0.9515460133552551, 'time_sl': 0.13492516800761223, '_timestamp': 1699687111.5230658}.
+2023-11-11 07:18:31,659 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:31,659 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 16 < 101. Dropping entry: {'train_err_sl': 0.9515776038169861, 'time_sl': 0.13446465507149696, '_timestamp': 1699687111.658834}.
+2023-11-11 07:18:31,792 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:31,793 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 17 < 101. Dropping entry: {'train_err_sl': 0.95182865858078, 'time_sl': 0.1325138360261917, '_timestamp': 1699687111.7925844}.
+2023-11-11 07:18:31,926 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:31,926 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 18 < 101. Dropping entry: {'train_err_sl': 0.9517614841461182, 'time_sl': 0.13242674246430397, '_timestamp': 1699687111.9263194}.
+2023-11-11 07:18:32,066 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:32,066 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 19 < 101. Dropping entry: {'train_err_sl': 0.9517269730567932, 'time_sl': 0.13859836384654045, '_timestamp': 1699687112.066155}.
+2023-11-11 07:18:32,189 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:32,201 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:32,202 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 20 < 101. Dropping entry: {'train_err_sl': 0.9516441226005554, 'time_sl': 0.13424066826701164, '_timestamp': 1699687112.2016952}.
+2023-11-11 07:18:32,342 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:32,342 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 21 < 101. Dropping entry: {'train_err_sl': 0.9516097903251648, 'time_sl': 0.13762272708117962, '_timestamp': 1699687112.3405902}.
+2023-11-11 07:18:32,477 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:32,478 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 22 < 101. Dropping entry: {'train_err_sl': 0.9517635703086853, 'time_sl': 0.13561059720814228, '_timestamp': 1699687112.477667}.
+2023-11-11 07:18:32,614 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:32,614 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 23 < 101. Dropping entry: {'train_err_sl': 0.9515905976295471, 'time_sl': 0.13553960621356964, '_timestamp': 1699687112.6145215}.
+2023-11-11 07:18:32,758 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:32,758 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 24 < 101. Dropping entry: {'train_err_sl': 0.9514651894569397, 'time_sl': 0.14234443567693233, '_timestamp': 1699687112.7581403}.
+2023-11-11 07:18:32,908 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:32,909 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 25 < 101. Dropping entry: {'train_err_sl': 0.9513787627220154, 'time_sl': 0.1487778052687645, '_timestamp': 1699687112.9082596}.
+2023-11-11 07:18:33,039 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:33,039 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 26 < 101. Dropping entry: {'train_err_sl': 0.9513328075408936, 'time_sl': 0.1296060923486948, '_timestamp': 1699687113.0391753}.
+2023-11-11 07:18:33,169 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:33,169 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 27 < 101. Dropping entry: {'train_err_sl': 0.9513039588928223, 'time_sl': 0.1286815106868744, '_timestamp': 1699687113.169099}.
+2023-11-11 07:18:33,302 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:33,302 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 28 < 101. Dropping entry: {'train_err_sl': 0.9512462615966797, 'time_sl': 0.132008396089077, '_timestamp': 1699687113.3023658}.
+2023-11-11 07:18:33,432 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:33,433 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 29 < 101. Dropping entry: {'train_err_sl': 0.9511540532112122, 'time_sl': 0.12896920554339886, '_timestamp': 1699687113.432571}.
+2023-11-11 07:18:33,571 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:33,571 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 30 < 101. Dropping entry: {'train_err_sl': 0.9511542916297913, 'time_sl': 0.13747992366552353, '_timestamp': 1699687113.5712924}.
+2023-11-11 07:18:33,702 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:33,702 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 31 < 101. Dropping entry: {'train_err_sl': 0.9511675238609314, 'time_sl': 0.1292815487831831, '_timestamp': 1699687113.701823}.
+2023-11-11 07:18:33,833 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:33,834 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 32 < 101. Dropping entry: {'train_err_sl': 0.9511663913726807, 'time_sl': 0.12888489477336407, '_timestamp': 1699687113.8319561}.
+2023-11-11 07:18:33,834 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 07:18:33,964 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:33,964 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 33 < 101. Dropping entry: {'train_err_sl': 0.9511504769325256, 'time_sl': 0.13106161542236805, '_timestamp': 1699687113.9642365}.
+2023-11-11 07:18:34,095 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:34,095 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 34 < 101. Dropping entry: {'train_err_sl': 0.9511318206787109, 'time_sl': 0.12933341227471828, '_timestamp': 1699687114.0948095}.
+2023-11-11 07:18:34,192 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:34,228 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:34,228 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 35 < 101. Dropping entry: {'train_err_sl': 0.9510877728462219, 'time_sl': 0.1318962350487709, '_timestamp': 1699687114.2279615}.
+2023-11-11 07:18:34,358 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:34,359 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 36 < 101. Dropping entry: {'train_err_sl': 0.9510549306869507, 'time_sl': 0.12925435788929462, '_timestamp': 1699687114.3584511}.
+2023-11-11 07:18:34,491 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:34,491 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 37 < 101. Dropping entry: {'train_err_sl': 0.9510140419006348, 'time_sl': 0.13121880777180195, '_timestamp': 1699687114.4909077}.
+2023-11-11 07:18:34,621 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:34,622 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 38 < 101. Dropping entry: {'train_err_sl': 0.9509746432304382, 'time_sl': 0.1292058676481247, '_timestamp': 1699687114.621395}.
+2023-11-11 07:18:34,754 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:34,754 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 39 < 101. Dropping entry: {'train_err_sl': 0.9509437084197998, 'time_sl': 0.131701385602355, '_timestamp': 1699687114.7543337}.
+2023-11-11 07:18:34,892 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:34,892 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 40 < 101. Dropping entry: {'train_err_sl': 0.9509223103523254, 'time_sl': 0.13662244379520416, '_timestamp': 1699687114.8922052}.
+2023-11-11 07:18:35,029 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:35,029 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 41 < 101. Dropping entry: {'train_err_sl': 0.9509092569351196, 'time_sl': 0.13532854430377483, '_timestamp': 1699687115.028782}.
+2023-11-11 07:18:35,166 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:35,166 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 42 < 101. Dropping entry: {'train_err_sl': 0.9509015679359436, 'time_sl': 0.13622074760496616, '_timestamp': 1699687115.1663}.
+2023-11-11 07:18:35,298 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:35,298 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 43 < 101. Dropping entry: {'train_err_sl': 0.9508957266807556, 'time_sl': 0.1307682804763317, '_timestamp': 1699687115.2982996}.
+2023-11-11 07:18:35,438 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:35,438 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 44 < 101. Dropping entry: {'train_err_sl': 0.9508886337280273, 'time_sl': 0.13878703489899635, '_timestamp': 1699687115.4384897}.
+2023-11-11 07:18:35,570 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:35,570 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 45 < 101. Dropping entry: {'train_err_sl': 0.9508765339851379, 'time_sl': 0.13017553091049194, '_timestamp': 1699687115.5701807}.
+2023-11-11 07:18:35,701 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:35,702 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 46 < 101. Dropping entry: {'train_err_sl': 0.9508578181266785, 'time_sl': 0.13016401045024395, '_timestamp': 1699687115.7015862}.
+2023-11-11 07:18:35,833 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:35,833 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 47 < 101. Dropping entry: {'train_err_sl': 0.9508365988731384, 'time_sl': 0.13047724589705467, '_timestamp': 1699687115.8334906}.
+2023-11-11 07:18:35,970 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:35,970 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 48 < 101. Dropping entry: {'train_err_sl': 0.9508118033409119, 'time_sl': 0.13517628237605095, '_timestamp': 1699687115.9701848}.
+2023-11-11 07:18:36,101 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:36,101 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 49 < 101. Dropping entry: {'train_err_sl': 0.9507836699485779, 'time_sl': 0.1299389097839594, '_timestamp': 1699687116.1013708}.
+2023-11-11 07:18:36,195 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:36,233 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:36,233 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 50 < 101. Dropping entry: {'train_err_sl': 0.9507538676261902, 'time_sl': 0.13052715733647346, '_timestamp': 1699687116.2333267}.
+2023-11-11 07:18:36,366 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:36,366 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 51 < 101. Dropping entry: {'train_err_sl': 0.9507399201393127, 'time_sl': 0.13166914135217667, '_timestamp': 1699687116.3665032}.
+2023-11-11 07:18:36,497 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:36,497 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 52 < 101. Dropping entry: {'train_err_sl': 0.9507275819778442, 'time_sl': 0.12896625325083733, '_timestamp': 1699687116.496726}.
+2023-11-11 07:18:36,629 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:36,630 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 53 < 101. Dropping entry: {'train_err_sl': 0.9507161974906921, 'time_sl': 0.13125599548220634, '_timestamp': 1699687116.629226}.
+2023-11-11 07:18:36,762 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:36,762 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 54 < 101. Dropping entry: {'train_err_sl': 0.9507037997245789, 'time_sl': 0.13152576051652431, '_timestamp': 1699687116.7622612}.
+2023-11-11 07:18:36,894 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:36,894 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 55 < 101. Dropping entry: {'train_err_sl': 0.950690507888794, 'time_sl': 0.13047045469284058, '_timestamp': 1699687116.8939779}.
+2023-11-11 07:18:37,028 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:37,028 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 56 < 101. Dropping entry: {'train_err_sl': 0.9506787657737732, 'time_sl': 0.13245892152190208, '_timestamp': 1699687117.0276887}.
+2023-11-11 07:18:37,170 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:37,170 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 57 < 101. Dropping entry: {'train_err_sl': 0.9506672024726868, 'time_sl': 0.1413971446454525, '_timestamp': 1699687117.170328}.
+2023-11-11 07:18:37,304 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:37,304 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 58 < 101. Dropping entry: {'train_err_sl': 0.9506551623344421, 'time_sl': 0.1328155267983675, '_timestamp': 1699687117.3043993}.
+2023-11-11 07:18:37,440 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:37,440 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 59 < 101. Dropping entry: {'train_err_sl': 0.9506435990333557, 'time_sl': 0.13396164402365685, '_timestamp': 1699687117.4396546}.
+2023-11-11 07:18:37,570 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:37,570 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 60 < 101. Dropping entry: {'train_err_sl': 0.9506325721740723, 'time_sl': 0.12906112521886826, '_timestamp': 1699687117.5699623}.
+2023-11-11 07:18:37,700 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:37,700 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 61 < 101. Dropping entry: {'train_err_sl': 0.9506213665008545, 'time_sl': 0.12909758649766445, '_timestamp': 1699687117.7002952}.
+2023-11-11 07:18:37,830 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:37,831 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 62 < 101. Dropping entry: {'train_err_sl': 0.9506093859672546, 'time_sl': 0.12853915616869926, '_timestamp': 1699687117.830128}.
+2023-11-11 07:18:37,961 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:37,961 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 63 < 101. Dropping entry: {'train_err_sl': 0.9505966901779175, 'time_sl': 0.12923110648989677, '_timestamp': 1699687117.9605863}.
+2023-11-11 07:18:38,092 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:38,093 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 64 < 101. Dropping entry: {'train_err_sl': 0.9505831003189087, 'time_sl': 0.13024219311773777, '_timestamp': 1699687118.0920706}.
+2023-11-11 07:18:38,199 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:38,224 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:38,224 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 65 < 101. Dropping entry: {'train_err_sl': 0.9505694508552551, 'time_sl': 0.13028021343052387, '_timestamp': 1699687118.2235937}.
+2023-11-11 07:18:38,355 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:38,355 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 66 < 101. Dropping entry: {'train_err_sl': 0.9505559206008911, 'time_sl': 0.12993884831666946, '_timestamp': 1699687118.3547728}.
+2023-11-11 07:18:38,486 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:38,486 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 67 < 101. Dropping entry: {'train_err_sl': 0.9505414962768555, 'time_sl': 0.1299741007387638, '_timestamp': 1699687118.4860198}.
+2023-11-11 07:18:38,617 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:38,617 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 68 < 101. Dropping entry: {'train_err_sl': 0.9505261182785034, 'time_sl': 0.13005485944449902, '_timestamp': 1699687118.6173244}.
+2023-11-11 07:18:38,750 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:38,750 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 69 < 101. Dropping entry: {'train_err_sl': 0.9505102634429932, 'time_sl': 0.1315501220524311, '_timestamp': 1699687118.750123}.
+2023-11-11 07:18:38,885 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 07:18:38,886 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:38,887 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 70 < 101. Dropping entry: {'train_err_sl': 0.9504956007003784, 'time_sl': 0.131470188498497, '_timestamp': 1699687118.8828127}.
+2023-11-11 07:18:39,025 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:39,026 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 71 < 101. Dropping entry: {'train_err_sl': 0.9504829049110413, 'time_sl': 0.1415045540779829, '_timestamp': 1699687119.0255404}.
+2023-11-11 07:18:39,161 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:39,161 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 72 < 101. Dropping entry: {'train_err_sl': 0.9504700899124146, 'time_sl': 0.1342015080153942, '_timestamp': 1699687119.1609778}.
+2023-11-11 07:18:39,202 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/config.yaml
+2023-11-11 07:18:39,293 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: stop_status
+2023-11-11 07:18:39,293 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: stop_status
+2023-11-11 07:18:39,341 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:39,342 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 73 < 101. Dropping entry: {'train_err_sl': 0.9504551887512207, 'time_sl': 0.13308586180210114, '_timestamp': 1699687119.2955606}.
+2023-11-11 07:18:39,439 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:39,439 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 74 < 101. Dropping entry: {'train_err_sl': 0.9504387378692627, 'time_sl': 0.14165526442229748, '_timestamp': 1699687119.4389062}.
+2023-11-11 07:18:39,617 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:39,618 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 75 < 101. Dropping entry: {'train_err_sl': 0.9504224061965942, 'time_sl': 0.13561268895864487, '_timestamp': 1699687119.576055}.
+2023-11-11 07:18:39,711 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:39,711 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 76 < 101. Dropping entry: {'train_err_sl': 0.9504067301750183, 'time_sl': 0.1340094581246376, '_timestamp': 1699687119.711325}.
+2023-11-11 07:18:39,851 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:39,851 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 77 < 101. Dropping entry: {'train_err_sl': 0.9503918290138245, 'time_sl': 0.1382874771952629, '_timestamp': 1699687119.8509252}.
+2023-11-11 07:18:39,986 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:39,986 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 78 < 101. Dropping entry: {'train_err_sl': 0.9503777027130127, 'time_sl': 0.13369652070105076, '_timestamp': 1699687119.9859104}.
+2023-11-11 07:18:40,122 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:40,122 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 79 < 101. Dropping entry: {'train_err_sl': 0.9503639340400696, 'time_sl': 0.13473855704069138, '_timestamp': 1699687120.121905}.
+2023-11-11 07:18:40,204 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:40,261 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:40,261 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 80 < 101. Dropping entry: {'train_err_sl': 0.950350284576416, 'time_sl': 0.13780434802174568, '_timestamp': 1699687120.2609687}.
+2023-11-11 07:18:40,396 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:40,396 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 81 < 101. Dropping entry: {'train_err_sl': 0.950336754322052, 'time_sl': 0.1337227914482355, '_timestamp': 1699687120.3959644}.
+2023-11-11 07:18:40,533 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:40,533 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 82 < 101. Dropping entry: {'train_err_sl': 0.9503235816955566, 'time_sl': 0.13578574918210506, '_timestamp': 1699687120.5331233}.
+2023-11-11 07:18:40,668 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:40,668 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 83 < 101. Dropping entry: {'train_err_sl': 0.9503105878829956, 'time_sl': 0.13370023295283318, '_timestamp': 1699687120.6683629}.
+2023-11-11 07:18:40,801 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:40,801 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 84 < 101. Dropping entry: {'train_err_sl': 0.9502979516983032, 'time_sl': 0.13112435676157475, '_timestamp': 1699687120.8007586}.
+2023-11-11 07:18:40,937 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:40,937 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 85 < 101. Dropping entry: {'train_err_sl': 0.9502859115600586, 'time_sl': 0.13467092625796795, '_timestamp': 1699687120.9368582}.
+2023-11-11 07:18:41,072 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:41,072 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 86 < 101. Dropping entry: {'train_err_sl': 0.9502743482589722, 'time_sl': 0.13358328118920326, '_timestamp': 1699687121.072003}.
+2023-11-11 07:18:41,208 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:41,208 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 87 < 101. Dropping entry: {'train_err_sl': 0.9502627849578857, 'time_sl': 0.1347048170864582, '_timestamp': 1699687121.2079492}.
+2023-11-11 07:18:41,352 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:41,352 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 88 < 101. Dropping entry: {'train_err_sl': 0.9502513408660889, 'time_sl': 0.14285186305642128, '_timestamp': 1699687121.3520408}.
+2023-11-11 07:18:41,485 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:41,486 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 89 < 101. Dropping entry: {'train_err_sl': 0.9502401351928711, 'time_sl': 0.13212678767740726, '_timestamp': 1699687121.4854734}.
+2023-11-11 07:18:41,619 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:41,620 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 90 < 101. Dropping entry: {'train_err_sl': 0.9502294063568115, 'time_sl': 0.13268793560564518, '_timestamp': 1699687121.6194565}.
+2023-11-11 07:18:41,752 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:41,752 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 91 < 101. Dropping entry: {'train_err_sl': 0.9502190351486206, 'time_sl': 0.1313263401389122, '_timestamp': 1699687121.752031}.
+2023-11-11 07:18:41,885 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:41,885 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 92 < 101. Dropping entry: {'train_err_sl': 0.9502085447311401, 'time_sl': 0.13194615580141544, '_timestamp': 1699687121.8852599}.
+2023-11-11 07:18:42,017 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:42,018 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 93 < 101. Dropping entry: {'train_err_sl': 0.9501988291740417, 'time_sl': 0.13104365393519402, '_timestamp': 1699687122.0175803}.
+2023-11-11 07:18:42,150 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:42,150 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 94 < 101. Dropping entry: {'train_err_sl': 0.950189471244812, 'time_sl': 0.1311222966760397, '_timestamp': 1699687122.149949}.
+2023-11-11 07:18:42,207 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:42,281 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:42,282 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 95 < 101. Dropping entry: {'train_err_sl': 0.9501802921295166, 'time_sl': 0.1303305234760046, '_timestamp': 1699687122.2815292}.
+2023-11-11 07:18:42,413 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:42,414 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 96 < 101. Dropping entry: {'train_err_sl': 0.9501712918281555, 'time_sl': 0.13088520243763924, '_timestamp': 1699687122.4136841}.
+2023-11-11 07:18:42,554 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:42,554 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 97 < 101. Dropping entry: {'train_err_sl': 0.9501620531082153, 'time_sl': 0.13909358903765678, '_timestamp': 1699687122.5540338}.
+2023-11-11 07:18:42,690 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:42,690 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 98 < 101. Dropping entry: {'train_err_sl': 0.9501530528068542, 'time_sl': 0.1344904825091362, '_timestamp': 1699687122.689844}.
+2023-11-11 07:18:42,822 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:42,823 WARNING HandlerThread:100914 [handler.py:handle_request_partial_history():553] Step 99 < 101. Dropping entry: {'train_err_sl': 0.9501441717147827, 'time_sl': 0.1314388196915388, '_timestamp': 1699687122.8225746}.
+2023-11-11 07:18:42,849 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 07:18:42,850 DEBUG   SenderThread:100914 [sender.py:send():379] send: history
+2023-11-11 07:18:42,850 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 07:18:42,853 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:42,854 DEBUG   SenderThread:100914 [sender.py:send():379] send: telemetry
+2023-11-11 07:18:42,854 DEBUG   SenderThread:100914 [sender.py:send():379] send: exit
+2023-11-11 07:18:42,854 INFO    SenderThread:100914 [sender.py:send_exit():584] handling exit code: 0
+2023-11-11 07:18:42,854 INFO    SenderThread:100914 [sender.py:send_exit():586] handling runtime: 33
+2023-11-11 07:18:42,857 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:42,857 INFO    SenderThread:100914 [sender.py:send_exit():592] send defer
+2023-11-11 07:18:42,857 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: defer
+2023-11-11 07:18:42,857 INFO    HandlerThread:100914 [handler.py:handle_request_defer():170] handle defer: 0
+2023-11-11 07:18:42,858 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: defer
+2023-11-11 07:18:42,858 INFO    SenderThread:100914 [sender.py:send_request_defer():608] handle sender defer: 0
+2023-11-11 07:18:42,858 INFO    SenderThread:100914 [sender.py:transition_state():612] send defer: 1
+2023-11-11 07:18:42,858 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: defer
+2023-11-11 07:18:42,858 INFO    HandlerThread:100914 [handler.py:handle_request_defer():170] handle defer: 1
+2023-11-11 07:18:42,858 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: defer
+2023-11-11 07:18:42,858 INFO    SenderThread:100914 [sender.py:send_request_defer():608] handle sender defer: 1
+2023-11-11 07:18:42,859 INFO    SenderThread:100914 [sender.py:transition_state():612] send defer: 2
+2023-11-11 07:18:42,859 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: defer
+2023-11-11 07:18:42,859 INFO    HandlerThread:100914 [handler.py:handle_request_defer():170] handle defer: 2
+2023-11-11 07:18:42,859 INFO    HandlerThread:100914 [system_monitor.py:finish():190] Stopping system monitor
+2023-11-11 07:18:42,860 INFO    HandlerThread:100914 [interfaces.py:finish():202] Joined cpu monitor
+2023-11-11 07:18:42,861 DEBUG   SystemMonitor:100914 [system_monitor.py:_start():159] Starting system metrics aggregation loop
+2023-11-11 07:18:42,861 INFO    HandlerThread:100914 [interfaces.py:finish():202] Joined disk monitor
+2023-11-11 07:18:42,861 DEBUG   SystemMonitor:100914 [system_monitor.py:_start():166] Finished system metrics aggregation loop
+2023-11-11 07:18:42,862 DEBUG   SystemMonitor:100914 [system_monitor.py:_start():170] Publishing last batch of metrics
+2023-11-11 07:18:42,871 INFO    HandlerThread:100914 [interfaces.py:finish():202] Joined gpu monitor
+2023-11-11 07:18:42,871 INFO    HandlerThread:100914 [interfaces.py:finish():202] Joined memory monitor
+2023-11-11 07:18:42,872 INFO    HandlerThread:100914 [interfaces.py:finish():202] Joined network monitor
+2023-11-11 07:18:42,873 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: defer
+2023-11-11 07:18:42,873 INFO    SenderThread:100914 [sender.py:send_request_defer():608] handle sender defer: 2
+2023-11-11 07:18:42,873 INFO    SenderThread:100914 [sender.py:transition_state():612] send defer: 3
+2023-11-11 07:18:42,873 DEBUG   SenderThread:100914 [sender.py:send():379] send: stats
+2023-11-11 07:18:42,873 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: defer
+2023-11-11 07:18:42,875 INFO    HandlerThread:100914 [handler.py:handle_request_defer():170] handle defer: 3
+2023-11-11 07:18:42,876 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: defer
+2023-11-11 07:18:42,876 INFO    SenderThread:100914 [sender.py:send_request_defer():608] handle sender defer: 3
+2023-11-11 07:18:42,876 INFO    SenderThread:100914 [sender.py:transition_state():612] send defer: 4
+2023-11-11 07:18:42,876 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: defer
+2023-11-11 07:18:42,876 INFO    HandlerThread:100914 [handler.py:handle_request_defer():170] handle defer: 4
+2023-11-11 07:18:42,876 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: defer
+2023-11-11 07:18:42,876 INFO    SenderThread:100914 [sender.py:send_request_defer():608] handle sender defer: 4
+2023-11-11 07:18:42,876 INFO    SenderThread:100914 [sender.py:transition_state():612] send defer: 5
+2023-11-11 07:18:42,877 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: defer
+2023-11-11 07:18:42,877 INFO    HandlerThread:100914 [handler.py:handle_request_defer():170] handle defer: 5
+2023-11-11 07:18:42,877 DEBUG   SenderThread:100914 [sender.py:send():379] send: summary
+2023-11-11 07:18:42,879 INFO    SenderThread:100914 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 07:18:42,880 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: defer
+2023-11-11 07:18:42,880 INFO    SenderThread:100914 [sender.py:send_request_defer():608] handle sender defer: 5
+2023-11-11 07:18:42,880 INFO    SenderThread:100914 [sender.py:transition_state():612] send defer: 6
+2023-11-11 07:18:42,880 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: defer
+2023-11-11 07:18:42,880 INFO    HandlerThread:100914 [handler.py:handle_request_defer():170] handle defer: 6
+2023-11-11 07:18:42,881 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: defer
+2023-11-11 07:18:42,881 INFO    SenderThread:100914 [sender.py:send_request_defer():608] handle sender defer: 6
+2023-11-11 07:18:42,886 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 07:18:43,030 INFO    SenderThread:100914 [sender.py:transition_state():612] send defer: 7
+2023-11-11 07:18:43,030 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: defer
+2023-11-11 07:18:43,031 INFO    HandlerThread:100914 [handler.py:handle_request_defer():170] handle defer: 7
+2023-11-11 07:18:43,031 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: defer
+2023-11-11 07:18:43,031 INFO    SenderThread:100914 [sender.py:send_request_defer():608] handle sender defer: 7
+2023-11-11 07:18:43,210 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-summary.json
+2023-11-11 07:18:43,210 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/config.yaml
+2023-11-11 07:18:43,851 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: poll_exit
+2023-11-11 07:18:44,212 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:45,730 INFO    SenderThread:100914 [sender.py:transition_state():612] send defer: 8
+2023-11-11 07:18:45,731 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: poll_exit
+2023-11-11 07:18:45,731 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: defer
+2023-11-11 07:18:45,731 INFO    HandlerThread:100914 [handler.py:handle_request_defer():170] handle defer: 8
+2023-11-11 07:18:45,732 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: defer
+2023-11-11 07:18:45,732 INFO    SenderThread:100914 [sender.py:send_request_defer():608] handle sender defer: 8
+2023-11-11 07:18:45,732 INFO    SenderThread:100914 [job_builder.py:build():281] Attempting to build job artifact
+2023-11-11 07:18:45,735 INFO    SenderThread:100914 [job_builder.py:_get_source_type():400] is repo sourced job
+2023-11-11 07:18:45,737 INFO    SenderThread:100914 [job_builder.py:build():374] adding wandb-job metadata file
+2023-11-11 07:18:45,744 INFO    SenderThread:100914 [sender.py:transition_state():612] send defer: 9
+2023-11-11 07:18:45,744 DEBUG   SenderThread:100914 [sender.py:send():379] send: artifact
+2023-11-11 07:18:45,744 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: defer
+2023-11-11 07:18:45,747 INFO    HandlerThread:100914 [handler.py:handle_request_defer():170] handle defer: 9
+2023-11-11 07:18:46,215 INFO    Thread-12 :100914 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:46,290 INFO    wandb-upload_0:100914 [upload_job.py:push():86] Skipped uploading /root/.local/share/wandb/artifacts/staging/tmpi0tw5scm
+2023-11-11 07:18:46,565 INFO    wandb-upload_1:100914 [upload_job.py:push():89] Uploaded file /root/.local/share/wandb/artifacts/staging/tmp94cdqszf
+2023-11-11 07:18:47,374 INFO    SenderThread:100914 [sender.py:send_artifact():1475] sent artifact job-https___github.com_ashiq24_CoDA-NO.git_main.py - {'id': 'QXJ0aWZhY3Q6NjM0NzU0ODY3', 'digest': 'd9fb1de4b31bea4748a53441635a04a0', 'state': 'PENDING', 'aliases': [], 'artifactSequence': {'id': 'QXJ0aWZhY3RDb2xsZWN0aW9uOjExMzA3MjMyMA==', 'latestArtifact': {'id': 'QXJ0aWZhY3Q6NjM0NzUwMjM5', 'versionIndex': 9}}, 'version': 'latest'}
+2023-11-11 07:18:47,374 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: defer
+2023-11-11 07:18:47,375 INFO    SenderThread:100914 [sender.py:send_request_defer():608] handle sender defer: 9
+2023-11-11 07:18:47,375 INFO    SenderThread:100914 [dir_watcher.py:finish():358] shutting down directory watcher
+2023-11-11 07:18:48,218 INFO    SenderThread:100914 [dir_watcher.py:finish():388] scan: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files
+2023-11-11 07:18:48,219 INFO    SenderThread:100914 [dir_watcher.py:finish():402] scan save: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log output.log
+2023-11-11 07:18:48,219 INFO    SenderThread:100914 [dir_watcher.py:finish():402] scan save: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/requirements.txt requirements.txt
+2023-11-11 07:18:48,219 INFO    SenderThread:100914 [dir_watcher.py:finish():402] scan save: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-summary.json wandb-summary.json
+2023-11-11 07:18:48,226 INFO    SenderThread:100914 [dir_watcher.py:finish():402] scan save: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/config.yaml config.yaml
+2023-11-11 07:18:48,228 INFO    SenderThread:100914 [dir_watcher.py:finish():402] scan save: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-metadata.json wandb-metadata.json
+2023-11-11 07:18:48,228 INFO    SenderThread:100914 [sender.py:transition_state():612] send defer: 10
+2023-11-11 07:18:48,231 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: defer
+2023-11-11 07:18:48,231 INFO    HandlerThread:100914 [handler.py:handle_request_defer():170] handle defer: 10
+2023-11-11 07:18:48,232 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: defer
+2023-11-11 07:18:48,232 INFO    SenderThread:100914 [sender.py:send_request_defer():608] handle sender defer: 10
+2023-11-11 07:18:48,232 INFO    SenderThread:100914 [file_pusher.py:finish():159] shutting down file pusher
+2023-11-11 07:18:48,497 INFO    wandb-upload_1:100914 [upload_job.py:push():131] Uploaded file /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/requirements.txt
+2023-11-11 07:18:48,516 INFO    wandb-upload_0:100914 [upload_job.py:push():131] Uploaded file /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/output.log
+2023-11-11 07:18:48,554 INFO    wandb-upload_3:100914 [upload_job.py:push():131] Uploaded file /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/config.yaml
+2023-11-11 07:18:48,554 INFO    wandb-upload_2:100914 [upload_job.py:push():131] Uploaded file /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/files/wandb-summary.json
+2023-11-11 07:18:48,755 INFO    Thread-11 :100914 [sender.py:transition_state():612] send defer: 11
+2023-11-11 07:18:48,755 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: defer
+2023-11-11 07:18:48,756 INFO    HandlerThread:100914 [handler.py:handle_request_defer():170] handle defer: 11
+2023-11-11 07:18:48,756 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: defer
+2023-11-11 07:18:48,756 INFO    SenderThread:100914 [sender.py:send_request_defer():608] handle sender defer: 11
+2023-11-11 07:18:48,756 INFO    SenderThread:100914 [file_pusher.py:join():164] waiting for file pusher
+2023-11-11 07:18:48,756 INFO    SenderThread:100914 [sender.py:transition_state():612] send defer: 12
+2023-11-11 07:18:48,756 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: defer
+2023-11-11 07:18:48,756 INFO    HandlerThread:100914 [handler.py:handle_request_defer():170] handle defer: 12
+2023-11-11 07:18:48,757 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: defer
+2023-11-11 07:18:48,757 INFO    SenderThread:100914 [sender.py:send_request_defer():608] handle sender defer: 12
+2023-11-11 07:18:48,757 INFO    SenderThread:100914 [file_stream.py:finish():593] file stream finish called
+2023-11-11 07:18:48,837 INFO    SenderThread:100914 [file_stream.py:finish():597] file stream finish is done
+2023-11-11 07:18:48,837 INFO    SenderThread:100914 [sender.py:transition_state():612] send defer: 13
+2023-11-11 07:18:48,837 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: defer
+2023-11-11 07:18:48,837 INFO    HandlerThread:100914 [handler.py:handle_request_defer():170] handle defer: 13
+2023-11-11 07:18:48,837 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: defer
+2023-11-11 07:18:48,837 INFO    SenderThread:100914 [sender.py:send_request_defer():608] handle sender defer: 13
+2023-11-11 07:18:48,838 INFO    SenderThread:100914 [sender.py:transition_state():612] send defer: 14
+2023-11-11 07:18:48,838 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: defer
+2023-11-11 07:18:48,838 DEBUG   SenderThread:100914 [sender.py:send():379] send: final
+2023-11-11 07:18:48,838 INFO    HandlerThread:100914 [handler.py:handle_request_defer():170] handle defer: 14
+2023-11-11 07:18:48,838 DEBUG   SenderThread:100914 [sender.py:send():379] send: footer
+2023-11-11 07:18:48,838 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: defer
+2023-11-11 07:18:48,838 INFO    SenderThread:100914 [sender.py:send_request_defer():608] handle sender defer: 14
+2023-11-11 07:18:48,839 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: poll_exit
+2023-11-11 07:18:48,840 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: server_info
+2023-11-11 07:18:48,840 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: get_summary
+2023-11-11 07:18:48,840 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: sampled_history
+2023-11-11 07:18:48,840 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: poll_exit
+2023-11-11 07:18:48,841 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: job_info
+2023-11-11 07:18:48,841 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: server_info
+2023-11-11 07:18:48,901 DEBUG   SenderThread:100914 [sender.py:send_request():406] send_request: job_info
+2023-11-11 07:18:48,902 DEBUG   HandlerThread:100914 [handler.py:handle_request():144] handle_request: shutdown
+2023-11-11 07:18:48,902 INFO    HandlerThread:100914 [handler.py:finish():861] shutting down handler
+2023-11-11 07:18:49,842 INFO    WriterThread:100914 [datastore.py:close():294] close: /workspace/CoDA-NO/wandb/run-20231111_071808-11ul8ahy/run-11ul8ahy.wandb
+2023-11-11 07:18:49,901 INFO    SenderThread:100914 [sender.py:finish():1552] shutting down sender
+2023-11-11 07:18:49,902 INFO    SenderThread:100914 [file_pusher.py:finish():159] shutting down file pusher
+2023-11-11 07:18:49,902 INFO    SenderThread:100914 [file_pusher.py:join():164] waiting for file pusher

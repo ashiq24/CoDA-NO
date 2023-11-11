@@ -1,0 +1,196 @@
+2023-11-11 08:53:04,260 INFO    StreamThr :124078 [internal.py:wandb_internal():86] W&B internal server running at pid: 124078, started at: 2023-11-11 08:53:04.256637
+2023-11-11 08:53:04,262 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: status
+2023-11-11 08:53:04,273 INFO    WriterThread:124078 [datastore.py:open_for_write():85] open: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/run-tiy9hwdf.wandb
+2023-11-11 08:53:04,275 DEBUG   SenderThread:124078 [sender.py:send():379] send: header
+2023-11-11 08:53:04,330 DEBUG   SenderThread:124078 [sender.py:send():379] send: run
+2023-11-11 08:53:04,646 INFO    SenderThread:124078 [dir_watcher.py:__init__():211] watching files in: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files
+2023-11-11 08:53:04,646 INFO    SenderThread:124078 [sender.py:_start_run_threads():1121] run started: tiy9hwdf with start time 1699692784.257387
+2023-11-11 08:53:04,646 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:04,649 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:04,660 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: check_version
+2023-11-11 08:53:04,660 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: check_version
+2023-11-11 08:53:04,805 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: run_start
+2023-11-11 08:53:04,814 DEBUG   HandlerThread:124078 [system_info.py:__init__():31] System info init
+2023-11-11 08:53:04,814 DEBUG   HandlerThread:124078 [system_info.py:__init__():46] System info init done
+2023-11-11 08:53:04,814 INFO    HandlerThread:124078 [system_monitor.py:start():181] Starting system monitor
+2023-11-11 08:53:04,815 INFO    SystemMonitor:124078 [system_monitor.py:_start():145] Starting system asset monitoring threads
+2023-11-11 08:53:04,815 INFO    HandlerThread:124078 [system_monitor.py:probe():201] Collecting system info
+2023-11-11 08:53:04,816 INFO    SystemMonitor:124078 [interfaces.py:start():190] Started cpu monitoring
+2023-11-11 08:53:04,816 INFO    SystemMonitor:124078 [interfaces.py:start():190] Started disk monitoring
+2023-11-11 08:53:04,817 INFO    SystemMonitor:124078 [interfaces.py:start():190] Started gpu monitoring
+2023-11-11 08:53:04,817 INFO    SystemMonitor:124078 [interfaces.py:start():190] Started memory monitoring
+2023-11-11 08:53:04,817 INFO    SystemMonitor:124078 [interfaces.py:start():190] Started network monitoring
+2023-11-11 08:53:04,995 DEBUG   HandlerThread:124078 [system_info.py:probe():195] Probing system
+2023-11-11 08:53:05,005 DEBUG   HandlerThread:124078 [system_info.py:_probe_git():180] Probing git
+2023-11-11 08:53:05,045 DEBUG   HandlerThread:124078 [system_info.py:_probe_git():188] Probing git done
+2023-11-11 08:53:05,045 DEBUG   HandlerThread:124078 [system_info.py:probe():240] Probing system done
+2023-11-11 08:53:05,045 DEBUG   HandlerThread:124078 [system_monitor.py:probe():210] {'os': 'Linux-5.15.0-1021-oracle-x86_64-with-glibc2.29', 'python': '3.8.10', 'heartbeatAt': '2023-11-11T08:53:04.995358', 'startedAt': '2023-11-11T08:53:04.167128', 'docker': None, 'cuda': None, 'args': (), 'state': 'running', 'program': 'main.py', 'codePath': 'main.py', 'git': {'remote': 'https://github.com/ashiq24/CoDA-NO.git', 'commit': '371e54a1aabe06ebe72d13b8ec8e76f905ce2035'}, 'email': None, 'root': '/workspace/CoDA-NO', 'host': '5415524', 'username': 'root', 'executable': '/usr/bin/python', 'cpu_count': 128, 'cpu_count_logical': 255, 'cpu_freq': {'current': 1551.9573019607842, 'min': 1500.0, 'max': 2550.0}, 'cpu_freq_per_core': [{'current': 1499.893, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2712.952, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 3247.809, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2000.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1928.838, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 2550.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}, {'current': 1500.0, 'min': 1500.0, 'max': 2550.0}], 'disk': {'total': 4062.62100982666, 'used': 1134.418815612793}, 'gpu': 'NVIDIA A100-SXM4-80GB', 'gpu_count': 1, 'gpu_devices': [{'name': 'NVIDIA A100-SXM4-80GB', 'memory_total': 85899345920}], 'memory': {'total': 2015.7575073242188}}
+2023-11-11 08:53:05,046 INFO    HandlerThread:124078 [system_monitor.py:probe():211] Finished collecting system info
+2023-11-11 08:53:05,046 INFO    HandlerThread:124078 [system_monitor.py:probe():214] Publishing system info
+2023-11-11 08:53:05,046 DEBUG   HandlerThread:124078 [system_info.py:_save_pip():51] Saving list of pip packages installed into the current environment
+2023-11-11 08:53:05,050 DEBUG   HandlerThread:124078 [system_info.py:_save_pip():67] Saving pip packages done
+2023-11-11 08:53:05,056 INFO    HandlerThread:124078 [system_monitor.py:probe():216] Finished publishing system info
+2023-11-11 08:53:05,065 DEBUG   SenderThread:124078 [sender.py:send():379] send: files
+2023-11-11 08:53:05,065 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-metadata.json with policy now
+2023-11-11 08:53:05,072 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: stop_status
+2023-11-11 08:53:05,073 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: stop_status
+2023-11-11 08:53:05,164 DEBUG   SenderThread:124078 [sender.py:send():379] send: telemetry
+2023-11-11 08:53:05,530 INFO    wandb-upload_0:124078 [upload_job.py:push():131] Uploaded file /tmp/tmphs88scgtwandb/t6k54z30-wandb-metadata.json
+2023-11-11 08:53:05,730 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_created():271] file/dir created: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/output.log
+2023-11-11 08:53:05,731 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_created():271] file/dir created: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/wandb-summary.json
+2023-11-11 08:53:05,731 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_created():271] file/dir created: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/wandb-metadata.json
+2023-11-11 08:53:05,731 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_created():271] file/dir created: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/requirements.txt
+2023-11-11 08:53:07,731 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/output.log
+2023-11-11 08:53:09,272 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 08:53:09,735 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/output.log
+2023-11-11 08:53:11,738 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/output.log
+2023-11-11 08:53:11,987 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:11,988 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:11,989 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:11,991 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:12,478 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:12,480 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:12,480 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:12,482 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:12,741 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/wandb-summary.json
+2023-11-11 08:53:12,938 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:12,939 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:12,939 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:12,941 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:13,388 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:13,389 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:13,389 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:13,392 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:13,744 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/output.log
+2023-11-11 08:53:13,745 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/wandb-summary.json
+2023-11-11 08:53:13,847 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:13,848 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:13,848 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:13,850 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:14,285 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 08:53:14,303 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:14,304 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:14,305 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:14,307 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:14,747 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/output.log
+2023-11-11 08:53:14,748 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/wandb-summary.json
+2023-11-11 08:53:14,761 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:14,762 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:14,762 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:14,765 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:15,215 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:15,216 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:15,216 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:15,220 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:15,675 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:15,676 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:15,676 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:15,678 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:15,750 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/output.log
+2023-11-11 08:53:15,751 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/wandb-summary.json
+2023-11-11 08:53:16,126 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:16,127 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:16,128 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:16,130 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:16,584 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:16,585 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:16,585 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:16,587 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:16,754 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/output.log
+2023-11-11 08:53:16,754 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/wandb-summary.json
+2023-11-11 08:53:17,041 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:17,042 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:17,042 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:17,044 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:17,495 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:17,496 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:17,496 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:17,498 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:17,756 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/output.log
+2023-11-11 08:53:17,757 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/wandb-summary.json
+2023-11-11 08:53:17,949 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:17,950 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:17,950 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:17,953 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:18,404 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:18,404 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:18,405 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:18,407 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:18,759 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/output.log
+2023-11-11 08:53:18,760 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/wandb-summary.json
+2023-11-11 08:53:18,858 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:18,868 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:18,868 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:18,870 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:19,293 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 08:53:19,312 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:19,313 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:19,314 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:19,316 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:19,762 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/output.log
+2023-11-11 08:53:19,763 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/wandb-summary.json
+2023-11-11 08:53:19,776 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:19,777 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:19,777 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:19,779 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:20,072 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: stop_status
+2023-11-11 08:53:20,073 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: stop_status
+2023-11-11 08:53:20,291 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:20,292 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:20,292 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:20,294 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:20,765 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/output.log
+2023-11-11 08:53:20,766 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/wandb-summary.json
+2023-11-11 08:53:20,816 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:20,816 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:20,817 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:20,819 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:21,281 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:21,282 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:21,282 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:21,284 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:21,741 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:21,742 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:21,742 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:21,744 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:21,768 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/output.log
+2023-11-11 08:53:21,769 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/wandb-summary.json
+2023-11-11 08:53:22,198 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:22,199 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:22,199 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:22,201 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:22,672 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:22,673 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:22,673 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:22,676 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:22,771 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/output.log
+2023-11-11 08:53:22,772 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/wandb-summary.json
+2023-11-11 08:53:23,124 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:23,125 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:23,125 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:23,127 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:23,571 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: partial_history
+2023-11-11 08:53:23,572 DEBUG   SenderThread:124078 [sender.py:send():379] send: history
+2023-11-11 08:53:23,572 DEBUG   SenderThread:124078 [sender.py:send_request():406] send_request: summary_record
+2023-11-11 08:53:23,574 INFO    SenderThread:124078 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-11-11 08:53:23,774 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/output.log
+2023-11-11 08:53:23,775 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/wandb-summary.json
+2023-11-11 08:53:24,575 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 08:53:24,776 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/output.log
+2023-11-11 08:53:25,778 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/output.log
+2023-11-11 08:53:29,576 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 08:53:34,582 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 08:53:34,794 INFO    Thread-12 :124078 [dir_watcher.py:_on_file_modified():288] file/dir modified: /workspace/CoDA-NO/wandb/run-20231111_085304-tiy9hwdf/files/config.yaml
+2023-11-11 08:53:39,699 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 08:53:44,700 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 08:53:49,701 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 08:53:54,702 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 08:53:59,703 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 08:54:04,703 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 08:54:04,818 DEBUG   SystemMonitor:124078 [system_monitor.py:_start():159] Starting system metrics aggregation loop
+2023-11-11 08:54:04,821 DEBUG   SenderThread:124078 [sender.py:send():379] send: stats
+2023-11-11 08:54:09,823 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 08:54:14,824 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 08:54:19,825 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 08:54:24,826 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: status_report
+2023-11-11 08:54:29,827 DEBUG   HandlerThread:124078 [handler.py:handle_request():144] handle_request: status_report

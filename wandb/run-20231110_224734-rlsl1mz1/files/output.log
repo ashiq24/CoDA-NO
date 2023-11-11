@@ -1,0 +1,108 @@
+Generating Encoder
+Token Dim--> 4
+var num 7 static channels 0
+End to End Scaling [1, 1]
+Using lifing Layer
+expected number of channels 48
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+intializing CLS token
+*********************
+Generating Decoder
+End to End Scaling [1, 1]
+expected number of channels 42
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+Using Projection Layer
+*********************
+generating Predictor
+End to End Scaling [1, 1]
+expected number of channels 42
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+Using Projection Layer
+*********************
+Traceback (most recent call last):
+  File "main.py", line 40, in <module>
+    model = SslWrapChangingMesh(params, encoder, decoder, contrastive, predictor, stage='sl')
+  File "/workspace/CoDA-NO/models/get_models.py", line 440, in __init__
+    super(SslWrapper, self).__init__()
+TypeError: super(type, obj): obj must be an instance or subtype of type

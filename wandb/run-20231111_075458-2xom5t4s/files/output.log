@@ -1,0 +1,134 @@
+Generating Encoder
+Token Dim--> 4
+var num 7 static channels 0
+End to End Scaling [1, 1]
+Using lifing Layer
+expected number of channels 48
+1.0 None 1 4 [62, 10]
+std 0.01270001270001905
+Using Half modes 31 5
+std 0.01270001270001905
+Using Half modes 31 5
+std 0.00307991332013926
+Using Half modes 125 21
+std 0.0008890943922315579
+Using Half modes 125 21
+Permutation Equivariant with  6
+std 0.0012573693477237332
+Using Half modes 125 21
+1.0 None 1 4 [62, 10]
+std 0.01270001270001905
+Using Half modes 31 5
+std 0.01270001270001905
+Using Half modes 31 5
+std 0.00307991332013926
+Using Half modes 125 21
+std 0.0008890943922315579
+Using Half modes 125 21
+Permutation Equivariant with  6
+std 0.0012573693477237332
+Using Half modes 125 21
+intializing CLS token
+*********************
+Generating Decoder
+End to End Scaling [1, 1]
+expected number of channels 42
+1.0 None 1 4 [62, 10]
+std 0.01270001270001905
+Using Half modes 31 5
+std 0.01270001270001905
+Using Half modes 31 5
+std 0.00307991332013926
+Using Half modes 125 21
+std 0.0008890943922315579
+Using Half modes 125 21
+Permutation Equivariant with  6
+std 0.0012573693477237332
+Using Half modes 125 21
+1.0 None 1 4 [62, 10]
+std 0.01270001270001905
+Using Half modes 31 5
+std 0.01270001270001905
+Using Half modes 31 5
+std 0.00307991332013926
+Using Half modes 125 21
+std 0.0008890943922315579
+Using Half modes 125 21
+Permutation Equivariant with  6
+std 0.0012573693477237332
+Using Half modes 125 21
+Using Projection Layer
+*********************
+generating Predictor
+End to End Scaling [1, 1]
+expected number of channels 42
+1.0 None 1 4 [62, 10]
+std 0.01270001270001905
+Using Half modes 31 5
+std 0.01270001270001905
+Using Half modes 31 5
+std 0.00307991332013926
+Using Half modes 125 21
+std 0.0008890943922315579
+Using Half modes 125 21
+Permutation Equivariant with  6
+std 0.0012573693477237332
+Using Half modes 125 21
+1.0 None 1 4 [62, 10]
+std 0.01270001270001905
+Using Half modes 31 5
+std 0.01270001270001905
+Using Half modes 31 5
+std 0.00307991332013926
+Using Half modes 125 21
+std 0.0008890943922315579
+Using Half modes 125 21
+Permutation Equivariant with  6
+std 0.0012573693477237332
+Using Half modes 125 21
+1.0 None 1 4 [62, 10]
+std 0.01270001270001905
+Using Half modes 31 5
+std 0.01270001270001905
+Using Half modes 31 5
+std 0.00307991332013926
+Using Half modes 125 21
+std 0.0008890943922315579
+Using Half modes 125 21
+Permutation Equivariant with  6
+std 0.0012573693477237332
+Using Half modes 125 21
+Using Projection Layer
+*********************
+Doing Wrapper for sl
+Traceback (most recent call last):
+  File "main.py", line 56, in <module>
+    simple_trainer(model, train, test, params, wandb_log=params.wandb_log,
+  File "/workspace/CoDA-NO/train/trainer.py", line 54, in simple_trainer
+    out = model(x, out_grid_displacement)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1533, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/CoDA-NO/models/get_models.py", line 522, in forward
+    feature = self.encoder(inp)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1533, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/CoDA-NO/models/codano_gino.py", line 218, in forward
+    x = self.lifting(inp)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1533, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/CoDA-NO/layers/gno_layer.py", line 103, in forward
+    var_encoding = self.var_encoder(grid_pe).to(x.device)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1533, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/neuraloperator/neuralop/layers/mlp.py", line 93, in forward
+    x = fc(x)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1533, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: mat1 and mat2 shapes cannot be multiplied (1317x6 and 8x21)
+tensor([ 1.6030e+00,  1.5323e-03,  0.0000e+00, -5.5917e+02, -1.6092e-04,
+        -2.9350e-04,  0.0000e+00])
+tensor([1.4455e+00, 4.9242e-01, 0.0000e+00, 1.7584e+03, 5.8962e-04, 3.5190e-03,
+        0.0000e+00])
+torch.Size([1317, 6])

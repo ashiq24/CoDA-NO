@@ -1,0 +1,121 @@
+Generating Encoder
+Token Dim--> 4
+var num 7 static channels 0
+End to End Scaling [1, 1]
+Using lifing Layer
+expected number of channels 48
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+intializing CLS token
+*********************
+Generating Decoder
+End to End Scaling [1, 1]
+expected number of channels 42
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+Using Projection Layer
+*********************
+generating Predictor
+End to End Scaling [1, 1]
+expected number of channels 42
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+1.0 None 1 4 [45, 7]
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.017817416127494958
+Using Half modes 22 3
+std 0.004303314829119352
+Using Half modes 90 15
+std 0.003042903097250923
+Using Half modes 90 15
+Permutation Equivariant with  6
+std 0.0017568209223157664
+Using Half modes 90 15
+Using Projection Layer
+*********************
+Doing Wrapper for sl
+tensor([ 1.5993e+00,  1.5316e-03,  0.0000e+00, -3.4238e+02, -2.3121e-04,
+         1.0116e-04,  0.0000e+00])
+tensor([1.4203e+00, 5.1348e-01, 0.0000e+00, 1.8379e+03, 8.7621e-04, 5.6726e-03,
+        0.0000e+00])
+Traceback (most recent call last):
+  File "main.py", line 56, in <module>
+    simple_trainer(model, train, test, params, wandb_log=params.wandb_log,
+  File "/workspace/CoDA-NO/train/trainer.py", line 53, in simple_trainer
+    out = model(x, out_grid_displacement)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1533, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/CoDA-NO/models/get_models.py", line 511, in forward
+    self.encoder.lifting.update_grid(self.initial_mesh + displacement_inp, None)
+  File "/workspace/CoDA-NO/layers/gno_layer.py", line 81, in update_grid
+    self.neighbour = NS(input_grid.clone(), output_grid.clone(), radius=self.radius)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1646, in __getattr__
+    raise AttributeError("'{}' object has no attribute '{}'".format(
+AttributeError: 'GnoPremEq' object has no attribute 'radius'

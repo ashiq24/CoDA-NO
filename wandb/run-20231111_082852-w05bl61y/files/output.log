@@ -1,0 +1,637 @@
+Generating Encoder
+Token Dim--> 9
+var num 7 static channels 0
+End to End Scaling [1, 1]
+Using lifing Layer
+expected number of channels 160
+1.0 None 1 4 [63, 11]
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.00299718396998085
+Using Half modes 126 22
+std 0.000670190709794987
+Using Half modes 126 22
+Permutation Equivariant with  20
+std 0.000670190709794987
+Using Half modes 126 22
+1.0 None 1 4 [63, 11]
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.00299718396998085
+Using Half modes 126 22
+std 0.000670190709794987
+Using Half modes 126 22
+Permutation Equivariant with  20
+std 0.000670190709794987
+Using Half modes 126 22
+intializing CLS token
+*********************
+Generating Decoder
+End to End Scaling [1, 1]
+expected number of channels 140
+1.0 None 1 4 [63, 11]
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.00299718396998085
+Using Half modes 126 22
+std 0.000670190709794987
+Using Half modes 126 22
+Permutation Equivariant with  20
+std 0.000670190709794987
+Using Half modes 126 22
+1.0 None 1 4 [63, 11]
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.00299718396998085
+Using Half modes 126 22
+std 0.000670190709794987
+Using Half modes 126 22
+Permutation Equivariant with  20
+std 0.000670190709794987
+Using Half modes 126 22
+Using Projection Layer
+*********************
+generating Predictor
+End to End Scaling [1, 1]
+expected number of channels 140
+1.0 None 1 4 [63, 11]
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.00299718396998085
+Using Half modes 126 22
+std 0.000670190709794987
+Using Half modes 126 22
+Permutation Equivariant with  20
+std 0.000670190709794987
+Using Half modes 126 22
+1.0 None 1 4 [63, 11]
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.00299718396998085
+Using Half modes 126 22
+std 0.000670190709794987
+Using Half modes 126 22
+Permutation Equivariant with  20
+std 0.000670190709794987
+Using Half modes 126 22
+1.0 None 1 4 [63, 11]
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.012012499502607453
+Using Half modes 31 5
+std 0.00299718396998085
+Using Half modes 126 22
+std 0.000670190709794987
+Using Half modes 126 22
+Permutation Equivariant with  20
+std 0.000670190709794987
+Using Half modes 126 22
+Using Projection Layer
+*********************
+Doing Wrapper for sl
+tensor([ 1.6247e+00, -1.0253e-03,  0.0000e+00, -4.1786e+02, -2.7522e-04,
+         3.3561e-04,  0.0000e+00])
+tensor([1.4219e+00, 5.1906e-01, 0.0000e+00, 1.7695e+03, 8.5948e-04, 4.5637e-03,
+        0.0000e+00])
+Epoch 0/1000:   0%|                                                           | 0/1 [00:00<?, ?it/s]
+Epoch 0: Time: 2.24s, Loss: 0.7141
+Epoch 1: Time: 0.35s, Loss: 0.7008
+Epoch 2: Time: 0.35s, Loss: 0.6997
+
+Epoch 4/1000:   0%|                                                           | 0/1 [00:00<?, ?it/s]
+Epoch 4: Time: 0.35s, Loss: 0.6922
+Epoch 5: Time: 0.35s, Loss: 0.6601
+Epoch 6: Time: 0.35s, Loss: 0.7187
+Epoch 7: Time: 0.35s, Loss: 0.8826
+Epoch 8: Time: 0.36s, Loss: 0.7002
+
+Epoch 10/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]
+Epoch 10: Time: 0.36s, Loss: 0.7035
+Epoch 11: Time: 0.35s, Loss: 0.7045
+Epoch 12: Time: 0.35s, Loss: 0.7045
+Epoch 13: Time: 0.36s, Loss: 0.7042
+
+Epoch 15/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]
+Epoch 15: Time: 0.35s, Loss: 0.7030
+Epoch 16: Time: 0.35s, Loss: 0.7024
+Epoch 17: Time: 0.36s, Loss: 0.7019
+Epoch 18: Time: 0.35s, Loss: 0.7011
+Epoch 19: Time: 0.35s, Loss: 0.6999
+
+Epoch 21/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]
+Epoch 21: Time: 0.35s, Loss: 0.6967
+Epoch 22: Time: 0.40s, Loss: 0.6947
+Epoch 23: Time: 0.38s, Loss: 0.6926
+Epoch 24: Time: 0.35s, Loss: 0.6900
+
+Epoch 27/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]
+Epoch 26: Time: 0.35s, Loss: 0.6840
+Epoch 27: Time: 0.35s, Loss: 0.6801
+Epoch 28: Time: 0.36s, Loss: 0.6756
+Epoch 29: Time: 0.35s, Loss: 0.6709
+Epoch 30: Time: 0.36s, Loss: 0.6662
+
+Epoch 32/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]
+Epoch 32: Time: 0.37s, Loss: 0.6547
+Epoch 33: Time: 0.35s, Loss: 0.6483
+Epoch 34: Time: 0.35s, Loss: 0.6412
+Epoch 35: Time: 0.36s, Loss: 0.6337
+Epoch 36: Time: 0.35s, Loss: 0.6253
+
+Epoch 38/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]
+Epoch 38: Time: 0.36s, Loss: 0.6083
+Epoch 39: Time: 0.35s, Loss: 0.6037
+Epoch 40: Time: 0.35s, Loss: 0.6122
+Epoch 41: Time: 0.35s, Loss: 0.6127
+
+Epoch 42: Time: 0.35s, Loss: 0.6117
+Epoch 43: Time: 0.35s, Loss: 0.5983
+Epoch 44: Time: 0.35s, Loss: 0.5957
+Epoch 45: Time: 0.35s, Loss: 0.5868
+Epoch 46: Time: 0.36s, Loss: 0.5849
+Epoch 47: Time: 0.37s, Loss: 0.5819
+Epoch 48: Time: 0.35s, Loss: 0.5761
+Epoch 49/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]
+Epoch 49: Time: 0.36s, Loss: 0.5755
+Epoch 50: Time: 0.35s, Loss: 0.5699
+Epoch 51: Time: 0.35s, Loss: 0.5692
+Epoch 52: Time: 0.35s, Loss: 0.5652
+Epoch 53: Time: 0.35s, Loss: 0.5633
+
+Epoch 55/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]
+Epoch 55: Time: 0.41s, Loss: 0.5583
+Epoch 56: Time: 0.42s, Loss: 0.5567
+Epoch 57: Time: 0.41s, Loss: 0.5543
+
+Epoch 60/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]
+Epoch 59: Time: 0.39s, Loss: 0.5492
+Epoch 60: Time: 0.39s, Loss: 0.5449
+Epoch 61: Time: 0.39s, Loss: 0.5432
+Epoch 62: Time: 0.50s, Loss: 0.5393
+
+Epoch 64/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]
+Epoch 64: Time: 0.46s, Loss: 0.5326
+Epoch 65: Time: 0.39s, Loss: 0.5306
+Epoch 66: Time: 0.37s, Loss: 0.5261
+Epoch 67: Time: 0.37s, Loss: 0.5237
+
+Epoch 68: Time: 0.38s, Loss: 0.5205
+Epoch 69: Time: 0.36s, Loss: 0.5160
+Epoch 70: Time: 0.35s, Loss: 0.5129
+Epoch 71: Time: 0.36s, Loss: 0.5114
+Epoch 72: Time: 0.35s, Loss: 0.5117
+Epoch 73: Time: 0.35s, Loss: 0.5142
+Epoch 74: Time: 0.35s, Loss: 0.5089
+Epoch 75/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]
+Epoch 75: Time: 0.36s, Loss: 0.4991
+Epoch 76: Time: 0.37s, Loss: 0.4966
+Epoch 77: Time: 0.35s, Loss: 0.4993
+Epoch 78: Time: 0.35s, Loss: 0.4957
+
+Epoch 81/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]
+Epoch 80: Time: 0.36s, Loss: 0.4864
+Epoch 81: Time: 0.37s, Loss: 0.4901
+Epoch 82: Time: 0.35s, Loss: 0.4892
+Epoch 83: Time: 0.35s, Loss: 0.4835
+Epoch 84: Time: 0.36s, Loss: 0.4757
+
+Epoch 86/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]
+Epoch 86: Time: 0.35s, Loss: 0.4786
+Epoch 87: Time: 0.35s, Loss: 0.4782
+Epoch 88: Time: 0.35s, Loss: 0.4731
+Epoch 89: Time: 0.35s, Loss: 0.4667
+Epoch 90: Time: 0.35s, Loss: 0.4661
+
+Epoch 92/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]
+Epoch 92: Time: 0.36s, Loss: 0.4734
+Epoch 93: Time: 0.36s, Loss: 0.4739
+Epoch 94: Time: 0.35s, Loss: 0.4652
+Epoch 95: Time: 0.35s, Loss: 0.4585
+
+Epoch 98/1000:   0%|                                                          | 0/1 [00:00<?, ?it/s]
+Epoch 97: Time: 0.35s, Loss: 0.4642
+Epoch 98: Time: 0.35s, Loss: 0.4603
+Epoch 99: Time: 0.34s, Loss: 0.4541
+Epoch 100: Time: 0.34s, Loss: 0.4541
+Epoch 101: Time: 0.35s, Loss: 0.4523
+
+Epoch 102: Time: 0.35s, Loss: 0.4528
+Epoch 103: Time: 0.34s, Loss: 0.4508
+Epoch 104: Time: 0.35s, Loss: 0.4513
+Epoch 105: Time: 0.41s, Loss: 0.4494
+Epoch 106: Time: 0.36s, Loss: 0.4496
+Epoch 107: Time: 0.34s, Loss: 0.4481
+Epoch 108: Time: 0.35s, Loss: 0.4479
+Epoch 109/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 109: Time: 0.36s, Loss: 0.4469
+Epoch 110: Time: 0.34s, Loss: 0.4461
+Epoch 111: Time: 0.36s, Loss: 0.4458
+Epoch 112: Time: 0.39s, Loss: 0.4442
+
+Epoch 113: Time: 0.40s, Loss: 0.4443
+Epoch 114: Time: 0.33s, Loss: 0.4429
+Epoch 115: Time: 0.35s, Loss: 0.4423
+Epoch 116: Time: 0.35s, Loss: 0.4420
+Epoch 117: Time: 0.34s, Loss: 0.4406
+Epoch 118: Time: 0.35s, Loss: 0.4401
+Epoch 119: Time: 0.35s, Loss: 0.4397
+Epoch 120/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 120: Time: 0.36s, Loss: 0.4385
+Epoch 121: Time: 0.35s, Loss: 0.4375
+Epoch 122: Time: 0.35s, Loss: 0.4371
+Epoch 123: Time: 0.36s, Loss: 0.4369
+
+Epoch 126/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 125: Time: 0.35s, Loss: 0.4360
+Epoch 126: Time: 0.35s, Loss: 0.4353
+Epoch 127: Time: 0.35s, Loss: 0.4347
+Epoch 128: Time: 0.34s, Loss: 0.4342
+Epoch 129: Time: 0.36s, Loss: 0.4340
+
+Epoch 132/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 131: Time: 0.36s, Loss: 0.4350
+Epoch 132: Time: 0.35s, Loss: 0.4358
+Epoch 133: Time: 0.38s, Loss: 0.4352
+Epoch 134: Time: 0.35s, Loss: 0.4326
+Epoch 135: Time: 0.35s, Loss: 0.4291
+
+Epoch 137/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 137: Time: 0.34s, Loss: 0.4287
+Epoch 138: Time: 0.34s, Loss: 0.4304
+Epoch 139: Time: 0.34s, Loss: 0.4310
+Epoch 140: Time: 0.34s, Loss: 0.4297
+
+Epoch 143/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 142: Time: 0.35s, Loss: 0.4249
+Epoch 143: Time: 0.35s, Loss: 0.4243
+Epoch 144: Time: 0.34s, Loss: 0.4250
+Epoch 145: Time: 0.35s, Loss: 0.4265
+Epoch 146: Time: 0.35s, Loss: 0.4288
+
+Epoch 149/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 148: Time: 0.35s, Loss: 0.4326
+Epoch 149: Time: 0.35s, Loss: 0.4287
+Epoch 150: Time: 0.34s, Loss: 0.4228
+Epoch 151: Time: 0.35s, Loss: 0.4218
+Epoch 152: Time: 0.35s, Loss: 0.4217
+
+Epoch 155/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 154: Time: 0.35s, Loss: 0.4209
+Epoch 155: Time: 0.34s, Loss: 0.4213
+Epoch 156: Time: 0.36s, Loss: 0.4202
+Epoch 157: Time: 0.35s, Loss: 0.4208
+Epoch 158: Time: 0.36s, Loss: 0.4196
+
+Epoch 160/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 160: Time: 0.35s, Loss: 0.4191
+Epoch 161: Time: 0.35s, Loss: 0.4196
+Epoch 162: Time: 0.35s, Loss: 0.4187
+Epoch 163: Time: 0.35s, Loss: 0.4190
+
+Epoch 166/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 165: Time: 0.36s, Loss: 0.4184
+Epoch 166: Time: 0.35s, Loss: 0.4177
+Epoch 167: Time: 0.35s, Loss: 0.4178
+Epoch 168: Time: 0.35s, Loss: 0.4173
+Epoch 169: Time: 0.34s, Loss: 0.4171
+
+Epoch 172/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 171: Time: 0.36s, Loss: 0.4165
+Epoch 172: Time: 0.34s, Loss: 0.4165
+Epoch 173: Time: 0.34s, Loss: 0.4159
+Epoch 174: Time: 0.35s, Loss: 0.4159
+Epoch 175: Time: 0.35s, Loss: 0.4155
+
+Epoch 176: Time: 0.35s, Loss: 0.4152
+Epoch 177: Time: 0.34s, Loss: 0.4151
+Epoch 178: Time: 0.35s, Loss: 0.4146
+Epoch 179: Time: 0.35s, Loss: 0.4145
+Epoch 180: Time: 0.35s, Loss: 0.4142
+Epoch 181: Time: 0.35s, Loss: 0.4138
+Epoch 182: Time: 0.35s, Loss: 0.4137
+Epoch 183/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 183: Time: 0.36s, Loss: 0.4134
+Epoch 184: Time: 0.36s, Loss: 0.4130
+Epoch 185: Time: 0.35s, Loss: 0.4128
+Epoch 186: Time: 0.35s, Loss: 0.4126
+
+Epoch 189/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 188: Time: 0.35s, Loss: 0.4120
+Epoch 189: Time: 0.36s, Loss: 0.4116
+Epoch 190: Time: 0.35s, Loss: 0.4114
+Epoch 191: Time: 0.37s, Loss: 0.4112
+Epoch 192: Time: 0.35s, Loss: 0.4110
+
+Epoch 195/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 194: Time: 0.35s, Loss: 0.4110
+Epoch 195: Time: 0.35s, Loss: 0.4115
+Epoch 196: Time: 0.35s, Loss: 0.4130
+Epoch 197: Time: 0.36s, Loss: 0.4157
+
+Epoch 200/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 199: Time: 0.36s, Loss: 0.4147
+Epoch 200: Time: 0.37s, Loss: 0.4096
+Epoch 201: Time: 0.36s, Loss: 0.4095
+Epoch 202: Time: 0.36s, Loss: 0.4089
+Epoch 203: Time: 0.40s, Loss: 0.4094
+
+Epoch 205/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 205: Time: 0.37s, Loss: 0.4092
+Epoch 206: Time: 0.36s, Loss: 0.4082
+Epoch 207: Time: 0.35s, Loss: 0.4088
+Epoch 208: Time: 0.35s, Loss: 0.4080
+
+Epoch 211/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 210: Time: 0.35s, Loss: 0.4078
+Epoch 211: Time: 0.36s, Loss: 0.4080
+Epoch 212: Time: 0.35s, Loss: 0.4076
+Epoch 213: Time: 0.36s, Loss: 0.4076
+Epoch 214: Time: 0.38s, Loss: 0.4074
+
+Epoch 217/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 216: Time: 0.35s, Loss: 0.4072
+Epoch 217: Time: 0.35s, Loss: 0.4070
+Epoch 218: Time: 0.36s, Loss: 0.4069
+Epoch 219: Time: 0.35s, Loss: 0.4067
+Epoch 220: Time: 0.35s, Loss: 0.4066
+
+Epoch 222/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 222: Time: 0.36s, Loss: 0.4063
+Epoch 223: Time: 0.35s, Loss: 0.4061
+Epoch 224: Time: 0.35s, Loss: 0.4060
+Epoch 225: Time: 0.35s, Loss: 0.4058
+
+Epoch 228/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 227: Time: 0.37s, Loss: 0.4056
+Epoch 228: Time: 0.35s, Loss: 0.4054
+Epoch 229: Time: 0.36s, Loss: 0.4053
+Epoch 230: Time: 0.38s, Loss: 0.4051
+
+Epoch 234/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 232: Time: 0.36s, Loss: 0.4048
+Epoch 233: Time: 0.35s, Loss: 0.4047
+Epoch 234: Time: 0.36s, Loss: 0.4045
+Epoch 235: Time: 0.35s, Loss: 0.4044
+Epoch 236: Time: 0.35s, Loss: 0.4042
+
+Epoch 239/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 238: Time: 0.35s, Loss: 0.4040
+Epoch 239: Time: 0.35s, Loss: 0.4038
+Epoch 240: Time: 0.35s, Loss: 0.4037
+Epoch 241: Time: 0.36s, Loss: 0.4035
+Epoch 242: Time: 0.35s, Loss: 0.4033
+
+Epoch 245/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 244: Time: 0.36s, Loss: 0.4030
+Epoch 245: Time: 0.37s, Loss: 0.4029
+Epoch 246: Time: 0.36s, Loss: 0.4027
+Epoch 247: Time: 0.35s, Loss: 0.4026
+Epoch 248: Time: 0.35s, Loss: 0.4024
+
+Epoch 251/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 250: Time: 0.35s, Loss: 0.4021
+Epoch 251: Time: 0.34s, Loss: 0.4020
+Epoch 252: Time: 0.34s, Loss: 0.4019
+Epoch 253: Time: 0.35s, Loss: 0.4018
+
+Epoch 256/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 255: Time: 0.35s, Loss: 0.4017
+Epoch 256: Time: 0.36s, Loss: 0.4016
+Epoch 257: Time: 0.35s, Loss: 0.4015
+Epoch 258: Time: 0.35s, Loss: 0.4014
+Epoch 259: Time: 0.35s, Loss: 0.4013
+
+Epoch 262/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 261: Time: 0.35s, Loss: 0.4012
+Epoch 262: Time: 0.35s, Loss: 0.4011
+Epoch 263: Time: 0.35s, Loss: 0.4010
+Epoch 264: Time: 0.35s, Loss: 0.4009
+Epoch 265: Time: 0.35s, Loss: 0.4008
+
+Epoch 268/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 267: Time: 0.34s, Loss: 0.4006
+Epoch 268: Time: 0.35s, Loss: 0.4006
+Epoch 269: Time: 0.34s, Loss: 0.4005
+Epoch 270: Time: 0.35s, Loss: 0.4004
+Epoch 271: Time: 0.35s, Loss: 0.4003
+
+Epoch 274/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 273: Time: 0.35s, Loss: 0.4001
+Epoch 274: Time: 0.39s, Loss: 0.4000
+Epoch 275: Time: 0.40s, Loss: 0.3999
+Epoch 276: Time: 0.35s, Loss: 0.3998
+
+Epoch 279/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 278: Time: 0.36s, Loss: 0.3997
+Epoch 279: Time: 0.35s, Loss: 0.3996
+Epoch 280: Time: 0.34s, Loss: 0.3995
+Epoch 281: Time: 0.35s, Loss: 0.3994
+Epoch 282: Time: 0.36s, Loss: 0.3993
+
+Epoch 285/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 284: Time: 0.34s, Loss: 0.3991
+Epoch 285: Time: 0.34s, Loss: 0.3990
+Epoch 286: Time: 0.35s, Loss: 0.3989
+Epoch 287: Time: 0.35s, Loss: 0.3988
+
+Epoch 290/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 289: Time: 0.35s, Loss: 0.3986
+Epoch 290: Time: 0.35s, Loss: 0.3985
+Epoch 291: Time: 0.34s, Loss: 0.3984
+Epoch 292: Time: 0.37s, Loss: 0.3983
+Epoch 293: Time: 0.35s, Loss: 0.3982
+
+Epoch 296/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 295: Time: 0.35s, Loss: 0.3980
+Epoch 296: Time: 0.35s, Loss: 0.3979
+Epoch 297: Time: 0.35s, Loss: 0.3978
+Epoch 298: Time: 0.35s, Loss: 0.3977
+Epoch 299: Time: 0.36s, Loss: 0.3976
+
+Epoch 302/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 301: Time: 0.35s, Loss: 0.3975
+Epoch 302: Time: 0.35s, Loss: 0.3974
+Epoch 303: Time: 0.35s, Loss: 0.3974
+Epoch 304: Time: 0.35s, Loss: 0.3973
+
+Epoch 308/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 306: Time: 0.36s, Loss: 0.3972
+Epoch 307: Time: 0.34s, Loss: 0.3972
+Epoch 308: Time: 0.35s, Loss: 0.3971
+Epoch 309: Time: 0.37s, Loss: 0.3971
+Epoch 310: Time: 0.38s, Loss: 0.3970
+
+Epoch 313/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 312: Time: 0.35s, Loss: 0.3969
+Epoch 313: Time: 0.35s, Loss: 0.3969
+Epoch 314: Time: 0.35s, Loss: 0.3968
+Epoch 315: Time: 0.35s, Loss: 0.3967
+Epoch 316: Time: 0.35s, Loss: 0.3967
+
+Epoch 319/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 318: Time: 0.35s, Loss: 0.3966
+Epoch 319: Time: 0.35s, Loss: 0.3965
+Epoch 320: Time: 0.35s, Loss: 0.3965
+Epoch 321: Time: 0.36s, Loss: 0.3964
+
+Epoch 324/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 323: Time: 0.35s, Loss: 0.3963
+Epoch 324: Time: 0.35s, Loss: 0.3963
+Epoch 325: Time: 0.35s, Loss: 0.3962
+Epoch 326: Time: 0.35s, Loss: 0.3962
+Epoch 327: Time: 0.35s, Loss: 0.3961
+
+Epoch 330/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 329: Time: 0.35s, Loss: 0.3960
+Epoch 330: Time: 0.35s, Loss: 0.3959
+Epoch 331: Time: 0.34s, Loss: 0.3959
+Epoch 332: Time: 0.35s, Loss: 0.3958
+Epoch 333: Time: 0.35s, Loss: 0.3958
+
+Epoch 336/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 335: Time: 0.35s, Loss: 0.3957
+Epoch 336: Time: 0.35s, Loss: 0.3956
+Epoch 337: Time: 0.34s, Loss: 0.3956
+Epoch 338: Time: 0.35s, Loss: 0.3955
+
+Epoch 342/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 340: Time: 0.35s, Loss: 0.3954
+Epoch 341: Time: 0.34s, Loss: 0.3953
+Epoch 342: Time: 0.35s, Loss: 0.3953
+Epoch 343: Time: 0.35s, Loss: 0.3952
+Epoch 344: Time: 0.34s, Loss: 0.3952
+
+Epoch 347/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 346: Time: 0.34s, Loss: 0.3951
+Epoch 347: Time: 0.35s, Loss: 0.3950
+Epoch 348: Time: 0.34s, Loss: 0.3949
+Epoch 349: Time: 0.34s, Loss: 0.3949
+Epoch 350: Time: 0.34s, Loss: 0.3948
+
+Epoch 353/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 352: Time: 0.35s, Loss: 0.3948
+Epoch 353: Time: 0.35s, Loss: 0.3948
+Epoch 354: Time: 0.35s, Loss: 0.3947
+Epoch 355: Time: 0.35s, Loss: 0.3947
+Epoch 356: Time: 0.34s, Loss: 0.3947
+
+Epoch 359/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 358: Time: 0.34s, Loss: 0.3946
+Epoch 359: Time: 0.35s, Loss: 0.3946
+Epoch 360: Time: 0.41s, Loss: 0.3946
+Epoch 361: Time: 0.35s, Loss: 0.3945
+
+Epoch 365/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 363: Time: 0.35s, Loss: 0.3945
+Epoch 364: Time: 0.35s, Loss: 0.3944
+Epoch 365: Time: 0.35s, Loss: 0.3944
+Epoch 366: Time: 0.36s, Loss: 0.3944
+Epoch 367: Time: 0.38s, Loss: 0.3943
+
+Epoch 370/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 369: Time: 0.35s, Loss: 0.3943
+Epoch 370: Time: 0.35s, Loss: 0.3943
+Epoch 371: Time: 0.35s, Loss: 0.3942
+Epoch 372: Time: 0.35s, Loss: 0.3942
+
+Epoch 376/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 374: Time: 0.35s, Loss: 0.3941
+Epoch 375: Time: 0.35s, Loss: 0.3941
+Epoch 376: Time: 0.35s, Loss: 0.3941
+Epoch 377: Time: 0.35s, Loss: 0.3941
+Epoch 378: Time: 0.35s, Loss: 0.3940
+
+Epoch 381/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 380: Time: 0.35s, Loss: 0.3940
+Epoch 381: Time: 0.36s, Loss: 0.3939
+Epoch 382: Time: 0.35s, Loss: 0.3939
+Epoch 383: Time: 0.35s, Loss: 0.3939
+Epoch 384: Time: 0.35s, Loss: 0.3939
+
+Epoch 387/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 386: Time: 0.34s, Loss: 0.3938
+Epoch 387: Time: 0.35s, Loss: 0.3938
+Epoch 388: Time: 0.36s, Loss: 0.3937
+Epoch 389: Time: 0.34s, Loss: 0.3937
+Epoch 390: Time: 0.34s, Loss: 0.3937
+
+Epoch 393/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 392: Time: 0.34s, Loss: 0.3936
+Epoch 393: Time: 0.35s, Loss: 0.3936
+Epoch 394: Time: 0.34s, Loss: 0.3936
+Epoch 395: Time: 0.35s, Loss: 0.3935
+
+Epoch 399/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 397: Time: 0.35s, Loss: 0.3935
+Epoch 398: Time: 0.35s, Loss: 0.3934
+Epoch 399: Time: 0.36s, Loss: 0.3934
+Epoch 400: Time: 0.38s, Loss: 0.3934
+
+Epoch 404/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 402: Time: 0.35s, Loss: 0.3933
+Epoch 403: Time: 0.35s, Loss: 0.3933
+Epoch 404: Time: 0.35s, Loss: 0.3933
+Epoch 405: Time: 0.35s, Loss: 0.3933
+Epoch 406: Time: 0.35s, Loss: 0.3933
+Epoch 407: Time: 0.35s, Loss: 0.3933
+
+Epoch 410/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 409: Time: 0.35s, Loss: 0.3932
+Epoch 410: Time: 0.34s, Loss: 0.3932
+Epoch 411: Time: 0.35s, Loss: 0.3932
+Epoch 412: Time: 0.35s, Loss: 0.3932
+
+Epoch 416/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 414: Time: 0.34s, Loss: 0.3932
+Epoch 415: Time: 0.35s, Loss: 0.3931
+Epoch 416: Time: 0.35s, Loss: 0.3931
+Epoch 417: Time: 0.35s, Loss: 0.3931
+Epoch 418: Time: 0.35s, Loss: 0.3931
+
+Epoch 419: Time: 0.35s, Loss: 0.3931
+Epoch 420: Time: 0.35s, Loss: 0.3931
+Epoch 421: Time: 0.35s, Loss: 0.3931
+Epoch 422: Time: 0.34s, Loss: 0.3930
+Epoch 423: Time: 0.35s, Loss: 0.3930
+Epoch 424: Time: 0.34s, Loss: 0.3930
+Epoch 425: Time: 0.35s, Loss: 0.3930
+Epoch 427/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 426: Time: 0.36s, Loss: 0.3930
+Epoch 427: Time: 0.34s, Loss: 0.3930
+Epoch 428: Time: 0.34s, Loss: 0.3929
+Epoch 429: Time: 0.35s, Loss: 0.3929
+Epoch 430: Time: 0.35s, Loss: 0.3929
+
+Epoch 433/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 432: Time: 0.35s, Loss: 0.3929
+Epoch 433: Time: 0.35s, Loss: 0.3929
+Epoch 434: Time: 0.35s, Loss: 0.3928
+Epoch 435: Time: 0.35s, Loss: 0.3928
+
+Epoch 439/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
+Epoch 437: Time: 0.34s, Loss: 0.3928
+Epoch 438: Time: 0.34s, Loss: 0.3928
+Epoch 439: Time: 0.36s, Loss: 0.3928
+Epoch 440: Time: 0.35s, Loss: 0.3928
+Epoch 441: Time: 0.35s, Loss: 0.3927
+
+Epoch 442: Time: 0.35s, Loss: 0.3927
+Epoch 443: Time: 0.35s, Loss: 0.3927
+Epoch 444: Time: 0.39s, Loss: 0.3927
+Epoch 445: Time: 0.34s, Loss: 0.3927
+Epoch 446: Time: 0.36s, Loss: 0.3927
+Epoch 447: Time: 0.35s, Loss: 0.3926
+Epoch 448: Time: 0.35s, Loss: 0.3926
+Epoch 450/1000:   0%|                                                         | 0/1 [00:00<?, ?it/s]
