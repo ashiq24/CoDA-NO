@@ -180,7 +180,7 @@ class FnoGno(nn.Module):
         if out_grid_displacement is not None:
             with torch.no_grad():
                 # last 3 channel is displacement, taking (x,y), z is 0
-                displacement_inp = x[0,:,-3:-1].clone().detach()
+                displacement_inp = inp[0,:,-3:-1].clone().detach()
                 self.encoder.lifting.update_grid(self.initial_mesh + displacement_inp, None)
                 self.predictor.projection.update_grid(None, self.initial_mesh + out_grid_displacement)
 
