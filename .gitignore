@@ -6,3 +6,4 @@
 .ipynb_cache/*
 .ipynb_checkpoints/*
 *.txt
+wandb/*
