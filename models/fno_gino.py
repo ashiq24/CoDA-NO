@@ -172,11 +172,18 @@ class FnoGno(nn.Module):
     def get_device(self,):
         return self.cls_token.coefficients_r.device
     
-    def forward(self, inp):
+    def forward(self, inp, out_grid_displacement=None):
         '''
         inp = (batch_size, n_points, in_dims/Channels)
         currenly only batch_size = 1
         '''
+        if out_grid_displacement is not None:
+            with torch.no_grad():
+                # last 3 channel is displacement, taking (x,y), z is 0
+                displacement_inp = x[0,:,-3:-1].clone().detach()
+                self.encoder.lifting.update_grid(self.initial_mesh + displacement_inp, None)
+                self.predictor.projection.update_grid(None, self.initial_mesh + out_grid_displacement)
+
         if self.re_grid_input:
             inp = self.input_regrider(inp)
         if self.lifting:
