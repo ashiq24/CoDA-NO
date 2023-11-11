@@ -29,6 +29,7 @@ class FnoGno(nn.Module):
                 n_layers=4,
                 n_modes=None,
                 scalings=None,
+                initial_mesh=None,
                 non_linearity=F.gelu,
                 layer_kwargs={'incremental_n_modes':None,
                 'use_mlp':False,
@@ -118,7 +119,7 @@ class FnoGno(nn.Module):
         else:
             self.domain_padding = None
         self.domain_padding_mode = domain_padding_mode
-
+        self.register_buffer('initial_mesh', initial_mesh)
         ## Code for varibale encoding
         
         

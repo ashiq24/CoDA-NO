@@ -313,6 +313,7 @@ def get_model_fno(params):
                         params.out_dim,
                         input_grid=input_mesh,
                         output_grid=output_mesh,
+                        initial_mesh=input_mesh,
                         radius=params.radius,
                         gno_mlp_layers=params.gno_mlp_layers,
                         grid_size=params.grid_size,
