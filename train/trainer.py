@@ -46,8 +46,9 @@ def simple_trainer(
                 last 3 channel is displacement, taking (x,y), z is 0
                 '''
                 out_grid_displacement = y[0,:,-3:-1].clone().detach()
-            else:
-                out_grid_displacement = None
+
+            # else:
+            #     out_grid_displacement = None
             optimizer.zero_grad()
 
             out = model(x, out_grid_displacement)
