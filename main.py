@@ -12,7 +12,7 @@ from utils import get_wandb_api_key
 
 
 ## SSL model 
-params = YParams('./config/ssl.yaml', 'fno_gino', print_params=True)
+params = YParams('./config/ssl.yaml', 'codano_gino', print_params=True)
 #params = YParams('./config/test.yaml', 'codano_gino', print_params=True)
 
 #params = YParams('./config/ssl.yaml', 'base_config', print_params=True)
