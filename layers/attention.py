@@ -7,7 +7,12 @@ from torch import nn
 import torch.nn.functional as F
 
 from neuralop.layers.fno_block import FNOBlocks
-from .fino import SpectralConvKernel2d
+from .fino import SpectralConvKernel2d, SpectralConvolutionKernel3D
+
+# Address the following:
+# ``AttributeError: Can't pickle local object '.<locals>.<lambda>'``
+def NO_OP(x, *_args, **_kwargs):
+  return x
 
 AffineNormalizer2D = partial(nn.InstanceNorm2d, affine=True)
 AffineNormalizer3D = partial(nn.InstanceNorm3d, affine=True)
@@ -114,7 +119,7 @@ class TNOBlock(nn.Module):
             out_channels=self.n_head * self.head_codim,
             n_modes=mixer_modes,
             # args below are shared with Projection block
-            non_linearity=lambda x: x,
+            non_linearity=NO_OP,
             fno_skip='linear',
             norm=None,
             apply_skip=True,
@@ -149,7 +154,7 @@ class TNOBlock(nn.Module):
                 output_scaling_factor=1,
                 # args below are shared with KQV blocks
                 apply_skip=True,
-                non_linearity=lambda x: x,
+                non_linearity=NO_OP,
                 fno_skip='linear',
                 norm=None,
                 SpectralConv=partial(
@@ -325,10 +330,9 @@ class TNOBlock3D(TNOBlock):
             Normalizer = AffineNormalizer3D
         kwargs["Normalizer"] = Normalizer
 
-        # TODO write and use 3D kernel
         Convolution = kwargs.get("SpectralConvolution")
         if Convolution is None:
-            Convolution = SpectralConvKernel2d
+            Convolution = SpectralConvolutionKernel3D
         kwargs["SpectralConvolution"] = Convolution
 
         super().__init__(*args, **kwargs)
@@ -350,11 +354,12 @@ class TNOBlock3D(TNOBlock):
             a=self.n_head,
         )
         k = rearrange(k, **rearrangement)
-        print(f"{k.shape=}")
+        # print(f"{k.shape=}")
         q = rearrange(q, **rearrangement)
-        print(f"{q.shape=}")
+        # print(f"{q.shape=}")
         v = rearrange(v, **rearrangement)
-        print(f"{v.shape=}")
+        # print(f"{v.shape=}")
+
 
         dprod = torch.matmul(q, k.transpose(-1, -2)) * np.sqrt(k.shape[-1])
         dprod = F.softmax(dprod, dim=-1)

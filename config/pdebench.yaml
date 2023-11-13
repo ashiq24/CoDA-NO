@@ -44,7 +44,7 @@ base_config: &BASE_CONFIG
 
     per_channel_attention: !!bool True
 
-    fft_type: 'fft' # might be also spherical harmonics transform or 'sht'
+    transform_type: 'fft' # might be also spherical harmonics transform or 'sht'
     tno_integral_op: 'fno'
 
     use_variable_encodings: !!bool True
@@ -89,9 +89,15 @@ codano_gino: &CODANO_GINO
     gno_mlp_layers: [6,8]
     grid_size: [251, 42]
     grid_type: 'uniform'
-    n_modes_en:   [[12, 16, 16], [12, 16, 16]]
-    n_modes_dec:  [[12, 16, 16], [12, 16, 16]]
-    n_modes_pred: [[12, 16, 16], [12, 16, 16], [12, 16, 16]]
+    
+    # Note that we can't actually use more than 10 modes 
+    # in the first (temporal) dimension as the current DataLoader
+    # organizes x/y pairs with a duration of 5 time frames.
+    # The models expect they can take at least half as many
+    # frequency modes at a time during convolutions.
+    n_modes_en:   [[8, 16, 16], [8, 16, 16]]
+    n_modes_dec:  [[8, 16, 16], [8, 16, 16]]
+    n_modes_pred: [[8, 16, 16], [8, 16, 16], [8, 16, 16]]
     masking_radius: 0.08
 
 

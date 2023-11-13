@@ -20,7 +20,12 @@ from models.fno_gino import FnoGno
 
 
 # TODO merge methods get_ssl_models_coda*()
-def get_ssl_models_codaNo(params, module: CodANO, block: TNOBlock):
+def get_ssl_models_codaNo(
+        params, 
+        module: CodANO, 
+        block: TNOBlock, 
+        convolution
+):
     # We use tno inside SSLtransformer model. That has a encoder and prediction/(decoder) part.
     # Encoder part - encodes the input function
     # Decoder part - does the prediction (eg. fuild flow of next time step)
@@ -31,13 +36,18 @@ def get_ssl_models_codaNo(params, module: CodANO, block: TNOBlock):
 
     if params.tno_integral_op == 'fno':
         int_op = partial(
-            SpectralConvKernel2d,
-            fft_type=params.transform_type,
-            frequency_mixer=False)
+            convolution,
+            transform_type=params.transform_type,
+            frequency_mixer=False,
+        )
         int_op_top = int_op
         int_op_bottom = int_op
     elif params.tno_integral_op == 'fino':
-        int_op = partial(SpectralConvKernel2d, fft_type=params.transform_type)
+        int_op = partial(
+            convolution, 
+            transform_type=params.transform_type,
+            frequency_mixer=True,
+        )
         int_op_top = int_op
         int_op_bottom = int_op
     else:

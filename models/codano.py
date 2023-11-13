@@ -300,13 +300,11 @@ class CodANO(nn.Module):
 
         if self.projection:
             print("Using Projection Layer")
-            self.projection = Projection(
-                in_channels=hidden_token_codim,
-                out_channels=out_token_codim,
-                hidden_channels=lifting_token_codim,
-                non_linearity=non_linearity,
-                n_dim=self.n_dim,
-                permutation_invariant=True,  # permutation
+            self.projection = self._mk_projection_operator(
+                hidden_token_codim,
+                out_token_codim,
+                lifting_token_codim,
+                non_linearity,
             )
 
         # Variable encoding
@@ -384,6 +382,22 @@ class CodANO(nn.Module):
             hidden_channels=lifting_token_codimension,
             n_dim=self.n_dim,
             permutation_invariant=True,   # Permutation
+        )
+
+    def _mk_projection_operator(
+        self,
+        hidden_token_codimension,
+        out_token_codimension,
+        lifting_token_codimension,
+        non_linearity,
+    ):
+        return Projection(
+            in_channels=hidden_token_codimension,
+            out_channels=out_token_codimension,
+            hidden_channels=lifting_token_codimension,
+            non_linearity=non_linearity,
+            n_dim=self.n_dim,
+            permutation_invariant=True,  # permutation
         )
 
     @staticmethod
@@ -505,6 +519,21 @@ class CoDANOTemporal(CodANO):
             permutation_invariant=True,   # Permutation
         )
 
+    def _mk_projection_operator(
+        self,
+        hidden_token_codimension,
+        out_token_codimension,
+        lifting_token_codimension,
+        non_linearity,
+    ):
+        return ProjectionT(
+            in_channels=hidden_token_codimension,
+            out_channels=out_token_codimension,
+            hidden_channels=lifting_token_codimension,
+            non_linearity=non_linearity,
+            n_dim=self.n_dim,
+            permutation_invariant=True,  # permutation
+        )
 
     def encode_variables(self, inp):
         """Applies variable encodings to given input tensor.
