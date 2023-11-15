@@ -6,13 +6,13 @@ base_config: &BASE_CONFIG
     grid_type: 'uniform'
     max_block : 0.6
     drop_pix: 0.6
-    channel_per: -1
+    channel_per: 0.4
     channel_drop_per: 0.3
 
     validation_aug: !!bool False
     max_block_val : 0.2
     drop_pix_val: 0.15
-    channel_per_val: 0.5
+    channel_per_val: 0.2
     channel_drop_per_val: 0.5
 
     batch_size: 4
@@ -111,6 +111,13 @@ codano_gno: &CODANO_GNO
     pretrain_ssl : !!bool True
     freeze_encoder : !!bool True
 
+codano_test: &CODANO_TEST
+    <<: *CODANO_GNO
+    epochs: 5
+    ntrain: 1
+    ntest: 1
+    per_channel_attention: !!bool True
+    
 fno_gno: &FNO_GNO
     <<: *CODANO_GNO
     nettype: 'simple'
@@ -131,6 +138,12 @@ fno_gno: &FNO_GNO
     var_enco_channels: 0
     enable_cls_token: !!bool False
 
+fno_test: &FNO_TEST
+    <<: *FNO_GNO
+    epochs: 5
+    ntrain: 1
+    ntest: 1
+    
 fno: &FNO
     <<: *FNO_GNO
     wandb_name: 'fno'

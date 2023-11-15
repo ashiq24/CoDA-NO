@@ -46,8 +46,8 @@ class CondnoGino(nn.Module):
                 'implementation':'factorized',
                 'decomposition_kwargs':dict(),
                 'normalizer': False},
-                per_channel_attention=False,
                 operator_block=TnoBlock2d,
+                per_channel_attention=False,
                 integral_operator=SpectralConvKernel2d,
                 integral_operator_top=None, 
                 integral_operator_bottom=None,
@@ -111,6 +111,7 @@ class CondnoGino(nn.Module):
         self.projection = projection
         self.radius = radius
         self.gno_mlp_layers = gno_mlp_layers
+        self.per_channel_attention = per_channel_attention
 
         self.register_buffer("static_features", static_features)
         self.static_channels_num = static_channels_num
@@ -175,7 +176,7 @@ class CondnoGino(nn.Module):
                                             output_scaling_factor = [self.scalings[i]],
                                             SpectralConv = conv_op,
                                             codim_size=self.codim_size,
-                                            per_channel_attention=per_channel_attention,
+                                            per_channel_attention=self.per_channel_attention,
                                             **self.layer_kwargs))
         if self.projection:
             # input and output grid is swapped

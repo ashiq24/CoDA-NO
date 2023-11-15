@@ -10,6 +10,7 @@ from models.codano import CodANO
 from models.get_models import *
 from train.trainer import simple_trainer
 from utils import get_wandb_api_key
+from models.model_helpers import count_parameters
 import random 
 
 if __name__ == "__main__":
@@ -39,6 +40,9 @@ if __name__ == "__main__":
         else:
             encoder, decoder, contrastive, predictor = get_ssl_models_codano_gino(params)
 
+        print("Parameters Encoder", count_parameters(encoder))
+        print("Parameters Decoder", count_parameters(decoder))
+        print("Parameters Perdictor", count_parameters(predictor))
         if params.grid_type == 'uniform':
             model = SslWrapper(params, encoder, decoder, contrastive, predictor, stage=stage)
         else:
@@ -49,6 +53,8 @@ if __name__ == "__main__":
             model.set_initial_mesh(input_mesh)
     elif params.nettype == 'simple':
         model = get_model_fno(params)
+        print("Parameters Model", count_parameters(model))
+        
 
 
     model = model.cuda()
