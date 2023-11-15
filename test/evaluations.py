@@ -35,7 +35,7 @@ def missing_variable_testing(test_loader, augmenter, normalizer, stage):
                     x, y = normalizer(x), normalizer(y)
 
             if augmenter is not None:
-                x = batched_masker(inp, augmenter)
+                x,_ = batched_masker(inp, augmenter)
 
             batch_size = x.shape[0]
             out = model(x, out_grid_displacement, in_grid_displacement)
