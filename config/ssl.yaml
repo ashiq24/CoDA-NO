@@ -4,14 +4,14 @@ base_config: &BASE_CONFIG
     evaluation_channel_drop: 1
     drop_type : 'zeros'
     grid_type: 'uniform'
-    max_block : 0.6
-    drop_pix: 0.6
+    max_block : 0.3
+    drop_pix: 0.4
     channel_per: 0.5
     channel_drop_per: 0.5
 
     validation_aug: !!bool False
-    max_block_val : 0.5
-    drop_pix_val: 0.5
+    max_block_val : 0.3
+    drop_pix_val: 0.4
     channel_per_val: 0.3
     channel_drop_per_val: 1.0
 

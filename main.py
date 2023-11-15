@@ -66,7 +66,7 @@ if __name__ == "__main__":
                 decoder,
                 contrastive,
                 predictor,
-                stage='sl')
+                stage=stage)
             mesh = np.loadtxt(params.input_mesh_location, delimiter=',')
             input_mesh = torch.transpose(torch.stack([torch.tensor(
                 mesh[0, :]), torch.tensor(mesh[1, :])]), 0, 1).type(torch.float).cuda()
@@ -120,6 +120,8 @@ if __name__ == "__main__":
                 drop_pix=params.drop_pix,
                 channel_aug_rate=params.channel_per,
                 channel_drop_rate=params.channel_drop_per)
+    
+    missing_variable_testing(model, test,  test_augmenter, normalizer, 'sl', params)
 
     if params.wandb_log:
         wandb.finish()
