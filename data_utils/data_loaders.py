@@ -2,6 +2,7 @@ import pickle
 import torch
 import random
 
+
 class Normalizer():
     def __init__(self, mean, std, eps=1e-6):
         print("Means: ", mean)
@@ -11,15 +12,17 @@ class Normalizer():
         self.eps = eps
 
     def __call__(self, data):
-        return (data - self.mean)/(self.std + self.eps)
+        return (data - self.mean) / (self.std + self.eps)
+
     def cuda(self,):
         self.mean = self.mean.cuda()
         self.std = self.std.cuda()
-        
+
 
 class Dataset():
     def __init__(self,):
         self.normalizer = None
+
     def get_onestep_dataloader(self,
                                train_test_split=0.2,
                                location='../Data/MP_data/',
@@ -27,51 +30,80 @@ class Dataset():
                                dtype=torch.float,
                                ntrain=None,
                                ntest=None):
-        with open(location+'displacements0-5000.pkl', 'rb') as file:
+        with open(location + 'displacements0-5000.pkl', 'rb') as file:
             displacements = torch.tensor(pickle.load(file), dtype=dtype)
-        with open(location+'pressures0-5000.pkl', 'rb') as file:
+        with open(location + 'pressures0-5000.pkl', 'rb') as file:
             # scaler variable
-            pressure = torch.tensor(pickle.load(file), dtype=dtype)[:,:,None]
-        with open(location+'velocitoes0-5000.pkl', 'rb') as file:
+            pressure = torch.tensor(pickle.load(file), dtype=dtype)[:, :, None]
+        with open(location + 'velocitoes0-5000.pkl', 'rb') as file:
             velocities = torch.tensor(pickle.load(file), dtype=dtype)
 
-        combined = torch.cat([velocities,pressure,displacements], dim= -1)
+        combined = torch.cat([velocities, pressure, displacements], dim=-1)
         step_t0 = combined[:-1, ...]
-        step_t1 =  combined[1:, ...]
+        step_t1 = combined[1:, ...]
 
         indexs = [i for i in range(step_t0.shape[0])]
         if not ntrain:
-            ntrain = int(train_test_split*len(indexs))
+            ntrain = int(train_test_split * len(indexs))
         if not ntest:
             ntest = len(indexs) - ntrain
         random.shuffle(indexs)
-        train_t0,test_t0 = step_t0[indexs[:ntrain]], step_t0[indexs[ntrain:ntrain+ntest]]
-        train_t1,test_t1 = step_t1[indexs[:ntrain]], step_t1[indexs[ntrain:ntrain+ntest]]
+        train_t0, test_t0 = step_t0[indexs[:ntrain]
+                                    ], step_t0[indexs[ntrain:ntrain + ntest]]
+        train_t1, test_t1 = step_t1[indexs[:ntrain]
+                                    ], step_t1[indexs[ntrain:ntrain + ntest]]
 
-        mean, var = torch.mean(train_t0, dim=(0,1)), torch.mean(torch.var(train_t0, dim=(1)), dim=0)
+        mean, var = torch.mean(
+            train_t0, dim=(
+                0, 1)), torch.mean(
+            torch.var(
+                train_t0, dim=(1)), dim=0)
 
         normalizer = Normalizer(mean, var**0.5)
-        
-        ## setting normalizer 
+
+        # setting normalizer
         self.normalizer = normalizer
-        
-        train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_t0,\
-                                                 train_t1),batch_size=batch_size, shuffle=True)
-        test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_t0,\
-                                                 test_t1),batch_size=batch_size, shuffle=False)
+
+        train_loader = torch.utils.data.DataLoader(
+            torch.utils.data.TensorDataset(
+                train_t0, train_t1), batch_size=batch_size, shuffle=True)
+        test_loader = torch.utils.data.DataLoader(
+            torch.utils.data.TensorDataset(
+                test_t0, test_t1), batch_size=batch_size, shuffle=False)
 
         return train_loader, test_loader
 
-def get_dummy_dataloaders(train_test_split=0.2, channels=7, resolution=256,\
-                           location=None, batch_size=32, dtype=torch.float):
-    train = torch.utils.data.DataLoader(\
-        torch.utils.data.TensorDataset(torch.rand(1000,channels,resolution, resolution),\
-                                        torch.rand(1000,channels,resolution, resolution)),\
-                                           batch_size=batch_size, shuffle=True)
-    
-    test = torch.utils.data.DataLoader(\
-        torch.utils.data.TensorDataset(torch.rand(500,channels,resolution, resolution),\
-                                        torch.rand(500,channels,resolution, resolution)),\
-                                           batch_size=batch_size, shuffle=False)
-    
+
+def get_dummy_dataloaders(train_test_split=0.2, channels=7, resolution=256,
+                          location=None, batch_size=32, dtype=torch.float):
+    train = torch.utils.data.DataLoader(
+        torch.utils.data.TensorDataset(
+            torch.rand(
+                1000,
+                channels,
+                resolution,
+                resolution),
+            torch.rand(
+                1000,
+                channels,
+                resolution,
+                resolution)),
+        batch_size=batch_size,
+        shuffle=True)
+
+    test = torch.utils.data.DataLoader(
+        torch.utils.data.TensorDataset(
+            torch.rand(
+                500,
+                channels,
+                resolution,
+                resolution),
+            torch.rand(
+                500,
+                channels,
+                resolution,
+                resolution)),
+        batch_size=batch_size,
+        shuffle=False)
+
     return train, test

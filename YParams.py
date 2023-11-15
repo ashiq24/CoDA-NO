@@ -9,6 +9,7 @@ class ParamsBase():
     Allows referring to dictionary items as attributes, and tracking which
     attributes are modified.
     """
+
     def __init__(self):
         self._original_attrs = None
         self.params = {}
@@ -32,7 +33,7 @@ class ParamsBase():
 
     def to_dict(self):
         new_attrs = {
-            key: val for key,val in vars(self).items()
+            key: val for key, val in vars(self).items()
             if key not in self._original_attrs
         }
         return {**self.params, **new_attrs}
@@ -41,16 +42,16 @@ class ParamsBase():
     def from_json(path: str) -> "ParamsBase":
         with open(path) as f:
             c = json.load(f)
-        params =  ParamsBase()
+        params = ParamsBase()
         params.update_params(c)
         return params
 
     def update_params(self, config):
         for key, val in config.items():
-            if val =='None': val = None
+            if val == 'None':
+                val = None
             self.params[key] = val
             self.__setattr__(key, val)
-
 
 
 class YParams(ParamsBase):
@@ -72,13 +73,11 @@ class YParams(ParamsBase):
             for key, val in d.items():
                 print(key, val)
             print("---------------------------------------------------")
-            
-
 
     def log(self):
         logging.info("------------------ Configuration ------------------")
-        logging.info("Configuration file: "+str(self._yaml_filename))
-        logging.info("Configuration name: "+str(self._config_name))
+        logging.info("Configuration file: " + str(self._yaml_filename))
+        logging.info("Configuration name: " + str(self._config_name))
         for key, val in self.to_dict().items():
             logging.info(str(key) + ' ' + str(val))
         logging.info("---------------------------------------------------")

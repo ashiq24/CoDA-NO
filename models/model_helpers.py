@@ -1,5 +1,6 @@
 import torch
 
+
 def count_parameters(model):
     with torch.no_grad():
         total_count = 0
@@ -8,5 +9,5 @@ def count_parameters(model):
                 continue
             pcount = torch.tensor(p.numel())
             total_count += int(pcount.item())
-        
+
     return total_count
