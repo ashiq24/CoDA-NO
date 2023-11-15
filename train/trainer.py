@@ -99,7 +99,7 @@ def simple_trainer(
             values_to_log = {'train_err_'+stage: avg_train_l2, 'time_'+stage: epoch_train_time}
             print(f"Epoch {ep}: Time: {epoch_train_time:.2f}s, Loss {stage}: {avg_train_l2:.6f}")
 
-            wandb.log(values_to_log, step=ep, commit=True)
+            wandb.log(values_to_log, commit=True)
 
 
     #torch.save(model.state_dict(), weight_path)
