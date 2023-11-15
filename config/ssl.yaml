@@ -74,10 +74,10 @@ base_config: &BASE_CONFIG
 
 codano_gno: &CODANO_GNO
     <<: *BASE_CONFIG
-    epochs: 1000
+    epochs: 30
     batch_size: 1
-    ntrain: 1
-    ntest: 1
+    ntrain: None
+    ntest: None
     input_mesh_location: "../Data/MP_data/mesh.csv"
     radius: 0.15
     gno_mlp_layers: [10]
@@ -85,9 +85,9 @@ codano_gno: &CODANO_GNO
     grid_type: 'non uniform'
     lr: 0.03
     var_enco_channels: 8
-    n_modes_en:       [[100, 20], [100, 20]]
-    n_modes_dec:       [[100, 20], [100, 20]]
-    n_modes_pred:       [[100, 20], [100, 20]]
+    n_modes_en:       [[180,30], [180,30]]
+    n_modes_dec:       [[180,30], [180,30]]
+    n_modes_pred:       [[180,30], [180,30]]
     
     scalings_pred:     [[1,1], [1,1]]
     scalings_en:     [[1,1], [1,1]]
@@ -108,16 +108,16 @@ codano_gno: &CODANO_GNO
     n_layers_pred: 2
     n_heads_pred:    [20,20]
     
-    pretrain_ssl : !!bool False
-    freeze_encoder : !!bool False
+    pretrain_ssl : !!bool True
+    freeze_encoder : !!bool True
 
 fno_gno: &FNO_GNO
     <<: *CODANO_GNO
     nettype: 'simple'
     in_dim: 7
-    hidden_dim: 64
-    lifting_dim: 128
-    projection_dim: 128
+    hidden_dim: 128
+    lifting_dim: 256
+    projection_dim: 256
     n_modes:       [[180,30], [180,30],[180,30], [180,30]]
     scalings:      [[1,1],[1,1],[1,1], [1,1]]
     n_layers: 4

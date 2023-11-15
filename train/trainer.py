@@ -81,7 +81,7 @@ def simple_trainer(
             loss.backward()
             
             # Clip gradients to prevent exploding gradients
-            nn.utils.clip_grad_value_(model.parameters(), 1.0)
+            nn.utils.clip_grad_value_(model.parameters(), 0.001)
 
             optimizer.step()
             train_l2 += loss_l2.item()
@@ -97,7 +97,7 @@ def simple_trainer(
         if ep % log_test_interval == 0: 
 
             values_to_log = {'train_err_'+stage: avg_train_l2, 'time_'+stage: epoch_train_time}
-            print(f"Epoch {ep}: Time: {epoch_train_time:.2f}s, Loss {stage}: {avg_train_l2:.5f}")
+            print(f"Epoch {ep}: Time: {epoch_train_time:.2f}s, Loss {stage}: {avg_train_l2:.6f}")
 
             wandb.log(values_to_log, step=ep, commit=True)
 
@@ -120,12 +120,22 @@ def simple_trainer(
                 last 3 channel is displacement, taking (x,y), z is 0
                 '''
                 with torch.no_grad():
-                    out_grid_displacement = y[0,:,-3:-1].clone().detach()
+                    if stage == 'ssl':
+                        out_grid_displacement = x[0,:,-3:-1].clone().detach()
+                        in_grid_displacement = x[0,:,-3:-1].clone().detach()
+                    else:
+                        out_grid_displacement = y[0,:,-3:-1].clone().detach()
+                        in_grid_displacement = x[0,:,-3:-1].clone().detach()
             else:
                 out_grid_displacement = None
+                in_grid_displacement = None
+            
+            if normalizer is not None:
+                with torch.no_grad():
+                    x, y = normalizer(x), normalizer(y)
 
             batch_size = x.shape[0]
-            out = model(x, out_grid_displacement)
+            out = model(x, out_grid_displacement, in_grid_displacement)
             
             if isinstance(out, (list, tuple)):
                 out = out[0]

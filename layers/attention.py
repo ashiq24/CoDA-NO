@@ -64,7 +64,7 @@ class TnoBlock2d(nn.Module):
         # this scale used for downsampling Q,K functions    
         scale = min(self.n_head,2)
         if self.per_channel_attention:
-            scale = 1
+            scale = 4
         
         mixer_modes = [i//scale for i in n_modes]
         
@@ -75,7 +75,7 @@ class TnoBlock2d(nn.Module):
 
         
         self.K = FNOBlocks(in_channels=self.token_codim, out_channels= self.n_head * self.head_codim, n_modes= mixer_modes,\
-                                            use_mlp=False, mlp=mlp, output_scaling_factor=1/scale,non_linearity=lambda x:x,apply_skip=True,\
+                                            use_mlp=False, mlp=mlp, output_scaling_factor=1/scale,non_linearity=lambda x:x,apply_skip=False,\
                                             norm=None, preactivation=preactivation, fno_skip='linear',mlp_skip=mlp_skip,mlp_dropout=0,\
                                             incremental_n_modes=incremental_n_modes, rank=rank, fft_norm=fft_norm, mlp_expansion=mlp_expansion,\
                                             fixed_rank_modes=fixed_rank_modes, implementation=implementation, separable=separable,\
@@ -83,7 +83,7 @@ class TnoBlock2d(nn.Module):
                                             SpectralConv=partial(SpectralConv,rank=0.5, factorization=None),n_layers=1)
 
         self.Q = FNOBlocks(in_channels= self.token_codim, out_channels= self.n_head * self.head_codim, n_modes= mixer_modes,\
-                                            use_mlp=False, mlp=mlp, output_scaling_factor=1/scale, non_linearity=lambda x:x,apply_skip=True,\
+                                            use_mlp=False, mlp=mlp, output_scaling_factor=1/scale, non_linearity=lambda x:x,apply_skip=False,\
                                             norm=None, preactivation=preactivation, fno_skip='linear',mlp_skip=mlp_skip, mlp_dropout=0,\
                                             incremental_n_modes=incremental_n_modes, rank=rank, fft_norm=fft_norm,mlp_expansion=mlp_expansion,\
                                             fixed_rank_modes=fixed_rank_modes, implementation=implementation, separable=separable,\
