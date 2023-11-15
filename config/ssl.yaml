@@ -6,14 +6,14 @@ base_config: &BASE_CONFIG
     grid_type: 'uniform'
     max_block : 0.6
     drop_pix: 0.6
-    channel_per: 0.4
-    channel_drop_per: 0.3
+    channel_per: 0.5
+    channel_drop_per: 0.5
 
     validation_aug: !!bool False
     max_block_val : 0.2
     drop_pix_val: 0.15
-    channel_per_val: 0.2
-    channel_drop_per_val: 0.5
+    channel_per_val: 0.3
+    channel_drop_per_val: 1.0
 
     batch_size: 4
 
