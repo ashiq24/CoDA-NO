@@ -33,7 +33,8 @@ class TnoBlock2d(nn.Module):
                  codim_size=None,
                  per_channel_attention=True,
                  permutation_eq=True,
-                 temperature=2.0,
+                 temperature=1.0,
+                 apply_skip=True,
                  **kwarg):
         
         super().__init__()
@@ -46,7 +47,7 @@ class TnoBlock2d(nn.Module):
         self.output_scaling_factor = output_scaling_factor # output scalling factor
         self.temperature = temperature
         self.per_channel_attention = per_channel_attention # attention per channel not per varibales
-
+        
         self.permutation_eq = permutation_eq # making last mixer permutation equivariant
 
         if self.n_head is not None:
@@ -63,7 +64,7 @@ class TnoBlock2d(nn.Module):
         # this scale used for downsampling Q,K functions    
         scale = min(self.n_head,2)
         if self.per_channel_attention:
-            scale = 2
+            scale = 1
         
         mixer_modes = [i//scale for i in n_modes]
         
@@ -74,7 +75,7 @@ class TnoBlock2d(nn.Module):
 
         
         self.K = FNOBlocks(in_channels=self.token_codim, out_channels= self.n_head * self.head_codim, n_modes= mixer_modes,\
-                                            use_mlp=use_mlp, mlp=mlp, output_scaling_factor=1/scale,non_linearity=nn.Identity(), apply_skip=True,\
+                                            use_mlp=False, mlp=mlp, output_scaling_factor=1/scale,non_linearity=lambda x:x,apply_skip=True,\
                                             norm=None, preactivation=preactivation, fno_skip='linear',mlp_skip=mlp_skip,mlp_dropout=0,\
                                             incremental_n_modes=incremental_n_modes, rank=rank, fft_norm=fft_norm, mlp_expansion=mlp_expansion,\
                                             fixed_rank_modes=fixed_rank_modes, implementation=implementation, separable=separable,\
@@ -82,7 +83,7 @@ class TnoBlock2d(nn.Module):
                                             SpectralConv=partial(SpectralConv,rank=0.5, factorization=None),n_layers=1)
 
         self.Q = FNOBlocks(in_channels= self.token_codim, out_channels= self.n_head * self.head_codim, n_modes= mixer_modes,\
-                                            use_mlp=use_mlp, mlp=mlp, output_scaling_factor=1/scale, non_linearity=nn.Identity(), apply_skip=True,
+                                            use_mlp=False, mlp=mlp, output_scaling_factor=1/scale, non_linearity=lambda x:x,apply_skip=True,\
                                             norm=None, preactivation=preactivation, fno_skip='linear',mlp_skip=mlp_skip, mlp_dropout=0,\
                                             incremental_n_modes=incremental_n_modes, rank=rank, fft_norm=fft_norm,mlp_expansion=mlp_expansion,\
                                             fixed_rank_modes=fixed_rank_modes, implementation=implementation, separable=separable,\
@@ -90,7 +91,7 @@ class TnoBlock2d(nn.Module):
                                             SpectralConv=partial(SpectralConv,rank=0.5, factorization=None), n_layers=1)
 
         self.V = FNOBlocks(in_channels= self.token_codim, out_channels= self.n_head * self.head_codim, n_modes= n_modes,\
-                                            use_mlp=use_mlp, mlp=mlp, output_scaling_factor=1,non_linearity=nn.Identity(), apply_skip=True,
+                                            use_mlp=False, mlp=mlp, output_scaling_factor=1,non_linearity=lambda x:x,apply_skip=True,\
                                             norm=None, preactivation=preactivation, fno_skip='linear',mlp_skip=mlp_skip, mlp_dropout=0,\
                                             incremental_n_modes=incremental_n_modes, rank=rank, fft_norm=fft_norm,mlp_expansion=mlp_expansion,\
                                             fixed_rank_modes=fixed_rank_modes, implementation=implementation, separable=separable,\
@@ -98,7 +99,7 @@ class TnoBlock2d(nn.Module):
                                             SpectralConv=partial(SpectralConv,rank=0.5, factorization=None),n_layers=1)
         
         self.proj = FNOBlocks(in_channels= self.n_head * self.head_codim, out_channels=self.token_codim, n_modes= n_modes,\
-                                        use_mlp=use_mlp, mlp=mlp, output_scaling_factor=1,non_linearity=lambda x: x, apply_skip=True,
+                                        use_mlp=False, mlp=mlp, output_scaling_factor=1,non_linearity=lambda x:x,apply_skip=True,\
                                         norm=None, preactivation=preactivation, fno_skip='linear',mlp_skip=mlp_skip, mlp_dropout=0,\
                                         incremental_n_modes=incremental_n_modes, rank=rank, fft_norm=fft_norm,mlp_expansion=mlp_expansion,\
                                         fixed_rank_modes=fixed_rank_modes, implementation=implementation, separable=separable,\
@@ -113,14 +114,14 @@ class TnoBlock2d(nn.Module):
         if permutation_eq:
             print("Permutation Equivariant with ", self.mixer_token_codim)
             self.mixer = FNOBlocks(in_channels=self.mixer_token_codim, out_channels=self.mixer_token_codim, n_modes= n_modes,\
-                                                use_mlp=use_mlp, mlp=mlp, output_scaling_factor=1,non_linearity=non_linearity,\
+                                                use_mlp=use_mlp, mlp=mlp, output_scaling_factor=1,non_linearity=non_linearity,apply_skip=True,\
                                                 norm='instance_norm', preactivation=preactivation, fno_skip=fno_skip,mlp_skip=mlp_skip,mlp_expansion=mlp_expansion,\
                                                 mlp_dropout=0,incremental_n_modes=incremental_n_modes, rank=rank, fft_norm=fft_norm,\
                                                 fixed_rank_modes=fixed_rank_modes, implementation=implementation, separable=separable,\
                                                 factorization=factorization,decomposition_kwargs=decomposition_kwargs,joint_factorization=joint_factorization,\
                                                 SpectralConv=partial(SpectralConv,rank=0.5, factorization=None, bias=True),n_layers=2)
             self.norm1 = nn.InstanceNorm2d(self.token_codim, affine=True)
-            self.norm2 = nn.InstanceNorm2d(self.mixer_token_codim, affine=True)
+            #self.norm2 = nn.InstanceNorm2d(self.mixer_token_codim, affine=True)
             self.mixer_out_normalizer = nn.InstanceNorm2d(self.mixer_token_codim, affine=True)
         else:
             self.mixer = FNOBlocks(in_channels=codim_size, out_channels=codim_size, n_modes= n_modes,\
@@ -139,19 +140,23 @@ class TnoBlock2d(nn.Module):
     def forward(self, x, output_shape=None):
         batch, n_token , in_res_x, in_res_y=x.shape[0], x.shape[1]//self.token_codim, x.shape[-2], x.shape[-1]
         
-        
+        #print("max x",torch.max(x))
         assert x.shape[1]%self.token_codim == 0
         
         if not self.permutation_eq:
+            #print("Normalizing here")
             x_norm = self.norm1(x)
         else:
             x_norm = x
         xa = rearrange(x_norm, 'b (t d) h w -> (b t) d h w', d=self.token_codim)
         
         if self.permutation_eq:
+            #print("Normalizing 1 here")
             xa_norm = self.norm1(xa)
         else:
             xa_norm = xa
+        
+        #print("max xa norm",torch.max(xa_norm))
         
         k = self.K.convs(xa_norm)
         q = self.Q.convs(xa_norm)
@@ -165,8 +170,8 @@ class TnoBlock2d(nn.Module):
         v = rearrange(v, '(b t) (a d) h w -> b a t (d h w)', b=batch, a=self.n_head )
 
 
-        dprod = torch.matmul(q, k.transpose(-1, -2))/(k.shape[-1]**0.5 * self.temperature)
-
+        dprod = torch.matmul(q, k.transpose(-1, -2))/(k.shape[-1] * self.temperature)
+        
         dprod = F.softmax(dprod, dim=-1)
                 
         atten =  torch.matmul(dprod, v)
@@ -174,25 +179,36 @@ class TnoBlock2d(nn.Module):
         atten = rearrange(atten, 'b a t (d h w) -> b t a d h w', d=self.head_codim, h=value_res_x, w=value_res_y)
         
         atten = rearrange(atten, 'b t a d h w -> (b t) (a d) h w')
+        
+        #print("Max atten",torch.max(atten))
 
         if self.proj is not None:
             atten = self.proj.convs(atten)
+        #print("Max projection",torch.max(atten))
         
         if not self.permutation_eq:
             atten = rearrange(atten, '(b t) d h w -> b (t d) h w', b = batch)
             atten_normalized = self.norm2(atten)
             output = self.mixer(atten_normalized, output_shape=(in_res_x, in_res_y))
         else:
-            atten = self.attention_normalizer(atten) + xa
+            atten = atten + xa 
+            atten_normalized = self.attention_normalizer(atten)
+            #print("Atten 1",torch.max(atten))
+            #print("Atten 1",torch.max(atten_normalized))
+            atten_normalized = rearrange(atten_normalized, '(b t) d h w -> b (t d) h w', b = batch)
             atten = rearrange(atten, '(b t) d h w -> b (t d) h w', b = batch)
             #print("Attention shape", atten.shape)
+            atten_normalized = rearrange(atten_normalized, 'b (t d) h w -> (b t) d h w', d = self.mixer_token_codim)
             atten = rearrange(atten, 'b (t d) h w -> (b t) d h w', d = self.mixer_token_codim)
             #print("Attention shape", atten.shape)
 
-            atten_normalized = self.norm2(atten)
+            #atten_normalized = self.norm2(atten)
+            #print("Atten 2",torch.max(atten_normalized))
             output = self.mixer(atten_normalized, output_shape=(in_res_x, in_res_y)) 
 
-            output = self.mixer_out_normalizer(output) + atten
+            #output = output  #self.mixer_out_normalizer(output) + atten
+            
             #print("outshape", output.shape)
-            output = rearrange(output, '(b t) d h w -> b (t d) h w', b = batch)
+            output = rearrange(output + atten, '(b t) d h w -> b (t d) h w', b = batch)
+            #print("output ",torch.max(output))
         return output

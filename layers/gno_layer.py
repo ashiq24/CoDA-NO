@@ -5,6 +5,7 @@ from einops import rearrange
 from neuralop.layers.embeddings import PositionalEmbedding
 import torch.nn as nn
 import torch
+import torch.nn.functional as F
 
 class GnoPremEq(nn.Module):
     def __init__(
@@ -42,7 +43,7 @@ class GnoPremEq(nn.Module):
         self.out_dim = out_dim
         self.input_grid = input_grid
         self.output_grid = output_grid
-        self.mlp_layers = [2*n_dim + out_dim] +mlp_layers + [out_dim]
+        self.mlp_layers = [2*n_dim] +mlp_layers + [out_dim]
         self.var_encoding = var_encoding
         self.postional_em_dim = postional_em_dim
         self.var_encoding_channels = var_encoding_channels
@@ -58,7 +59,8 @@ class GnoPremEq(nn.Module):
 
         ### project to higher dim
         self.projection = MLPLinear([self.var_encoding_channels+self.in_dim,\
-                                        projection_hidden_dim ,out_dim])
+                                    projection_hidden_dim ,out_dim],\
+                                    non_linearity=F.gelu)
 
         ### apply GNO to get  uniform grid
 
@@ -69,13 +71,14 @@ class GnoPremEq(nn.Module):
         for key, value in self.neighbour.items():
             self.neighbour[key] = self.neighbour[key].cuda()
         
-        self.it = IntegralTransform(mlp_layers=self.mlp_layers, transform_type='nonlinear')
+        self.it = IntegralTransform(mlp_layers=self.mlp_layers, transform_type='linear', mlp_non_linearity=F.gelu)
     
     def update_grid(
         self,
         input_grid=None,
         output_grid=None
         ):
+        return 
         if input_grid is None:
             input_grid = self.input_grid
         if output_grid is None:
@@ -85,9 +88,7 @@ class GnoPremEq(nn.Module):
 
         self.neighbour = NS(input_grid.clone(), output_grid.clone(), radius=self.radius)
 
-        # for key, value in self.neighbour.items():
-        #     self.neighbour[key] = self.neighbour[key].cuda()
-        
+
     def forward(self, inp):
         '''
         inp : (batch_size, n_points, in_dims/Channels)
@@ -123,6 +124,7 @@ class GnoPremEq(nn.Module):
             else:
                 out = torch.cat([out, temp[None,...]], dim=2)
         #print("Output Shape after Rearrange", out.shape)
+
         return out
 
 

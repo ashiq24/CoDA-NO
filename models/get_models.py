@@ -473,14 +473,14 @@ class SslWrapChangingMesh(nn.Module):
     def set_initial_mesh(self, mesh):
         self.register_buffer('initial_mesh', mesh)
 
-    def forward(self, x, out_grid_displacement=None):
+    def forward(self, x, out_grid_displacement=None, in_grid_displacement=None):
         inp = x.clone()
         if self.stage == 'ssl':
             with torch.no_grad():
                 # last 3 channel is displacement, taking (x,y), z is 0
-                displacement = x[0,:,-3:-1].clone().detach()
-                self.encoder.lifting.update_grid(self.initial_mesh + displacement, None)
-                self.decoder.projection.update_grid(None, self.initial_mesh + displacement)
+                # displacement = x[0,:,-3:-1].clone().detach()
+                self.encoder.lifting.update_grid(self.initial_mesh+in_grid_displacement, None)
+                self.decoder.projection.update_grid(None, self.initial_mesh+out_grid_displacement)
 
             with torch.no_grad():
                 inp_masked, mask = batched_masker(inp, self.agumenter_masker)
@@ -508,8 +508,10 @@ class SslWrapChangingMesh(nn.Module):
 
             with torch.no_grad():
                 # last 3 channel is displacement, taking (x,y), z is 0
-                displacement_inp = x[0,:,-3:-1].clone().detach()
-                self.encoder.lifting.update_grid(self.initial_mesh + displacement_inp, None)
+                #displacement_inp = x[0,:,-3:-1].clone().detach()
+                #print(x.shape)
+                #print("max displace inp", torch.max(displacement_inp))
+                self.encoder.lifting.update_grid(self.initial_mesh + in_grid_displacement, None)
                 self.predictor.projection.update_grid(None, self.initial_mesh + out_grid_displacement)
                 
             if self.enable_cls_token:

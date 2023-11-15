@@ -31,7 +31,7 @@ base_config: &BASE_CONFIG
     n_heads_pred:    [2,2,2]
     
     scalings_pred:     [[1,1], [1,1], [1,1]]
-    scalings_en:     [[1,1], [1,1]]
+    scalings_en:     [[1,1], [1,1],[1,1]]
     scalings_dec:     [[1,1],[1,1]]
 
     n_modes_en:       [[100,100], [100,100]]
@@ -60,7 +60,7 @@ base_config: &BASE_CONFIG
     lr: 0.03
     weight_decay: 0.0000
     scheduler_step: 50
-    scheduler_gamma: 0.5
+    scheduler_gamma: 0.8
     epochs: 50
     weight_path: '../weights/ssl_weight.pt'
 
@@ -72,47 +72,52 @@ base_config: &BASE_CONFIG
     wandb_entity: 'ashiq24'
     wandb_log_test_interval: 1
 
-codano_gino: &CODANO_GINO
+codano_gno: &CODANO_GNO
     <<: *BASE_CONFIG
-    wandb_name: 'codano_gino'
     epochs: 1000
     batch_size: 1
     ntrain: 1
     ntest: 1
     input_mesh_location: "../Data/MP_data/mesh.csv"
-    radius: 0.25
-    gno_mlp_layers: [6,8]
+    radius: 0.15
+    gno_mlp_layers: [10]
     grid_size: [251, 42]
     grid_type: 'non uniform'
-    var_enco_channels: 16
-    n_modes_en:       [[180,30], [180,30]]
-    n_modes_dec:       [[180,30], [180,30]]
-    n_modes_pred:       [[180,30], [180,30],[180,30]]
+    lr: 0.03
+    var_enco_channels: 8
+    n_modes_en:       [[100, 20], [100, 20]]
+    n_modes_dec:       [[100, 20], [100, 20]]
+    n_modes_pred:       [[100, 20], [100, 20]]
+    
+    scalings_pred:     [[1,1], [1,1]]
+    scalings_en:     [[1,1], [1,1]]
+    scalings_dec:     [[1,1],[1,1]]
+    
     masking_radius: 0.08
+    weight_decay: 0.0000
     
     in_token_codim_en: 1
     hidden_token_codim_en: 20
-    lifting_token_codim_en: 20
-    lifting_token_codim_pred: 20
+    lifting_token_codim_en: 40
+    lifting_token_codim_pred: 40
     out_token_codim_pred:  1
     n_layers_en: 2
     n_heads_en:      [20,20]  
     n_layers_dec: 2
-    n_heads_dec:      [20,20]
-    n_layers_pred: 3
-    n_heads_pred:    [20,20,20]
+    n_heads_dec:      [5,5]
+    n_layers_pred: 2
+    n_heads_pred:    [20,20]
     
     pretrain_ssl : !!bool False
     freeze_encoder : !!bool False
 
-fno_gino: &FNO_GINO
-    <<: *CODANO_GINO
-    wandb_name: 'fno_gno'
+fno_gno: &FNO_GNO
+    <<: *CODANO_GNO
     nettype: 'simple'
     in_dim: 7
-    hidden_dim: 32
-    lifting_dim: 64
-    projection_dim: 64
+    hidden_dim: 64
+    lifting_dim: 128
+    projection_dim: 128
     n_modes:       [[180,30], [180,30],[180,30], [180,30]]
     scalings:      [[1,1],[1,1],[1,1], [1,1]]
     n_layers: 4
@@ -127,7 +132,7 @@ fno_gino: &FNO_GINO
     enable_cls_token: !!bool False
 
 fno: &FNO
-    <<: *FNO_GINO
+    <<: *FNO_GNO
     wandb_name: 'fno'
     n_modes:       [180,30]
     grid_type: 'uniform'

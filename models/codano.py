@@ -75,7 +75,7 @@ class CodANO(nn.Module):
                  n_modes = None,
                  scalings = None,
                  n_heads = 1,
-                 non_linearity = F.gelu,
+                 non_linearity = F.relu,
                  layer_kwargs = {'incremental_n_modes':None, 'use_mlp':False, 'mlp_dropout':0, 'mlp_expansion':1.0,
                  'non_linearity':F.gelu,
                  'norm':None, 'preactivation':False,

@@ -28,10 +28,10 @@ class CondnoGino(nn.Module):
                 n_heads=1,
                 non_linearity=F.gelu,
                 layer_kwargs={'incremental_n_modes':None,
-                'use_mlp':True,
+                'use_mlp':False,
                 'mlp_dropout':0,
                 'mlp_expansion':1.0,
-                'non_linearity':F.gelu,
+                'non_linearity':torch.sin,
                 'norm':None, 'preactivation':False,
                 'fno_skip':'linear',
                 'horizontal_skip' : 'linear',
@@ -212,13 +212,15 @@ class CondnoGino(nn.Module):
         '''
         if self.re_grid_input:
             inp = self.input_regrider(inp)
-            
+        #print("Before lifitng", torch.max(inp))
         if self.lifting:
             #print("In Lifting")
             x = self.lifting(inp)
             x =  rearrange(x, 'b (h w) c -> b c h w', h = self.grid_size[0])
+            #print("After lfiting", torch.max(x))
         else:
             x = inp
+        
         
         
         if self.enable_cls_token:
@@ -242,4 +244,5 @@ class CondnoGino(nn.Module):
             #print("projection")
             x = rearrange(x, 'b c h w -> b (h w) c')
             x = self.projection(x)
+            #print("After Projection", torch.max(x))
         return x

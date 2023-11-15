@@ -15,6 +15,7 @@ def simple_trainer(
     params,
     wandb_log=False,
     log_test_interval=1,
+    normalizer=None,
     stage='ssl'):
 
     lr = params.lr
@@ -37,6 +38,7 @@ def simple_trainer(
         for x, y in train_loader_iter:
             x, y = x.cuda(), y.cuda()
             batch_size = x.shape[0]
+            
             if params.grid_type == "non uniform":
                 '''
                 Assume non uniform grids requires
@@ -46,12 +48,23 @@ def simple_trainer(
                 last 3 channel is displacement, taking (x,y), z is 0
                 '''
                 with torch.no_grad():
-                    out_grid_displacement = y[0,:,-3:-1].clone().detach()
+                    if stage == 'ssl':
+                        out_grid_displacement = x[0,:,-3:-1].clone().detach()
+                        in_grid_displacement = x[0,:,-3:-1].clone().detach()
+                    else:
+                        out_grid_displacement = y[0,:,-3:-1].clone().detach()
+                        in_grid_displacement = x[0,:,-3:-1].clone().detach()
             else:
                 out_grid_displacement = None
+                in_grid_displacement = None
+            
+            if normalizer is not None:
+                with torch.no_grad():
+                    x, y = normalizer(x), normalizer(y)
+
             optimizer.zero_grad()
 
-            out = model(x, out_grid_displacement)
+            out = model(x, out_grid_displacement, in_grid_displacement)
 
             if isinstance(out, (list, tuple)):
                 out = out[0]
@@ -62,15 +75,16 @@ def simple_trainer(
             else:
                 target = y.clone()
             
-            loss = 0.5*loss_p(target.reshape(batch_size,-1), out.reshape(batch_size,-1)) \
-                    + 0.5*loss_p1(target.reshape(batch_size,-1), out.reshape(batch_size,-1))
+            loss_l2 = loss_p(target.reshape(batch_size,-1), out.reshape(batch_size,-1))/torch.norm(target.reshape(batch_size,-1),p=2, dim=-1 )
+            loss_l1 = loss_p1(target.reshape(batch_size,-1), out.reshape(batch_size,-1))/torch.norm(target.reshape(batch_size,-1),p=1, dim=-1 )
+            loss = 0.5*loss_l1 + 0.5*loss_l2
             loss.backward()
             
             # Clip gradients to prevent exploding gradients
-            nn.utils.clip_grad_norm_(model.parameters(), 0.9)
+            nn.utils.clip_grad_value_(model.parameters(), 1.0)
 
             optimizer.step()
-            train_l2 += loss.item()
+            train_l2 += loss_l2.item()
             del x,y,out,loss
             gc.collect()
 
@@ -83,7 +97,7 @@ def simple_trainer(
         if ep % log_test_interval == 0: 
 
             values_to_log = {'train_err_'+stage: avg_train_l2, 'time_'+stage: epoch_train_time}
-            print(f"Epoch {ep}: Time: {epoch_train_time:.2f}s, Loss {stage}: {avg_train_l2:.4f}")
+            print(f"Epoch {ep}: Time: {epoch_train_time:.2f}s, Loss {stage}: {avg_train_l2:.5f}")
 
             wandb.log(values_to_log, step=ep, commit=True)
 
@@ -111,14 +125,18 @@ def simple_trainer(
                 out_grid_displacement = None
 
             batch_size = x.shape[0]
-            out,_,_,_ = model(x, out_grid_displacement)
+            out = model(x, out_grid_displacement)
+            
+            if isinstance(out, (list, tuple)):
+                out = out[0]
+                
             ntest +=1
             if stage == 'ssl':
                 target = x.clone()
             else:
                 target = y.clone()
 
-            test_l2 += loss_p(target.reshape(batch_size,-1), out.reshape(batch_size,-1)).item()
+            test_l2 += loss_p(target.reshape(batch_size,-1), out.reshape(batch_size,-1)).item()/torch.norm(target.reshape(batch_size,-1),p=2, dim=-1 ).item()
 
     test_l2 /= ntest
     t2 = default_timer()
