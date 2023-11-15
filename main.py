@@ -6,11 +6,14 @@ import torch
 from data_utils.data_loaders import *
 from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
+from data_utils.data_utils import MakserNonuniformMest, batched_masker, MaskerUniform, get_meshes
 from models.codano import CodANO
 from models.get_models import *
 from train.trainer import simple_trainer
 from utils import get_wandb_api_key
 from models.model_helpers import count_parameters
+from test.evaluations import missing_variable_testing
+
 import random
 
 if __name__ == "__main__":
@@ -106,6 +109,17 @@ if __name__ == "__main__":
             log_test_interval=params.wandb_log_test_interval,
             normalizer=normalizer,
             stage=model.stage)
+
+    grid_non, grid_uni = get_meshes(params.input_mesh_location, params.grid_size)
+
+    test_augmenter = MakserNonuniformMest(
+                grid_non_uni=grid_non.clone().detach(),
+                gird_uni=grid_uni.clone().detach(),
+                radius=params.masking_radius,
+                drop_type=params.drop_type,
+                drop_pix=params.drop_pix,
+                channel_aug_rate=params.channel_per,
+                channel_drop_rate=params.channel_drop_per)
 
     if params.wandb_log:
         wandb.finish()

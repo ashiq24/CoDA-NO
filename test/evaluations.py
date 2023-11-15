@@ -1,7 +1,12 @@
 import torch
+from data_utils.data_utils import MakserNonuniformMest, batched_masker, MaskerUniform
+import torch.nn as nn
+from timeit import default_timer
+import gc
+from tqdm import tqdm
+import wandb
 
-
-def missing_variable_testing(test_loader, augmenter, normalizer):
+def missing_variable_testing(test_loader, augmenter, normalizer, stage):
     with torch.no_grad():
         for x, y in test_loader:
             x, y = x.cuda(), y.cuda()
@@ -29,13 +34,16 @@ def missing_variable_testing(test_loader, augmenter, normalizer):
                 with torch.no_grad():
                     x, y = normalizer(x), normalizer(y)
 
+            if augmenter is not None:
+                x = batched_masker(inp, augmenter)
+
             batch_size = x.shape[0]
             out = model(x, out_grid_displacement, in_grid_displacement)
 
             if isinstance(out, (list, tuple)):
                 out = out[0]
-
             ntest += 1
+
             if stage == 'ssl':
                 target = x.clone()
             else:
@@ -47,5 +55,5 @@ def missing_variable_testing(test_loader, augmenter, normalizer):
     test_l2 /= ntest
     t2 = default_timer()
 
-    wandb.log({'test_error_' + stage: test_l2}, commit=True)
-    print(f"Test Error  {stage}: ", test_l2)
+    wandb.log({'Augmented test_error_' + stage: test_l2}, commit=True)
+    print(f"Augmented Test Error  {stage}: ", test_l2)

@@ -538,6 +538,7 @@ class SslWrapChangingMesh(nn.Module):
             with torch.no_grad():
                 inp_masked, mask = batched_masker(inp, self.agumenter_masker)
             augmented_inp_features = self.encoder(inp_masked)
+            
             if self.enable_cls_token:
                 cls_offset = 1
             else:
