@@ -10,8 +10,8 @@ base_config: &BASE_CONFIG
     channel_drop_per: 0.5
 
     validation_aug: !!bool False
-    max_block_val : 0.2
-    drop_pix_val: 0.15
+    max_block_val : 0.5
+    drop_pix_val: 0.5
     channel_per_val: 0.3
     channel_drop_per_val: 1.0
 
