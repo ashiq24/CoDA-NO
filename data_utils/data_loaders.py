@@ -13,11 +13,13 @@ class Normalizer():
 
     def __call__(self, data):
         return (data - self.mean) / (self.std + self.eps)
+    
+    def denormalize(self, data):
+        return data * (self.std + self.eps) + self.mean
 
     def cuda(self,):
         self.mean = self.mean.cuda()
         self.std = self.std.cuda()
-
 
 class Dataset():
     def __init__(self,):
@@ -37,7 +39,7 @@ class Dataset():
             pressure = torch.tensor(pickle.load(file), dtype=dtype)[:, :, None]
         with open(location + 'velocitoes0-5000.pkl', 'rb') as file:
             velocities = torch.tensor(pickle.load(file), dtype=dtype)
-        
+        # keeping vx,xy, P, dx,dy
         varable_idices = [0,1,3,4,5]
         combined = torch.cat([velocities, pressure, displacements], dim=-1)[:,:,varable_idices]
         step_t0 = combined[:-1, ...]
@@ -48,6 +50,7 @@ class Dataset():
             ntrain = int(train_test_split * len(indexs))
         if not ntest:
             ntest = len(indexs) - ntrain
+            
         random.shuffle(indexs)
         train_t0, test_t0 = step_t0[indexs[:ntrain]
                                     ], step_t0[indexs[ntrain:ntrain + ntest]]

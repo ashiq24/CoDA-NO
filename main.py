@@ -21,7 +21,7 @@ if __name__ == "__main__":
     random.seed(42)
     config = sys.argv[1]
     print("Loading config", config)
-    params = YParams('./config/ssl.yaml', config, print_params=True)
+    params = YParams('./config/ssl_ns_elastic.yaml', config, print_params=True)
 
     # Set up WandB logging
     params.wandb_name = config
