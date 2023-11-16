@@ -113,7 +113,7 @@ codano_gno: &CODANO_GNO
 
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
-    epochs: 5
+    epochs: 100
     ntrain: 1
     ntest: 1
     per_channel_attention: !!bool True
