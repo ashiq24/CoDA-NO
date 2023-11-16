@@ -67,6 +67,8 @@ if __name__ == "__main__":
         #         contrastive,
         #         predictor,
         #         stage=stage)
+        if params.grid_type != 'uniform':
+            print("Setting the Grid")
             mesh = np.loadtxt(params.input_mesh_location, delimiter=',')
             input_mesh = torch.transpose(torch.stack([torch.tensor(
                 mesh[0, :]), torch.tensor(mesh[1, :])]), 0, 1).type(torch.float).cuda()
