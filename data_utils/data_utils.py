@@ -31,7 +31,7 @@ class ResizeDataset(Dataset):
 
 class MaskerUniform(object):
     def __init__(
-            self,+
+            self,
             drop_type='zeros',
             max_block=0.7,
             drop_pix=0.3,
