@@ -1,5 +1,5 @@
 import torch
-from data_utils.data_utils import MakserNonuniformMest, batched_masker, MaskerUniform
+from data_utils.data_utils import MakserNonuniform, batched_masker, MaskerUniform
 import torch.nn as nn
 from timeit import default_timer
 import gc

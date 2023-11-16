@@ -470,7 +470,7 @@ class SslWrapper(nn.Module):
                         self.initial_mesh + in_grid_displacement, None)
                     self.predictor.projection.update_grid(
                         None, self.initial_mesh + out_grid_displacement)
-                        
+
             if self.enable_cls_token:
                 cls_offset = 1
             else:
@@ -519,7 +519,7 @@ class SslWrapChangingMesh(nn.Module):
         '''
         Assuming grid will be non_uniform
         '''
-        self.agumenter_masker = MakserNonuniformMest(
+        self.agumenter_masker = MakserNonuniform(
             grid_non_uni=encoder.input_grid.clone().detach(),
             gird_uni=encoder.output_grid.clone().detach(),
             radius=params.masking_radius,
@@ -527,7 +527,7 @@ class SslWrapChangingMesh(nn.Module):
             drop_pix=params.drop_pix,
             channel_aug_rate=params.channel_per,
             channel_drop_rate=params.channel_drop_per)
-        self.validation_agumenter = MakserNonuniformMest(
+        self.validation_agumenter = MakserNonuniform(
             grid_non_uni=encoder.input_grid.clone().detach(),
             gird_uni=encoder.output_grid.clone().detach(),
             radius=params.masking_radius,
