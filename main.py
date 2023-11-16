@@ -121,7 +121,7 @@ if __name__ == "__main__":
         radius=params.masking_radius,
         drop_type=params.drop_type,
         drop_pix=params.drop_pix_val,
-        channel_aug_rate=params.channel_peval,
+        channel_aug_rate=params.channel_per_val,
         channel_drop_rate=params.channel_drop_per_val)
 
     missing_variable_testing(
