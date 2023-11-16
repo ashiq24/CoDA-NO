@@ -31,11 +31,11 @@ def missing_variable_testing(
                 '''
                 with torch.no_grad():
                     if stage == 'ssl':
-                        out_grid_displacement = x[0, :, -3:-1].clone().detach()
-                        in_grid_displacement = x[0, :, -3:-1].clone().detach()
+                        out_grid_displacement = get_mesh_displacement(x)
+                        in_grid_displacement = get_mesh_displacement(x)
                     else:
-                        out_grid_displacement = y[0, :, -3:-1].clone().detach()
-                        in_grid_displacement = x[0, :, -3:-1].clone().detach()
+                        out_grid_displacement = get_mesh_displacement(y)
+                        in_grid_displacement = get_mesh_displacement(x)
             else:
                 out_grid_displacement = None
                 in_grid_displacement = None
