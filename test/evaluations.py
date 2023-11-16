@@ -14,6 +14,7 @@ def missing_variable_testing(
         normalizer,
         stage,
         params):
+    print('Evaluating for Stage: ', stage)
     with torch.no_grad():
         ntest = 0
         test_l2 = 0

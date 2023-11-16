@@ -8,7 +8,8 @@ from einops.layers.torch import Rearrange
 from .fino import SpectralConvKernel2d
 import torch
 
-
+def NO_OP(x, *_args, **_kwargs):
+    return x
 class TnoBlock2d(nn.Module):
     def __init__(self, n_modes,
                  n_head=1,
@@ -36,6 +37,7 @@ class TnoBlock2d(nn.Module):
                  permutation_eq=True,
                  temperature=1.0,
                  apply_skip=True,
+                 kqv_non_linear=False,
                  **kwarg):
 
         super().__init__()
@@ -52,6 +54,14 @@ class TnoBlock2d(nn.Module):
         self.per_channel_attention = per_channel_attention
 
         # making last mixer permutation equivariant
+        
+        # K,Q,V operator with or without non_lin
+        
+        if kqv_non_linear:
+            kqv_activation = non_linearity
+        else:
+            kqv_activation = NO_OP
+            
         self.permutation_eq = permutation_eq
 
         if self.n_head is not None:
@@ -91,8 +101,8 @@ class TnoBlock2d(nn.Module):
             use_mlp=False,
             mlp=mlp,
             output_scaling_factor=1 / scale,
-            non_linearity=lambda x: x,
-            apply_skip=False,
+            non_linearity=kqv_activation,
+            apply_skip=True,
             norm=None,
             preactivation=preactivation,
             fno_skip='linear',
@@ -118,10 +128,10 @@ class TnoBlock2d(nn.Module):
             in_channels=self.token_codim,
             out_channels=self.n_head * self.head_codim,
             n_modes=mixer_modes,
-            use_mlp=False,
+            use_mlp=True,
             mlp=mlp,
             output_scaling_factor=1 / scale,
-            non_linearity=lambda x: x,
+            non_linearity=kqv_activation,
             apply_skip=False,
             norm=None,
             preactivation=preactivation,
@@ -152,7 +162,7 @@ class TnoBlock2d(nn.Module):
             use_mlp=False,
             mlp=mlp,
             output_scaling_factor=1,
-            non_linearity=lambda x: x,
+            non_linearity=kqv_activation,
             apply_skip=True,
             norm=None,
             preactivation=preactivation,
@@ -303,9 +313,9 @@ class TnoBlock2d(nn.Module):
         else:
             xa_norm = xa
 
-        k = self.K.convs(xa_norm)
-        q = self.Q.convs(xa_norm)
-        v = self.V.convs(xa_norm)
+        k = self.K(xa_norm)
+        q = self.Q(xa_norm)
+        v = self.V(xa_norm)
 
         res_x, res_y = k.shape[-2], k.shape[-1]
         value_res_x, value_res_y = v.shape[-2], v.shape[-1]
@@ -327,7 +337,7 @@ class TnoBlock2d(nn.Module):
             a=self.n_head)
 
         dprod = torch.matmul(q, k.transpose(-1, -2)) / \
-            (k.shape[-1] * self.temperature)
+            (k.shape[-1]**0.5 * self.temperature)
 
         dprod = F.softmax(dprod, dim=-1)
 

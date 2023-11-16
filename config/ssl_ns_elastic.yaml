@@ -12,13 +12,14 @@ base_config: &BASE_CONFIG
     validation_aug: !!bool False
     max_block_val : 0.3
     drop_pix_val: 0.4
-    channel_per_val: 0.3
+    channel_per_val: 0.2
     channel_drop_per_val: 1.0
 
     batch_size: 4
 
     var_num: 5
     in_token_codim_en: 1
+    kqv_non_linear: !!bool False
     hidden_token_codim_en: 6
     lifting_token_codim_en: 12
     lifting_token_codim_pred: 12
@@ -60,8 +61,10 @@ base_config: &BASE_CONFIG
     lr: 0.03
     weight_decay: 0.0000
     scheduler_step: 50
-    scheduler_gamma: 0.8
+    scheduler_gamma: 0.5
     epochs: 50
+    clip_gradient: !!bool True
+    gradient_clip_value: 0.001
     weight_path: '../weights/ssl_weight.pt'
 
     # Weights and biases
@@ -74,8 +77,7 @@ base_config: &BASE_CONFIG
 
 codano_gno: &CODANO_GNO
     <<: *BASE_CONFIG
-    epochs: 30
-    batch_size: 1
+
     ntrain: None
     ntest: None
     input_mesh_location: "../Data/MP_data/mesh.csv"
@@ -83,45 +85,70 @@ codano_gno: &CODANO_GNO
     gno_mlp_layers: [10]
     grid_size: [251, 42]
     grid_type: 'non uniform'
+    
+    # training. hypers
+    
+    epochs: 30
+    batch_size: 1
     lr: 0.03
+    weight_decay: 0.0000
+    scheduler_step: 10
+    scheduler_gamma: 0.8
+    gradient_clip_value: 0.01
+    
+    
     var_enco_channels: 8
-    n_modes_en:       [[180,30], [180,30]]
-    n_modes_dec:       [[180,30], [180,30]]
+    n_modes_en:       [[180,30], [180,30], [180,30]]
+    n_modes_dec:       [[180,30]]
     n_modes_pred:       [[180,30], [180,30]]
     
+    
+    scalings_en:     [[1,1], [1,1], [1,1]]
+    scalings_dec:     [[1,1]]
     scalings_pred:     [[1,1], [1,1]]
-    scalings_en:     [[1,1], [1,1]]
-    scalings_dec:     [[1,1],[1,1]]
     
     masking_radius: 0.08
-    weight_decay: 0.0000
     
     in_token_codim_en: 1
-    hidden_token_codim_en: 20
-    lifting_token_codim_en: 40
-    lifting_token_codim_pred: 40
+    hidden_token_codim_en: 80
+    lifting_token_codim_en: 80
+    lifting_token_codim_pred: 80
     out_token_codim_pred:  1
-    n_layers_en: 2
-    n_heads_en:      [20,20]  
-    n_layers_dec: 2
-    n_heads_dec:      [5,5]
+    n_layers_en: 3
+    n_heads_en:      [80,80,80]  
+    n_layers_dec: 1
+    n_heads_dec:      [80]
     n_layers_pred: 2
-    n_heads_pred:    [20,20]
+    n_heads_pred:    [80,80]
     
     pretrain_ssl : !!bool True
     freeze_encoder : !!bool True
 
+codano_non_lin: &CODANO_NON_LIN
+    <<: *CODANO_GNO
+    kqv_non_linear: !!bool True
+    
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
-    epochs: 30
+    epochs: 100
+    lr: 0.03
+    weight_decay: 0.0000
+    scheduler_step: 30
+    gradient_clip_value: 0.01
+    scheduler_gamma: 0.8
+    channel_per_val: 0.5
     ntrain: 1
     ntest: 1
-    channel_per: -1
+    kqv_non_linear: !!bool True
+    channel_per: 0.3
+    channel_drop_per: 0.5
     per_channel_attention: !!bool True
     
 fno_gno: &FNO_GNO
     <<: *CODANO_GNO
     nettype: 'simple'
+    
+    #architecture 
     in_dim: 5
     hidden_dim: 128
     lifting_dim: 256
@@ -134,6 +161,16 @@ fno_gno: &FNO_GNO
     pretrain_ssl : !!bool False
     freeze_encoder : !!bool False
     
+    # training hyper
+    
+    lr: 0.01
+    weight_decay: 0.0000
+    scheduler_step: 10
+    scheduler_gamma: 0.5
+    clip_gradient: !!bool True
+    gradient_clip_value: 0.1
+    
+    
     
     # does not supporting turning on
     var_enco_channels: 0
@@ -141,7 +178,8 @@ fno_gno: &FNO_GNO
 
 fno_test: &FNO_TEST
     <<: *FNO_GNO
-    epochs: 5
+    channel_per_val: 0.5
+    epochs: 100
     ntrain: 1
     ntest: 1
     

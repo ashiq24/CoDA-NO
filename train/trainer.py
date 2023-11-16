@@ -18,7 +18,7 @@ def simple_trainer(
         log_test_interval=1,
         normalizer=None,
         stage='ssl'):
-
+    print("Training Stage :", stage )
     lr = params.lr
     weight_decay = params.weight_decay
     scheduler_step = params.scheduler_step
@@ -91,7 +91,8 @@ def simple_trainer(
             loss.backward()
 
             # Clip gradients to prevent exploding gradients
-            nn.utils.clip_grad_value_(model.parameters(), 0.001)
+            if params.clip_gradient:
+                nn.utils.clip_grad_value_(model.parameters(), params.gradient_clip_value)
 
             optimizer.step()
             train_l2 += loss_l2.item()

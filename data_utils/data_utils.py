@@ -110,7 +110,7 @@ class MakserNonuniform(object):
     def __init__(self, grid_non_uni, gird_uni, radius,
                  drop_type='zeros', drop_pix=0.3,
                  channel_aug_rate=0.7, channel_drop_rate=0.2,
-                 device='cpu', max_block=10):
+                 device='cpu', max_block=10, verbose=False):
         '''
         drop_type : dropped pixels are filled with zeros
         drop_pix: Percentage of pixels to be dropped
@@ -130,6 +130,7 @@ class MakserNonuniform(object):
         self.channel_drop_rate = channel_drop_rate
         self.device = device
         self.max_block = max_block
+        self.verbose = verbose
 
     def __call__(self, size):
 
@@ -140,13 +141,16 @@ class MakserNonuniform(object):
         drop_t = self.drop_type  # no effect now
 
         augmented_channels = np.random.choice(
-            C, math.ceil(C * self.channel_aug_rate))
+            C, math.ceil(C * self.channel_aug_rate), replace=False)
         # print(augmented_channels)
         drop_len = int(
             self.channel_drop_rate *
             math.ceil(
                 C *
                 self.channel_aug_rate))
+        if self.verbose:
+            print("Augmented Channels :", augmented_channels)
+            print("Dropped channels :", augmented_channels[:drop_len])
         mask[:, augmented_channels[:drop_len]] = 0.0
         for i in augmented_channels[drop_len:]:
             # print("Masking")

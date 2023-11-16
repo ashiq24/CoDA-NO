@@ -59,14 +59,6 @@ if __name__ == "__main__":
             contrastive,
             predictor,
             stage=stage)
-        # else:
-        #     model = SslWrapChangingMesh(
-        #         params,
-        #         encoder,
-        #         decoder,
-        #         contrastive,
-        #         predictor,
-        #         stage=stage)
         if params.grid_type != 'uniform':
             print("Setting the Grid")
             mesh = np.loadtxt(params.input_mesh_location, delimiter=',')
@@ -122,7 +114,8 @@ if __name__ == "__main__":
         drop_type=params.drop_type,
         drop_pix=params.drop_pix_val,
         channel_aug_rate=params.channel_per_val,
-        channel_drop_rate=params.channel_drop_per_val)
+        channel_drop_rate=params.channel_drop_per_val,
+        verbose=True)
 
     missing_variable_testing(
         model,

@@ -23,6 +23,7 @@ class CondnoGino(nn.Module):
                  out_token_codim=None,
                  hidden_token_codim=None,
                  lifting_token_codim=None,
+                 kqv_non_linear=False,
                  n_layers=4,
                  n_modes=None,
                  scalings=None,
@@ -190,6 +191,7 @@ class CondnoGino(nn.Module):
                 SpectralConv=conv_op,
                 codim_size=self.codim_size,
                 per_channel_attention=self.per_channel_attention,
+                kqv_non_linear=kqv_non_linear,
                 **self.layer_kwargs))
         if self.projection:
             # input and output grid is swapped
