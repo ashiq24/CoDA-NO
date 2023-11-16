@@ -31,7 +31,7 @@ class ResizeDataset(Dataset):
 
 class MaskerUniform(object):
     def __init__(
-            self,
+            self,+
             drop_type='zeros',
             max_block=0.7,
             drop_pix=0.3,
@@ -49,7 +49,7 @@ class MaskerUniform(object):
 
     def __call__(self, size):
         #######################
-        # max_block_sz: percentage of the maximum block to be dropped
+        # min_block, max_block: Min and Max size of a block to cut.
         #
         # funtion returns a mask with 0,1. Which is multiplied with the data tensor
         # To generate masked sample
@@ -106,7 +106,7 @@ def batched_masker(data_i, aug):
     return data * masks, masks
 
 
-class MakserNonuniformMest(object):
+class MakserNonuniform(object):
     def __init__(self, grid_non_uni, gird_uni, radius,
                  drop_type='zeros', drop_pix=0.3,
                  channel_aug_rate=0.7, channel_drop_rate=0.2,
@@ -164,7 +164,6 @@ class MakserNonuniformMest(object):
         return None, mask
 
 
-
 def get_meshes(input_mesh_location, grid_size):
     mesh = np.loadtxt(input_mesh_location, delimiter=',')
     input_mesh = torch.transpose(torch.stack([torch.tensor(
@@ -185,3 +184,6 @@ def get_meshes(input_mesh_location, grid_size):
         [x.flatten(), y.flatten()]), 0, 1).type(torch.float).cuda()
 
     return input_mesh, output_mesh
+
+def get_mesh_displacement(x):
+    return x[0, :, -2:].clone().detach()

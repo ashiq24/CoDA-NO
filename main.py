@@ -51,22 +51,22 @@ if __name__ == "__main__":
         print("Parameters Encoder", count_parameters(encoder))
         print("Parameters Decoder", count_parameters(decoder))
         print("Parameters Perdictor", count_parameters(predictor))
-        if params.grid_type == 'uniform':
-            model = SslWrapper(
-                params,
-                encoder,
-                decoder,
-                contrastive,
-                predictor,
-                stage=stage)
-        else:
-            model = SslWrapChangingMesh(
-                params,
-                encoder,
-                decoder,
-                contrastive,
-                predictor,
-                stage=stage)
+        #if params.grid_type == 'uniform':
+        model = SslWrapper(
+            params,
+            encoder,
+            decoder,
+            contrastive,
+            predictor,
+            stage=stage)
+        # else:
+        #     model = SslWrapChangingMesh(
+        #         params,
+        #         encoder,
+        #         decoder,
+        #         contrastive,
+        #         predictor,
+        #         stage=stage)
             mesh = np.loadtxt(params.input_mesh_location, delimiter=',')
             input_mesh = torch.transpose(torch.stack([torch.tensor(
                 mesh[0, :]), torch.tensor(mesh[1, :])]), 0, 1).type(torch.float).cuda()

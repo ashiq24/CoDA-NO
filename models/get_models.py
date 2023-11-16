@@ -1,6 +1,6 @@
 from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
-from data_utils.data_utils import MakserNonuniformMest, batched_masker, MaskerUniform
+from data_utils.data_utils import MakserNonuniform, batched_masker, MaskerUniform
 import torch.nn as nn
 from models.codano_gino import CondnoGino
 from models.fno_gino import FnoGno
@@ -399,7 +399,7 @@ class SslWrapper(nn.Module):
                 channel_per=params.channel_per_val,
                 channel_drop_per=params.channel_drop_per_val)
         else:
-            self.agumenter_masker = MakserNonuniformMest(
+            self.agumenter_masker = MakserNonuniform(
                 grid_non_uni=encoder.input_grid.clone().detach(),
                 gird_uni=encoder.output_grid.clone().detach(),
                 radius=params.masking_radius,
@@ -410,7 +410,7 @@ class SslWrapper(nn.Module):
 
             # If following augmenter is used by external method during testing
 
-            self.validation_agumenter = MakserNonuniformMest(
+            self.validation_agumenter = MakserNonuniform(
                 grid_non_uni=encoder.input_grid.clone().detach(),
                 gird_uni=encoder.output_grid.clone().detach(),
                 radius=params.masking_radius,
@@ -421,10 +421,25 @@ class SslWrapper(nn.Module):
                 channel_drop_rate=params.channel_drop_per_val)
 
         self.params = params
+    
+    def set_initial_mesh(self, mesh):
+        self.register_buffer('initial_mesh', mesh)
 
-    def forward(self, x, static_random_tensor=None):
+    def forward(
+            self,
+            x,
+            out_grid_displacement=None,
+            in_grid_displacement=None):
         inp = x.clone()
         if self.stage == 'ssl':
+
+            if self.grid_type != "uniform":
+                with torch.no_grad():
+                    self.encoder.lifting.update_grid(
+                        self.initial_mesh + in_grid_displacement, None)
+                    self.decoder.projection.update_grid(
+                        None, self.initial_mesh + out_grid_displacement)
+
             with torch.no_grad():
                 inp_masked, mask = batched_masker(inp, self.agumenter_masker)
             augmented_inp_features = self.encoder(inp_masked)
@@ -449,6 +464,13 @@ class SslWrapper(nn.Module):
             aug_contra = None
             return reconstruced, clean_contra, aug_contra, neg_contra
         else:
+            if self.grid_type != 'unifrom':
+                with torch.no_grad():
+                    self.encoder.lifting.update_grid(
+                        self.initial_mesh + in_grid_displacement, None)
+                    self.predictor.projection.update_grid(
+                        None, self.initial_mesh + out_grid_displacement)
+                        
             if self.enable_cls_token:
                 cls_offset = 1
             else:
@@ -472,7 +494,6 @@ class SslWrapChangingMesh(nn.Module):
     '''
     Wrapper of complex non_uniform changing mesh.
     '''
-
     def __init__(
             self,
             params,
@@ -528,8 +549,6 @@ class SslWrapChangingMesh(nn.Module):
         inp = x.clone()
         if self.stage == 'ssl':
             with torch.no_grad():
-                # last 3 channel is displacement, taking (x,y), z is 0
-                # displacement = x[0,:,-3:-1].clone().detach()
                 self.encoder.lifting.update_grid(
                     self.initial_mesh + in_grid_displacement, None)
                 self.decoder.projection.update_grid(
@@ -562,10 +581,6 @@ class SslWrapChangingMesh(nn.Module):
         else:
 
             with torch.no_grad():
-                # last 3 channel is displacement, taking (x,y), z is 0
-                # displacement_inp = x[0,:,-3:-1].clone().detach()
-                # print(x.shape)
-                # print("max displace inp", torch.max(displacement_inp))
                 self.encoder.lifting.update_grid(
                     self.initial_mesh + in_grid_displacement, None)
                 self.predictor.projection.update_grid(

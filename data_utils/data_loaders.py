@@ -50,7 +50,7 @@ class Dataset():
             ntrain = int(train_test_split * len(indexs))
         if not ntest:
             ntest = len(indexs) - ntrain
-            
+
         random.shuffle(indexs)
         train_t0, test_t0 = step_t0[indexs[:ntrain]
                                     ], step_t0[indexs[ntrain:ntrain + ntest]]
