@@ -287,11 +287,9 @@ class TnoBlock2d(nn.Module):
         batch, n_token, in_res_x, in_res_y = x.shape[0], x.shape[
             1] // self.token_codim, x.shape[-2], x.shape[-1]
 
-        # print("max x",torch.max(x))
         assert x.shape[1] % self.token_codim == 0
 
         if not self.permutation_eq:
-            # print("Normalizing here")
             x_norm = self.norm1(x)
         else:
             x_norm = x
@@ -301,12 +299,9 @@ class TnoBlock2d(nn.Module):
             d=self.token_codim)
 
         if self.permutation_eq:
-            # print("Normalizing 1 here")
             xa_norm = self.norm1(xa)
         else:
             xa_norm = xa
-
-        # print("max xa norm",torch.max(xa_norm))
 
         k = self.K.convs(xa_norm)
         q = self.Q.convs(xa_norm)
@@ -347,11 +342,8 @@ class TnoBlock2d(nn.Module):
 
         atten = rearrange(atten, 'b t a d h w -> (b t) (a d) h w')
 
-        # print("Max atten",torch.max(atten))
-
         if self.proj is not None:
             atten = self.proj.convs(atten)
-        # print("Max projection",torch.max(atten))
 
         if not self.permutation_eq:
             atten = rearrange(atten, '(b t) d h w -> b (t d) h w', b=batch)
@@ -362,12 +354,10 @@ class TnoBlock2d(nn.Module):
         else:
             atten = atten + xa
             atten_normalized = self.attention_normalizer(atten)
-            # print("Atten 1",torch.max(atten))
-            # print("Atten 1",torch.max(atten_normalized))
             atten_normalized = rearrange(
                 atten_normalized, '(b t) d h w -> b (t d) h w', b=batch)
             atten = rearrange(atten, '(b t) d h w -> b (t d) h w', b=batch)
-            # print("Attention shape", atten.shape)
+
             atten_normalized = rearrange(
                 atten_normalized,
                 'b (t d) h w -> (b t) d h w',
@@ -376,20 +366,13 @@ class TnoBlock2d(nn.Module):
                 atten,
                 'b (t d) h w -> (b t) d h w',
                 d=self.mixer_token_codim)
-            # print("Attention shape", atten.shape)
 
-            # atten_normalized = self.norm2(atten)
-            # print("Atten 2",torch.max(atten_normalized))
             output = self.mixer(
                 atten_normalized, output_shape=(
                     in_res_x, in_res_y))
 
-            # output = output  #self.mixer_out_normalizer(output) + atten
-
-            # print("outshape", output.shape)
             output = rearrange(
                 output + atten,
                 '(b t) d h w -> b (t d) h w',
                 b=batch)
-            # print("output ",torch.max(output))
         return output

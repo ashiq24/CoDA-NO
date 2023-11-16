@@ -421,7 +421,7 @@ class SslWrapper(nn.Module):
                 channel_drop_rate=params.channel_drop_per_val)
 
         self.params = params
-    
+
     def set_initial_mesh(self, mesh):
         self.register_buffer('initial_mesh', mesh)
 
@@ -470,121 +470,6 @@ class SslWrapper(nn.Module):
                         self.initial_mesh + in_grid_displacement, None)
                     self.predictor.projection.update_grid(
                         None, self.initial_mesh + out_grid_displacement)
-
-            if self.enable_cls_token:
-                cls_offset = 1
-            else:
-                cls_offset = 0
-            if self.freeze_encoder:
-                with torch.no_grad():
-                    feature = self.encoder(inp)
-            else:
-                feature = self.encoder(inp)
-            out = self.predictor(feature)
-            # discarding CLS token and addtion static channels if added.
-            if self.grid_type == 'uniform':
-                out = out[:, cls_offset:cls_offset + x.shape[1], :, :]
-            else:
-                out = out[:, :, cls_offset:]
-
-            return out, None, None, None
-
-
-class SslWrapChangingMesh(nn.Module):
-    '''
-    Wrapper of complex non_uniform changing mesh.
-    '''
-    def __init__(
-            self,
-            params,
-            encoder,
-            decoder,
-            contrastive,
-            predictor,
-            stage):
-        super(SslWrapChangingMesh, self).__init__()
-
-        self.encoder = encoder
-        self.decoder = decoder
-        self.contrastive = contrastive
-        self.predictor = predictor
-
-        self.reconstruction = params.reconstruction
-        self.enable_cls_token = params.enable_cls_token
-        self.stage = stage
-        self.freeze_encoder = params.freeze_encoder
-        self.grid_type = params.grid_type
-
-        print("Doing Wrapper for", self.stage)
-        '''
-        Assuming grid will be non_uniform
-        '''
-        self.agumenter_masker = MakserNonuniform(
-            grid_non_uni=encoder.input_grid.clone().detach(),
-            gird_uni=encoder.output_grid.clone().detach(),
-            radius=params.masking_radius,
-            drop_type=params.drop_type,
-            drop_pix=params.drop_pix,
-            channel_aug_rate=params.channel_per,
-            channel_drop_rate=params.channel_drop_per)
-        self.validation_agumenter = MakserNonuniform(
-            grid_non_uni=encoder.input_grid.clone().detach(),
-            gird_uni=encoder.output_grid.clone().detach(),
-            radius=params.masking_radius,
-            drop_type=params.drop_type,
-            max_block=params.max_block_val,
-            drop_pix=params.drop_pix_val,
-            channel_aug_rate=params.channel_per_val,
-            channel_drop_rate=params.channel_drop_per_val)
-        self.params = params
-
-    def set_initial_mesh(self, mesh):
-        self.register_buffer('initial_mesh', mesh)
-
-    def forward(
-            self,
-            x,
-            out_grid_displacement=None,
-            in_grid_displacement=None):
-        inp = x.clone()
-        if self.stage == 'ssl':
-            with torch.no_grad():
-                self.encoder.lifting.update_grid(
-                    self.initial_mesh + in_grid_displacement, None)
-                self.decoder.projection.update_grid(
-                    None, self.initial_mesh + out_grid_displacement)
-
-            with torch.no_grad():
-                inp_masked, mask = batched_masker(inp, self.agumenter_masker)
-            augmented_inp_features = self.encoder(inp_masked)
-            
-            if self.enable_cls_token:
-                cls_offset = 1
-            else:
-                cls_offset = 0
-            if self.reconstruction:
-                reconstruced = self.decoder(augmented_inp_features)
-                # Removing the CLS token and also discarding if some additional channels if
-                # in the end
-                if self.grid_type == 'uniform':
-                    reconstruced = reconstruced[:,
-                                                cls_offset:cls_offset + x.shape[1], :, :]
-                else:
-                    reconstruced = reconstruced[:, :, cls_offset:]
-            else:
-                reconstruced = None
-            # place holders for contrastive losses.Not used now.
-            clean_contra = None
-            neg_contra = None
-            aug_contra = None
-            return reconstruced, clean_contra, aug_contra, neg_contra
-        else:
-
-            with torch.no_grad():
-                self.encoder.lifting.update_grid(
-                    self.initial_mesh + in_grid_displacement, None)
-                self.predictor.projection.update_grid(
-                    None, self.initial_mesh + out_grid_displacement)
 
             if self.enable_cls_token:
                 cls_offset = 1

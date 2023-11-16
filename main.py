@@ -51,7 +51,7 @@ if __name__ == "__main__":
         print("Parameters Encoder", count_parameters(encoder))
         print("Parameters Decoder", count_parameters(decoder))
         print("Parameters Perdictor", count_parameters(predictor))
-        #if params.grid_type == 'uniform':
+        # if params.grid_type == 'uniform':
         model = SslWrapper(
             params,
             encoder,
@@ -112,18 +112,25 @@ if __name__ == "__main__":
             normalizer=normalizer,
             stage=model.stage)
 
-    grid_non, grid_uni = get_meshes(params.input_mesh_location, params.grid_size)
+    grid_non, grid_uni = get_meshes(
+        params.input_mesh_location, params.grid_size)
 
     test_augmenter = MakserNonuniform(
-                grid_non_uni=grid_non.clone().detach(),
-                gird_uni=grid_uni.clone().detach(),
-                radius=params.masking_radius,
-                drop_type=params.drop_type,
-                drop_pix=params.drop_pix,
-                channel_aug_rate=params.channel_per,
-                channel_drop_rate=params.channel_drop_per)
-    
-    missing_variable_testing(model, test,  test_augmenter, normalizer, 'sl', params)
+        grid_non_uni=grid_non.clone().detach(),
+        gird_uni=grid_uni.clone().detach(),
+        radius=params.masking_radius,
+        drop_type=params.drop_type,
+        drop_pix=params.drop_pix,
+        channel_aug_rate=params.channel_per,
+        channel_drop_rate=params.channel_drop_per)
+
+    missing_variable_testing(
+        model,
+        test,
+        test_augmenter,
+        normalizer,
+        'sl',
+        params)
 
     if params.wandb_log:
         wandb.finish()

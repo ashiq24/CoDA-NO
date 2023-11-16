@@ -236,12 +236,9 @@ class CondnoGino(nn.Module):
         '''
         if self.re_grid_input:
             inp = self.input_regrider(inp)
-        # print("Before lifitng", torch.max(inp))
         if self.lifting:
-            # print("In Lifting")
             x = self.lifting(inp)
             x = rearrange(x, 'b (h w) c -> b c h w', h=self.grid_size[0])
-            # print("After lfiting", torch.max(x))
         else:
             x = inp
 
@@ -266,8 +263,7 @@ class CondnoGino(nn.Module):
         if self.re_grid_output:
             x = self.output_regrider(x)
         if self.projection:
-            # print("projection")
             x = rearrange(x, 'b c h w -> b (h w) c')
             x = self.projection(x)
-            # print("After Projection", torch.max(x))
+
         return x

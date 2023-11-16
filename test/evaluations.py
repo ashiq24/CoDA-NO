@@ -6,7 +6,14 @@ import gc
 from tqdm import tqdm
 import wandb
 
-def missing_variable_testing(model, test_loader, augmenter, normalizer, stage, params):
+
+def missing_variable_testing(
+        model,
+        test_loader,
+        augmenter,
+        normalizer,
+        stage,
+        params):
     with torch.no_grad():
         ntest = 0
         test_l2 = 0
@@ -38,7 +45,7 @@ def missing_variable_testing(model, test_loader, augmenter, normalizer, stage, p
                     x, y = normalizer(x), normalizer(y)
 
             if augmenter is not None:
-                x,_ = batched_masker(x, augmenter)
+                x, _ = batched_masker(x, augmenter)
 
             batch_size = x.shape[0]
             out = model(x, out_grid_displacement, in_grid_displacement)

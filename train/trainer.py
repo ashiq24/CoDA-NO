@@ -58,10 +58,10 @@ def simple_trainer(
                 with torch.no_grad():
                     if stage == 'ssl':
                         out_grid_displacement = get_mesh_displacement(x)
-                        in_grid_displacement =  get_mesh_displacement(x)
+                        in_grid_displacement = get_mesh_displacement(x)
                     else:
-                        out_grid_displacement =  get_mesh_displacement(y)
-                        in_grid_displacement =  get_mesh_displacement(x)
+                        out_grid_displacement = get_mesh_displacement(y)
+                        in_grid_displacement = get_mesh_displacement(x)
             else:
                 out_grid_displacement = None
                 in_grid_displacement = None
@@ -114,7 +114,7 @@ def simple_trainer(
 
             wandb.log(values_to_log, commit=True)
 
-    # torch.save(model.state_dict(), weight_path)
+    torch.save(model.state_dict(), weight_path)
 
     model.eval()
     test_l2 = 0.0
