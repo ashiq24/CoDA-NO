@@ -113,7 +113,7 @@ codano_gno: &CODANO_GNO
 
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
-    epochs: 100
+    epochs: 30
     ntrain: 1
     ntest: 1
     channel_per: -1

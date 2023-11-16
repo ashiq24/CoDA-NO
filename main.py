@@ -120,9 +120,9 @@ if __name__ == "__main__":
         gird_uni=grid_uni.clone().detach(),
         radius=params.masking_radius,
         drop_type=params.drop_type,
-        drop_pix=params.drop_pix,
-        channel_aug_rate=params.channel_per,
-        channel_drop_rate=params.channel_drop_per)
+        drop_pix=params.drop_pix_val,
+        channel_aug_rate=params.channel_peval,
+        channel_drop_rate=params.channel_drop_per_val)
 
     missing_variable_testing(
         model,
