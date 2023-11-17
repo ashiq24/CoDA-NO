@@ -110,16 +110,16 @@ codano_gno: &CODANO_GNO
     masking_radius: 0.08
     
     in_token_codim_en: 1
-    hidden_token_codim_en: 40
-    lifting_token_codim_en: 80
-    lifting_token_codim_pred: 80
+    hidden_token_codim_en: 30
+    lifting_token_codim_en: 40
+    lifting_token_codim_pred: 40
     out_token_codim_pred:  1
     n_layers_en: 3
-    n_heads_en:      [40,40,40]  
+    n_heads_en:      [30,30,30]  
     n_layers_dec: 1
-    n_heads_dec:      [40]
+    n_heads_dec:      [30]
     n_layers_pred: 2
-    n_heads_pred:    [40,40]
+    n_heads_pred:    [30,30]
     
     pretrain_ssl : !!bool True
     freeze_encoder : !!bool True
@@ -130,7 +130,7 @@ codano_non_lin: &CODANO_NON_LIN
     
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
-    epochs: 100
+    epochs: 10
     lr: 0.03
     weight_decay: 0.0000
     scheduler_step: 30
