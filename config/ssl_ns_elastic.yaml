@@ -92,11 +92,11 @@ codano_gno: &CODANO_GNO
     
     epochs: 30
     batch_size: 1
-    lr: 0.03
+    lr: 0.01
     weight_decay: 0.0000
     scheduler_step: 10
     scheduler_gamma: 0.8
-    gradient_clip_value: 0.01
+    gradient_clip_value: 0.001
     
     
     var_enco_channels: 8
@@ -136,11 +136,11 @@ codano_test: &CODANO_TEST
     lr: 0.03
     weight_decay: 0.0000
     scheduler_step: 30
-    gradient_clip_value: 0.01
+    gradient_clip_value: 0.001
     scheduler_gamma: 0.8
     channel_per_val: 0.5
     ntrain: 1
-    ntest: 1
+    ntest: 5
     kqv_non_linear: !!bool True
     channel_per: 0.3
     channel_drop_per: 0.5
@@ -183,7 +183,7 @@ fno_test: &FNO_TEST
     channel_per_val: 0.5
     epochs: 100
     ntrain: 1
-    ntest: 1
+    ntest: 5
     
 fno: &FNO
     <<: *FNO_GNO

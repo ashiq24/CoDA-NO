@@ -55,10 +55,8 @@ def missing_variable_testing(
                 out = out[0]
             ntest += 1
 
-            if stage == 'ssl':
-                target = x.clone()
-            else:
-                target = y.clone()
+            
+            target = y.clone()
 
             test_l2 += loss_p(target.reshape(batch_size, -1), out.reshape(batch_size, -1)
                               ).item() / torch.norm(target.reshape(batch_size, -1), p=2, dim=-1).item()
