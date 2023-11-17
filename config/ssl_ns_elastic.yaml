@@ -77,10 +77,12 @@ base_config: &BASE_CONFIG
 
 codano_gno: &CODANO_GNO
     <<: *BASE_CONFIG
-
+    # dataset hyper 
     ntrain: None
     ntest: None
     input_mesh_location: "../Data/MP_data/mesh.csv"
+    dt: 2 #dt in markovian model
+    
     radius: 0.15
     gno_mlp_layers: [10]
     grid_size: [251, 42]

@@ -31,6 +31,7 @@ class Dataset():
                                location='../Data/MP_data/',
                                batch_size=1,
                                dtype=torch.float,
+                               dt=1,
                                ntrain=None,
                                ntest=None):
         with open(location + 'displacements0-5000.pkl', 'rb') as file:
@@ -44,8 +45,8 @@ class Dataset():
         varable_idices = [0, 1, 3, 4, 5]
         combined = torch.cat(
             [velocities, pressure, displacements], dim=-1)[:, :, varable_idices]
-        step_t0 = combined[:-1, ...]
-        step_t1 = combined[1:, ...]
+        step_t0 = combined[:-dt, ...]
+        step_t1 = combined[dt:, ...]
 
         indexs = [i for i in range(step_t0.shape[0])]
         if not ntrain:
@@ -77,7 +78,7 @@ class Dataset():
             torch.utils.data.TensorDataset(
                 test_t0, test_t1), batch_size=batch_size, shuffle=False)
 
-        return train_loader, train_loader # test_loader
+        return train_loader, test_loader
 
 
 def get_dummy_dataloaders(train_test_split=0.2, channels=7, resolution=256,
