@@ -110,16 +110,16 @@ codano_gno: &CODANO_GNO
     masking_radius: 0.08
     
     in_token_codim_en: 1
-    hidden_token_codim_en: 80
+    hidden_token_codim_en: 40
     lifting_token_codim_en: 80
     lifting_token_codim_pred: 80
     out_token_codim_pred:  1
     n_layers_en: 3
-    n_heads_en:      [80,80,80]  
+    n_heads_en:      [40,40,40]  
     n_layers_dec: 1
-    n_heads_dec:      [80]
+    n_heads_dec:      [40]
     n_layers_pred: 2
-    n_heads_pred:    [80,80]
+    n_heads_pred:    [40,40]
     
     pretrain_ssl : !!bool True
     freeze_encoder : !!bool True
@@ -150,9 +150,9 @@ fno_gno: &FNO_GNO
     
     #architecture 
     in_dim: 5
-    hidden_dim: 128
-    lifting_dim: 256
-    projection_dim: 256
+    hidden_dim: 64
+    lifting_dim: 128
+    projection_dim: 128
     n_modes:       [[180,30], [180,30],[180,30], [180,30]]
     scalings:      [[1,1],[1,1],[1,1], [1,1]]
     n_layers: 4
