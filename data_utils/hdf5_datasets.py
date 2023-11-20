@@ -1,5 +1,3 @@
-from torch.utils import data
-
 """
 Author: Mogab Elleithy <github.com/m4e7>
 
@@ -9,20 +7,14 @@ blob/45918d1ac2c50a876a3aa36d837e3c199dfc08ba/
 data_utils/hdf5_datasets.py#L259
 """
 import enum
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Tuple
 
 import h5py
 import numpy as np
 import torch
+from torch.utils import data
 
 DEBUG = False
-
-
-class Pair(NamedTuple):
-    input: torch.Tensor
-    """Tensor to be consumed by ``model.forward(x)``"""
-    output: torch.Tensor
-    """Ground-truth tensor against model's prediction."""
 
 
 class SWEDataset:
@@ -122,7 +114,7 @@ class SWEDataset:
     def __len__(self):
         return self.len
 
-    def __getitem__(self, index) -> Pair:
+    def __getitem__(self, index) -> Tuple[torch.Tensor, torch.Tensor]:
         if index >= self.len:
             raise IndexError(f"Cannot access item {index} of {self.len}")
 
@@ -143,7 +135,7 @@ class SWEDataset:
         )
 
         mid = CLS.TRAJECTORY_LENGTH // 2
-        return Pair(torch.as_tensor(sample[:mid]), torch.as_tensor(sample[mid:]))
+        return torch.as_tensor(sample[:mid]), torch.as_tensor(sample[mid:])
 
     def _reconstruct_sample(
         self,
@@ -266,7 +258,7 @@ class DiffusionReaction2DDataset:
     def __len__(self):
         return self.len
 
-    def __getitem__(self, index) -> Pair:
+    def __getitem__(self, index) -> Tuple[torch.Tensor, torch.Tensor]:
         if index >= self.len:
             raise IndexError(f"Cannot access item {index} of {self.len}")
 
@@ -287,7 +279,7 @@ class DiffusionReaction2DDataset:
         )
 
         mid = CLS.TRAJECTORY_LENGTH // 2
-        return Pair(torch.as_tensor(sample[:mid]), torch.as_tensor(sample[mid:]))
+        return torch.as_tensor(sample[:mid]), torch.as_tensor(sample[mid:])
 
     def _reconstruct_sample(
         self,
@@ -417,7 +409,7 @@ class NSIncompressibleDataset:
     def __len__(self):
         return self.len
 
-    def __getitem__(self, index) -> Pair:
+    def __getitem__(self, index) -> Tuple[torch.Tensor, torch.Tensor]:
         if index >= self.len:
             raise IndexError(f"Cannot access item f{index} of f{self.len}")
 
@@ -450,7 +442,7 @@ class NSIncompressibleDataset:
         trajectory = np.concatenate([sample.particles, sample.velocity], axis=-1)
 
         mid = CLS.TRAJECTORY_LENGTH // 2
-        return Pair(
+        return (
             torch.as_tensor(trajectory[:mid]),
             torch.as_tensor(trajectory[mid:])
         )
@@ -576,7 +568,7 @@ class MultiPhysicsDataset(data.Dataset):
     # TODO positional encoding
     # TODO normalization - so all equations take place on the same scale
     # MPP points out the model doesn't learn dynamics well across different scales.
-    def __getitem__(self, idx):
+    def __getitem__(self, idx) -> Tuple[Tuple[torch.Tensor, int],Tuple[torch.Tensor, int]]:
         """
         Returns fields A(x), U(x) across 6 variables.
 
@@ -591,40 +583,40 @@ class MultiPhysicsDataset(data.Dataset):
         """
         if idx < len(self.swe_dataset):
             # old shapes were like (T, W, H, C)
-            swe_data = self.swe_dataset[int(idx)]
-            swe_in = pad_with_noise(
+            swe_x, swe_y = self.swe_dataset[int(idx)]
+            swe_x = pad_with_noise(
                 # new shapes will be like (C, T, W, H)
-                torch.permute(swe_data.input, (3, 0, 1, 2)),
+                torch.permute(swe_x, (3, 0, 1, 2)),
                 channels_after=5,
                 channel_dim=self.channel_dim,
             )
-            swe_out = pad_with_noise(
+            swe_y = pad_with_noise(
                 # new shapes will be like (C, T, W, H)
-                torch.permute(swe_data.output, (3, 0, 1, 2)),
+                torch.permute(swe_y, (3, 0, 1, 2)),
                 channels_after=5,
                 channel_dim=self.channel_dim,
             )
 
             return (
                 # mark this datum as Shallow Water eqn
-                (swe_in, Equation.SWE.value),
-                (swe_out, Equation.SWE.value),
+                (swe_x, Equation.SWE.value),
+                (swe_y, Equation.SWE.value),
             )
 
         idx -= len(self.swe_dataset)
         if idx < len(self.diff_dataset):
             # old shape was like (T, W, H, C)
-            diff_data = self.diff_dataset[int(idx)]
-            diff_in = pad_with_noise(
+            diff_x, diff_y = self.diff_dataset[int(idx)]
+            diff_x = pad_with_noise(
                 # new shape will be like (C, T, W, H)
-                torch.permute(diff_data.input, (3, 0, 1, 2)),
+                torch.permute(diff_x, (3, 0, 1, 2)),
                 channels_before=1,
                 channels_after=3,
                 channel_dim=self.channel_dim,
             )
-            diff_out = pad_with_noise(
+            diff_y = pad_with_noise(
                 # new shape will be like (C, T, W, H)
-                torch.permute(diff_data.output, (3, 0, 1, 2)),
+                torch.permute(diff_y, (3, 0, 1, 2)),
                 channels_before=1,
                 channels_after=3,
                 channel_dim=self.channel_dim,
@@ -632,23 +624,23 @@ class MultiPhysicsDataset(data.Dataset):
 
             # mark this datum as Diffusion-Reaction eqn
             return (
-                (diff_in, Equation.DIFF.value),
-                (diff_out, Equation.DIFF.value),
+                (diff_x, Equation.DIFF.value),
+                (diff_y, Equation.DIFF.value),
             )
 
         idx -= len(self.diff_dataset)
         if idx < len(self.ns_dataset):
             # old shape was like (T, W, H, C)
-            ns_data = self.ns_dataset[int(idx)]
-            ns_in = pad_with_noise(
+            ns_x, ns_y = self.ns_dataset[int(idx)]
+            ns_x = pad_with_noise(
                 # new shape will be like (C, T, W, H)
-                torch.permute(ns_data.input, (3, 0, 1, 2)),
+                torch.permute(ns_x, (3, 0, 1, 2)),
                 channels_before=3,
                 channel_dim=self.channel_dim,
             )
-            ns_out = pad_with_noise(
+            ns_y = pad_with_noise(
                 # new shape will be like (C, T, W, H)
-                torch.permute(ns_data.output, (3, 0, 1, 2)),
+                torch.permute(ns_y, (3, 0, 1, 2)),
                 channels_before=3,
                 channel_dim=self.channel_dim,
             )
@@ -656,8 +648,8 @@ class MultiPhysicsDataset(data.Dataset):
             # TODO consider returning a triple instead of a 4-ple with redundancy.
             # mark this datum as Navier-Stokes eqn
             return (
-                (ns_in, Equation.NS.value),
-                (ns_out, Equation.NS.value),
+                (ns_x, Equation.NS.value),
+                (ns_y, Equation.NS.value),
             )
 
         idx -= len(self.ns_dataset)
