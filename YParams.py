@@ -1,9 +1,10 @@
-from ruamel.yaml import YAML
-import logging
 import json
+import logging
+
+from ruamel.yaml import YAML
 
 
-class ParamsBase():
+class ParamsBase:
     """Convenience wrapper around a dictionary
 
     Allows referring to dictionary items as attributes, and tracking which
@@ -22,7 +23,7 @@ class ParamsBase():
         self.__setattr__(key, val)
 
     def __contains__(self, key):
-        return (key in self.params)
+        return key in self.params
 
     def get(self, key, default=None):
         if hasattr(self, key):
@@ -52,9 +53,7 @@ class ParamsBase():
             self.__setattr__(key, val)
 
 
-
 class YParams(ParamsBase):
-
     def __init__(self, yaml_filename, config_name, print_params=False):
         """Open parameters stored with ``config_name`` in the yaml file ``yaml_filename``"""
         super().__init__()
@@ -72,8 +71,6 @@ class YParams(ParamsBase):
             for key, val in d.items():
                 print(key, val)
             print("---------------------------------------------------")
-            
-
 
     def log(self):
         logging.info("------------------ Configuration ------------------")

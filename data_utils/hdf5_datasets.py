@@ -1,11 +1,12 @@
 """
 Author: Mogab Elleithy <github.com/m4e7>
 
-Inspired by:
+``SWEDataset``, ``DiffusionReactionDataset``, and ``NSDataset`` inspired by:
 https://github.com/PolymathicAI/multiple_physics_pretraining/
 blob/45918d1ac2c50a876a3aa36d837e3c199dfc08ba/
 data_utils/hdf5_datasets.py#L259
 """
+import enum
 from typing import List, NamedTuple
 
 import h5py
@@ -46,19 +47,51 @@ class SWEDataset:
         path: str,
         train_test_split=1.0,
         subsampling_rate=None,
-        stride=TRAJECTORY_LENGTH,
+        stride_on=1,
+        stride_off=1,
         offset=0,
     ):
+        """
+        Given one sample (i.e. a time-trajectory from an initial condition),
+        it may be divided up into one or more chunks of size
+        ``TRAJECTORY_LENGTH * (stride_on + stride_off)``. In such a chunk the
+        first ``TRAJECTORY_LENGTH * stride_on`` will be included (i.e. yielded
+        when this dataset is iterated over), and the last
+        ``TRAJECTORY_LENGTH * stride_off`` will be excluded, or skipped.
+
+        Parameters
+        ---
+        stride_on: int
+            How many items, as units of size ``TRAJECTORY_LENGTH``, to include.
+        stride_off: int
+            How many items, as units of size ``TRAJECTORY_LENGTH``, to exclude.
+        offset: int
+            Temporal offset to be applied to each sample.
+        """
         self.path = path
         self.file = h5py.File(path)
         self._subsampling_rate = subsampling_rate
-        self.stride = stride
-        self.offset = offset
 
         CLS = self.__class__
+        self.stride_on = CLS.TRAJECTORY_LENGTH * stride_on
+        self.stride_off = CLS.TRAJECTORY_LENGTH * stride_off
+        self.offset = offset
+
+        # We need to add this excluded "pace length" so that we don't
+        # erroneously truncate the last included pace length if it's only the
+        # excluded pace that doesn't fit. For example:
+        # [ ..................... 50 ..................... ]
+        # [ ...... 20 ...... ][ ...... 20 ...... ][ . 10 . ]
+        # [ . 10 . ][ . 10 . ][ . 10 . ][ . 10 . ][ . 10 . ]
+        # Consider the above scenario where:
+        # * time_duration=50
+        # * trajectory_length=10
+        # * stride_on, stride_off=1, 1
+        # We want the class to recognize 3 "on" strides. We do not want the 3rd
+        # stride to be dropped because it couldn't fit the last "off" stride in.
         self.items_per_sample: int = (
-            (CLS.TIME_DURATION - self.offset) //
-            (CLS.TRAJECTORY_LENGTH + self.stride))
+            (CLS.TIME_DURATION + self.stride_off - self.offset) //
+            (self.stride_on + self.stride_off))
         self.len = int(
             self.items_per_sample * np.floor(CLS.SAMPLE_SIZE * train_test_split))
 
@@ -86,17 +119,14 @@ class SWEDataset:
 
         CLS = self.__class__
         sample_idx, local_idx = divmod(index, self.items_per_sample)
-        time_idx = self.offset + local_idx * (CLS.TRAJECTORY_LENGTH + self.stride)
+        time_idx = self.offset + local_idx * self.stride_on
 
-        # try:
         sample = self._reconstruct_sample(
             self.file,
             sample_idx,
             time_idx,
             t_steps=CLS.TRAJECTORY_LENGTH,
         )
-        # except:
-        #    raise RuntimeError
 
         mid = CLS.TRAJECTORY_LENGTH // 2
         return Pair(torch.as_tensor(sample[:mid]), torch.as_tensor(sample[mid:]))
@@ -151,19 +181,51 @@ class DiffusionReaction2DDataset:
         path: str,
         train_test_split=1.0,
         subsampling_rate=None,
-        stride=TRAJECTORY_LENGTH,
+        stride_on=1,
+        stride_off=1,
         offset=0,
     ):
+        """
+        Given one sample (i.e. a time-trajectory from an initial condition),
+        it may be divided up into one or more chunks of size
+        ``TRAJECTORY_LENGTH * (stride_on + stride_off)``. In such a chunk the
+        first ``TRAJECTORY_LENGTH * stride_on`` will be included (i.e. yielded
+        when this dataset is iterated over), and the last
+        ``TRAJECTORY_LENGTH * stride_off`` will be excluded, or skipped.
+
+        Parameters
+        ---
+        stride_on: int
+            How many items, as units of size ``TRAJECTORY_LENGTH``, to include.
+        stride_off: int
+            How many items, as units of size ``TRAJECTORY_LENGTH``, to exclude.
+        offset: int
+            Temporal offset to be applied to each sample.
+        """
         self.path = path
         self.file = h5py.File(path)
         self._subsampling_rate = subsampling_rate
-        self.stride = stride
-        self.offset = offset
 
         CLS = self.__class__
+        self.stride_on = CLS.TRAJECTORY_LENGTH * stride_on
+        self.stride_off = CLS.TRAJECTORY_LENGTH * stride_off
+        self.offset = offset
+
+        # We need to add this excluded "pace length" so that we don't
+        # erroneously truncate the last included pace length if it's only the
+        # excluded pace that doesn't fit. For example:
+        # [ ..................... 50 ..................... ]
+        # [ ...... 20 ...... ][ ...... 20 ...... ][ . 10 . ]
+        # [ . 10 . ][ . 10 . ][ . 10 . ][ . 10 . ][ . 10 . ]
+        # Consider the above scenario where:
+        # * time_duration=50
+        # * trajectory_length=10
+        # * stride_on, stride_off=1, 1
+        # We want the class to recognize 3 "on" strides. We do not want the 3rd
+        # stride to be dropped because it couldn't fit the last "off" stride in.
         self.items_per_sample: int = (
-            (CLS.TIME_DURATION - self.offset) //
-            (CLS.TRAJECTORY_LENGTH + self.stride))
+            (CLS.TIME_DURATION + self.stride_off - self.offset) //
+            (self.stride_on + self.stride_off))
         self.len = int(
             self.items_per_sample * np.floor(CLS.SAMPLE_SIZE * train_test_split))
 
@@ -191,7 +253,7 @@ class DiffusionReaction2DDataset:
 
         CLS = self.__class__
         sample_idx, local_idx = divmod(index, self.items_per_sample)
-        time_idx = self.offset + local_idx * (CLS.TRAJECTORY_LENGTH + self.stride)
+        time_idx = self.offset + local_idx * self.stride_on
 
         # try:
         sample = self._reconstruct_sample(
@@ -252,9 +314,12 @@ class NSIncompressibleDataset:
 
     Parameters
     ---
-    stride : int
-        How many time frames to skip between items.
-        Ex. ``stride=TRAJECTORY_LENGTH`` would skip every other item.
+    stride_on: int
+        How many items, as units of size ``TRAJECTORY_LENGTH``, to include.
+        Ex. ``stride_on=2`` would take 2 consecutive items per on/off chunk.
+    stride_off: int
+        How many items, as units of size ``TRAJECTORY_LENGTH``, to exclude.
+        Ex. ``stride_off=1`` would skip 1 consecutive items per on/off chunk.
     offset : int
         Time-offset from which to start reading data. This is the same across
         all data files.
@@ -269,34 +334,45 @@ class NSIncompressibleDataset:
     # Try to use strides to "interleave" training and testing data.
     # That allows for 50 training datum in one 1000-step trajectory.
     # E.g. the following train/test would be interleaved:
-    # train = NSDataset(stride=10, offset=0)
-    # test  = NSDataset(stride=10, offset=10)
+    # train = NSDataset(stride_on=1, stride_off=1, offset=0)
+    # test  = NSDataset(stride_on=1, stride_off=1, offset=10)
     # or interleaved 2:1
-    # train1 = NSDataset(stride=20, offset=0)
-    # train2 = NSDataset(stride=20, offset=10)
-    # test   = NSDataset(stride=20, offset=20)
+    # train = NSDataset(stride_on=2, stride_off=1, offset=0)
+    # test  = NSDataset(stride_on=1, stride_off=2, offset=20)
 
     def __init__(
         self,
         paths: List[str],
         train_test_split=1.0,
         subsampling_rate=None,
-        stride=TRAJECTORY_LENGTH,
+        stride_on=1,
+        stride_off=1,
         offset=0,
     ):
         self.paths = paths
         self.files = [h5py.File(p) for p in paths]
         self._subsampling_rate = subsampling_rate
-        self.stride = stride
-        self.offset = offset
 
         CLS = self.__class__
-        # This isn't quite right (ex. with offset=stride=TRAJECTORY_LENGTH,
-        # there should still be 50 items, but this would result in 49). Maybe
-        # padding TIME_DURATION with an additional stride?
+        self.stride_on = CLS.TRAJECTORY_LENGTH * stride_on
+        self.stride_off = CLS.TRAJECTORY_LENGTH * stride_off
+        self.offset = offset
+
+        # We need to add this excluded "pace length" so that we don't
+        # erroneously truncate the last included pace length if it's only the
+        # excluded pace that doesn't fit. For example:
+        # [ ..................... 50 ..................... ]
+        # [ ...... 20 ...... ][ ...... 20 ...... ][ . 10 . ]
+        # [ . 10 . ][ . 10 . ][ . 10 . ][ . 10 . ][ . 10 . ]
+        # Consider the above scenario where:
+        # * time_duration=50
+        # * trajectory_length=10
+        # * stride_on, stride_off=1, 1
+        # We want the class to recognize 3 "on" strides. We do not want the 3rd
+        # stride to be dropped because it couldn't fit the last "off" stride in.
         self.items_per_file: int = np.floor(
-            ((CLS.TIME_DURATION - self.offset) //
-             (CLS.TRAJECTORY_LENGTH + self.stride))
+            ((CLS.TIME_DURATION + self.stride_off - self.offset) //
+             (self.stride_on + self.stride_off))
             * train_test_split)
         # Each item within the file has 4 samples
         self.len = int(len(paths) * self.items_per_file * 4)
@@ -327,8 +403,7 @@ class NSIncompressibleDataset:
         # local_idx : which index to address within that file.
         file_idx, local_idx = divmod(index2, self.items_per_file)
 
-        time_idx = int(self.offset + local_idx * (
-            CLS.TRAJECTORY_LENGTH + self.stride))
+        time_idx = int(self.offset + local_idx * self.stride_on)
 
         # try:
         # print(self.files[int(file_idx)], sample_idx, time_idx, CLS.TRAJECTORY_LENGTH)
@@ -378,3 +453,158 @@ class NSIncompressibleDataset:
         force = h5_file['force'][sample_idx]
 
         return NSIncompressibleSample(particles, velocity, force)
+
+
+class Equation(enum.Enum):
+    SWE = 0
+    DIFF = 1
+    NS = 2
+
+
+class MultiPhysicsDataset(torch.utils.data.Dataset):
+    """
+    First approximation of a multiphysics dataset
+    combining the Shallow Water equations, Diffusion Reaction,
+    and (incompressible) Navier-Stokes.
+
+    "First approximation" because each field is represented
+    in its own input and output channel. Schematically:
+            +--------+
+    ---h--- |        | ------- water height
+            |        |
+    ---a--- |        | ------- activator
+    ---i--- |    GNO | ------- inhibitor
+            | CODANO |
+    ---p--- |    GNO | ------- particle density
+    --v_x-- |        | ------- velocity_x
+    --v_x-- |        | ------- velocity_y
+            +--------+
+
+    Further refinements should allow for constructive mixing
+    of all channels.
+    """
+
+    def __init__(
+        self,
+        swe_file,
+        diff_file,
+        ns_files,
+        stride_on,
+        stride_off,
+        offset,
+        channel_dim=0,
+
+    ):
+        kwargs = dict(
+            stride_on=stride_on,
+            stride_off=stride_off,
+            offset=offset,
+        )
+        self.swe_dataset = SWEDataset(swe_file, **kwargs)
+        self.diff_dataset = DiffusionReaction2DDataset(diff_file, **kwargs)
+        self.ns_dataset = NSIncompressibleDataset(
+            ns_files,
+            # Make the grid sizes of all inputs all be the same, (i.e. 128x128)
+            # although this does break the property of having points lie exactly
+            # on the boundary.
+            subsampling_rate=4,
+            **kwargs,
+        )
+        self.channel_dim = channel_dim
+
+    def __len__(self):
+        return len(self.swe_dataset) + len(self.diff_dataset) + len(self.ns_dataset)
+
+    # TODO positional encoding
+    # TODO normalization - so all equations take place on the same scale
+    # MPP points out the model doesn't learn dynamics well across different scales.
+    def __getitem__(self, idx):
+        """
+        Returns fields A(x), U(x) across 6 variables.
+
+        Shape: (T, W, H, C)
+        Channels:
+            height, (shallow water eqn)
+            activator, inhibitor, (diffusion-reaction eqn)
+            particle density, Vx, Vy (Navier-Stokes)
+
+        "Pad" unused channels with Gaussian noise. This should teach
+        the model to ignore these noisy channels without structure.
+        """
+        if idx < len(self.swe_dataset):
+            # old shapes were like (T, W, H, C)
+            swe_data = self.swe_dataset[int(idx)]
+            # new shapes will be like (C, T, W, H)
+            swe_in = torch.permute(swe_data.input, (3, 0, 1, 2))
+            swe_out = torch.permute(swe_data.output, (3, 0, 1, 2))
+
+            padding_shape = list(swe_in.shape)
+            padding_shape[self.channel_dim] = 5
+            ###
+            # Pad data with Gaussian noise [i.e. N(0, 1)]
+            first_padding = torch.randn(*padding_shape)
+            second_padding = torch.randn(*padding_shape)
+            ###
+            return (
+                torch.cat([swe_in, first_padding], dim=self.channel_dim),
+                (
+                    torch.cat([swe_out, second_padding], dim=self.channel_dim),
+                    Equation.SWE.value,  # mark this datum as Shallow Water eqn
+                ),
+            )
+
+        idx -= len(self.swe_dataset)
+        if idx < len(self.diff_dataset):
+            # old shape was like (T, W, H, C)
+            diff_data = self.diff_dataset[int(idx)]
+            # new shape will be like (C, T, W, H)
+            diff_in = torch.permute(diff_data.input, (3, 0, 1, 2))
+            diff_out = torch.permute(diff_data.output, (3, 0, 1, 2))
+
+            # Try to avoid slicing data if we don't need to by creating
+            # correctly sized Gaussian noise tensors to be pre- and post-pended
+            # to the principal data:
+            padding0_shape = list(diff_in.shape)
+            padding0_shape[self.channel_dim] = 1
+            padding1_shape = list(diff_out.shape)
+            padding1_shape[self.channel_dim] = 3
+            ###
+            # Pad data with Gaussian noise [i.e. N(0, 1)]
+            first_padding0 = torch.randn(*padding0_shape)
+            first_padding1 = torch.randn(*padding1_shape)
+            second_padding0 = torch.randn(*padding0_shape)
+            second_padding1 = torch.randn(*padding1_shape)
+            ###
+            return (
+                torch.cat([first_padding0, diff_in, first_padding1], dim=self.channel_dim),
+                (
+                    torch.cat([second_padding0, diff_out, second_padding1], dim=self.channel_dim),
+                    Equation.DIFF.value,  # mark this datum as Diffusion-Reaction eqn
+                ),
+            )
+
+        idx -= len(self.diff_dataset)
+        if idx < len(self.ns_dataset):
+            # old shape was like (T, W, H, C)
+            ns_data = self.ns_dataset[int(idx)]
+            # new shape will be like (C, T, W, H)
+            ns_in = torch.permute(ns_data.input, (3, 0, 1, 2))
+            ns_out = torch.permute(ns_data.output, (3, 0, 1, 2))
+
+            padding_shape = list(ns_in.shape)
+            padding_shape[self.channel_dim] = 3
+            ###
+            # Pad data with Gaussian noise [i.e. N(0, 1)]
+            first_padding = torch.randn(*padding_shape)
+            second_padding = torch.randn(*padding_shape)
+            ###
+            return (
+                torch.cat([first_padding, ns_in], dim=self.channel_dim),
+                (
+                    torch.cat([second_padding, ns_out], dim=self.channel_dim),
+                    Equation.NS.value,  # mark this datum as Navier-Stokes eqn
+                ),
+            )
+
+        idx -= len(self.ns_dataset)
+        raise IndexError(f"Cannot access item {idx + len(self)} of {len(self)}")

@@ -44,7 +44,7 @@ base_config: &BASE_CONFIG
 
     per_channel_attention: !!bool True
 
-    transform_type: 'fft' # might be also spherical harmonics transform or 'sht'
+    transform_type: 'fft'
     tno_integral_op: 'fno'
 
     use_variable_encodings: !!bool True
@@ -58,7 +58,7 @@ base_config: &BASE_CONFIG
 
     add_static_feature: !!bool False
 
-    pretrain_ssl : !!bool True #if true we pretrain the model by SSL
+    pretrain_ssl : !!bool True # If True we pretrain the model by SSL
 
     # if True, it will fine tune the encoder during SL
     # otherwise it will freeze the weight of the encoder 
@@ -71,13 +71,24 @@ base_config: &BASE_CONFIG
     epochs: 50
     weight_path: '../weights/ssl_weight.pt'
 
+    filepath_swe: "/mnt/mogab/data/pdebench/2D/shallow-water/2D_rdb_NA_NA.h5"
+    filepath_diff: "/mnt/mogab/data/pdebench/2D/diffusion-reaction/2D_diff-react_NA_NA.h5"
+    filepaths_ns: [
+        "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-90.h5",
+        "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-91.h5",
+        "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-92.h5",
+        "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-93.h5",
+        "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-94.h5",
+    ]
+
     # Weights and biases
-    wandb_log: False
-    wandb_name: 'bench_coda_gino'
-    wandb_group: 'neuraloperator'
-    wandb_project: 'codano'
-    wandb_entity: 'm4e7'
-    wandb_log_test_interval: 1
+    wandb:
+        log: False
+        name: 'bench_coda_gino'
+        group: 'neuraloperator'
+        project: 'codano'
+        entity: 'm4e7'
+        log_test_interval: 1
 
 
 codano_gino: &CODANO_GINO
