@@ -46,6 +46,7 @@ class TNOBlock(nn.Module):
         codim_size=None,
         per_channel_attention=True,
         permutation_eq=True,
+        temperature=1.0,
         **_kwargs,
     ):
         super().__init__()
@@ -57,6 +58,7 @@ class TNOBlock(nn.Module):
         self.head_codim = head_codim if head_codim is not None else token_codim
         self.n_head = n_head  # number of heads
         self.output_scaling_factor = output_scaling_factor  # output scaling factor
+        self.temperature = temperature
 
         # attention per channel not per variables
         self.per_channel_attention = per_channel_attention
@@ -252,7 +254,8 @@ class TnoBlock2d(TNOBlock):
         q = rearrange(q, **rearrangement)
         v = rearrange(v, **rearrangement)
 
-        dprod = torch.matmul(q, k.transpose(-1, -2)) * np.sqrt(k.shape[-1])
+        dprod = (torch.matmul(q, k.transpose(-1, -2)) /
+                 (np.sqrt(k.shape[-1]) * self.temperature))
         dprod = F.softmax(dprod, dim=-1)
 
         attention = torch.matmul(dprod, v)
@@ -354,14 +357,12 @@ class TNOBlock3D(TNOBlock):
             a=self.n_head,
         )
         k = rearrange(k, **rearrangement)
-        # print(f"{k.shape=}")
         q = rearrange(q, **rearrangement)
-        # print(f"{q.shape=}")
         v = rearrange(v, **rearrangement)
-        # print(f"{v.shape=}")
 
 
-        dprod = torch.matmul(q, k.transpose(-1, -2)) * np.sqrt(k.shape[-1])
+        dprod = (torch.matmul(q, k.transpose(-1, -2)) /
+                 (self.temperature * np.sqrt(k.shape[-1])))
         dprod = F.softmax(dprod, dim=-1)
 
         attention = torch.matmul(dprod, v)

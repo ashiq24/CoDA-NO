@@ -250,8 +250,8 @@ def multi_physics_trainer(
     with torch.no_grad():
         for x, y in test_loader:
             x = x.cuda()
-            eqns = [_y[0] for _y in y]
-            y = torch.as_tensor([_y[1].unsqueeze(0) for _y in y]).cuda()
+            eqns = y[1]
+            y = y[0].cuda()
 
             out, _, _, _ = model(x)
             n_test += 1

@@ -66,7 +66,7 @@ class FourierVariableEncoding3D(nn.Module):
         super().__init__()
         if len(modes) != 3:
             raise ValueError(
-                f"Expected 3 frequency modes, but got {len(modes)}\n{modes=}")
+                f"Expected 3 frequency modes, but got {len(modes)} modes:\n{modes=}")
 
         self.modes = modes
         self.weights_re = nn.Parameter(torch.empty(channel_size, *modes))
@@ -85,5 +85,6 @@ class FourierVariableEncoding3D(nn.Module):
         return torch.fft.ifftn(
             self.weights_re + 1.0j * self.weights_im,
             s=(size_t, size_x, size_y),
-            norm="backward",  # normalize by 1/n
+            norm="forward",  # don't multiply by any normalization factor
         ).real
+
