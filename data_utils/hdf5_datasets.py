@@ -1,3 +1,5 @@
+from torch.utils import data
+
 """
 Author: Mogab Elleithy <github.com/m4e7>
 
@@ -485,13 +487,30 @@ class NSIncompressibleDataset:
         return NSIncompressibleSample(particles, velocity, force)
 
 
+def pad_with_noise(x, channels_before=0, channels_after=0, channel_dim=0):
+    """Pad the given data with Gaussian noise in a given channel."""
+    if channels_before > 0:
+        prepended_shape = list(x.shape)
+        prepended_shape[channel_dim] = channels_before
+        prepended_noise = torch.randn(*prepended_shape)
+        x = torch.concatenate([prepended_noise, x], dim=channel_dim)
+
+    if channels_after > 0:
+        appended_shape = list(x.shape)
+        appended_shape[channel_dim] = channels_after
+        appended_noise = torch.randn(*appended_shape)
+        x = torch.concatenate([x, appended_noise], dim=channel_dim)
+
+    return x
+
+
 class Equation(enum.Enum):
     SWE = 0
     DIFF = 1
     NS = 2
 
 
-class MultiPhysicsDataset(torch.utils.data.Dataset):
+class MultiPhysicsDataset(data.Dataset):
     """
     First approximation of a multiphysics dataset
     combining the Shallow Water equations, Diffusion Reaction,
@@ -573,76 +592,72 @@ class MultiPhysicsDataset(torch.utils.data.Dataset):
         if idx < len(self.swe_dataset):
             # old shapes were like (T, W, H, C)
             swe_data = self.swe_dataset[int(idx)]
-            # new shapes will be like (C, T, W, H)
-            swe_in = torch.permute(swe_data.input, (3, 0, 1, 2))
-            swe_out = torch.permute(swe_data.output, (3, 0, 1, 2))
+            swe_in = pad_with_noise(
+                # new shapes will be like (C, T, W, H)
+                torch.permute(swe_data.input, (3, 0, 1, 2)),
+                channels_after=5,
+                channel_dim=self.channel_dim,
+            )
+            swe_out = pad_with_noise(
+                # new shapes will be like (C, T, W, H)
+                torch.permute(swe_data.output, (3, 0, 1, 2)),
+                channels_after=5,
+                channel_dim=self.channel_dim,
+            )
 
-            padding_shape = list(swe_in.shape)
-            padding_shape[self.channel_dim] = 5
-            ###
-            # Pad data with Gaussian noise [i.e. N(0, 1)]
-            first_padding = torch.randn(*padding_shape)
-            second_padding = torch.randn(*padding_shape)
-            ###
             return (
-                torch.cat([swe_in, first_padding], dim=self.channel_dim),
-                (
-                    torch.cat([swe_out, second_padding], dim=self.channel_dim),
-                    Equation.SWE.value,  # mark this datum as Shallow Water eqn
-                ),
+                # mark this datum as Shallow Water eqn
+                (swe_in, Equation.SWE.value),
+                (swe_out, Equation.SWE.value),
             )
 
         idx -= len(self.swe_dataset)
         if idx < len(self.diff_dataset):
             # old shape was like (T, W, H, C)
             diff_data = self.diff_dataset[int(idx)]
-            # new shape will be like (C, T, W, H)
-            diff_in = torch.permute(diff_data.input, (3, 0, 1, 2))
-            diff_out = torch.permute(diff_data.output, (3, 0, 1, 2))
+            diff_in = pad_with_noise(
+                # new shape will be like (C, T, W, H)
+                torch.permute(diff_data.input, (3, 0, 1, 2)),
+                channels_before=1,
+                channels_after=3,
+                channel_dim=self.channel_dim,
+            )
+            diff_out = pad_with_noise(
+                # new shape will be like (C, T, W, H)
+                torch.permute(diff_data.output, (3, 0, 1, 2)),
+                channels_before=1,
+                channels_after=3,
+                channel_dim=self.channel_dim,
+            )
 
-            # Try to avoid slicing data if we don't need to by creating
-            # correctly sized Gaussian noise tensors to be pre- and post-pended
-            # to the principal data:
-            padding0_shape = list(diff_in.shape)
-            padding0_shape[self.channel_dim] = 1
-            padding1_shape = list(diff_out.shape)
-            padding1_shape[self.channel_dim] = 3
-            ###
-            # Pad data with Gaussian noise [i.e. N(0, 1)]
-            first_padding0 = torch.randn(*padding0_shape)
-            first_padding1 = torch.randn(*padding1_shape)
-            second_padding0 = torch.randn(*padding0_shape)
-            second_padding1 = torch.randn(*padding1_shape)
-            ###
+            # mark this datum as Diffusion-Reaction eqn
             return (
-                torch.cat([first_padding0, diff_in, first_padding1], dim=self.channel_dim),
-                (
-                    torch.cat([second_padding0, diff_out, second_padding1], dim=self.channel_dim),
-                    Equation.DIFF.value,  # mark this datum as Diffusion-Reaction eqn
-                ),
+                (diff_in, Equation.DIFF.value),
+                (diff_out, Equation.DIFF.value),
             )
 
         idx -= len(self.diff_dataset)
         if idx < len(self.ns_dataset):
             # old shape was like (T, W, H, C)
             ns_data = self.ns_dataset[int(idx)]
-            # new shape will be like (C, T, W, H)
-            ns_in = torch.permute(ns_data.input, (3, 0, 1, 2))
-            ns_out = torch.permute(ns_data.output, (3, 0, 1, 2))
+            ns_in = pad_with_noise(
+                # new shape will be like (C, T, W, H)
+                torch.permute(ns_data.input, (3, 0, 1, 2)),
+                channels_before=3,
+                channel_dim=self.channel_dim,
+            )
+            ns_out = pad_with_noise(
+                # new shape will be like (C, T, W, H)
+                torch.permute(ns_data.output, (3, 0, 1, 2)),
+                channels_before=3,
+                channel_dim=self.channel_dim,
+            )
 
-            padding_shape = list(ns_in.shape)
-            padding_shape[self.channel_dim] = 3
-            ###
-            # Pad data with Gaussian noise [i.e. N(0, 1)]
-            first_padding = torch.randn(*padding_shape)
-            second_padding = torch.randn(*padding_shape)
-            ###
+            # TODO consider returning a triple instead of a 4-ple with redundancy.
+            # mark this datum as Navier-Stokes eqn
             return (
-                torch.cat([first_padding, ns_in], dim=self.channel_dim),
-                (
-                    torch.cat([second_padding, ns_out], dim=self.channel_dim),
-                    Equation.NS.value,  # mark this datum as Navier-Stokes eqn
-                ),
+                (ns_in, Equation.NS.value),
+                (ns_out, Equation.NS.value),
             )
 
         idx -= len(self.ns_dataset)

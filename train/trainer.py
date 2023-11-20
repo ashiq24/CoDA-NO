@@ -184,16 +184,15 @@ def multi_physics_trainer(
         t1 = default_timer()
         train_l2 = 0
         train_count = 0
-        avg_train_l2 = -1
         train_loader_tqdm = tqdm(
             train_loader,
-            desc=f'Epoch {ep}/{epochs} | Loss: {avg_train_l2:.5f}',
+            desc=f'Epoch {ep}/{epochs}',
             leave=False,
             ncols=100
         )
         for x, y in train_loader_tqdm:
-            x = x.cuda()
-            eqns = y[1]
+            equations = x[1]
+            x = x[0].cuda()
             y = y[0].cuda()
             optimizer.zero_grad()
 
@@ -209,7 +208,7 @@ def multi_physics_trainer(
 
             # Could this be made more efficient by collecting
             # the same equations in one "mini-batch?"
-            for k, eq in enumerate(eqns):
+            for k, eq in enumerate(equations):
                 loss = multi_physics_loss(
                     target, 
                     out, 
@@ -223,8 +222,6 @@ def multi_physics_trainer(
             optimizer.step()
             del x, y, out, loss
             gc.collect()
-
-            avg_train_l2 = train_l2 / train_count
 
         torch.cuda.empty_cache()
         scheduler.step()
@@ -249,8 +246,8 @@ def multi_physics_trainer(
     n_test = 0
     with torch.no_grad():
         for x, y in test_loader:
-            x = x.cuda()
-            eqns = y[1]
+            equations = y[1]
+            x = x[0].cuda()
             y = y[0].cuda()
 
             out, _, _, _ = model(x)
@@ -260,7 +257,7 @@ def multi_physics_trainer(
             else:
                 target = y.clone()
 
-            for k, eq in enumerate(eqns):
+            for k, eq in enumerate(equations):
                 loss = multi_physics_loss(
                     target, 
                     out, 
