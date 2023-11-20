@@ -219,6 +219,13 @@ def multi_physics_trainer(
                 loss.backward()
                 train_l2 += loss.item()
 
+            # Clip gradients to prevent exploding gradients:
+            if params.gradient['clip']:
+                nn.utils.clip_grad_value_(
+                    model.parameters(),
+                    params.gradient['threshold'],
+                )
+
             optimizer.step()
             del x, y, out, loss
             gc.collect()
