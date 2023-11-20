@@ -398,7 +398,7 @@ class NSIncompressibleDataset:
              self.items_per_stride)
             * train_test_split)
         # Each item within the file has 4 samples
-        self.len = int(len(paths) * self.items_per_file * 4)
+        self.len = int(len(paths) * self.strides_per_file * self.strides_on * 4)
 
     @property
     def subsampling_rate(self):
@@ -544,6 +544,15 @@ class MultiPhysicsDataset(torch.utils.data.Dataset):
 
     def __len__(self):
         return len(self.swe_dataset) + len(self.diff_dataset) + len(self.ns_dataset)
+
+    def get_sampler_weights(self):
+        """Returns a sequence of weights such that each dataset has a uniform
+        chance of being drawn (despite differently sized datasets).
+        """
+        return \
+            ([1 / (3 * len(self.swe_dataset))] * len(self.swe_dataset)) + \
+            ([1 / (3 * len(self.diff_dataset))] * len(self.diff_dataset)) + \
+            ([1 / (3 * len(self.ns_dataset))] * len(self.ns_dataset))
 
     # TODO positional encoding
     # TODO normalization - so all equations take place on the same scale

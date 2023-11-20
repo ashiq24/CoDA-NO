@@ -16,7 +16,7 @@ base_config: &BASE_CONFIG
     channel_per_val: 0.5
     channel_drop_per_val: 0.5
 
-    batch_size: 4
+    batch_size: 10
 
     n_variables: 6
     in_token_codim_en: 1

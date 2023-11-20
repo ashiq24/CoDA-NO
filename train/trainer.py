@@ -210,7 +210,13 @@ def multi_physics_trainer(
             # Could this be made more efficient by collecting
             # the same equations in one "mini-batch?"
             for k, eq in enumerate(eqns):
-                loss = multi_physics_loss(target, out, loss_fn, eq, batch_index=k)
+                loss = multi_physics_loss(
+                    target, 
+                    out, 
+                    loss_fn, 
+                    Equation(eq.item()),
+                    batch_index=k,
+                )
                 loss.backward()
                 train_l2 += loss.item()
 
@@ -255,7 +261,13 @@ def multi_physics_trainer(
                 target = y.clone()
 
             for k, eq in enumerate(eqns):
-                loss = multi_physics_loss(target, out, loss_fn, eq, batch_index=k)
+                loss = multi_physics_loss(
+                    target, 
+                    out, 
+                    loss_fn, 
+                    Equation(eq.item()),
+                    batch_index=k,
+                )
                 test_l2 += loss.item()
 
     test_l2 /= n_test
