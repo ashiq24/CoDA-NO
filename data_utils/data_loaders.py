@@ -2,14 +2,17 @@ import pickle
 import random
 
 import torch
+from torch.utils import data
 
-
+# TODO expose Normalizer in neuralop.datasets.transforms
 class Normalizer:
     def __init__(self, mean, std, eps=1e-6):
-        print(mean)
-        print(std)
+        # print(mean)
+        # print(std)
         self.mean = mean
         self.std = std
+        if self.std < 0:
+            raise ValueError(f"Cannot have a negative standard deviation: {std=}")
         self.eps = eps
 
     def __call__(self, data):
@@ -49,13 +52,13 @@ def get_onestep_dataloader(
 
     mean, var = torch.mean(train_t0, dim=(0, 1)), torch.var(train_t0, dim=(0, 1))
     normalizer = Normalizer(mean, var**0.5)
-    train_loader = torch.utils.data.DataLoader(
-        torch.utils.data.TensorDataset(normalizer(train_t0), normalizer(train_t1)),
+    train_loader = data.DataLoader(
+        data.TensorDataset(normalizer(train_t0), normalizer(train_t1)),
         batch_size=batch_size,
         shuffle=True,
     )
-    test_loader = torch.utils.data.DataLoader(
-        torch.utils.data.TensorDataset(normalizer(test_t0), normalizer(test_t1)),
+    test_loader = data.DataLoader(
+        data.TensorDataset(normalizer(test_t0), normalizer(test_t1)),
         batch_size=batch_size,
         shuffle=False,
     )
@@ -71,8 +74,8 @@ def get_dummy_dataloaders(
     batch_size=32,
     dtype=torch.float,
 ):
-    train = torch.utils.data.DataLoader(
-        torch.utils.data.TensorDataset(
+    train = data.DataLoader(
+        data.TensorDataset(
             torch.rand(1000, channels, resolution, resolution),
             torch.rand(1000, channels, resolution, resolution),
         ),
@@ -80,8 +83,8 @@ def get_dummy_dataloaders(
         shuffle=True,
     )
 
-    test = torch.utils.data.DataLoader(
-        torch.utils.data.TensorDataset(
+    test = data.DataLoader(
+        data.TensorDataset(
             torch.rand(500, channels, resolution, resolution),
             torch.rand(500, channels, resolution, resolution),
         ),

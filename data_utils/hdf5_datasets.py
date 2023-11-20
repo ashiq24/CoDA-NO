@@ -7,12 +7,14 @@ blob/45918d1ac2c50a876a3aa36d837e3c199dfc08ba/
 data_utils/hdf5_datasets.py#L259
 """
 import enum
-from typing import List, NamedTuple, Tuple
+from typing import Dict, List, NamedTuple, Optional, Tuple
 
 import h5py
 import numpy as np
 import torch
 from torch.utils import data
+
+from data_utils.data_loaders import Normalizer
 
 DEBUG = False
 
@@ -98,6 +100,7 @@ class SWEDataset:
 
         # expect strings like: "0000", ..., "0999"
         self.samples = list(self.file.keys())
+        self.normalizers: List[Optional[Normalizer]] = [None for _ in self.samples]
 
     @property
     def subsampling_rate(self):
@@ -128,7 +131,6 @@ class SWEDataset:
             print(f"{sample_idx=}, {k=}, {stride_idx=}, {local_idx=}, {time_idx=}")
 
         sample = self._reconstruct_sample(
-            self.file,
             sample_idx,
             time_idx,
             t_steps=CLS.TRAJECTORY_LENGTH,
@@ -139,7 +141,6 @@ class SWEDataset:
 
     def _reconstruct_sample(
         self,
-        h5_file,
         sample_idx,
         time_idx,
         t_steps,
@@ -147,7 +148,7 @@ class SWEDataset:
         """
         Retrieves a sample from a SWE trajectory.
 
-        Reconstructs a sample from the target H5 file from times
+        Reconstructs a normalized sample from the target H5 file from times
         ``[time_idx, time_idx + t_steps)`` (inclusive/exclusive, respectively).
 
         Shape: (time, x, y, channel)
@@ -155,11 +156,24 @@ class SWEDataset:
           water depth.
         """
         sample_key = self.samples[sample_idx]
-        return h5_file[sample_key]['data'][
+        norm = self.get_normalizer(sample_key)
+        datum = self.file[sample_key]['data'][
             time_idx : time_idx+t_steps,
             ::self.subsampling_rate,
             ::self.subsampling_rate
         ]
+        return norm(datum)
+
+    def get_normalizer(self, key: int):
+        if self.normalizers[key] is None:
+            # Normalize over the whole time trajectory of the sample.
+            norm = Normalizer(
+                np.mean(self.file[key]['data']),
+                np.std(self.file[key]['data']),
+            )
+            # Remember the normalizer to we can recover the original data.
+            self.normalizers[key] = norm
+        return self.normalizers[key]
 
 
 class DiffusionReaction2DDataset:
@@ -242,6 +256,7 @@ class DiffusionReaction2DDataset:
 
         # expect strings like: "0000", ..., "0999"
         self.samples = list(self.file.keys())
+        self.normalizers: List[Optional[Normalizer]] = [None for _ in self.samples]
 
     @property
     def subsampling_rate(self):
@@ -272,7 +287,6 @@ class DiffusionReaction2DDataset:
             print(f"{sample_idx=}, {k=}, {stride_idx=}, {local_idx=}, {time_idx=}")
 
         sample = self._reconstruct_sample(
-            self.file,
             sample_idx,
             time_idx,
             t_steps=CLS.TRAJECTORY_LENGTH,
@@ -283,7 +297,6 @@ class DiffusionReaction2DDataset:
 
     def _reconstruct_sample(
         self,
-        h5_file,
         sample_idx,
         time_idx,
         t_steps,
@@ -297,11 +310,24 @@ class DiffusionReaction2DDataset:
         Shape: (time, x, y, channel)
         """
         sample_key = self.samples[sample_idx]
-        return h5_file[sample_key]['data'][
+        norm = self.get_normalizer(sample_key)
+        datum = self.file[sample_key]['data'][
             time_idx : time_idx+t_steps,
             ::self.subsampling_rate,
             ::self.subsampling_rate
         ]
+        return norm(datum)
+
+    def get_normalizer(self, key: int):
+        if self.normalizers[key] is None:
+            # Normalize over the whole time trajectory of the sample.
+            norm = Normalizer(
+                np.mean(self.file[key]['data']),
+                np.std(self.file[key]['data']),
+            )
+            # Remember the normalizer to we can recover the original data.
+            self.normalizers[key] = norm
+        return self.normalizers[key]
 
 
 class NSIncompressibleSample(NamedTuple):
@@ -393,6 +419,9 @@ class NSIncompressibleDataset:
             * train_test_split)
         # Each item within the file has 4 samples
         self.len = int(len(paths) * self.strides_per_file * self.strides_on * 4)
+        self.normalizers: Dict[
+            Tuple[str, int, str], Normalizer
+        ] = {}
 
     @property
     def subsampling_rate(self):
@@ -434,7 +463,7 @@ class NSIncompressibleDataset:
                   f"{time_idx=}")
 
         sample = self._reconstruct_sample(
-            self.files[int(file_idx)],
+            int(file_idx),
             sample_idx,
             time_idx,
             t_steps=CLS.TRAJECTORY_LENGTH,
@@ -442,14 +471,11 @@ class NSIncompressibleDataset:
         trajectory = np.concatenate([sample.particles, sample.velocity], axis=-1)
 
         mid = CLS.TRAJECTORY_LENGTH // 2
-        return (
-            torch.as_tensor(trajectory[:mid]),
-            torch.as_tensor(trajectory[mid:])
-        )
+        return torch.as_tensor(trajectory[:mid]), torch.as_tensor(trajectory[mid:])
 
     def _reconstruct_sample(
         self,
-        h5_file,
+        file_idx: int,
         sample_idx,
         time_idx,
         t_steps,
@@ -462,21 +488,45 @@ class NSIncompressibleDataset:
 
         Shape (within each field) : (time, x, y, channel)
         """
+        h5_file = self.files[file_idx]
+
+        norm_p = self.get_normalizer(file_idx, sample_idx, 'particles')
         particles = h5_file['particles'][
             sample_idx,
             time_idx : time_idx+t_steps,
             ::self.subsampling_rate,
             ::self.subsampling_rate,
         ]
+
+        norm_v = self.get_normalizer(file_idx, sample_idx, 'velocity')
         velocity = h5_file['velocity'][
             sample_idx,
             time_idx : time_idx+t_steps,
             ::self.subsampling_rate,
             ::self.subsampling_rate,
         ]
-        force = h5_file['force'][sample_idx]
 
-        return NSIncompressibleSample(particles, velocity, force)
+        norm_f = self.get_normalizer(file_idx, sample_idx, 'force')
+        force = h5_file['force'][
+            sample_idx,
+            ::self.subsampling_rate,
+            ::self.subsampling_rate,
+        ]
+
+        return NSIncompressibleSample(
+            norm_p(particles),
+            norm_v(velocity),
+            norm_f(force),
+        )
+
+    def get_normalizer(self, path_idx, sample_idx: int, channel: str):
+        filepath = self.paths[path_idx]
+        key = (filepath, sample_idx, channel)
+        if self.normalizers.get(key) is None:
+            datum = self.files[path_idx][channel][sample_idx]
+            norm = Normalizer(np.mean(datum), np.std(datum))
+            self.normalizers[key] = norm
+        return self.normalizers.get(key)
 
 
 def pad_with_noise(x, channels_before=0, channels_after=0, channel_dim=0):
@@ -504,7 +554,7 @@ class Equation(enum.Enum):
 
 class MultiPhysicsDataset(data.Dataset):
     """
-    First approximation of a multiphysics dataset
+    First approximation of a multi-physics dataset
     combining the Shallow Water equations, Diffusion Reaction,
     and (incompressible) Navier-Stokes.
 
@@ -514,9 +564,9 @@ class MultiPhysicsDataset(data.Dataset):
     ---h--- |        | ------- water height
             |        |
     ---a--- |        | ------- activator
-    ---i--- |    GNO | ------- inhibitor
+    ---i--- |  [GNO] | ------- inhibitor
             | CODANO |
-    ---p--- |    GNO | ------- particle density
+    ---p--- |  [GNO] | ------- particle density
     --v_x-- |        | ------- velocity_x
     --v_x-- |        | ------- velocity_y
             +--------+
@@ -566,8 +616,6 @@ class MultiPhysicsDataset(data.Dataset):
             ([1 / (3 * len(self.ns_dataset))] * len(self.ns_dataset))
 
     # TODO positional encoding
-    # TODO normalization - so all equations take place on the same scale
-    # MPP points out the model doesn't learn dynamics well across different scales.
     def __getitem__(self, idx) -> Tuple[Tuple[torch.Tensor, int],Tuple[torch.Tensor, int]]:
         """
         Returns fields A(x), U(x) across 6 variables.
