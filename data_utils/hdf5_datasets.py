@@ -13,6 +13,8 @@ import h5py
 import numpy as np
 import torch
 
+DEBUG = False
+
 
 class Pair(NamedTuple):
     input: torch.Tensor
@@ -47,8 +49,8 @@ class SWEDataset:
         path: str,
         train_test_split=1.0,
         subsampling_rate=None,
-        stride_on=1,
-        stride_off=1,
+        strides_on=1,
+        strides_off=1,
         offset=0,
     ):
         """
@@ -61,10 +63,10 @@ class SWEDataset:
 
         Parameters
         ---
-        stride_on: int
-            How many items, as units of size ``TRAJECTORY_LENGTH``, to include.
-        stride_off: int
-            How many items, as units of size ``TRAJECTORY_LENGTH``, to exclude.
+        strides_on: int
+            How many items, in strides of size ``TRAJECTORY_LENGTH``, to include.
+        strides_off: int
+            How many items, in strides of size ``TRAJECTORY_LENGTH``, to exclude.
         offset: int
             Temporal offset to be applied to each sample.
         """
@@ -72,9 +74,8 @@ class SWEDataset:
         self.file = h5py.File(path)
         self._subsampling_rate = subsampling_rate
 
-        CLS = self.__class__
-        self.stride_on = CLS.TRAJECTORY_LENGTH * stride_on
-        self.stride_off = CLS.TRAJECTORY_LENGTH * stride_off
+        self.strides_on = strides_on
+        self.strides_off = strides_off
         self.offset = offset
 
         # We need to add this excluded "pace length" so that we don't
@@ -89,11 +90,17 @@ class SWEDataset:
         # * stride_on, stride_off=1, 1
         # We want the class to recognize 3 "on" strides. We do not want the 3rd
         # stride to be dropped because it couldn't fit the last "off" stride in.
-        self.items_per_sample: int = (
-            (CLS.TIME_DURATION + self.stride_off - self.offset) //
-            (self.stride_on + self.stride_off))
-        self.len = int(
-            self.items_per_sample * np.floor(CLS.SAMPLE_SIZE * train_test_split))
+
+        CLS = self.__class__
+        stride_length_on = CLS.TRAJECTORY_LENGTH * strides_on
+        stride_length_off = CLS.TRAJECTORY_LENGTH * strides_off
+        self.items_per_stride = stride_length_on + stride_length_off
+        self.strides_per_sample: int = (
+            (CLS.TIME_DURATION + stride_length_off - self.offset) //
+            self.items_per_stride)
+        self.len = int(self.strides_per_sample *
+                       self.strides_on *
+                       np.floor(CLS.SAMPLE_SIZE * train_test_split))
 
         # expect strings like: "0000", ..., "0999"
         self.samples = list(self.file.keys())
@@ -118,8 +125,13 @@ class SWEDataset:
             raise IndexError(f"Cannot access item {index} of {self.len}")
 
         CLS = self.__class__
-        sample_idx, local_idx = divmod(index, self.items_per_sample)
-        time_idx = self.offset + local_idx * self.stride_on
+        sample_idx, k = divmod(index, self.strides_per_sample * self.strides_on)
+        stride_idx, local_idx = divmod(k, self.strides_on)
+        time_idx = self.offset \
+                   + (stride_idx * self.items_per_stride) \
+                   + (local_idx * CLS.TRAJECTORY_LENGTH)
+        if DEBUG:
+            print(f"{sample_idx=}, {k=}, {stride_idx=}, {local_idx=}, {time_idx=}")
 
         sample = self._reconstruct_sample(
             self.file,
@@ -181,8 +193,8 @@ class DiffusionReaction2DDataset:
         path: str,
         train_test_split=1.0,
         subsampling_rate=None,
-        stride_on=1,
-        stride_off=1,
+        strides_on=1,
+        strides_off=1,
         offset=0,
     ):
         """
@@ -195,10 +207,10 @@ class DiffusionReaction2DDataset:
 
         Parameters
         ---
-        stride_on: int
-            How many items, as units of size ``TRAJECTORY_LENGTH``, to include.
-        stride_off: int
-            How many items, as units of size ``TRAJECTORY_LENGTH``, to exclude.
+        strides_on: int
+            How many items, in strides of size ``TRAJECTORY_LENGTH``, to include.
+        strides_off: int
+            How many items, in strides of size ``TRAJECTORY_LENGTH``, to exclude.
         offset: int
             Temporal offset to be applied to each sample.
         """
@@ -206,9 +218,8 @@ class DiffusionReaction2DDataset:
         self.file = h5py.File(path)
         self._subsampling_rate = subsampling_rate
 
-        CLS = self.__class__
-        self.stride_on = CLS.TRAJECTORY_LENGTH * stride_on
-        self.stride_off = CLS.TRAJECTORY_LENGTH * stride_off
+        self.strides_on = strides_on
+        self.strides_off = strides_off
         self.offset = offset
 
         # We need to add this excluded "pace length" so that we don't
@@ -223,11 +234,17 @@ class DiffusionReaction2DDataset:
         # * stride_on, stride_off=1, 1
         # We want the class to recognize 3 "on" strides. We do not want the 3rd
         # stride to be dropped because it couldn't fit the last "off" stride in.
-        self.items_per_sample: int = (
-            (CLS.TIME_DURATION + self.stride_off - self.offset) //
-            (self.stride_on + self.stride_off))
-        self.len = int(
-            self.items_per_sample * np.floor(CLS.SAMPLE_SIZE * train_test_split))
+
+        CLS = self.__class__
+        stride_length_on = CLS.TRAJECTORY_LENGTH * strides_on
+        stride_length_off = CLS.TRAJECTORY_LENGTH * strides_off
+        self.items_per_stride = stride_length_on + stride_length_off
+        self.strides_per_sample: int = (
+            (CLS.TIME_DURATION + stride_length_off - self.offset) //
+            self.items_per_stride)
+        self.len = int(self.strides_per_sample *
+                       self.strides_on *
+                       np.floor(CLS.SAMPLE_SIZE * train_test_split))
 
         # expect strings like: "0000", ..., "0999"
         self.samples = list(self.file.keys())
@@ -252,18 +269,20 @@ class DiffusionReaction2DDataset:
             raise IndexError(f"Cannot access item {index} of {self.len}")
 
         CLS = self.__class__
-        sample_idx, local_idx = divmod(index, self.items_per_sample)
-        time_idx = self.offset + local_idx * self.stride_on
+        sample_idx, k = divmod(index, self.strides_per_sample * self.strides_on)
+        stride_idx, local_idx = divmod(k, self.strides_on)
+        time_idx = self.offset \
+                   + (stride_idx * self.items_per_stride) \
+                   + (local_idx * CLS.TRAJECTORY_LENGTH)
+        if DEBUG:
+            print(f"{sample_idx=}, {k=}, {stride_idx=}, {local_idx=}, {time_idx=}")
 
-        # try:
         sample = self._reconstruct_sample(
             self.file,
             sample_idx,
             time_idx,
             t_steps=CLS.TRAJECTORY_LENGTH,
         )
-        # except:
-        #    raise RuntimeError
 
         mid = CLS.TRAJECTORY_LENGTH // 2
         return Pair(torch.as_tensor(sample[:mid]), torch.as_tensor(sample[mid:]))
@@ -314,10 +333,10 @@ class NSIncompressibleDataset:
 
     Parameters
     ---
-    stride_on: int
+    strides_on: int
         How many items, as units of size ``TRAJECTORY_LENGTH``, to include.
         Ex. ``stride_on=2`` would take 2 consecutive items per on/off chunk.
-    stride_off: int
+    strides_off: int
         How many items, as units of size ``TRAJECTORY_LENGTH``, to exclude.
         Ex. ``stride_off=1`` would skip 1 consecutive items per on/off chunk.
     offset : int
@@ -345,17 +364,16 @@ class NSIncompressibleDataset:
         paths: List[str],
         train_test_split=1.0,
         subsampling_rate=None,
-        stride_on=1,
-        stride_off=1,
+        strides_on=1,
+        strides_off=1,
         offset=0,
     ):
         self.paths = paths
         self.files = [h5py.File(p) for p in paths]
         self._subsampling_rate = subsampling_rate
 
-        CLS = self.__class__
-        self.stride_on = CLS.TRAJECTORY_LENGTH * stride_on
-        self.stride_off = CLS.TRAJECTORY_LENGTH * stride_off
+        self.strides_on = strides_on
+        self.strides_off = strides_off
         self.offset = offset
 
         # We need to add this excluded "pace length" so that we don't
@@ -370,9 +388,14 @@ class NSIncompressibleDataset:
         # * stride_on, stride_off=1, 1
         # We want the class to recognize 3 "on" strides. We do not want the 3rd
         # stride to be dropped because it couldn't fit the last "off" stride in.
-        self.items_per_file: int = np.floor(
-            ((CLS.TIME_DURATION + self.stride_off - self.offset) //
-             (self.stride_on + self.stride_off))
+
+        CLS = self.__class__
+        stride_length_on = CLS.TRAJECTORY_LENGTH * strides_on
+        stride_length_off = CLS.TRAJECTORY_LENGTH * strides_off
+        self.items_per_stride = stride_length_on + stride_length_off
+        self.strides_per_file: int = np.floor(
+            ((CLS.TIME_DURATION + stride_length_off - self.offset) //
+             self.items_per_stride)
             * train_test_split)
         # Each item within the file has 4 samples
         self.len = int(len(paths) * self.items_per_file * 4)
@@ -396,17 +419,26 @@ class NSIncompressibleDataset:
         if index >= self.len:
             raise IndexError(f"Cannot access item f{index} of f{self.len}")
 
-        CLS = self.__class__
         # Each item within the file has 4 samples
         index2, sample_idx = divmod(index, 4)
-        # file_idx : which file we should read from,
+        # file_idx : which file we should read from.
+        file_idx, index3 = divmod(index2, self.strides_per_file * self.strides_on)
         # local_idx : which index to address within that file.
-        file_idx, local_idx = divmod(index2, self.items_per_file)
+        stride_idx, local_idx = divmod(index3, self.strides_on)
 
-        time_idx = int(self.offset + local_idx * self.stride_on)
+        CLS = self.__class__
+        time_idx = int(self.offset
+                       + (stride_idx * self.items_per_stride)
+                       + (local_idx * CLS.TRAJECTORY_LENGTH))
+        if DEBUG:
+            print(f"{index2=}, "
+                  f"{sample_idx=}, "
+                  f"{file_idx=}, "
+                  f"{index3=}, "
+                  f"{stride_idx=}, "
+                  f"{local_idx=}, "
+                  f"{time_idx=}")
 
-        # try:
-        # print(self.files[int(file_idx)], sample_idx, time_idx, CLS.TRAJECTORY_LENGTH)
         sample = self._reconstruct_sample(
             self.files[int(file_idx)],
             sample_idx,
@@ -414,8 +446,6 @@ class NSIncompressibleDataset:
             t_steps=CLS.TRAJECTORY_LENGTH,
         )
         trajectory = np.concatenate([sample.particles, sample.velocity], axis=-1)
-        # except:
-        #    raise RuntimeError
 
         mid = CLS.TRAJECTORY_LENGTH // 2
         return Pair(
@@ -489,15 +519,15 @@ class MultiPhysicsDataset(torch.utils.data.Dataset):
         swe_file,
         diff_file,
         ns_files,
-        stride_on,
-        stride_off,
+        strides_on,
+        strides_off,
         offset,
         channel_dim=0,
 
     ):
         kwargs = dict(
-            stride_on=stride_on,
-            stride_off=stride_off,
+            strides_on=strides_on,
+            strides_off=strides_off,
             offset=offset,
         )
         self.swe_dataset = SWEDataset(swe_file, **kwargs)

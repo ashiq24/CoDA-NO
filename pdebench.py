@@ -75,16 +75,16 @@ train = MultiPhysicsDataset(
     params.filepath_swe,
     params.filepath_diff,
     params.filepaths_ns,
-    stride_on=3,
-    stride_off=1,
+    strides_on=3,
+    strides_off=1,
     offset=0,
 )
 test  = MultiPhysicsDataset(
     params.filepath_swe,
     params.filepath_diff,
     params.filepaths_ns,
-    stride_on=1,
-    stride_off=3,
+    strides_on=1,
+    strides_off=3,
     offset=30,
 )
 # -
