@@ -1,7 +1,9 @@
 import pickle
 import torch
 import random
-
+import h5py
+import os
+import numpy as np
 
 class Normalizer():
     def __init__(self, mean, std, eps=1e-6):
@@ -20,6 +22,60 @@ class Normalizer():
     def cuda(self,):
         self.mean = self.mean.cuda()
         self.std = self.std.cuda()
+
+
+class NsElasticDataset():
+    def __init__(self, location):
+        self.location = location
+        #self._is = ['i1','i2','i3']
+        self._ivals = [-0.5,0,1.0]
+        self._mu = [0.1, 0.01,0.5,1,10]
+        self.normalizer = None # need to decide on how to normalize
+    
+    def _readh5(self,h5f):
+        a_dset_keys = list(h5f['VisualisationVector'].keys())
+        size = len(a_dset_keys)
+        readings = [None for i in range(size)]
+        for dset in a_dset_keys :
+            ds_data = (h5f['VisualisationVector'][dset])
+            if ds_data.dtype == 'float64' :
+                csvfmt = '%.18e'
+            elif ds_data.dtype == 'int64' :
+                csvfmt = '%.10d'
+            else:
+                csvfmt = '%s'
+            readings[int(dset)] = torch.tensor(np.array(ds_data))
+
+        readings_tensor = torch.stack(readings,dim=0)
+        print(f"Loaded tensor Size: {readings_tensor.shape}")
+        return readings_tensor
+    
+    def get_data(mu, i1, i2, i3):
+        if mu not in self._mu:
+            raise ValueError(f"Value of mu must be one of {self._mu}")
+        if i1 not in self._ivals or i2 not in self._ivals or i3 not in self._ivals:
+            raise ValueError(f"Value of is must be one of {self._ivals}")
+        path = os.path.join(
+            self.location,
+            'mu='+str(mu),
+            'i1='+str(i1),
+            'i2='+str(i2),
+            'i3='+str(i3),
+            'Visualization')
+
+        filename =  os.path.join(path, 'displacement.h5')
+        h5f = h5py.File(filename, 'r')
+        displacements_tensor = self._readh5(h5f)
+
+        filename = os.path.join(path,'pressure.h5')
+        h5f = h5py.File(filename, 'r')
+        pressure_tensor = self._readh5(h5f)
+
+        filename = os.path.join(path,'velocity.h5')
+        h5f = h5py.File(filename, 'r')
+        velocity_tensor = self._readh5(h5f)
+
+        return velocity_tensor, pressure_tensor, displacements_tensor
 
 
 class Dataset():

@@ -72,7 +72,7 @@ if __name__ == "__main__":
     model = model.cuda()
     # non-uniform dataset
     dataset = Dataset()
-    train, test = dataset.get_onestep_dataloader(dt=params.dt, ntrain=params.get('ntrain'),
+    train, test = dataset.get_onestep_dataloader(location=params.data_location, dt=params.dt, ntrain=params.get('ntrain'),
                                                  ntest=params.get('ntest'))
 
     normalizer = dataset.normalizer

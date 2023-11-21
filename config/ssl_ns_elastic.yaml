@@ -80,7 +80,8 @@ codano_gno: &CODANO_GNO
     # dataset hyper 
     ntrain: None
     ntest: None
-    input_mesh_location: "../Data/MP_data/mesh.csv"
+    input_mesh_location: "../Data/test_data/mesh.csv"
+    data_location: "../Data/test_data/MP_data/"
     dt: 2 #dt in markovian model
     
     radius: 0.15
@@ -140,7 +141,7 @@ codano_test: &CODANO_TEST
     scheduler_gamma: 0.8
     channel_per_val: 0.5
     ntrain: 1
-    ntest: 5
+    ntest: 1
     kqv_non_linear: !!bool True
     channel_per: 0.3
     channel_drop_per: 0.5
