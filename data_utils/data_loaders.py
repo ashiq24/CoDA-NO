@@ -90,14 +90,15 @@ class NsElasticDataset():
         dt,
         normalize=True,
         batch_size=1,
+        train_test_split=0.2,
         ntrain=None,
         ntest=None,
-        data_loader_kwargs={num_workers:2}):
+        data_loader_kwargs={'num_workers':2}):
         train_datasets = []
         test_datasets = []
 
         for mu in mu_list:
-            train, test = self.get_tensor_dataset(mu,dt,normalize)
+            train, test = self.get_tensor_dataset(mu,dt,normalize,train_test_split=train_test_split)
             train_datasets.append(train)
             test_datasets.append(test)
         train_dataset = ConcatDataset(train_datasets)
@@ -113,7 +114,7 @@ class NsElasticDataset():
 
         return train_dataloader, test_dataloader
 
-    def get_tensor_dataset(self, mu,dt, normalize=True):
+    def get_tensor_dataset(self, mu,dt, normalize=True, train_test_split=0.2):
         train_datasets = []
         test_datasets = []
         for i1 in self._ivals12:
@@ -128,10 +129,9 @@ class NsElasticDataset():
                     step_t1 = combined[dt:, ...]
 
                     indexs = [i for i in range(step_t0.shape[0])]
-                    if not ntrain:
-                        ntrain = int(train_test_split * len(indexs))
-                    if not ntest:
-                        ntest = len(indexs) - ntrain
+
+                    ntrain = int(train_test_split * len(indexs))
+                    ntest = len(indexs) - ntrain
 
                     random.shuffle(indexs)
                     train_t0, test_t0 = step_t0[indexs[:ntrain]
