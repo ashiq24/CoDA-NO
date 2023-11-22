@@ -43,11 +43,11 @@ class SWEDataset:
     def __init__(
         self,
         path: str,
-        train_test_split=1.0,
         subsampling_rate=None,
         strides_on=1,
         strides_off=1,
         offset=0,
+        sample_size=None,
     ):
         """
         Given one sample (i.e. a time-trajectory from an initial condition),
@@ -74,6 +74,15 @@ class SWEDataset:
         self.strides_off = strides_off
         self.offset = offset
 
+        CLS = self.__class__
+        if sample_size is None:
+            sample_size = CLS.SAMPLE_SIZE
+        if 0 >= sample_size or sample_size > CLS.SAMPLE_SIZE:
+            raise ValueError(
+                f"Illegal value for {sample_size=}. "
+                f"Expected `sample_size` to be within [0, {CLS.SAMPLE_SIZE}]")
+        self.sample_size = sample_size
+
         # We need to add this excluded "pace length" so that we don't
         # erroneously truncate the last included pace length if it's only the
         # excluded pace that doesn't fit. For example:
@@ -87,7 +96,6 @@ class SWEDataset:
         # We want the class to recognize 3 "on" strides. We do not want the 3rd
         # stride to be dropped because it couldn't fit the last "off" stride in.
 
-        CLS = self.__class__
         stride_length_on = CLS.TRAJECTORY_LENGTH * strides_on
         stride_length_off = CLS.TRAJECTORY_LENGTH * strides_off
         self.items_per_stride = stride_length_on + stride_length_off
@@ -96,10 +104,10 @@ class SWEDataset:
             self.items_per_stride)
         self.len = int(self.strides_per_sample *
                        self.strides_on *
-                       np.floor(CLS.SAMPLE_SIZE * train_test_split))
+                       np.floor(self.sample_size))
 
         # expect strings like: "0000", ..., "0999"
-        self.samples = list(self.file.keys())
+        self.samples = list(self.file.keys())[:self.sample_size]
         self.normalizers: List[Optional[Normalizer]] = [None for _ in self.samples]
 
     @property
@@ -199,11 +207,11 @@ class DiffusionReaction2DDataset:
     def __init__(
         self,
         path: str,
-        train_test_split=1.0,
         subsampling_rate=None,
         strides_on=1,
         strides_off=1,
         offset=0,
+        sample_size=None,
     ):
         """
         Given one sample (i.e. a time-trajectory from an initial condition),
@@ -230,6 +238,15 @@ class DiffusionReaction2DDataset:
         self.strides_off = strides_off
         self.offset = offset
 
+        CLS = self.__class__
+        if sample_size is None:
+            sample_size = CLS.SAMPLE_SIZE
+        if 0 >= sample_size or sample_size > CLS.SAMPLE_SIZE:
+            raise ValueError(
+                f"Illegal value for {sample_size=}. "
+                f"Expected `sample_size` to be within [0, {CLS.SAMPLE_SIZE}]")
+        self.sample_size = sample_size
+
         # We need to add this excluded "pace length" so that we don't
         # erroneously truncate the last included pace length if it's only the
         # excluded pace that doesn't fit. For example:
@@ -252,10 +269,10 @@ class DiffusionReaction2DDataset:
             self.items_per_stride)
         self.len = int(self.strides_per_sample *
                        self.strides_on *
-                       np.floor(CLS.SAMPLE_SIZE * train_test_split))
+                       np.floor(self.sample_size))
 
         # expect strings like: "0000", ..., "0999"
-        self.samples = list(self.file.keys())
+        self.samples = list(self.file.keys())[:sample_size]
         self.normalizers: List[Optional[Normalizer]] = [None for _ in self.samples]
 
     @property

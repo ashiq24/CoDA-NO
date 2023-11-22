@@ -98,7 +98,7 @@ class CodANO(nn.Module):
     """
     Parameters
     ---
-    in_token_codim : input token codim/number of channel per input token
+    input_token_codimension : input token codim/number of channel per input token
     out_token_codim=None : output token codim/number of channel per output token
     hidden_token_codim=None :
     lifting_token_codim=None :
@@ -123,10 +123,10 @@ class CodANO(nn.Module):
 
     def __init__(
         self,
-        in_token_codim,
-        out_token_codim=None,
-        hidden_token_codim=None,
-        lifting_token_codim=None,
+        input_token_codimension,
+        output_token_codimension=None,
+        hidden_token_codimension=None,
+        lifting_token_codimension=None,
         n_layers=4,
         n_modes=None,
         scalings=None,
@@ -149,7 +149,7 @@ class CodANO(nn.Module):
         n_variables=None,  # denotes the number of variables
         variable_encoding_args: VariableEncodingArgs = None,
         enable_cls_token=False,
-        static_channels_num=0,
+        n_static_channels=0,
         static_features=None,
     ):
         super().__init__()
@@ -162,14 +162,14 @@ class CodANO(nn.Module):
         if integral_operator_top is None:
             integral_operator_top = integral_operator
         self.n_dim = len(n_modes[0])
-        self.in_token_codim = in_token_codim
+        self.input_token_codimension = input_token_codimension
         self.n_variables = n_variables
-        if hidden_token_codim is None:
-            hidden_token_codim = in_token_codim
-        if lifting_token_codim is None:
-            lifting_token_codim = in_token_codim
-        if out_token_codim is None:
-            out_token_codim = in_token_codim
+        if hidden_token_codimension is None:
+            hidden_token_codimension = input_token_codimension
+        if lifting_token_codimension is None:
+            lifting_token_codimension = input_token_codimension
+        if output_token_codimension is None:
+            output_token_codimension = input_token_codimension
         self.re_grid_input = re_grid_input
         self.re_grid_output = re_grid_output
 
@@ -178,7 +178,7 @@ class CodANO(nn.Module):
         if self.re_grid_output:
             self.output_regrider = Regird("legendre-gauss", "equiangular")
 
-        self.hidden_token_codim = hidden_token_codim
+        self.hidden_token_codimension = hidden_token_codimension
         self.n_modes = n_modes
         self.scalings = scalings
         # self.n_encoding_channels = var_enco_channels
@@ -213,13 +213,15 @@ class CodANO(nn.Module):
             }
 
         self.register_buffer("static_features", static_features)
-        self.n_static_channels = static_channels_num
+        self.n_static_channels = n_static_channels
         """The number of static channels for all variable channels."""
         # calculating scaling
         if self.scalings is not None:
             self.end_to_end_scaling = self.get_output_scaling_factor(
-                np.ones_like(self.scalings[0]), self.scalings)
-            print("End to End Scaling", self.end_to_end_scaling)
+                np.ones_like(self.scalings[0]),
+                self.scalings
+            )
+            print("End-to-end scaling:", self.end_to_end_scaling)
         else:
             self.end_to_end_scaling = 1
         if isinstance(self.end_to_end_scaling, (float, int)):
@@ -243,28 +245,27 @@ class CodANO(nn.Module):
             if variable_encoding_args is None:
                 raise ValueError(
                     "Must provide a value for `variable_encoding_args`\n"
-                    f"Got {variable_encoding_args=}")
+                    f"Got {variable_encoding_args=}"
+                )
             self._initialize_variable_encoding_channels(
                 n_variables,
                 variable_encoding_args,
             )
-        else:
-            var_enco_channels = 0
 
         # A variable + it's variable encoding + the static channel(s)
         # together constitute a token
-        n_lifted_channels = self.in_token_codim + \
+        n_lifted_channels = self.input_token_codimension + \
                             variable_encoding_args.n_channels + \
                             self.n_static_channels
         if self.lifting:
             print('Using lifting Layer')
             self.lifting = self._mk_lifting_operator(
                 n_lifted_channels,
-                hidden_token_codim,
-                lifting_token_codim,
+                hidden_token_codimension,
+                lifting_token_codimension,
             )
         elif self.use_variable_encoding:
-            hidden_token_codim = n_lifted_channels
+            hidden_token_codimension = n_lifted_channels
 
         if enable_cls_token:
             # +1 is for the CLS token
@@ -272,9 +273,9 @@ class CodANO(nn.Module):
         else:
             count = 0
 
-        self.codim_size = hidden_token_codim * (n_variables + count)
+        self.codimension_size = hidden_token_codimension * (n_variables + count)
 
-        print("expected number of channels", self.codim_size)
+        print("expected number of channels", self.codimension_size)
 
         self.base = nn.ModuleList([])
         for i in range(self.n_layers):
@@ -289,10 +290,10 @@ class CodANO(nn.Module):
                 operator_block(
                     n_modes=self.n_modes[i],
                     n_head=self.n_heads[i],
-                    token_codim=hidden_token_codim,
+                    token_codim=hidden_token_codimension,
                     output_scaling_factor=[self.scalings[i]],
                     SpectralConv=conv_op,
-                    codim_size=self.codim_size,
+                    codim_size=self.codimension_size,
                     per_channel_attention=per_channel_attention,
                     **self.layer_kwargs,
                 )
@@ -301,9 +302,9 @@ class CodANO(nn.Module):
         if self.projection:
             print("Using Projection Layer")
             self.projection = self._mk_projection_operator(
-                hidden_token_codim,
-                out_token_codim,
-                lifting_token_codim,
+                hidden_token_codimension,
+                output_token_codimension,
+                lifting_token_codimension,
                 non_linearity,
             )
 
@@ -312,13 +313,13 @@ class CodANO(nn.Module):
         if enable_cls_token:
             print("initializing CLS token")
             cls_token_args = variable_encoding_args._replace(
-                n_channels=hidden_token_codim)
+                n_channels=hidden_token_codimension)
             self.cls_token = self._mk_variable_encoder(cls_token_args)
 
     def _initialize_variable_encoding_channels(
         self,
         n_variables,
-        ve_args,
+        variable_encoding_args,
     ):
         """
         Each variable along with its variable encoding should remain
@@ -338,7 +339,9 @@ class CodANO(nn.Module):
         assert n_variables is not None
         print("Using Variable encoding")
 
-        args = ve_args._replace(n_channels=n_variables * self.n_encoding_channels)
+        args = variable_encoding_args._replace(
+            n_channels=n_variables * self.n_encoding_channels
+        )
         self.var_encoding_functions = self._mk_variable_encoder(args)
 
         expansion_factor = 1 + self.n_static_channels + self.n_encoding_channels

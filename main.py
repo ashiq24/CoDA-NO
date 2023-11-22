@@ -35,9 +35,9 @@ if params.nettype == 'transformer':
         encoder, decoder, contrastive, predictor = get_ssl_models_codano_gino(params)
     
     if params.pretrain_ssl:
-        model = SslWrapper(params, encoder, decoder, contrastive, predictor, stage='ssl')
+        model = SSLWrapper(params, encoder, decoder, contrastive, predictor, stage='ssl')
     else:
-        model = SslWrapper(params, encoder, decoder, contrastive, predictor, stage='sl')
+        model = SSLWrapper(params, encoder, decoder, contrastive, predictor, stage='sl')
 elif params.nettype == 'simple':
     model = get_model_fno(params)
 

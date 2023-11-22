@@ -21,73 +21,55 @@ from models.fno_gino import FnoGno
 
 # TODO merge methods get_ssl_models_coda*()
 def get_ssl_models_codaNo(
-        params, 
-        module: CodANO, 
-        block: TNOBlock, 
-        convolution
+    params,
+    module: CodANO,
+    block: TNOBlock,
+    convolution,
 ):
-    # We use tno inside SSLtransformer model. That has a encoder and prediction/(decoder) part.
+    # We use TNO inside SSL transformer model. That has a encoder and
+    # prediction/decoder part (the decoder is optional).
     # Encoder part - encodes the input function
-    # Decoder part - does the prediction (eg. fuild flow of next time step)
-    # For SLL it has a reconstruction head and a dense contarstive head
+    # Decoder part - does the prediction (e.g. fluid flow of next time step)
+    # For SLL it has a reconstruction head and a dense contrastive head
 
-    # block = None
-    # block = TnoBlock2d
-
-    if params.tno_integral_op == 'fno':
-        int_op = partial(
+    if params.tno_integral_operator == 'fno':
+        integral_operator = partial(
             convolution,
             transform_type=params.transform_type,
             frequency_mixer=False,
         )
-        int_op_top = int_op
-        int_op_bottom = int_op
-    elif params.tno_integral_op == 'fino':
-        int_op = partial(
+    elif params.tno_integral_operator == 'fino':
+        integral_operator = partial(
             convolution, 
             transform_type=params.transform_type,
             frequency_mixer=True,
         )
-        int_op_top = int_op
-        int_op_bottom = int_op
     else:
-        raise (Exception('Int. Op. config Error'))
+        raise ValueError(
+            f'Invalid config: {params.tno_integral_operator=}. '
+            f'Expected either "fno" or "fino"')
 
     print("Generating Encoder")
 
     static_features = None
-    static_channels_num = 0
+    n_static_channels = 0
 
     if params.add_static_feature:
-        # taking the static features from  which will be passed to the encoder
-        # to concated with each of the input varibales
+        # Taking the static features from  which will be passed to the encoder
+        # to concatenated with each of the input variables.
         static_features = None
-        static_channels_num = 0
+        n_static_channels = 0
 
-    print("Token Dim-->", 1 + params.n_encoding_channels + static_channels_num)
-    print("var num", params.n_variables, "static channels", static_channels_num)
+    print("Token dimension:", 1 + params.n_encoding_channels + n_static_channels)
+    print(f"{params.n_variables=}\n"
+          f"{n_static_channels=}")
 
-    encoder = module(
-        params.in_token_codim_en,
-        hidden_token_codim=params.hidden_token_codim_en,
-        lifting_token_codim=params.lifting_token_codim_en,
-        n_layers=params.n_layers_en,
-        n_heads=params.n_heads_en,
-        n_modes=params.n_modes_en,
-        scalings=params.scalings_en,
-        lifting=True,
-        projection=False,
+    common_args = dict(
         operator_block=block,
-        re_grid_input=False,
-        integral_operator=int_op,
-        integral_operator_top=int_op_top,
-        integral_operator_bottom=int_op_bottom,
-        use_variable_encodings=params.use_variable_encodings,
-        # n_encoding_channels=params.n_encoding_channels,
         n_variables=params.n_variables,
-        enable_cls_token=params.enable_cls_token,
-        static_channels_num=static_channels_num,
-        static_features=static_features,
+        integral_operator=integral_operator,
+        integral_operator_top=integral_operator,
+        integral_operator_bottom=integral_operator,
         per_channel_attention=params.per_channel_attention,
         variable_encoding_args=VariableEncodingArgs(
             basis="fft",
@@ -97,36 +79,29 @@ def get_ssl_models_codaNo(
             modes_t=params.encoding_modes_t,
         ),
     )
+
+    encoder = module(
+        **params.encoder,
+        lifting=True,
+        projection=False,
+        re_grid_input=False,
+        use_variable_encodings=params.use_variable_encodings,
+        enable_cls_token=params.enable_cls_token,
+        n_static_channels=n_static_channels,
+        static_features=static_features,
+        **common_args,
+    )
     print("*********************")
 
     if params.reconstruction:
         print("Generating Decoder")
         decoder = module(
-            params.hidden_token_codim_en,
-            hidden_token_codim=params.hidden_token_codim_en,
-            lifting_token_codim=params.lifting_token_codim_en,
-            out_token_codim=params.in_token_codim_en,
-            n_layers=params.n_layers_dec,
-            n_heads=params.n_heads_dec,
-            n_modes=params.n_modes_dec,
-            scalings=params.scalings_dec,
+            **params.decoder,
             lifting=False,
-            re_grid_output=False,
             projection=True,
-            operator_block=block,
-            integral_operator=int_op,
-            n_variables=params.n_variables,
-            integral_operator_top=int_op_top,
-            integral_operator_bottom=int_op_bottom,
-            per_channel_attention=params.per_channel_attention,
+            re_grid_output=False,
             enable_cls_token=params.enable_cls_token,
-            variable_encoding_args=VariableEncodingArgs(
-                basis="fft",
-                n_channels=params.n_encoding_channels,
-                modes_x=params.encoding_modes_x,
-                modes_y=params.encoding_modes_y,
-                modes_t=params.encoding_modes_t,
-            ),
+            **common_args,
         )
     else:
         decoder = None
@@ -136,31 +111,12 @@ def get_ssl_models_codaNo(
 
     print('generating Predictor')
     predictor = module(
-        params.hidden_token_codim_en,
-            hidden_token_codim=params.hidden_token_codim_en,
-            lifting_token_codim=params.lifting_token_codim_pred,
-            out_token_codim=params.out_token_codim_pred,
-            n_layers=params.n_layers_pred,
-            n_heads=params.n_heads_pred,
-            n_modes=params.n_modes_pred,
-            scalings=params.scalings_pred,
-            lifting=False,
-            projection=True,
-            re_grid_output=False,
-            operator_block=block,
-            integral_operator=int_op,
-            n_variables=params.n_variables,
-            integral_operator_top=int_op_top,
-            integral_operator_bottom=int_op_bottom,
-            per_channel_attention=params.per_channel_attention,
-            variable_encoding_args=VariableEncodingArgs(
-                basis="fft",
-                n_channels=params.n_encoding_channels,
-                modes_x=params.encoding_modes_x,
-                modes_y=params.encoding_modes_y,
-                modes_t=params.encoding_modes_t,
-            ),
-        )
+        **params.predictor,
+        lifting=False,
+        projection=True,
+        re_grid_output=False,
+        **common_args,
+    )
     print("*********************")
 
     return encoder, decoder, contrastive, predictor
@@ -409,11 +365,11 @@ def get_model_fno(params):
     return model
 
 
-class SslWrapper(nn.Module):
-    """Unlike other wrapper, this takes an initialized model"""
+class SSLWrapper(nn.Module):
+    """Unlike the other wrapper, this takes an initialized model."""
 
     def __init__(self, params, encoder, decoder, contrastive, predictor, stage):
-        super(SslWrapper, self).__init__()
+        super(SSLWrapper, self).__init__()
 
         self.encoder = encoder
         self.decoder = decoder
@@ -490,6 +446,7 @@ class SslWrapper(nn.Module):
                 cls_offset = 1
             else:
                 cls_offset = 0
+
             if self.reconstruction:
                 reconstructed = self.decoder(augmented_inp_features)
                 # Removing the CLS token and also discarding if some additional channels if
@@ -501,15 +458,12 @@ class SslWrapper(nn.Module):
                         slice(None),  # :
                         slice(None),  # :
                     ]
-                    # reconstructed =
-                    # reconstructed[:, cls_offset:cls_offset + x.shape[1], :, :]
                 else:
                     _slice = [
                         slice(None),  # :
                         slice(None),  # :
                         slice(cls_offset),
                     ]
-                    # reconstructed = reconstructed[:, :, cls_offset:]
                 reconstructed = reconstructed[_slice]
             else:
                 reconstructed = None

@@ -21,7 +21,7 @@ from YParams import YParams
 # # !nbextension enable --py widgetsnbextension
 # -
 
-## SSL model 
+## SSL model
 # params = YParams('./config/ssl.yaml', 'codano_gino', print_params=True)
 # params = YParams('./config/test.yaml', 'codano_gino', print_params=True)
 params = YParams('./config/pdebench.yaml', 'codano_gino', print_params=True)
@@ -54,10 +54,10 @@ if params.nettype == 'transformer':
         )
     else:
         encoder, decoder, contrastive, predictor = get_ssl_models_codano_gino(params)
-    
+
     if verbose:
         print(f"{params.pretrain_ssl=}")
-    model = SslWrapper(
+    model = SSLWrapper(
         params,
         encoder,
         decoder,

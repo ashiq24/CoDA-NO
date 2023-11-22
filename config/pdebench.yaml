@@ -19,33 +19,42 @@ base_config: &BASE_CONFIG
     batch_size: 10
 
     n_variables: 6
-    in_token_codim_en: 1
-    hidden_token_codim_en: 6
-    lifting_token_codim_en: 12
-    lifting_token_codim_pred: 12
-    out_token_codim_pred:  1
 
-    n_layers_en: 2
-    n_heads_en: [2,2]  
+    encoder:
+        input_token_codimension: 1
+        hidden_token_codimension: 6
+        lifting_token_codimension: 12
+        n_layers: 2
+        n_heads: [2, 2]
+        n_modes: [[8, 12, 12], [8, 12, 12]]
+        scalings: [[1, 1], [1, 1]]
 
-    n_layers_dec: 2
-    n_heads_dec: [2,2]
+    decoder:
+        # Expected to be equal to encoder.hidden_token_codimension:
+        input_token_codimension: 6
+        hidden_token_codimension: 6
+        lifting_token_codimension: 12
+        output_token_codimension: 1
+        n_layers: 2
+        n_heads: [2, 2]
+        n_modes: [[8, 12, 12], [8, 12, 12]]
+        scalings: [[1, 1], [1, 1]]
 
-    n_layers_pred: 3
-    n_heads_pred: [2,2,2]
-    
-    scalings_pred: [[1,1], [1,1], [1,1]]
-    scalings_en: [[1,1], [1,1]]
-    scalings_dec: [[1,1],[1,1]]
-
-    n_modes_en:   [[8, 12, 12], [8, 12, 12]]
-    n_modes_dec:  [[8, 12, 12], [8, 12, 12]]
-    n_modes_pred: [[8, 12, 12], [8, 12, 12], [8, 12, 12]]
+    predictor:
+        # Expected to be equal to encoder.hidden_token_codimension:
+        input_token_codimension: 6
+        hidden_token_codimension: 6
+        lifting_token_codimension: 12
+        output_token_codimension:  1
+        n_layers: 3
+        n_heads: [2, 2, 2]
+        n_modes: [[8, 12, 12], [8, 12, 12], [8, 12, 12]]
+        scalings: [[1, 1], [1, 1], [1, 1]]
 
     per_channel_attention: !!bool True
 
     transform_type: 'fft'
-    tno_integral_op: 'fno'
+    tno_integral_operator: 'fno'
 
     use_variable_encodings: !!bool True
     n_encoding_channels: 3
@@ -73,7 +82,6 @@ base_config: &BASE_CONFIG
     gradient:
       clip: !!bool True
       threshold: 0.1
-
 
     filepath_swe: "/mnt/mogab/data/pdebench/2D/shallow-water/2D_rdb_NA_NA.h5"
     filepath_diff: "/mnt/mogab/data/pdebench/2D/diffusion-reaction/2D_diff-react_NA_NA.h5"
@@ -110,9 +118,13 @@ codano_gino: &CODANO_GINO
     # organizes x/y pairs with a duration of 5 time frames.
     # The models expect they can take at least half as many
     # frequency modes at a time during convolutions.
-    n_modes_en:   [[8, 16, 16], [8, 16, 16]]
-    n_modes_dec:  [[8, 16, 16], [8, 16, 16]]
-    n_modes_pred: [[8, 16, 16], [8, 16, 16], [8, 16, 16]]
+    encoder:
+        n_modes:   [[8, 16, 16], [8, 16, 16]]
+    decoder:
+        n_modes:  [[8, 16, 16], [8, 16, 16]]
+    predictor:
+        n_modes: [[8, 16, 16], [8, 16, 16], [8, 16, 16]]
+
     masking_radius: 0.08
 
 
