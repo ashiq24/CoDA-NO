@@ -606,26 +606,37 @@ class MultiPhysicsDataset(data.Dataset):
         swe_file,
         diff_file,
         ns_files,
-        strides_on,
-        strides_off,
-        offset,
+        swe_opts=None,
+        diff_opts=None,
+        ns_opts=None,
+        strides_on=1,
+        strides_off=1,
+        offset=0,
         channel_dim=0,
 
     ):
-        kwargs = dict(
+        if swe_opts is None:
+            swe_opts = {}
+        if diff_opts is None:
+            diff_opts = {}
+        if ns_opts is None:
+            ns_opts = {}
+        common_args = dict(
             strides_on=strides_on,
             strides_off=strides_off,
             offset=offset,
         )
-        self.swe_dataset = SWEDataset(swe_file, **kwargs)
-        self.diff_dataset = DiffusionReaction2DDataset(diff_file, **kwargs)
+
+        self.swe_dataset = SWEDataset(swe_file, **swe_opts, **common_args)
+        self.diff_dataset = DiffusionReaction2DDataset(
+            diff_file,
+            **diff_opts,
+            **common_args,
+        )
         self.ns_dataset = NSIncompressibleDataset(
             ns_files,
-            # Make the grid sizes of all inputs all be the same, (i.e. 128x128)
-            # although this does break the property of having points lie exactly
-            # on the boundary.
-            subsampling_rate=4,
-            **kwargs,
+            **ns_opts,
+            **common_args,
         )
         self.channel_dim = channel_dim
 

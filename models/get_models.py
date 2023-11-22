@@ -25,6 +25,7 @@ def get_ssl_models_codaNo(
     module: CodANO,
     block: TNOBlock,
     convolution,
+    verbose=True,
 ):
     # We use TNO inside SSL transformer model. That has a encoder and
     # prediction/decoder part (the decoder is optional).
@@ -37,12 +38,14 @@ def get_ssl_models_codaNo(
             convolution,
             transform_type=params.transform_type,
             frequency_mixer=False,
+            verbose=verbose,
         )
     elif params.tno_integral_operator == 'fino':
         integral_operator = partial(
             convolution, 
             transform_type=params.transform_type,
             frequency_mixer=True,
+            verbose=verbose,
         )
     else:
         raise ValueError(
