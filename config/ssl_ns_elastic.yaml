@@ -81,9 +81,9 @@ codano_gno: &CODANO_GNO
     ntrain: None
     ntest: None
     input_mesh_location: "../Data/test_data/mesh.csv"
-    data_location: "../Data/test_data/MP_data/"
+    data_location: "../Data/NS_ES"
     dt: 2 #dt in markovian model
-    
+    mu_list: [1, 0.1, 0.01]
     radius: 0.15
     gno_mlp_layers: [10]
     grid_size: [251, 42]
@@ -133,7 +133,8 @@ codano_non_lin: &CODANO_NON_LIN
     
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
-    epochs: 10
+    epochs: 50
+    mu_list: [1]
     lr: 0.03
     weight_decay: 0.0000
     scheduler_step: 30

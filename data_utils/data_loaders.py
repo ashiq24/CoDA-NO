@@ -27,8 +27,9 @@ class Normalizer():
         return data * (self.std + self.eps) + self.mean
 
     def cuda(self,):
-        self.mean = self.mean.cuda()
-        self.std = self.std.cuda()
+        if self.mean is not None and self.std is not None:
+            self.mean = self.mean.cuda()
+            self.std = self.std.cuda()
 
 
 class NsElasticDataset():
@@ -40,7 +41,7 @@ class NsElasticDataset():
         self._mu = [0.1, 0.01,0.5,1,10]
         self.normalizer = Normalizer(None,None,persample=True) # need to decide on how to normalize
     
-    def _readh5(self,h5f):
+    def _readh5(self,h5f, dtype=torch.float32):
         a_dset_keys = list(h5f['VisualisationVector'].keys())
         size = len(a_dset_keys)
         readings = [None for i in range(size)]
@@ -52,7 +53,7 @@ class NsElasticDataset():
                 csvfmt = '%.10d'
             else:
                 csvfmt = '%s'
-            readings[int(dset)] = torch.tensor(np.array(ds_data))
+            readings[int(dset)] = torch.tensor(np.array(ds_data), dtype=dtype)
 
         readings_tensor = torch.stack(readings,dim=0)
         print(f"Loaded tensor Size: {readings_tensor.shape}")
@@ -94,6 +95,7 @@ class NsElasticDataset():
         ntrain=None,
         ntest=None,
         data_loader_kwargs={'num_workers':2}):
+
         train_datasets = []
         test_datasets = []
 
@@ -105,12 +107,12 @@ class NsElasticDataset():
         test_dataset = ConcatDataset(test_datasets)
 
         if ntrain is not None:
-            train_dataset = random_split(train_dataset, [ntrain])[0]
+            train_dataset = random_split(train_dataset, [ntrain, len(train_dataset)-ntrain])[0]
         if ntest is not None:
-            test_dataset = random_split(test_dataset, [ntest])[0]
+            test_dataset = random_split(test_dataset, [ntest, len(test_dataset)-ntest])[0]
 
         train_dataloader = DataLoader(train_dataset, batch_size=batch_size, **data_loader_kwargs)
-        test_dataloader = DataLoader(test_datasets, batch_size=batch_size, **data_loader_kwargs)
+        test_dataloader = DataLoader(test_dataset, batch_size=batch_size, **data_loader_kwargs)
 
         return train_dataloader, test_dataloader
 
