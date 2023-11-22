@@ -1,5 +1,6 @@
 import json
 import logging
+import pprint
 
 from ruamel.yaml import YAML
 
@@ -59,8 +60,6 @@ class YParams(ParamsBase):
         super().__init__()
         self._yaml_filename = yaml_filename
         self._config_name = config_name
-        if print_params:
-            print("------------------ Configuration ------------------")
 
         with open(yaml_filename) as _file:
             d = YAML().load(_file)[config_name]
@@ -68,8 +67,9 @@ class YParams(ParamsBase):
         self.update_params(d)
 
         if print_params:
-            for key, val in d.items():
-                print(key, val)
+            print("------------------ Configuration ------------------")
+            for kv in d.items():
+                pprint.pprint(kv)
             print("---------------------------------------------------")
 
     def log(self):

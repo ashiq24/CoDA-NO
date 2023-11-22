@@ -80,7 +80,7 @@ class SWEDataset:
         if 0 >= sample_size or sample_size > CLS.SAMPLE_SIZE:
             raise ValueError(
                 f"Illegal value for {sample_size=}. "
-                f"Expected `sample_size` to be within [0, {CLS.SAMPLE_SIZE}]")
+                f"Expected `sample_size` to be within [1, {CLS.SAMPLE_SIZE}]")
         self.sample_size = sample_size
 
         # We need to add this excluded "pace length" so that we don't
@@ -244,7 +244,7 @@ class DiffusionReaction2DDataset:
         if 0 >= sample_size or sample_size > CLS.SAMPLE_SIZE:
             raise ValueError(
                 f"Illegal value for {sample_size=}. "
-                f"Expected `sample_size` to be within [0, {CLS.SAMPLE_SIZE}]")
+                f"Expected `sample_size` to be within [1, {CLS.SAMPLE_SIZE}]")
         self.sample_size = sample_size
 
         # We need to add this excluded "pace length" so that we don't
@@ -399,11 +399,11 @@ class NSIncompressibleDataset:
     def __init__(
         self,
         paths: List[str],
-        train_test_split=1.0,
         subsampling_rate=None,
         strides_on=1,
         strides_off=1,
         offset=0,
+        sample_size=None,
     ):
         self.paths = paths
         self.files = [h5py.File(p) for p in paths]
@@ -412,6 +412,14 @@ class NSIncompressibleDataset:
         self.strides_on = strides_on
         self.strides_off = strides_off
         self.offset = offset
+
+        if sample_size is None:
+            sample_size = 4
+        if 0 >= sample_size or sample_size > 4:
+            raise ValueError(
+                f"Illegal value for {sample_size=}. "
+                f"Expected `sample_size` to be within [1, {4}]")
+        self.sample_size = sample_size
 
         # We need to add this excluded "pace length" so that we don't
         # erroneously truncate the last included pace length if it's only the
@@ -430,15 +438,15 @@ class NSIncompressibleDataset:
         stride_length_on = CLS.TRAJECTORY_LENGTH * strides_on
         stride_length_off = CLS.TRAJECTORY_LENGTH * strides_off
         self.items_per_stride = stride_length_on + stride_length_off
-        self.strides_per_file: int = np.floor(
-            ((CLS.TIME_DURATION + stride_length_off - self.offset) //
+        self.strides_per_file: int = (
+            (CLS.TIME_DURATION + stride_length_off - self.offset) //
              self.items_per_stride)
-            * train_test_split)
         # Each item within the file has 4 samples
-        self.len = int(len(paths) * self.strides_per_file * self.strides_on * 4)
-        self.normalizers: Dict[
-            Tuple[str, int, str], Normalizer
-        ] = {}
+        self.len = (len(paths)
+                    * self.strides_per_file
+                    * self.strides_on
+                    * self.sample_size)
+        self.normalizers: Dict[Tuple[str, int, str], Normalizer] = {}
 
     @property
     def subsampling_rate(self):
@@ -506,6 +514,7 @@ class NSIncompressibleDataset:
         Shape (within each field) : (time, x, y, channel)
         """
         h5_file = self.files[file_idx]
+        sample_idx = sample_idx % self.sample_size
 
         norm_p = self.get_normalizer(file_idx, sample_idx, 'particles')
         particles = h5_file['particles'][
