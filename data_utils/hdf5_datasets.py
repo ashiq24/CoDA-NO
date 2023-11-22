@@ -108,7 +108,7 @@ class SWEDataset:
 
         # expect strings like: "0000", ..., "0999"
         self.samples = list(self.file.keys())[:self.sample_size]
-        self.normalizers: List[Optional[Normalizer]] = [None for _ in self.samples]
+        self.normalizers = {}
 
     @property
     def subsampling_rate(self):
@@ -173,7 +173,7 @@ class SWEDataset:
         return norm(datum)
 
     def get_normalizer(self, key: int):
-        if self.normalizers[key] is None:
+        if self.normalizers.get(key) is None:
             # Normalize over the whole time trajectory of the sample.
             norm = Normalizer(
                 np.mean(self.file[key]['data']),
@@ -272,8 +272,8 @@ class DiffusionReaction2DDataset:
                        np.floor(self.sample_size))
 
         # expect strings like: "0000", ..., "0999"
-        self.samples = list(self.file.keys())[:sample_size]
-        self.normalizers: List[Optional[Normalizer]] = [None for _ in self.samples]
+        self.samples: List[str] = list(self.file.keys())[:sample_size]
+        self.normalizers = {}
 
     @property
     def subsampling_rate(self):
@@ -335,8 +335,8 @@ class DiffusionReaction2DDataset:
         ]
         return norm(datum)
 
-    def get_normalizer(self, key: int):
-        if self.normalizers[key] is None:
+    def get_normalizer(self, key: str):
+        if self.normalizers.get(key) is None:
             # Normalize over the whole time trajectory of the sample.
             norm = Normalizer(
                 np.mean(self.file[key]['data']),
