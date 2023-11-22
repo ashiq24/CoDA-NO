@@ -4,16 +4,23 @@ import random
 import h5py
 import os
 import numpy as np
+from torchvision.transforms import Normalize
+from torch.utils.data import ConcatDataset, random_split, DataLoader
 
 class Normalizer():
-    def __init__(self, mean, std, eps=1e-6):
+    def __init__(self, mean, std, eps=1e-6, persample=False):
         print("Means: ", mean)
         print("stds ", std)
+        self.persample = persample
         self.mean = mean
         self.std = std
         self.eps = eps
 
     def __call__(self, data):
+        # assuming not time axis
+        if self.persample:
+            self.mean = torch.mean(data, dim=(1))
+            self.std = torch.var(data, dim=(1))**0.5
         return (data - self.mean) / (self.std + self.eps)
 
     def denormalize(self, data):
@@ -28,9 +35,10 @@ class NsElasticDataset():
     def __init__(self, location):
         self.location = location
         #self._is = ['i1','i2','i3']
-        self._ivals = [-0.5,0,1.0]
+        self._ivals12 = [-0.5,0,1.0]
+        self._ivals3 = [-0.1, 0,0.05]
         self._mu = [0.1, 0.01,0.5,1,10]
-        self.normalizer = None # need to decide on how to normalize
+        self.normalizer = Normalizer(None,None,persample=True) # need to decide on how to normalize
     
     def _readh5(self,h5f):
         a_dset_keys = list(h5f['VisualisationVector'].keys())
@@ -50,11 +58,11 @@ class NsElasticDataset():
         print(f"Loaded tensor Size: {readings_tensor.shape}")
         return readings_tensor
     
-    def get_data(mu, i1, i2, i3):
+    def get_data(self, mu, i1, i2, i3):
         if mu not in self._mu:
             raise ValueError(f"Value of mu must be one of {self._mu}")
-        if i1 not in self._ivals or i2 not in self._ivals or i3 not in self._ivals:
-            raise ValueError(f"Value of is must be one of {self._ivals}")
+        if i1 not in self._ivals12 or i2 not in self._ivals12 or i3 not in self._ivals3:
+            raise ValueError(f"Value of is must be one of {self._ivals3} and {self._ivals12} ")
         path = os.path.join(
             self.location,
             'mu='+str(mu),
@@ -76,6 +84,77 @@ class NsElasticDataset():
         velocity_tensor = self._readh5(h5f)
 
         return velocity_tensor, pressure_tensor, displacements_tensor
+    def get_dataloader(
+        self,
+        mu_list,
+        dt,
+        normalize=True,
+        batch_size=1,
+        ntrain=None,
+        ntest=None,
+        data_loader_kwargs={num_workers:2}):
+        train_datasets = []
+        test_datasets = []
+
+        for mu in mu_list:
+            train, test = self.get_tensor_dataset(mu,dt,normalize)
+            train_datasets.append(train)
+            test_datasets.append(test)
+        train_dataset = ConcatDataset(train_datasets)
+        test_dataset = ConcatDataset(test_datasets)
+
+        if ntrain is not None:
+            train_dataset = random_split(train_dataset, [ntrain])[0]
+        if ntest is not None:
+            test_dataset = random_split(test_dataset, [ntest])[0]
+
+        train_dataloader = DataLoader(train_dataset, batch_size=batch_size, **data_loader_kwargs)
+        test_dataloader = DataLoader(test_datasets, batch_size=batch_size, **data_loader_kwargs)
+
+        return train_dataloader, test_dataloader
+
+    def get_tensor_dataset(self, mu,dt, normalize=True):
+        train_datasets = []
+        test_datasets = []
+        for i1 in self._ivals12:
+            for i2 in self._ivals12:
+                for i3 in self._ivals3:
+                    velocities, pressure, displacements = self.get_data(mu, i1, i2, i3)
+                    # keeping vx,xy, P, dx,dy
+                    varable_idices = [0, 1, 3, 4, 5]
+                    combined = torch.cat(
+                        [velocities, pressure, displacements], dim=-1)[:, :, varable_idices]
+                    step_t0 = combined[:-dt, ...]
+                    step_t1 = combined[dt:, ...]
+
+                    indexs = [i for i in range(step_t0.shape[0])]
+                    if not ntrain:
+                        ntrain = int(train_test_split * len(indexs))
+                    if not ntest:
+                        ntest = len(indexs) - ntrain
+
+                    random.shuffle(indexs)
+                    train_t0, test_t0 = step_t0[indexs[:ntrain]
+                                                ], step_t0[indexs[ntrain:ntrain + ntest]]
+                    train_t1, test_t1 = step_t1[indexs[:ntrain]
+                                               ], step_t1[indexs[ntrain:ntrain + ntest]]
+                    
+
+                    if not normalize:
+                        self.normalizer = None
+
+                    
+                train_datasets.append(torch.utils.data.TensorDataset(train_t0, train_t1))
+                test_datasets.append(torch.utils.data.TensorDataset(test_t0, test_t1))
+        #####
+        return ConcatDataset(train_datasets), ConcatDataset(test_datasets)
+
+        
+
+
+
+                    
+
 
 
 class Dataset():

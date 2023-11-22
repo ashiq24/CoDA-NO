@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
     simple_trainer(
         model,
-        train,
+        train, 
         test,
         params,
         wandb_log=params.wandb_log,

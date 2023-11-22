@@ -2,15 +2,13 @@ import pickle
 import numpy as np
 import torch
 
-# Load the NumPy array from a pickle file
-# with open('../Data/MP_data/displacements0-5000.pkl', 'rb') as file:
-#     dis_array = pickle.load(file)
+
 
 from neuralop.layers.neighbor_search import NeighborSearch
 from neuralop.layers.integral_transform import IntegralTransform
 
 mesh = np.loadtxt('../Data/test_data/mesh.csv', delimiter=',')
-#mesh = 3*torch.randn((2,1370))
+
 print(mesh.shape)
 idx_x = torch.arange(0,2.5, 0.01)
 idx_y = torch.arange(0,.41, 0.01)
