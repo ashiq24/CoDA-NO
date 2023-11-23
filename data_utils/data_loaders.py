@@ -146,8 +146,8 @@ class NsElasticDataset():
                         self.normalizer = None
 
                     
-                train_datasets.append(torch.utils.data.TensorDataset(train_t0, train_t1))
-                test_datasets.append(torch.utils.data.TensorDataset(test_t0, test_t1))
+                    train_datasets.append(torch.utils.data.TensorDataset(train_t0, train_t1))
+                    test_datasets.append(torch.utils.data.TensorDataset(test_t0, test_t1))
         #####
         return ConcatDataset(train_datasets), ConcatDataset(test_datasets)
 
