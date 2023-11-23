@@ -1,4 +1,7 @@
 from functools import partial
+import logging
+from typing import Optional, Union
+
 import numpy as np
 import torch
 from torch import nn
@@ -13,7 +16,7 @@ from data_utils.data_utils import (
     batched_masker,
 )
 from layers.attention import TnoBlock2d, TNOBlock
-from layers.fino import SpectralConvKernel2d
+from layers.fino import SpectralConvKernel2d, SpectralConvolutionKernel3D
 from models.codano import CodANO, VariableEncodingArgs
 from models.codano_gino import CondnoGino
 from models.fno_gino import FnoGno
@@ -24,7 +27,8 @@ def get_ssl_models_codaNo(
     params,
     module: CodANO,
     block: TNOBlock,
-    convolution,
+    convolution: Union[SpectralConvKernel2d, SpectralConvolutionKernel3D],
+    logger: Optional[logging.Logger] = None,
     verbose=True,
 ):
     # We use TNO inside SSL transformer model. That has a encoder and
@@ -52,7 +56,9 @@ def get_ssl_models_codaNo(
             f'Invalid config: {params.tno_integral_operator=}. '
             f'Expected either "fno" or "fino"')
 
-    print("Generating Encoder")
+    if logger is None:
+        logger = logging.getLogger()
+    logger.log("Generating Encoder")
 
     static_features = None
     n_static_channels = 0
@@ -63,9 +69,10 @@ def get_ssl_models_codaNo(
         static_features = None
         n_static_channels = 0
 
-    print("Token dimension:", 1 + params.n_encoding_channels + n_static_channels)
-    print(f"{params.n_variables=}\n"
-          f"{n_static_channels=}")
+    logger.debug(
+        f"Token dimension: {1 + params.n_encoding_channels + n_static_channels}")
+    logger.debug(f"{params.n_variables=}\n"
+                 f"{n_static_channels=}\n")
 
     common_args = dict(
         operator_block=block,
@@ -92,35 +99,38 @@ def get_ssl_models_codaNo(
         enable_cls_token=params.enable_cls_token,
         n_static_channels=n_static_channels,
         static_features=static_features,
+        logger=logger.getChild("encoder"),
         **common_args,
     )
-    print("*********************")
+    logger.log("*" * 40)
 
     if params.reconstruction:
-        print("Generating Decoder")
+        logger.log("Generating Decoder")
         decoder = module(
             **params.decoder,
             lifting=False,
             projection=True,
             re_grid_output=False,
             enable_cls_token=params.enable_cls_token,
+            logger=logger.getChild("decoder"),
             **common_args,
         )
     else:
         decoder = None
-    print("*********************")
+    logger.log("*" * 40)
 
     contrastive = None
 
-    print('generating Predictor')
+    logger.log('generating Predictor')
     predictor = module(
         **params.predictor,
         lifting=False,
         projection=True,
         re_grid_output=False,
+        logger=logger.getChild("predictor"),
         **common_args,
     )
-    print("*********************")
+    logger.log("*" * 40)
 
     return encoder, decoder, contrastive, predictor
 

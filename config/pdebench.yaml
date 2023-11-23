@@ -56,7 +56,7 @@ base_config: &BASE_CONFIG
         n_layers: 3
         scalings: [[1, 1], [1, 1], [1, 1]]
 
-    per_channel_attention: !!bool True
+    per_channel_attention: False
 
     transform_type: 'fft'
     tno_integral_operator: 'fno'

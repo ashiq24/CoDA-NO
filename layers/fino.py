@@ -1,4 +1,5 @@
 from functools import reduce
+import logging
 
 import numpy as np
 import torch
@@ -79,11 +80,13 @@ class SpectralConvKernel2d(SpectralConv):
         # weights for frequency mixers
 
         hm1, hm2 = self.half_n_modes[0], self.half_n_modes[1]
+        # TODO(mogab) use logger
         print("Using Half modes", self.half_n_modes[0], self.half_n_modes[1])
         if frequency_mixer:
             # if frequency mixer is true
             # then initializing weights for frequncy mixing
             # otherwise it is just a regular FNO or SFNO layer
+            # TODO(mogab) use logger
             print("using Mixer")
             self.W1r = nn.Parameter(torch.empty(hm1, hm2, hm1, hm2, dtype=torch.float))
             self.W2r = nn.Parameter(torch.empty(hm1, hm2, hm1, hm2, dtype=torch.float))
@@ -286,6 +289,7 @@ class SpectralConvKernel2d(SpectralConv):
 
         return x
 
+
 class SpectralConvolutionKernel3D(SpectralConv):
     """
     Parameters
@@ -317,6 +321,7 @@ class SpectralConvolutionKernel3D(SpectralConv):
         transform_type="fft",
         frequency_mixer=False,
         verbose=True,
+        logger=None
     ):
         if decomposition_kwargs is None:
             decomposition_kwargs = {}
@@ -341,30 +346,29 @@ class SpectralConvolutionKernel3D(SpectralConv):
         )
 
         # self.shared = shared
+        if logger is None:
+            logger = logging.getLogger()
+        self.logger = logger
 
         # readjusting initialization
         if init_std == "auto":
             init_std = 1 / np.sqrt(in_channels * n_modes[-1] * n_modes[-2])
-        else:
-            init_std = init_std
 
         for w in self.weight:
             w.normal_(0, init_std)
 
         # weights for frequency mixers
-
         modes = tuple(self.half_n_modes[:3])
         if verbose:
-            print(f"using half modes: {modes=}")
+            self.logger.debug(f"{self.half_n_modes[:3]=}")
         if frequency_mixer:
-            # if frequency mixer is true
-            # then initializing weights for frequency mixing
+            # Initializing weights for frequency mixing:
             if verbose:
-                print("using mixer")
+                self.logger.debug(f"{frequency_mixer=}")
 
             s = np.sqrt(self.in_channels) * reduce(lambda x, y: x * y, modes)
             scaling_factor = 1 / s
-            # XXX why are we not using `dtype=cfloat` ?
+            # XXX why are we not using `dtype=cfloat`
             weights_shape = modes * 2
             self.weights_re = nn.ParameterList([
                 nn.Parameter(torch.normal(
