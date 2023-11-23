@@ -1,4 +1,5 @@
 from functools import partial
+import logging
 
 import numpy as np
 from einops import rearrange
@@ -22,10 +23,10 @@ class TNOBlock(nn.Module):
         self,
         n_modes,
         n_head=1,
-        token_codim=1,
+        token_codimension=1,
         output_scaling_factor=None,
         incremental_n_modes=None,
-        head_codim=None,
+        head_codimension=None,
         use_mlp=False,
         mlp=None,
         non_linearity=F.gelu,
@@ -43,58 +44,70 @@ class TNOBlock(nn.Module):
         implementation='factorized',
         decomposition_kwargs=None,
         fft_norm='forward',
-        codim_size=None,
+        codimension_size=None,
         per_channel_attention=True,
         permutation_eq=True,
         temperature=1.0,
+        logger=None,
         **_kwargs,
     ):
         super().__init__()
 
-        self.variable_codim = token_codim  # codim of each variable
-        self.token_codim = token_codim  # codim of each token, they are equal
+        # Co-dimension of each variable/token. The token embedding space is
+        # identical to the variable space, so their dimensionalities are equal.
+        self.variable_codimension = token_codimension
+        self.token_codimension = token_codimension
 
         # codim of attention from each head
-        self.head_codim = head_codim if head_codim is not None else token_codim
+        self.head_codimension = (head_codimension
+                                 if head_codimension is not None
+                                 else token_codimension)
         self.n_head = n_head  # number of heads
-        self.output_scaling_factor = output_scaling_factor  # output scaling factor
+        self.output_scaling_factor = output_scaling_factor
         self.temperature = temperature
 
+        if logger is None:
+            logger = logging.getLogger()
+        self.logger = logger
+
         # attention per channel not per variables
-        self.per_channel_attention = per_channel_attention
+        # self.per_channel_attention = per_channel_attention
 
         # making last mixer permutation equivariant
         self.permutation_eq = permutation_eq
 
         if self.n_head is not None:
             # recalculating the value of `head_codim`
-            self.head_codim = max(token_codim // self.n_head, 1)
+            self.head_codimension = max(token_codimension // self.n_head, 1)
 
-        self.codim_size = codim_size
-        self.mixer_token_codim = token_codim
+        self.codimension_size = codimension_size
+        self.mixer_token_codimension = token_codimension
 
         if per_channel_attention:
             # for per channel attention, forcing the values of token dims
-            self.token_codim = 1
-            self.head_codim = 1
+            self.token_codimension = 1
+            self.head_codimension = 1
 
         # this scale used for downsampling Q,K functions
-        scale = min(self.n_head, 2)
-        if self.per_channel_attention:
-            scale = 4
+        scale = 4 if per_channel_attention else 2
+        scale = min(self.n_head, scale)
 
         mixer_modes = [i // scale for i in n_modes]
 
-        print(f"{rank=}, "
-              f"{factorization=}, "
-              f"{self.head_codim=}, "
-              f"{scale=}, "
-              f"{mixer_modes=}")
+        self.logger.debug(
+            f"{rank=}\n"
+            f"{factorization=}\n"
+            f"{self.head_codimension=}\n"
+            f"{scale=}\n"
+            f"{mixer_modes=}\n"
+        )
 
         if not per_channel_attention:
-            print(f"Token dim={self.token_codim}\n"
-                  f"number heads={self.n_head}\n"
-                  f"Head co-dim={self.head_codim}")
+            self.logger.debug(
+                f"{self.token_codimension=}\n"
+                f"{self.n_head=}\n"
+                f"{self.head_codimension=}\n"
+            )
 
         if decomposition_kwargs is None:
             decomposition_kwargs = {}
@@ -117,41 +130,54 @@ class TNOBlock(nn.Module):
         )
 
         kqv_args = dict(
-            in_channels=self.token_codim,
-            out_channels=self.n_head * self.head_codim,
+            in_channels=self.token_codimension,
+            out_channels=self.n_head * self.head_codimension,
             n_modes=mixer_modes,
             # args below are shared with Projection block
             non_linearity=NO_OP,
             fno_skip='linear',
             norm=None,
             apply_skip=True,
-            SpectralConv=partial(
-                SpectralConvolution,
-                rank=0.5,
-                factorization=None,
-            ),
             n_layers=1,
         )
         self.K = FNOBlocks(
             output_scaling_factor=1 / scale,
+            SpectralConv=partial(
+                SpectralConvolution,
+                rank=0.5,
+                factorization=None,
+                logger=self.logger.getChild("K.convolution")
+            ),
             **kqv_args,
             **common_args,
         )
         self.Q = FNOBlocks(
             output_scaling_factor=1 / scale,
+            SpectralConv=partial(
+                SpectralConvolution,
+                rank=0.5,
+                factorization=None,
+                logger=self.logger.getChild("Q.convolution")
+            ),
             **kqv_args,
             **common_args,
         )
         self.V = FNOBlocks(
             output_scaling_factor=1,
+            SpectralConv=partial(
+                SpectralConvolution,
+                rank=0.5,
+                factorization=None,
+                logger=self.logger.getChild("V.convolution")
+            ),
             **kqv_args,
             **common_args,
         )
 
-        if self.n_head * self.head_codim != self.token_codim:
+        if self.n_head * self.head_codimension != self.token_codimension:
             self.proj = FNOBlocks(
-                in_channels=self.n_head * self.head_codim,
-                out_channels=self.token_codim,
+                in_channels=self.n_head * self.head_codimension,
+                out_channels=self.token_codimension,
                 n_modes=n_modes,
                 output_scaling_factor=1,
                 # args below are shared with KQV blocks
@@ -170,7 +196,7 @@ class TNOBlock(nn.Module):
         else:
             self.proj = None
 
-        self.attention_normalizer = Normalizer(self.token_codim)
+        self.attention_normalizer = Normalizer(self.token_codimension)
 
         mixer_args = dict(
             n_modes=n_modes,
@@ -190,30 +216,33 @@ class TNOBlock(nn.Module):
         # operator per variable or applying the operator on the whole channel
         # (like regular FNO).
         if permutation_eq:
-            print("Permutation Equivariant with ", self.mixer_token_codim)
+            logger.debug(
+                f"{permutation_eq=}\n"
+                f"{self.mixer_token_codimension=}\n"
+            )
             self.mixer = FNOBlocks(
-                in_channels=self.mixer_token_codim,
-                out_channels=self.mixer_token_codim,
+                in_channels=self.mixer_token_codimension,
+                out_channels=self.mixer_token_codimension,
                 apply_skip=True,
                 n_layers=1,
                 **mixer_args,
                 **common_args,
             )
-            self.norm1 = Normalizer(self.token_codim)
-            self.norm2 = Normalizer(self.mixer_token_codim)
-            self.mixer_out_normalizer = Normalizer(self.mixer_token_codim)
+            self.norm1 = Normalizer(self.token_codimension)
+            self.norm2 = Normalizer(self.mixer_token_codimension)
+            self.mixer_out_normalizer = Normalizer(self.mixer_token_codimension)
 
         else:
             self.mixer = FNOBlocks(
-                in_channels=codim_size,
-                out_channels=codim_size,
+                in_channels=codimension_size,
+                out_channels=codimension_size,
                 n_layers=2,
                 **mixer_args,
                 **common_args,
             )
-            self.norm1 = Normalizer(codim_size)
-            self.norm2 = Normalizer(codim_size)
-            self.mixer_out_normalizer = Normalizer(codim_size)
+            self.norm1 = Normalizer(codimension_size)
+            self.norm2 = Normalizer(codimension_size)
+            self.mixer_out_normalizer = Normalizer(codimension_size)
 
     def forward(self, *args):
         raise NotImplementedError(
@@ -262,7 +291,7 @@ class TnoBlock2d(TNOBlock):
         attention = rearrange(
             attention,
             'b a t (d h w) -> b t a d h w',
-            d=self.head_codim,
+            d=self.head_codimension,
             h=value_x,
             w=value_y,
         )
@@ -279,9 +308,9 @@ class TnoBlock2d(TNOBlock):
         batch_size = x.shape[0]
         output_shape = x.shape[-2:]
 
-        assert x.shape[1] % self.token_codim == 0
+        assert x.shape[1] % self.token_codimension == 0
 
-        xa = rearrange(x, 'b (t d) h w -> (b t) d h w', d=self.token_codim)
+        xa = rearrange(x, 'b (t d) h w -> (b t) d h w', d=self.token_codimension)
         xa_norm = self.norm1(xa)
 
         attention = self.compute_attention(xa_norm, batch_size)
@@ -294,7 +323,7 @@ class TnoBlock2d(TNOBlock):
         attention = rearrange(
             attention,
             'b (t d) h w -> (b t) d h w',
-            d=self.mixer_token_codim)
+            d=self.mixer_token_codimension)
         # print("{attention.shape=}")
 
         attention_normalized = self.norm2(attention)
@@ -310,10 +339,10 @@ class TnoBlock2d(TNOBlock):
         batch_size = x.shape[0]
         output_shape = x.shape[-2:]
 
-        assert x.shape[1] % self.token_codim == 0
+        assert x.shape[1] % self.token_codimension == 0
 
         x_norm = self.norm1(x)
-        xa = rearrange(x_norm, 'b (t d) h w -> (b t) d h w', d=self.token_codim)
+        xa = rearrange(x_norm, 'b (t d) h w -> (b t) d h w', d=self.token_codimension)
 
         attention = self.compute_attention(xa, batch_size)
         if self.proj is not None:
@@ -369,7 +398,7 @@ class TNOBlock3D(TNOBlock):
         attention = rearrange(
             attention,
             'b a k (d t h w) -> b k a d t h w',
-            d=self.head_codim,
+            d=self.head_codimension,
             t=v_duration,
             h=v_height,
             w=v_width,
@@ -387,9 +416,9 @@ class TNOBlock3D(TNOBlock):
         batch_size = x.shape[0]
         output_shape = x.shape[-3:]
 
-        assert x.shape[1] % self.token_codim == 0
+        assert x.shape[1] % self.token_codimension == 0
 
-        xa = rearrange(x, 'b (k d) t h w -> (b k) d t h w', d=self.token_codim)
+        xa = rearrange(x, 'b (k d) t h w -> (b k) d t h w', d=self.token_codimension)
         xa_norm = self.norm1(xa)
 
         attention = self.compute_attention(xa_norm, batch_size)
@@ -406,7 +435,7 @@ class TNOBlock3D(TNOBlock):
         attention = rearrange(
             attention,
             'b (k d) t h w -> (b k) d t h w',
-            d=self.mixer_token_codim)
+            d=self.mixer_token_codimension)
         # print("{attention.shape=}")
 
         attention_normalized = self.norm2(attention)
@@ -422,10 +451,10 @@ class TNOBlock3D(TNOBlock):
         batch_size = x.shape[0]
         output_shape = x.shape[-3:]
 
-        assert x.shape[1] % self.token_codim == 0
+        assert x.shape[1] % self.token_codimension == 0
 
         x_norm = self.norm1(x)
-        xa = rearrange(x_norm, 'b (k d) t h w -> (b k) d t h w', d=self.token_codim)
+        xa = rearrange(x_norm, 'b (k d) t h w -> (b k) d t h w', d=self.token_codimension)
 
         attention = self.compute_attention(xa, batch_size)
         if self.proj is not None:

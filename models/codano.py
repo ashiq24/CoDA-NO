@@ -1,4 +1,5 @@
 from functools import partial
+import logging
 from typing import Literal, NamedTuple, Optional
 
 import numpy as np
@@ -145,12 +146,13 @@ class CodANO(nn.Module):
         lifting=True,
         domain_padding=None,
         domain_padding_mode='one-sided',
-        use_variable_encodings=False,  # b
-        n_variables=None,  # denotes the number of variables
+        use_variable_encodings=False,
+        n_variables=None,
         variable_encoding_args: VariableEncodingArgs = None,
         enable_cls_token=False,
         n_static_channels=0,
         static_features=None,
+        logger=None,
     ):
         super().__init__()
         self.n_layers = n_layers
@@ -181,12 +183,15 @@ class CodANO(nn.Module):
         self.hidden_token_codimension = hidden_token_codimension
         self.n_modes = n_modes
         self.scalings = scalings
-        # self.n_encoding_channels = var_enco_channels
         self.n_encoding_channels = variable_encoding_args.n_channels
         self.n_heads = n_heads
         self.integral_operator = integral_operator
         self.lifting = lifting
         self.projection = projection
+
+        if logger is None:
+            logger = logging.getLogger()
+        self.logger = logger
 
         self.layer_kwargs = layer_kwargs
         if layer_kwargs is None:
@@ -209,26 +214,26 @@ class CodANO(nn.Module):
                 'joint_factorization': False,
                 'fixed_rank_modes': False,
                 'implementation': 'factorized',
-                'decomposition_kwargs': dict()
+                'decomposition_kwargs': None,
             }
 
         self.register_buffer("static_features", static_features)
         self.n_static_channels = n_static_channels
         """The number of static channels for all variable channels."""
+
         # calculating scaling
         if self.scalings is not None:
             self.end_to_end_scaling = self.get_output_scaling_factor(
                 np.ones_like(self.scalings[0]),
                 self.scalings
             )
-            print("End-to-end scaling:", self.end_to_end_scaling)
         else:
             self.end_to_end_scaling = 1
+        self.logger.debug(f"{self.end_to_end_scaling=}")
         if isinstance(self.end_to_end_scaling, (float, int)):
             self.end_to_end_scaling = [self.end_to_end_scaling] * self.n_dim
 
         # Setting up domain padding for encoder and reconstructor
-
         if domain_padding is not None and domain_padding > 0:
             self.domain_padding = DomainPadding(
                 domain_padding=domain_padding,
@@ -258,7 +263,12 @@ class CodANO(nn.Module):
                             variable_encoding_args.n_channels + \
                             self.n_static_channels
         if self.lifting:
-            print('Using lifting Layer')
+            self.logger.debug(
+                'using lifting with:\n'
+                f'\t{n_lifted_channels=}\n'
+                f'\t{hidden_token_codimension=}\n'
+                f'\t{lifting_token_codimension=}\n'
+            )
             self.lifting = self._mk_lifting_operator(
                 n_lifted_channels,
                 hidden_token_codimension,
@@ -267,15 +277,10 @@ class CodANO(nn.Module):
         elif self.use_variable_encoding:
             hidden_token_codimension = n_lifted_channels
 
-        if enable_cls_token:
-            # +1 is for the CLS token
-            count = 1
-        else:
-            count = 0
-
+        count = 1 if enable_cls_token else 0
         self.codimension_size = hidden_token_codimension * (n_variables + count)
 
-        print("expected number of channels", self.codimension_size)
+        self.logger.debug(f"Expected number of channels: {self.codimension_size=}")
 
         self.base = nn.ModuleList([])
         for i in range(self.n_layers):
@@ -292,15 +297,22 @@ class CodANO(nn.Module):
                     n_head=self.n_heads[i],
                     token_codim=hidden_token_codimension,
                     output_scaling_factor=[self.scalings[i]],
-                    SpectralConv=conv_op,
+                    SpectralConvolution=conv_op,
                     codim_size=self.codimension_size,
                     per_channel_attention=per_channel_attention,
+                    logger=self.logger.getChild(f"base[{i}]")
                     **self.layer_kwargs,
                 )
             )
 
         if self.projection:
-            print("Using Projection Layer")
+            self.logger.debug(
+                'using projection with:\n'
+                f'\t{hidden_token_codimension=}\n'
+                f'\t{output_token_codimension=}\n'
+                f'\t{lifting_token_codimension=}\n'
+                f'\t{non_linearity=}\n'
+            )
             self.projection = self._mk_projection_operator(
                 hidden_token_codimension,
                 output_token_codimension,
@@ -311,7 +323,7 @@ class CodANO(nn.Module):
         # Variable encoding
         self.enable_cls_token = enable_cls_token
         if enable_cls_token:
-            print("initializing CLS token")
+            self.logger.debug("initializing CLS token")
             cls_token_args = variable_encoding_args._replace(
                 n_channels=hidden_token_codimension)
             self.cls_token = self._mk_variable_encoder(cls_token_args)
@@ -335,14 +347,17 @@ class CodANO(nn.Module):
         ```
         Each token is extracted accordingly in the attention module
         """
-
         assert n_variables is not None
-        print("Using Variable encoding")
+        self.logger.debug(
+            "using variable encoding with:\n"
+            f"{n_variables=}\n"
+            f"{variable_encoding_args=}\n"
+        )
 
         args = variable_encoding_args._replace(
             n_channels=n_variables * self.n_encoding_channels
         )
-        self.var_encoding_functions = self._mk_variable_encoder(args)
+        self.variable_encoder = self._mk_variable_encoder(args)
 
         expansion_factor = 1 + self.n_static_channels + self.n_encoding_channels
         # Allocate every Nth channel for the untransformed variable
@@ -354,16 +369,17 @@ class CodANO(nn.Module):
         self.static_channels = []
         if self.n_static_channels != 0:
             for v in self.variable_channels:
+                # append elements from an iterable:
                 self.static_channels.extend(
                     range(v + 1, v + self.n_static_channels + 1))
 
         # Allocate all remaining channels as encoding channels
         # for the preceding variable:
-        self.encoding_channels = list(
+        self.encoding_channels = sorted(list(
             set(range(n_variables * expansion_factor))
             - set(self.variable_channels)
             - set(self.static_channels)
-        )
+        ))
 
     def _mk_variable_encoder(self, ve_args):
         return VariableEncoding2d(
@@ -465,7 +481,7 @@ class CodANO(nn.Module):
         Transform the low-dimensional input tensor to a higher-dimensional
         representation where each variable channel has been augmented with both
         learned encodings and static channels (where the latter may be
-        positional encoding, etc).
+        positional encoding, etc.)
         """
         # Token dimensionality supersedes channel dimensionality:
         batch_size, _c, width, height = inp.shape
@@ -480,11 +496,11 @@ class CodANO(nn.Module):
 
         x[:, self.variable_channels, :, :] = inp
 
-        var_encoding = self.var_encoding_functions(x).to(x.device)
+        variable_encoding = self.variable_encoder(x).to(x.device)
         # Unsqueeze variable encoding in 0th dimension and repeat it
         # until it matches the dimension of ``batch_size``
         x[:, self.encoding_channels, :, :] = \
-            var_encoding[None, :, :, :].repeat(batch_size, 1, 1, 1)
+            variable_encoding[None, :, :, :].repeat(batch_size, 1, 1, 1)
 
         # if self.n_static_channels != 0:
         if len(self.static_channels) > 0:
@@ -544,7 +560,7 @@ class CoDANOTemporal(CodANO):
         Transform the low-dimensional input tensor to a higher-dimensional
         representation where each variable channel has been augmented with both
         learned encodings and static channels (where the latter may be
-        positional encoding, etc).
+        positional encoding, etc.)
         """
         # Token dimensionality supersedes channel dimensionality:
         batch_size, _c, duration, width, height = inp.shape
@@ -559,11 +575,11 @@ class CoDANOTemporal(CodANO):
 
         x[:, self.variable_channels, :, :, :] = inp
 
-        var_encoding = self.var_encoding_functions(x).to(x.device)
+        variable_encoding = self.variable_encoder(x).to(x.device)
         # Unsqueeze variable encoding in 0th dimension (indexed by `None` below)
         # and repeat it until it matches the dimension of ``batch_size``
         x[:, self.encoding_channels, :, :, :] = \
-            var_encoding[None, :, :, :, :].repeat(batch_size, 1, 1, 1, 1)
+            variable_encoding[None, :, :, :, :].repeat(batch_size, 1, 1, 1, 1)
 
         # if self.n_static_channels != 0:
         if len(self.static_channels) > 0:
