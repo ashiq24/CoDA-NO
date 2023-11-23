@@ -22,7 +22,7 @@ if __name__ == "__main__":
     config = sys.argv[1]
     print("Loading config", config)
     params = YParams('./config/ssl_ns_elastic.yaml', config, print_params=True)
-
+    params.config = config
     # Set up WandB logging
     params.wandb_name = config
     params.wandb_group = params.nettype

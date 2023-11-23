@@ -1,5 +1,6 @@
 base_config: &BASE_CONFIG
     ## SSL parameters
+    config: " "
     nettype: 'transformer'
     evaluation_channel_drop: 1
     drop_type : 'zeros'
@@ -69,7 +70,7 @@ base_config: &BASE_CONFIG
     epochs: 50
     clip_gradient: !!bool True
     gradient_clip_value: 0.001
-    weight_path: '../weights/ssl_weight.pt'
+    weight_path: '../weights/'
 
     # Weights and biases
     wandb_log: True
@@ -220,7 +221,7 @@ fno: &FNO
 codano_finetune: &CODANO_FINETUNE
     <<: *CODANO_GNO
     training_stage: 'fine_tune'
-    pretrain_weight: "../weights/ssl_weight.pt"
+    pretrain_weight: "../weights/codano_gno_ssl.pt"
 
     mu_list: [10]
     dt: 2

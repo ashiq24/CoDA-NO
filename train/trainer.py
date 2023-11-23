@@ -125,7 +125,7 @@ def simple_trainer(
                 f"Epoch {ep}: Time: {epoch_train_time:.2f}s, Loss {stage}: {avg_train_l2:.6f}")
 
             wandb.log(values_to_log, commit=True)
-
+    weight_path = weight_path + params.config + "_"+ stage+'.pt'
     torch.save(model.state_dict(), weight_path)
 
     model.eval()
