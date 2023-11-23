@@ -57,6 +57,9 @@ base_config: &BASE_CONFIG
     # if True, it will fine tune the encoder during SL
     # otherwise it will freeze the weight of the encoder 
     # which is trained by SSL
+
+    ## training Hyeper parameters
+    training_stage: 'regular'
     freeze_encoder : !!bool False
     lr: 0.03
     weight_decay: 0.0000
@@ -83,7 +86,7 @@ codano_gno: &CODANO_GNO
     input_mesh_location: "../Data/test_data/mesh.csv"
     data_location: "../Data/NS_ES"
     dt: 2 #dt in markovian model
-    mu_list: [1, 0.1, 0.01]
+    mu_list: [1, 0.01]
     radius: 0.15
     gno_mlp_layers: [10]
     grid_size: [251, 42]
@@ -91,7 +94,7 @@ codano_gno: &CODANO_GNO
     
     # training. hypers
     
-    epochs: 30
+    epochs: 20
     batch_size: 1
     lr: 0.01
     weight_decay: 0.0000
@@ -193,6 +196,25 @@ fno: &FNO
     n_modes:       [180,30]
     grid_type: 'uniform'
 
+codano_finetune: &CODANO_FINETUNE
+    <<: *CODANO_GNO
+    training_stage: 'fine_tune'
+    pretrain_weight: "../weights/ssl_weight.pt"
+
+    mu_list: [10]
+    dt: 2
+
+    freeze_encoder : !!bool False
+    pretrain_ssl : !!bool False
+    lr: 0.03
+
+    ntrain: 1
+    ntest: 5
+
+
+    
 
 
 
+    
+    

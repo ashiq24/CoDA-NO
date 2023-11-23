@@ -82,6 +82,9 @@ if __name__ == "__main__":
 
     # uniform dataset dummy
     # train, test = get_dummy_dataloaders()
+    if params.training_stage == 'fine_tune':
+        print(f"Loading Pretrained weights from {params.pretrain_weight}")
+        model.load_state_dict(torch.load(params.pretrain_weight))
 
     simple_trainer(
         model,
