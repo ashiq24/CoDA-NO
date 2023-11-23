@@ -1,6 +1,6 @@
 import torch
 from torch.optim import Adam
-from torch.optim.lr_scheduler import StepLR
+from torch.optim.lr_scheduler import StepLR, ReduceLROnPlateau
 import torch.nn as nn
 from data_utils.data_utils import *
 from timeit import default_timer
@@ -27,10 +27,17 @@ def simple_trainer(
     weight_path = params.weight_path
     optimizer = Adam(model.parameters(), lr=lr,
                      weight_decay=weight_decay, amsgrad=False)
-    scheduler = StepLR(
-        optimizer,
-        step_size=scheduler_step,
-        gamma=scheduler_gamma)
+    if params.scheduler_type == 'step':
+        scheduler = StepLR(
+            optimizer,
+            step_size=scheduler_step,
+            gamma=scheduler_gamma)
+    else:
+        scheduler = ReduceLROnPlateau(
+            optimizer,
+            patience=scheduler_step,
+            factor=scheduler_gamma)
+
     loss_p = nn.MSELoss()
     loss_p1 = nn.L1Loss()
     for ep in range(epochs):
@@ -100,10 +107,14 @@ def simple_trainer(
             gc.collect()
 
         torch.cuda.empty_cache()
-        scheduler.step()
+        avg_train_l2 = train_l2 / train_count
+        if params.scheduler_type != 'step':
+            scheduler.step(avg_train_l2)
+        else:
+            scheduler.step(avg_train_l2)
         t2 = default_timer()
         epoch_train_time = t2 - t1
-        avg_train_l2 = train_l2 / train_count
+        
 
         if ep % log_test_interval == 0:
 
