@@ -132,7 +132,7 @@ class NsElasticDataset():
 
                     indexs = [i for i in range(step_t0.shape[0])]
 
-                    ntrain = int(train_test_split * len(indexs))
+                    ntrain = int((1-train_test_split) * len(indexs))
                     ntest = len(indexs) - ntrain
 
                     random.shuffle(indexs)
