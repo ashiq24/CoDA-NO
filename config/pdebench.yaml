@@ -17,38 +17,43 @@ base_config: &BASE_CONFIG
     channel_drop_per_val: 0.5
 
     batch_size: 10
-
     n_variables: 6
 
     encoder:
         input_token_codimension: 1
+        ### TUNE P1 ###
         hidden_token_codimension: 6
         lifting_token_codimension: 12
-        n_layers: 2
         n_heads: [2, 2]
         n_modes: [[8, 12, 12], [8, 12, 12]]
+        ### TUNE P1 ###
+        n_layers: 2
         scalings: [[1, 1], [1, 1]]
 
     decoder:
         # Expected to be equal to encoder.hidden_token_codimension:
         input_token_codimension: 6
+        output_token_codimension: 1
+        ### TUNE P1 ###
         hidden_token_codimension: 6
         lifting_token_codimension: 12
-        output_token_codimension: 1
-        n_layers: 2
         n_heads: [2, 2]
         n_modes: [[8, 12, 12], [8, 12, 12]]
+        ### TUNE P1 ###
+        n_layers: 2
         scalings: [[1, 1], [1, 1]]
 
     predictor:
         # Expected to be equal to encoder.hidden_token_codimension:
         input_token_codimension: 6
+        output_token_codimension:  1
+        ### TUNE P1 ###
         hidden_token_codimension: 6
         lifting_token_codimension: 12
-        output_token_codimension:  1
-        n_layers: 3
         n_heads: [2, 2, 2]
         n_modes: [[8, 12, 12], [8, 12, 12], [8, 12, 12]]
+        ### TUNE P1 ###
+        n_layers: 3
         scalings: [[1, 1], [1, 1], [1, 1]]
 
     per_channel_attention: !!bool True
@@ -57,22 +62,26 @@ base_config: &BASE_CONFIG
     tno_integral_operator: 'fno'
 
     use_variable_encodings: !!bool True
+    ### TUNE P1 ###
     n_encoding_channels: 3
     encoding_modes_t: 8
     encoding_modes_x: 12
     encoding_modes_y: 12
+    ### TUNE P1 ###
 
-    reconstruction: !!bool True
-    enable_cls_token: !!bool True
+    reconstruction: True
+    enable_cls_token: True
 
-    add_static_feature: !!bool False
+    add_static_feature: False
 
-    pretrain_ssl : !!bool True # If True we pretrain the model by SSL
+    # If True we first pretrain the model in a self-supervised learning (SSL)
+    # scheme where it learns an embedding of input fields to a latent space.
+    pretrain_ssl: True
 
     # if True, it will fine tune the encoder during SL
     # otherwise it will freeze the weight of the encoder 
     # which is trained by SSL
-    freeze_encoder : !!bool False
+    freeze_encoder: False
     lr: 0.0001
     weight_decay: 0.00001
     scheduler_step: 20
@@ -87,20 +96,20 @@ base_config: &BASE_CONFIG
     filepath_diff: "/mnt/mogab/data/pdebench/2D/diffusion-reaction/2D_diff-react_NA_NA.h5"
     filepaths_ns: [
         "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-90.h5",
-        "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-91.h5",
-        "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-92.h5",
-        "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-93.h5",
-        "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-94.h5",
+        # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-91.h5",
+        # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-92.h5",
+        # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-93.h5",
+        # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-94.h5",
     ]
 
     # Weights and biases
     wandb:
-        log: False
+        log: True
         name: 'bench_coda_gino'
         group: 'neuraloperator'
-        project: 'codano'
+        project: 'codano-pdebench'
         entity: 'm4e7'
-        log_test_interval: 1
+        log_interval: 1
 
 
 codano_gino: &CODANO_GINO
@@ -119,11 +128,41 @@ codano_gino: &CODANO_GINO
     # The models expect they can take at least half as many
     # frequency modes at a time during convolutions.
     encoder:
-        n_modes:   [[8, 16, 16], [8, 16, 16]]
+        input_token_codimension: 1
+        ### TUNE P1 ###
+        hidden_token_codimension: 6
+        lifting_token_codimension: 12
+        n_heads: [2, 2]
+        n_modes: [[8, 16, 16], [8, 16, 16]]
+        ### TUNE P1 ###
+        n_layers: 2
+        scalings: [[1, 1], [1, 1]]
+
     decoder:
-        n_modes:  [[8, 16, 16], [8, 16, 16]]
+        # Expected to be equal to encoder.hidden_token_codimension:
+        input_token_codimension: 6
+        output_token_codimension: 1
+        ### TUNE P1 ###
+        hidden_token_codimension: 6
+        lifting_token_codimension: 12
+        n_heads: [2, 2]
+        n_modes: [[8, 16, 16], [8, 16, 16]]
+        ### TUNE P1 ###
+        n_layers: 2
+        scalings: [[1, 1], [1, 1]]
+
     predictor:
+        # Expected to be equal to encoder.hidden_token_codimension:
+        input_token_codimension: 6
+        output_token_codimension:  1
+        ### TUNE P1 ###
+        hidden_token_codimension: 6
+        lifting_token_codimension: 12
+        n_heads: [2, 2, 2]
         n_modes: [[8, 16, 16], [8, 16, 16], [8, 16, 16]]
+        ### TUNE P1 ###
+        n_layers: 3
+        scalings: [[1, 1], [1, 1], [1, 1]]
 
     masking_radius: 0.08
 
