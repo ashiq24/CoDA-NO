@@ -1,7 +1,7 @@
 import gc
 
 from timeit import default_timer
-from tqdm import tqdm
+import tqdm
 import wandb
 
 import torch
@@ -45,7 +45,7 @@ def simple_trainer(
         t1 = default_timer()
         train_l2 = 0
         train_count = 0
-        train_loader_iter = tqdm(
+        train_loader_iter = tqdm.tqdm(
             train_loader,
             desc=f'Epoch {ep}/{epochs}',
             leave=False,
@@ -157,7 +157,8 @@ def multi_physics_trainer(
     epochs=None,
     wandb_log=False,
     log_interval=1,
-    stage='ssl',
+    # stage='ssl',
+    script=True,
 ):
     lr = params.lr
     weight_decay = params.weight_decay
@@ -184,7 +185,7 @@ def multi_physics_trainer(
         t1 = default_timer()
         train_l2 = 0
         train_count = 0
-        train_loader_tqdm = tqdm(
+        train_loader_tqdm = (tqdm.tqdm if script else tqdm.notebook.tqdm)(
             train_loader,
             desc=f'Epoch {ep}/{epochs}',
             leave=False,

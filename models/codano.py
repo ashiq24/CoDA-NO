@@ -300,7 +300,7 @@ class CodANO(nn.Module):
                     SpectralConvolution=conv_op,
                     codim_size=self.codimension_size,
                     per_channel_attention=per_channel_attention,
-                    logger=self.logger.getChild(f"base[{i}]")
+                    logger=self.logger.getChild(f"base[{i}]"),
                     **self.layer_kwargs,
                 )
             )

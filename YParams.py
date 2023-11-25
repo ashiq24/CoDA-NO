@@ -68,8 +68,9 @@ class YParams(ParamsBase):
 
         if print_params:
             print("------------------ Configuration ------------------")
-            for kv in d.items():
-                pprint.pprint(kv)
+            for k, v in d.items():
+                print(k, end='=')
+                pprint.pprint(v)
             print("---------------------------------------------------")
 
     def log(self):

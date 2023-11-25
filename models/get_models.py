@@ -58,7 +58,7 @@ def get_ssl_models_codaNo(
 
     if logger is None:
         logger = logging.getLogger()
-    logger.log("Generating Encoder")
+    logger.info("Generating Encoder")
 
     static_features = None
     n_static_channels = 0
@@ -102,10 +102,10 @@ def get_ssl_models_codaNo(
         logger=logger.getChild("encoder"),
         **common_args,
     )
-    logger.log("*" * 40)
+    logger.info("*" * 40)
 
     if params.reconstruction:
-        logger.log("Generating Decoder")
+        logger.info("Generating Decoder")
         decoder = module(
             **params.decoder,
             lifting=False,
@@ -117,11 +117,11 @@ def get_ssl_models_codaNo(
         )
     else:
         decoder = None
-    logger.log("*" * 40)
+    logger.info("*" * 40)
 
     contrastive = None
 
-    logger.log('generating Predictor')
+    logger.info('generating Predictor')
     predictor = module(
         **params.predictor,
         lifting=False,
@@ -130,7 +130,7 @@ def get_ssl_models_codaNo(
         logger=logger.getChild("predictor"),
         **common_args,
     )
-    logger.log("*" * 40)
+    logger.info("*" * 40)
 
     return encoder, decoder, contrastive, predictor
 

@@ -114,7 +114,7 @@ base_config: &BASE_CONFIG
 
 codano_gino: &CODANO_GINO
     <<: *BASE_CONFIG
-    epochs: 20
+    epochs: 50
     batch_size: 1
     input_mesh_location: "../Data/MP_data/mesh.csv"
     radius: 0.08
