@@ -6,6 +6,7 @@ import wandb
 
 import torch
 from torch import nn
+from torch.utils import data
 from torch.optim import Adam
 from torch.optim.lr_scheduler import StepLR
 
@@ -153,39 +154,36 @@ def multi_physics_trainer(
     model,
     train_loader,
     test_loader,
+    loss_fn,
     params,
     epochs=None,
     wandb_log=False,
     log_interval=1,
-    # stage='ssl',
     script=True,
 ):
-    lr = params.lr
-    weight_decay = params.weight_decay
-    scheduler_step = params.scheduler_step
-    scheduler_gamma = params.scheduler_gamma
     if epochs is None:
         epochs = params.epochs
     # weight_path = params.weight_path
     optimizer = Adam(
         model.parameters(),
-        lr=lr,
-        weight_decay=weight_decay,
+        lr=params.lr,
+        weight_decay=params.weight_decay,
         amsgrad=False,
     )
     scheduler = StepLR(
         optimizer,
-        step_size=scheduler_step,
-        gamma=scheduler_gamma,
+        step_size=params.scheduler_step,
+        gamma=params.scheduler_gamma,
     )
-    loss_fn = nn.MSELoss()
+    # loss_fn = nn.MSELoss()
 
     for ep in range(epochs):
         model.train()
         t1 = default_timer()
         train_l2 = 0
         train_count = 0
-        train_loader_tqdm = (tqdm.tqdm if script else tqdm.notebook.tqdm)(
+        _tqdm = tqdm.tqdm if script else tqdm.notebook.tqdm
+        train_loader_tqdm = _tqdm(
             train_loader,
             desc=f'Epoch {ep}/{epochs}',
             leave=False,
@@ -197,22 +195,17 @@ def multi_physics_trainer(
             y = y[0].cuda()
             optimizer.zero_grad()
 
-            out = model(x)
-            if isinstance(out, (list, tuple)):
-                out = out[0]
+            outs = model(x)
             train_count += 1
 
-            if params.pretrain_ssl:
-                target = x.clone()
-            else:
-                target = y.clone()
+            target = y.clone()
 
             # Could this be made more efficient by collecting
             # the same equations in one "mini-batch?"
             for k, eq in enumerate(equations):
                 loss = multi_physics_loss(
                     target, 
-                    out, 
+                    outs[0],
                     loss_fn, 
                     Equation(eq.item()),
                     batch_index=k,
@@ -228,7 +221,7 @@ def multi_physics_trainer(
                 )
 
             optimizer.step()
-            del x, y, out, loss
+            del x, y, outs, loss
             gc.collect()
 
         torch.cuda.empty_cache()
@@ -243,6 +236,10 @@ def multi_physics_trainer(
                   f"Loss: {avg_train_l2:.4f}")
 
             if wandb_log:
+                # TODO help wb.log() handle multi-stage trainings
+                # With the current reconstructive/predictive training phases,
+                # W&B rejects logs from all epochs that are "out of order"
+                # (i.e. all phases after the first).
                 values_to_log = dict(train_err=avg_train_l2, time=epoch_train_time)
                 wandb.log(values_to_log, step=ep, commit=True)
 
@@ -251,6 +248,8 @@ def multi_physics_trainer(
     model.eval()
     t1 = default_timer()
     test_l2 = 0.0
+    # Counts how many data points we've tested against.
+    # There may be multiple per batch.
     n_test = 0
     with torch.no_grad():
         for x, y in test_loader:
@@ -258,22 +257,18 @@ def multi_physics_trainer(
             x = x[0].cuda()
             y = y[0].cuda()
 
-            out, _, _, _ = model(x)
-            n_test += 1
-            if stage == 'ssl':
-                target = x.clone()
-            else:
-                target = y.clone()
+            outs = model(x)
 
             for k, eq in enumerate(equations):
                 loss = multi_physics_loss(
-                    target, 
-                    out, 
+                    y.clone(),
+                    outs[0],
                     loss_fn, 
                     Equation(eq.item()),
                     batch_index=k,
                 )
                 test_l2 += loss.item()
+                n_test += 1
 
     test_l2 /= n_test
     t2 = default_timer()
@@ -283,3 +278,50 @@ def multi_physics_trainer(
 
     if wandb_log:
         wandb.log({'test_error': test_l2}, commit=True)
+
+
+# doesn't "know" what a single physics is,
+# but it at least knows how to start and stop at given indices.
+def test_single_physics(
+    model: nn.Module,
+    test_loader: data.DataLoader,
+    start: int,
+    stop: int,
+    script=True
+) -> None:
+    loss_fn = nn.MSELoss()
+    t1 = default_timer()
+    test_l2 = 0.0
+    n_test = 0
+
+    with torch.no_grad():
+        _trange = tqdm.trange if script else tqdm.notebook.trange
+        test_loader_trange = _trange(
+            start,
+            stop,
+            desc=f'Testing [{start} : {stop}]',
+            leave=False,
+            ncols=120,
+        )
+
+        for i in test_loader_trange:
+            x, y = test_loader.dataset[i]
+            eq = x[1]
+            x = x[0].unsqueeze(0).cuda()
+            y = y[0].unsqueeze(0).cuda()
+
+            outs = model(x)
+            loss = multi_physics_loss(
+                y.clone(),
+                outs[0],
+                loss_fn,
+                Equation(eq),
+                batch_index=0,
+            )
+            test_l2 += loss.item()
+            n_test += 1
+
+    t2 = default_timer()
+    test_time = t2 - t1
+    print(f"Time: {test_time:.2f}s\n"
+          f"Loss: {test_l2 / n_test:.6f}")

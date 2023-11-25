@@ -1,6 +1,7 @@
+import enum
 from functools import partial
 import logging
-from typing import Optional, Union
+from typing import Optional, Type, Union
 
 import numpy as np
 import torch
@@ -25,9 +26,9 @@ from models.fno_gino import FnoGno
 # TODO merge methods get_ssl_models_coda*()
 def get_ssl_models_codaNo(
     params,
-    module: CodANO,
-    block: TNOBlock,
-    convolution: Union[SpectralConvKernel2d, SpectralConvolutionKernel3D],
+    module: Type[CodANO],
+    block: Type[TNOBlock],
+    convolution: Type[Union[SpectralConvKernel2d, SpectralConvolutionKernel3D]],
     logger: Optional[logging.Logger] = None,
     verbose=True,
 ):
@@ -378,10 +379,24 @@ def get_model_fno(params):
     return model
 
 
+class StageEnum(enum.Enum):
+    RECONSTRUCTIVE = "RECONSTRUCTIVE"
+    PREDICTIVE = "PREDICTIVE"
+
+
 class SSLWrapper(nn.Module):
     """Unlike the other wrapper, this takes an initialized model."""
 
-    def __init__(self, params, encoder, decoder, contrastive, predictor, stage):
+    def __init__(
+        self,
+        params,
+        encoder,
+        decoder,
+        contrastive,
+        predictor,
+        stage=StageEnum.PREDICTIVE,
+        _logger=Optional[logging.Logger],
+    ):
         super(SSLWrapper, self).__init__()
 
         self.encoder = encoder
@@ -397,7 +412,7 @@ class SSLWrapper(nn.Module):
         self.freeze_encoder = params.freeze_encoder
         self.grid_type = params.grid_type
 
-        print("Doing Wrapper for", self.stage)
+        # print("Doing Wrapper for", self.stage)
         if params.grid_type == 'uniform':
             Masker = MaskerUniformTemporal if params.time_axis else MaskerUniform
             self.augmenter_masker = Masker(
@@ -408,6 +423,7 @@ class SSLWrapper(nn.Module):
                 channel_drop_per=params.channel_drop_per,
             )
 
+            # XXX unused in testing
             # If following augmenter is used by external method during testing
             self.validation_augmenter = Masker(
                 drop_type=params.drop_type,
@@ -427,8 +443,8 @@ class SSLWrapper(nn.Module):
                 channel_drop_rate=params.channel_drop_per,
             )
 
+            # XXX unused in testing
             # If following augmenter is used by external method during testing
-
             self.validation_augmenter = MaskerNonuniformMesh(
                 grid_non_uni=encoder.input_grid.clone().detach(),
                 gird_uni=encoder.output_grid.clone().detach(),
@@ -440,72 +456,83 @@ class SSLWrapper(nn.Module):
                 channel_drop_rate=params.channel_drop_per_val,
             )
 
-        self.params = params
-
     def forward(self, x, static_random_tensor=None):
-        # first append unpredicted features
+        if self.stage == StageEnum.RECONSTRUCTIVE:
+            return self.forward_reconstructive(x)
 
-        inp = x.clone()
+        if self.stage == StageEnum.PREDICTIVE:
+            return self.forward_predictive(x)
 
-        if self.stage == 'ssl':
-            with torch.no_grad():
-                inp_masked, mask = batched_masker(inp, self.augmenter_masker)
+        raise ValueError(f'Expected stage to be one of {list(StageEnum)};\n'
+                         f'Got {self.stage=}')
 
-            augmented_inp_features = self.encoder(inp_masked)
+    def forward_reconstructive(self, x):
+        # Append unpredicted features:
+        with torch.no_grad():
+            x_masked, _mask = batched_masker(x.clone(), self.augmenter_masker)
 
-            # print("Feature Shape", augmented_inp_features.shape)
+        x_encoded = self.encoder(x_masked)
+        # print("Feature Shape", x_encoded.shape)
 
-            if self.enable_cls_token:
-                cls_offset = 1
-            else:
-                cls_offset = 0
+        cls_offset = 1 if self.enable_cls_token else 0
 
-            if self.reconstruction:
-                reconstructed = self.decoder(augmented_inp_features)
-                # Removing the CLS token and also discarding if some additional channels if
-                # in the end
-                if self.grid_type == 'uniform':
-                    _slice = [
-                        slice(None),  # :
-                        slice(cls_offset, cls_offset+ x.shape[1]),
-                        slice(None),  # :
-                        slice(None),  # :
-                    ]
-                else:
-                    _slice = [
-                        slice(None),  # :
-                        slice(None),  # :
-                        slice(cls_offset),
-                    ]
-                reconstructed = reconstructed[_slice]
-            else:
-                reconstructed = None
-
-            # reconstructed, aug_contra  = self.model(inp_masked, 'ssl')
-            # print("Model Forward done")
-
-            # Placeholders for contrastive losses. Not used for now.
-            clean_contra = None
-            neg_contra = None
-            aug_contra = None
-
-            return reconstructed, clean_contra, aug_contra, neg_contra
-        else:
-            if self.enable_cls_token:
-                cls_offset = 1
-            else:
-                cls_offset = 0
-
-            if self.freeze_encoder:
-                with torch.no_grad():
-                    feature = self.encoder(inp)
-            else:
-                feature = self.encoder(inp)
-            out = self.predictor(feature)
-            # discarding CLS token and addtion static channels if added.
+        if self.reconstruction:
+            reconstructed = self.decoder(x_encoded)
+            # Removing the CLS token and also discarding if some additional
+            # channels if in the end
             if self.grid_type == 'uniform':
-                out = out[:, cls_offset:cls_offset + x.shape[1], :, :]
+                _slice = [
+                    slice(None),  # :
+                    slice(cls_offset, cls_offset+ x.shape[1]),
+                    slice(None),  # :
+                    slice(None),  # :
+                ]
             else:
-                out = out[:, :, cls_offset:]
+                _slice = [
+                    slice(None),  # :
+                    slice(None),  # :
+                    slice(cls_offset, None),
+                ]
+            reconstructed = reconstructed[_slice]
+        else:
+            reconstructed = None
 
-            return out, None, None, None
+        # reconstructed, aug_contra  = self.model(x_masked, 'ssl')
+        # print("Model Forward done")
+
+        # Placeholders for contrastive losses. Not used for now.
+        clean_contra = None
+        neg_contra = None
+        aug_contra = None
+
+        return reconstructed, clean_contra, aug_contra, neg_contra
+
+    def forward_predictive(self, x):
+        cls_offset = 1 if self.enable_cls_token else 0
+
+        if self.freeze_encoder:
+            with torch.no_grad():
+                x_encoded = self.encoder(x.clone())
+        else:
+            x_encoded = self.encoder(x.clone())
+
+        out = self.predictor(x_encoded)
+        # TODO why aren't we using the decoder?
+
+        # discarding CLS token and additional static channels if added.
+        if self.grid_type == 'uniform':
+            _slice = [
+                slice(None),  # :
+                slice(cls_offset, cls_offset+ x.shape[1]),
+                slice(None),  # :
+                slice(None),  # :
+            ]
+        else:
+            _slice = [
+                slice(None),  # :
+                slice(None),  # :
+                slice(cls_offset, None),
+            ]
+        out = out[_slice]
+
+        return out, None, None, None

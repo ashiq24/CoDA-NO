@@ -43,13 +43,20 @@ class ParamsBase:
     def from_json(path: str) -> "ParamsBase":
         with open(path) as f:
             c = json.load(f)
-        params =  ParamsBase()
+        params = ParamsBase()
         params.update_params(c)
         return params
 
     def update_params(self, config):
         for key, val in config.items():
-            if val =='None': val = None
+            if val == 'None':
+                val = None
+
+            if type(val) == dict:
+                child = ParamsBase()
+                child.update_params(val)
+                val = child
+
             self.params[key] = val
             self.__setattr__(key, val)
 

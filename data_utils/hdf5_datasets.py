@@ -48,6 +48,7 @@ class SWEDataset:
         strides_off=1,
         offset=0,
         sample_size=None,
+        predictive=True,
     ):
         """
         Given one sample (i.e. a time-trajectory from an initial condition),
@@ -73,6 +74,7 @@ class SWEDataset:
         self.strides_on = strides_on
         self.strides_off = strides_off
         self.offset = offset
+        self.predictive = predictive
 
         CLS = self.__class__
         if sample_size is None:
@@ -135,17 +137,32 @@ class SWEDataset:
         time_idx = self.offset \
                    + (stride_idx * self.items_per_stride) \
                    + (local_idx * CLS.TRAJECTORY_LENGTH)
+        # TODO use logger
         if DEBUG:
             print(f"{sample_idx=}, {k=}, {stride_idx=}, {local_idx=}, {time_idx=}")
 
-        sample = self._reconstruct_sample(
-            sample_idx,
-            time_idx,
-            t_steps=CLS.TRAJECTORY_LENGTH,
-        )
+        if self.predictive:
+            # Fetch the full trajectory:
+            sample = self._reconstruct_sample(
+                sample_idx,
+                time_idx,
+                t_steps=CLS.TRAJECTORY_LENGTH,
+            )
 
-        mid = CLS.TRAJECTORY_LENGTH // 2
-        return torch.as_tensor(sample[:mid]), torch.as_tensor(sample[mid:])
+            mid = CLS.TRAJECTORY_LENGTH // 2
+            return torch.as_tensor(sample[:mid]), torch.as_tensor(sample[mid:])
+
+        else:
+            # Only fetch the first half of a trajectory.
+            # As a reconstructive dataset, we want a model to learn an
+            # encoder/decoder embedding of the data.
+            sample = self._reconstruct_sample(
+                sample_idx,
+                time_idx,
+                t_steps=CLS.TRAJECTORY_LENGTH // 2,
+            )
+            return torch.as_tensor(sample), torch.as_tensor(sample)
+
 
     def _reconstruct_sample(
         self,
@@ -173,6 +190,8 @@ class SWEDataset:
         return norm(datum)
 
     def get_normalizer(self, key: int):
+        # TODO don't leak info about target/test data
+        # even as mean/std
         if self.normalizers.get(key) is None:
             # Normalize over the whole time trajectory of the sample.
             norm = Normalizer(
@@ -212,6 +231,7 @@ class DiffusionReaction2DDataset:
         strides_off=1,
         offset=0,
         sample_size=None,
+        predictive=True,
     ):
         """
         Given one sample (i.e. a time-trajectory from an initial condition),
@@ -237,6 +257,7 @@ class DiffusionReaction2DDataset:
         self.strides_on = strides_on
         self.strides_off = strides_off
         self.offset = offset
+        self.predictive = predictive
 
         CLS = self.__class__
         if sample_size is None:
@@ -303,14 +324,27 @@ class DiffusionReaction2DDataset:
         if DEBUG:
             print(f"{sample_idx=}, {k=}, {stride_idx=}, {local_idx=}, {time_idx=}")
 
-        sample = self._reconstruct_sample(
-            sample_idx,
-            time_idx,
-            t_steps=CLS.TRAJECTORY_LENGTH,
-        )
+        if self.predictive:
+            # Fetch the full trajectory:
+            sample = self._reconstruct_sample(
+                sample_idx,
+                time_idx,
+                t_steps=CLS.TRAJECTORY_LENGTH,
+            )
 
-        mid = CLS.TRAJECTORY_LENGTH // 2
-        return torch.as_tensor(sample[:mid]), torch.as_tensor(sample[mid:])
+            mid = CLS.TRAJECTORY_LENGTH // 2
+            return torch.as_tensor(sample[:mid]), torch.as_tensor(sample[mid:])
+
+        else:
+            # Only fetch the first half of a trajectory.
+            # As a reconstructive dataset, we want a model to learn an
+            # encoder/decoder embedding of the data.
+            sample = self._reconstruct_sample(
+                sample_idx,
+                time_idx,
+                t_steps=CLS.TRAJECTORY_LENGTH // 2,
+            )
+            return torch.as_tensor(sample), torch.as_tensor(sample)
 
     def _reconstruct_sample(
         self,
@@ -404,6 +438,7 @@ class NSIncompressibleDataset:
         strides_off=1,
         offset=0,
         sample_size=None,
+        predictive=True,
     ):
         self.paths = paths
         self.files = [h5py.File(p) for p in paths]
@@ -412,6 +447,7 @@ class NSIncompressibleDataset:
         self.strides_on = strides_on
         self.strides_off = strides_off
         self.offset = offset
+        self.predictive = predictive
 
         if sample_size is None:
             sample_size = 4
@@ -487,16 +523,28 @@ class NSIncompressibleDataset:
                   f"{local_idx=}, "
                   f"{time_idx=}")
 
-        sample = self._reconstruct_sample(
-            int(file_idx),
-            sample_idx,
-            time_idx,
-            t_steps=CLS.TRAJECTORY_LENGTH,
-        )
-        trajectory = np.concatenate([sample.particles, sample.velocity], axis=-1)
+        if self.predictive:
+            sample = self._reconstruct_sample(
+                int(file_idx),
+                sample_idx,
+                time_idx,
+                t_steps=CLS.TRAJECTORY_LENGTH,
+            )
+            trajectory = np.concatenate([sample.particles, sample.velocity], axis=-1)
 
-        mid = CLS.TRAJECTORY_LENGTH // 2
-        return torch.as_tensor(trajectory[:mid]), torch.as_tensor(trajectory[mid:])
+            mid = CLS.TRAJECTORY_LENGTH // 2
+            return torch.as_tensor(trajectory[:mid]), torch.as_tensor(trajectory[mid:])
+
+        else:
+            sample = self._reconstruct_sample(
+                int(file_idx),
+                sample_idx,
+                time_idx,
+                t_steps=CLS.TRAJECTORY_LENGTH // 2,
+            )
+            trajectory = np.concatenate([sample.particles, sample.velocity], axis=-1)
+
+            return torch.as_tensor(trajectory), torch.as_tensor(trajectory)
 
     def _reconstruct_sample(
         self,
@@ -613,6 +661,7 @@ class MultiPhysicsDataset(data.Dataset):
         strides_off=1,
         offset=0,
         channel_dim=0,
+        predictive=True,
 
     ):
         if swe_opts is None:
@@ -625,6 +674,7 @@ class MultiPhysicsDataset(data.Dataset):
             strides_on=strides_on,
             strides_off=strides_off,
             offset=offset,
+            predictive=predictive,
         )
 
         self.swe_dataset = SWEDataset(swe_file, **swe_opts, **common_args)
@@ -730,8 +780,9 @@ class MultiPhysicsDataset(data.Dataset):
                 channel_dim=self.channel_dim,
             )
 
-            # TODO consider returning a triple instead of a 4-ple with redundancy.
-            # mark this datum as Navier-Stokes eqn
+            # TODO consider returning a triple
+            # instead of a nested 4-ple with redundancy.
+            # mark this datum as Navier-Stokes eqn:
             return (
                 (ns_x, Equation.NS.value),
                 (ns_y, Equation.NS.value),
