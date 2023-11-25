@@ -95,18 +95,18 @@ class TNOBlock(nn.Module):
         mixer_modes = [i // scale for i in n_modes]
 
         self.logger.debug(
-            f"{rank=}\n"
-            f"{factorization=}\n"
-            f"{self.head_codimension=}\n"
-            f"{scale=}\n"
-            f"{mixer_modes=}\n"
+            f"\n {rank=}"
+            f"\n {factorization=}"
+            f"\n {self.head_codimension=}"
+            f"\n {scale=}"
+            f"\n {mixer_modes=}"
         )
 
         if not per_channel_attention:
             self.logger.debug(
-                f"{self.token_codimension=}\n"
-                f"{self.n_head=}\n"
-                f"{self.head_codimension=}\n"
+                f"\n {self.token_codimension=}"
+                f"\n {self.n_head=}"
+                f"\n {self.head_codimension=}"
             )
 
         if decomposition_kwargs is None:
@@ -217,8 +217,8 @@ class TNOBlock(nn.Module):
         # (like regular FNO).
         if permutation_eq:
             logger.debug(
-                f"{permutation_eq=}\n"
-                f"{self.mixer_token_codimension=}\n"
+                f"\n {permutation_eq=}"
+                f"\n {self.mixer_token_codimension=}"
             )
             self.mixer = FNOBlocks(
                 in_channels=self.mixer_token_codimension,

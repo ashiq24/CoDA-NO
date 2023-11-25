@@ -71,9 +71,11 @@ def get_ssl_models_codaNo(
         n_static_channels = 0
 
     logger.debug(
-        f"Token dimension: {1 + params.n_encoding_channels + n_static_channels}")
-    logger.debug(f"{params.n_variables=}\n"
-                 f"{n_static_channels=}\n")
+        f"per variable token dimension="
+        f"{1 + params.n_encoding_channels + n_static_channels}")
+    logger.debug(
+        f"\n {params.n_variables=}"
+        f"\n {n_static_channels=}")
 
     common_args = dict(
         operator_block=block,
@@ -483,7 +485,7 @@ class SSLWrapper(nn.Module):
             if self.grid_type == 'uniform':
                 _slice = [
                     slice(None),  # :
-                    slice(cls_offset, cls_offset+ x.shape[1]),
+                    slice(cls_offset, cls_offset + x.shape[1]),
                     slice(None),  # :
                     slice(None),  # :
                 ]
@@ -519,11 +521,12 @@ class SSLWrapper(nn.Module):
         out = self.predictor(x_encoded)
         # TODO why aren't we using the decoder?
 
+        # XXX why is the use of cls_offset inconsistent?
         # discarding CLS token and additional static channels if added.
         if self.grid_type == 'uniform':
             _slice = [
                 slice(None),  # :
-                slice(cls_offset, cls_offset+ x.shape[1]),
+                slice(cls_offset, cls_offset + x.shape[1]),
                 slice(None),  # :
                 slice(None),  # :
             ]

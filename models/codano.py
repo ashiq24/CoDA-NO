@@ -264,10 +264,10 @@ class CodANO(nn.Module):
                             self.n_static_channels
         if self.lifting:
             self.logger.debug(
-                'using lifting with:\n'
-                f'\t{n_lifted_channels=}\n'
-                f'\t{hidden_token_codimension=}\n'
-                f'\t{lifting_token_codimension=}\n'
+                'using lifting with:'
+                f'\n\t{n_lifted_channels=}'
+                f'\n\t{hidden_token_codimension=}'
+                f'\n\t{lifting_token_codimension=}'
             )
             self.lifting = self._mk_lifting_operator(
                 n_lifted_channels,
@@ -307,11 +307,11 @@ class CodANO(nn.Module):
 
         if self.projection:
             self.logger.debug(
-                'using projection with:\n'
-                f'\t{hidden_token_codimension=}\n'
-                f'\t{output_token_codimension=}\n'
-                f'\t{lifting_token_codimension=}\n'
-                f'\t{non_linearity=}\n'
+                'using projection with:'
+                f'\n\t{hidden_token_codimension=}'
+                f'\n\t{output_token_codimension=}'
+                f'\n\t{lifting_token_codimension=}'
+                f'\n\t{non_linearity=}'
             )
             self.projection = self._mk_projection_operator(
                 hidden_token_codimension,
@@ -349,9 +349,9 @@ class CodANO(nn.Module):
         """
         assert n_variables is not None
         self.logger.debug(
-            "using variable encoding with:\n"
-            f"{n_variables=}\n"
-            f"{variable_encoding_args=}\n"
+            "using variable encoding with:"
+            f"\n {n_variables=}"
+            f"\n {variable_encoding_args=}"
         )
 
         args = variable_encoding_args._replace(

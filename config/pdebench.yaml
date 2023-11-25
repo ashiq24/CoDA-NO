@@ -61,7 +61,7 @@ base_config: &BASE_CONFIG
     transform_type: 'fft'
     tno_integral_operator: 'fno'
 
-    use_variable_encodings: !!bool True
+    use_variable_encodings: True
     ### TUNE P1 ###
     n_encoding_channels: 3
     encoding_modes_t: 8
@@ -70,7 +70,7 @@ base_config: &BASE_CONFIG
     ### TUNE P1 ###
 
     reconstruction: True
-    enable_cls_token: True
+    enable_cls_token: False
 
     add_static_feature: False
 
@@ -114,10 +114,10 @@ base_config: &BASE_CONFIG
 codano_gino: &CODANO_GINO
     <<: *BASE_CONFIG
     epochs: 50
-    batch_size: 1
-    input_mesh_location: "../Data/MP_data/mesh.csv"
+    batch_size: 10
+    # input_mesh_location: "../Data/MP_data/mesh.csv"
     radius: 0.08
-    gno_mlp_layers: [6,8]
+    gno_mlp_layers: [6, 8]
     grid_size: [251, 42]
     grid_type: 'uniform'
     
