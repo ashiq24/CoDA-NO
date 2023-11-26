@@ -35,10 +35,9 @@ class Normalizer():
 class NsElasticDataset():
     def __init__(self, location):
         self.location = location
-        #self._is = ['i1','i2','i3']
         self._ivals12 = [-0.5,0,1.0]
         self._ivals3 = [-0.1, 0,0.05]
-        self._mu = [0.1, 0.01,0.5,1,10]
+        self._mu = [0.1,0.01,0.5,1,10]
         self.normalizer = Normalizer(None,None,persample=True) # need to decide on how to normalize
     
     def _readh5(self,h5f, dtype=torch.float32):
@@ -92,6 +91,7 @@ class NsElasticDataset():
         normalize=True,
         batch_size=1,
         train_test_split=0.2,
+        sample_per_inlet=200,
         ntrain=None,
         ntest=None,
         data_loader_kwargs={'num_workers':2}):
@@ -100,7 +100,7 @@ class NsElasticDataset():
         test_datasets = []
 
         for mu in mu_list:
-            train, test = self.get_tensor_dataset(mu,dt,normalize,train_test_split=train_test_split)
+            train, test = self.get_tensor_dataset(mu,dt,normalize,train_test_split=train_test_split,sample_per_inlet=sample_per_inlet)
             train_datasets.append(train)
             test_datasets.append(test)
         train_dataset = ConcatDataset(train_datasets)
@@ -116,7 +116,7 @@ class NsElasticDataset():
 
         return train_dataloader, test_dataloader
 
-    def get_tensor_dataset(self, mu,dt, normalize=True, train_test_split=0.2):
+    def get_tensor_dataset(self, mu,dt, normalize=True, train_test_split=0.2, sample_per_inlet=200):
         train_datasets = []
         test_datasets = []
         for i1 in self._ivals12:
@@ -126,7 +126,7 @@ class NsElasticDataset():
                     # keeping vx,xy, P, dx,dy
                     varable_idices = [0, 1, 3, 4, 5]
                     combined = torch.cat(
-                        [velocities, pressure, displacements], dim=-1)[:, :, varable_idices]
+                        [velocities, pressure, displacements], dim=-1)[-sample_per_inlet:, :, varable_idices]
                     step_t0 = combined[:-dt, ...]
                     step_t1 = combined[dt:, ...]
 

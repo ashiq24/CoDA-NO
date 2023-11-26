@@ -75,7 +75,7 @@ if __name__ == "__main__":
     # train, test = dataset.get_onestep_dataloader(location=params.data_location, dt=params.dt, ntrain=params.get('ntrain'),
     #                                              ntest=params.get('ntest'))
 
-    train, test = dataset.get_dataloader(params.mu_list,params.dt,ntrain=params.get('ntrain'),ntest=params.get('ntest'))
+    train, test = dataset.get_dataloader(params.mu_list,params.dt,ntrain=params.get('ntrain'),ntest=params.get('ntest'),sample_per_inlet=params.sample_per_inlet)
 
     normalizer = dataset.normalizer
     normalizer.cuda()
@@ -96,7 +96,7 @@ if __name__ == "__main__":
         normalizer=normalizer,
         stage=stage)
 
-    if params.pretrain_ssl:
+    if params.pretrain_ssl and not params.ssl_only:
         # if we were pre-training (ssl), then we will train (sl)
         model.stage = 'sl'
         simple_trainer(

@@ -8,7 +8,8 @@ print(v.shape, v.dtype)
 print(p.shape, p.dtype)
 print(d.shape, d.dtype)
 
-train, test = dataset.get_dataloader([0.1],2,ntest=5,ntrain=1)
+train, test = dataset.get_dataloader([0.1],2,sample_per_inlet=185)
+print(len(train), len(test))
 normalizer = dataset.normalizer
 for x,y in test:
     print(x.shape, y.shape)
