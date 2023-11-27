@@ -5,10 +5,10 @@ base_config: &BASE_CONFIG
     drop_type : 'zeros'
     grid_type: 'uniform'
     time_axis: True
-    max_block : 0.6
-    drop_pix: 0.6
-    channel_per: 0.6
-    channel_drop_per: 0.3
+    max_block: 0.25 # the routine dropped pixel in rectangular block. this is max size of the one rectangular block.
+    drop_pix: 0.4 # percentage of pixels (per channel) to be dropped
+    channel_per: 0.4 # number of channels to be augmented
+    channel_drop_per: 0.0 # We are not dropping channels now
 
     validation_aug: !!bool False
     max_block_val : 0.2
@@ -16,7 +16,7 @@ base_config: &BASE_CONFIG
     channel_per_val: 0.5
     channel_drop_per_val: 0.5
 
-    batch_size: 10
+    batch_size: 25
     n_variables: 6
 
     encoder:
@@ -103,12 +103,12 @@ base_config: &BASE_CONFIG
 
     # Weights and biases
     wandb:
-        log: True
-        name: 'bench_coda_gino'
+        log: False
+        name: 'pdebench_coda'
         group: 'neuraloperator'
         project: 'codano-pdebench'
         entity: 'm4e7'
-        log_interval: 1
+        log_interval: 5
 
 
 codano_gino: &CODANO_GINO

@@ -135,11 +135,11 @@ def multi_physics_loss(
     # flat "projection" to attend to only the fields relevant
     # to the equation under study.
     if eq == Equation.SWE:
-        slices.append(0)
+        slices.insert(1, 0)
     elif eq == Equation.DIFF:
-        slices.append(slice(1, 3))
+        slices.insert(1, slice(1, 3))
     elif eq == Equation.NS:
-        slices.append(slice(3, None))
+        slices.insert(1, slice(3, None))
     else:
         raise ValueError(f"Invalid equation: {eq}")
 
@@ -182,7 +182,7 @@ def multi_physics_trainer(
         t1 = default_timer()
         train_l2 = 0
         train_count = 0
-        _tqdm = tqdm.tqdm if script else tqdm.notebook.tqdm
+        _tqdm = tqdm.tqdm if script else tqdm.tqdm_notebook
         train_loader_tqdm = _tqdm(
             train_loader,
             desc=f'Epoch {ep}/{epochs}',
@@ -198,20 +198,21 @@ def multi_physics_trainer(
             outs = model(x)
             train_count += 1
 
-            target = y.clone()
-
+            losses = torch.tensor(0.0, dtype=torch.float).cuda()
             # Could this be made more efficient by collecting
             # the same equations in one "mini-batch?"
             for k, eq in enumerate(equations):
                 loss = multi_physics_loss(
-                    target, 
-                    outs[0],
+                    y.clone(), 
+                    outs[0].clone(),
                     loss_fn, 
                     Equation(eq.item()),
                     batch_index=k,
                 )
-                loss.backward()
-                train_l2 += loss.item()
+                losses += loss
+
+            loss.backward()
+            train_l2 += loss.item()
 
             # Clip gradients to prevent exploding gradients:
             if params.gradient['clip']:
@@ -251,8 +252,15 @@ def multi_physics_trainer(
     # Counts how many data points we've tested against.
     # There may be multiple per batch.
     n_test = 0
+    _tqdm = tqdm.tqdm if script else tqdm.tqdm_notebook
+    test_loader_tqdm = _tqdm(
+        test_loader,
+        desc=f'Final Exam ({epochs} / {epochs})',
+        leave=False,
+        ncols=100
+    )
     with torch.no_grad():
-        for x, y in test_loader:
+        for x, y in test_loader_tqdm:
             equations = y[1]
             x = x[0].cuda()
             y = y[0].cuda()
@@ -295,7 +303,7 @@ def test_single_physics(
     n_test = 0
 
     with torch.no_grad():
-        _trange = tqdm.trange if script else tqdm.notebook.trange
+        _trange = tqdm.trange if script else tqdm.tnrange
         test_loader_trange = _trange(
             start,
             stop,
