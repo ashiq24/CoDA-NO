@@ -109,8 +109,8 @@ class SWEDataset:
                        np.floor(self.sample_size))
 
         # expect strings like: "0000", ..., "0999"
-        self.samples = list(self.file.keys())[:self.sample_size]
-        self.normalizers = {}
+        self.samples: List[str] = list(self.file.keys())[:self.sample_size]
+        self.normalizers: Dict[Tuple[str, int], Normalizer] = {}
 
     @property
     def subsampling_rate(self):
@@ -181,7 +181,7 @@ class SWEDataset:
           water depth.
         """
         sample_key = self.samples[sample_idx]
-        norm = self.get_normalizer(sample_key)
+        norm = self.get_normalizer(sample_key, time_idx)
         datum = self.file[sample_key]['data'][
             time_idx : time_idx+t_steps,
             ::self.subsampling_rate,
@@ -189,18 +189,20 @@ class SWEDataset:
         ]
         return norm(datum)
 
-    def get_normalizer(self, key: int):
-        # TODO don't leak info about target/test data
-        # even as mean/std
-        if self.normalizers.get(key) is None:
-            # Normalize over the whole time trajectory of the sample.
-            norm = Normalizer(
-                np.mean(self.file[key]['data']),
-                np.std(self.file[key]['data']),
-            )
+    def get_normalizer(self, key: str, index: int) -> Normalizer:
+        if self.normalizers.get((key, index)) is None:
+            # Normalize over only the data that is "input,"
+            # including respecting subsampling:
+            steps = self.__class__.TRAJECTORY_LENGTH // 2
+            datum = self.file[key]['data'][
+                index : index + steps,
+                ::self.subsampling_rate,
+                ::self.subsampling_rate
+            ]
+            norm = Normalizer(np.mean(datum), np.std(datum))
             # Remember the normalizer to we can recover the original data.
-            self.normalizers[key] = norm
-        return self.normalizers[key]
+            self.normalizers[(key, index)] = norm
+        return self.normalizers.get((key, index))
 
 
 class DiffusionReaction2DDataset:
@@ -294,7 +296,7 @@ class DiffusionReaction2DDataset:
 
         # expect strings like: "0000", ..., "0999"
         self.samples: List[str] = list(self.file.keys())[:sample_size]
-        self.normalizers = {}
+        self.normalizers: Dict[Tuple[str, int, int], Normalizer] = {}
 
     @property
     def subsampling_rate(self):
@@ -361,24 +363,35 @@ class DiffusionReaction2DDataset:
         Shape: (time, x, y, channel)
         """
         sample_key = self.samples[sample_idx]
-        norm = self.get_normalizer(sample_key)
-        datum = self.file[sample_key]['data'][
+        norm_activator = self.get_normalizer(sample_key, time_idx, 0)
+        norm_inhibitor = self.get_normalizer(sample_key, time_idx, 1)
+        data0 = self.file[sample_key]['data'][
             time_idx : time_idx+t_steps,
             ::self.subsampling_rate,
             ::self.subsampling_rate
         ]
-        return norm(datum)
+        activator = data0[..., 0]
+        inhibitor = data0[..., 1]
+        return np.concatenate(
+            [norm_activator(activator), norm_inhibitor(inhibitor)],
+            axis=3,
+        )
 
-    def get_normalizer(self, key: str):
-        if self.normalizers.get(key) is None:
-            # Normalize over the whole time trajectory of the sample.
-            norm = Normalizer(
-                np.mean(self.file[key]['data']),
-                np.std(self.file[key]['data']),
-            )
+    def get_normalizer(self, key: str, index: int, channel: int) -> Normalizer:
+        if self.normalizers.get((key, index, channel)) is None:
+            # Normalize over only the data that is "input,"
+            # including respecting subsampling:
+            steps = self.__class__.TRAJECTORY_LENGTH // 2
+            datum = self.file[key]['data'][
+                index: index + steps,
+                ::self.subsampling_rate,
+                ::self.subsampling_rate,
+                channel,
+            ]
+            norm = Normalizer(np.mean(datum), np.std(datum))
             # Remember the normalizer to we can recover the original data.
-            self.normalizers[key] = norm
-        return self.normalizers[key]
+            self.normalizers[(key, index, channel)] = norm
+        return self.normalizers.get((key, index, channel))
 
 
 class NSIncompressibleSample(NamedTuple):
@@ -482,7 +495,7 @@ class NSIncompressibleDataset:
                     * self.strides_per_file
                     * self.strides_on
                     * self.sample_size)
-        self.normalizers: Dict[Tuple[str, int, str], Normalizer] = {}
+        self.normalizers: Dict[Tuple[str, int, int, str], Normalizer] = {}
 
     @property
     def subsampling_rate(self):
@@ -564,7 +577,7 @@ class NSIncompressibleDataset:
         h5_file = self.files[file_idx]
         sample_idx = sample_idx % self.sample_size
 
-        norm_p = self.get_normalizer(file_idx, sample_idx, 'particles')
+        norm_p = self.get_normalizer(file_idx, sample_idx, time_idx, 'particles')
         particles = h5_file['particles'][
             sample_idx,
             time_idx : time_idx+t_steps,
@@ -572,7 +585,7 @@ class NSIncompressibleDataset:
             ::self.subsampling_rate,
         ]
 
-        norm_v = self.get_normalizer(file_idx, sample_idx, 'velocity')
+        norm_v = self.get_normalizer(file_idx, sample_idx, time_idx, 'velocity')
         velocity = h5_file['velocity'][
             sample_idx,
             time_idx : time_idx+t_steps,
@@ -580,7 +593,8 @@ class NSIncompressibleDataset:
             ::self.subsampling_rate,
         ]
 
-        norm_f = self.get_normalizer(file_idx, sample_idx, 'force')
+        # Skip normalizing the force. It has a different shape and is unused.
+        # norm_f = self.get_normalizer(file_idx, sample_idx, 'force')
         force = h5_file['force'][
             sample_idx,
             ::self.subsampling_rate,
@@ -590,14 +604,21 @@ class NSIncompressibleDataset:
         return NSIncompressibleSample(
             norm_p(particles),
             norm_v(velocity),
-            norm_f(force),
+            force,
         )
 
-    def get_normalizer(self, path_idx, sample_idx: int, channel: str):
+    def get_normalizer(self, path_idx, sample_idx: int, time_idx: int, channel: str):
         filepath = self.paths[path_idx]
-        key = (filepath, sample_idx, channel)
+        key = (filepath, sample_idx, time_idx, channel)
+        t_steps = self.__class__.TRAJECTORY_LENGTH // 2
+
         if self.normalizers.get(key) is None:
-            datum = self.files[path_idx][channel][sample_idx]
+            datum = self.files[path_idx][channel][
+                sample_idx,
+                time_idx : time_idx+t_steps,
+                ::self.subsampling_rate,
+                ::self.subsampling_rate,
+            ]
             norm = Normalizer(np.mean(datum), np.std(datum))
             self.normalizers[key] = norm
         return self.normalizers.get(key)
