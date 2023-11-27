@@ -373,8 +373,11 @@ class DiffusionReaction2DDataset:
         activator = data0[..., 0]
         inhibitor = data0[..., 1]
         return np.concatenate(
-            [norm_activator(activator), norm_inhibitor(inhibitor)],
-            axis=3,
+            [
+                np.expand_dims(norm_activator(activator), axis=-1),
+                np.expand_dims(norm_inhibitor(inhibitor), axis=-1),
+            ],
+            axis=-1,
         )
 
     def get_normalizer(self, key: str, index: int, channel: int) -> Normalizer:

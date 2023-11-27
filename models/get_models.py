@@ -14,6 +14,7 @@ from data_utils.data_utils import (
     MaskerNonuniformMesh,
     MaskerUniform,
     MaskerUniformTemporal,
+    MaskerUniformIndependent,
     batched_masker,
 )
 from layers.attention import TnoBlock2d, TNOBlock
@@ -417,7 +418,7 @@ class SSLWrapper(nn.Module):
 
         # print("Doing Wrapper for", self.stage)
         if params.grid_type == 'uniform':
-            Masker = MaskerUniformTemporal if params.time_axis else MaskerUniform
+            Masker = MaskerUniformIndependent if params.time_axis else MaskerUniform
             self.augmenter_masker = Masker(
                 drop_type=params.drop_type,
                 max_block=params.max_block,
