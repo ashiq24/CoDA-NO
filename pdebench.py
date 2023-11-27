@@ -7,7 +7,7 @@ import wandb
 # -
 
 from data_utils.hdf5_datasets import *
-from data_utils.visualization import get_multi_physics_data_losses
+from data_utils.visualization import get_multi_physics_data_losses, show_data_diff
 from layers.attention import TNOBlock3D
 from models.codano import CoDANOTemporal
 from models.get_models import *
@@ -227,262 +227,81 @@ test_single_physics(
 
 
 # +
-# pprint.pprint(swe_losses)
-# pprint.pprint(diff_losses)
-# pprint.pprint(ns_losses)
-swe2_losses, diff2_losses, ns2_losses = get_multi_physics_data_losses(
-    model,
-    train_reconstructive_loader,
-    ((0, 125), (125, 250), (250, 300)),
-    stage=StageEnum.RECONSTRUCTIVE,
-    logger=logger,
-)
-
-# +
-N_ROWS = 3  # ground_truth, prediction, and error
-def show_data_diff(
-    data_loader,
-    model_stage,  # XXX
-    channel,
-    index=0, 
-    # n_rows=4,
-    n_cols=5,  # used as time axis
-):
-    model.stage = model_stage
-    logger.setLevel(logging.WARNING)  # plt is noisy on [DEBUG]
-    fig, axs = plt.subplots(
-        N_ROWS,
-        n_cols,
-        figsize=(13, 8),  # (width, height)
-        subplot_kw={'xticks': [], 'yticks': []},
-    )
-    (x, _), _ = data_loader.dataset[index]
-    x = x.unsqueeze(0).cuda()  # batch index
-    out, *_ = model(x.clone())  # XXX
-
-    x = x[0, channel].cpu()
-    vmin = x.min()
-    vmax = x.max()
-    row = 0
-    for c in range(n_cols):
-        ax = axs[row, c]
-        _x = x[c]
-        im = ax.imshow(_x, vmin=vmin, vmax=vmax)
-    fig.colorbar(im, ax=ax, location='right')
-    
-    out = out[0, channel].cpu().detach().numpy()
-    vmin = out.min()
-    vmax = out.max()
-    row = 1
-    for c in range(n_cols):
-        ax = axs[row, c]
-        _out = out[c]
-        im = ax.imshow(_out, vmin=vmin, vmax=vmax)
-    fig.colorbar(im, ax=ax, location='right')
-        
-    error2 = np.square(x - out)
-    vmin = error2.min()
-    vmax = error2.max()
-    row = 2
-    for c in range(n_cols):
-        ax = axs[row, c]
-        _error2 = error2[c].cpu().detach().numpy()
-        im = ax.imshow(_error2, vmin=vmin, vmax=vmax)
-    fig.colorbar(im, ax=ax, location='right')
-
-    plt.tight_layout()
-    plt.show()
-
-
-# swe_indices = [k[1] + 10*k[0] for k in swe_losses.keys()]
-
-print("WATER DEPTH (SHALLOW WATER)")
-show_data_diff(
-    train_reconstructive_loader,
-    model_stage=StageEnum.RECONSTRUCTIVE,
-    channel=0,
-    index=swe_indices[0],
-    # n_rows=2,
-    # n_cols=2,
-)
-
-# +
-N_ROWS = 3  # ground_truth, prediction, and error
-def show_data_diff(
-    ground_truth,
-    prediction,
-    channel,
-    n_cols=5,  # used as time axis
-):
-    logger.setLevel(logging.WARNING)  # plt is noisy on [DEBUG]
-    fig, axs = plt.subplots(
-        N_ROWS,
-        n_cols + 1,
-        figsize=(13, 8),  # (width, height)
-        subplot_kw={'xticks': [], 'yticks': []},
-    )
-
-    x = ground_truth[channel].cpu()
-    vmin = x.min()
-    vmax = x.max()
-    row = 0
-    for c in range(n_cols):
-        ax = axs[row, c]
-        _x = x[c]
-        im = ax.imshow(_x, vmin=vmin, vmax=vmax)
-    fig.colorbar(im, ax=axs[row, n_cols], location='left')
-    
-    y = prediction[channel].cpu().detach().numpy()
-    vmin = y.min()
-    vmax = y.max()
-    row = 1
-    for c in range(n_cols):
-        ax = axs[row, c]
-        _y = y[c]
-        im = ax.imshow(_y, vmin=vmin, vmax=vmax)
-    fig.colorbar(im, ax=axs[row, n_cols], location='left')
-        
-    error2 = np.square(x - y)
-    vmin = error2.min()
-    vmax = error2.max()
-    row = 2
-    for c in range(n_cols):
-        ax = axs[row, c]
-        _error2 = error2[c].cpu().detach().numpy()
-        im = ax.imshow(_error2, vmin=vmin, vmax=vmax)
-    fig.colorbar(im, ax=axs[row, n_cols], location='left')
-
-    plt.tight_layout()
-    plt.show()
-
-
-# swe_indices = [k[1] + 10*k[0] for k in swe_losses.keys()]
-
-print("WATER DEPTH (SHALLOW WATER)")
-show_data_diff(
-    train_reconstructive_loader,
-    model_stage=StageEnum.RECONSTRUCTIVE,
-    channel=0,
-    index=swe_indices[0],
-    # n_rows=2,
-    # n_cols=2,
-)
-
-
-# +
-# logger.setLevel(logging.WARNING)
-# diff_indices = [k[1] + 10*k[0] for k in diff_losses.keys()]
-
-# print("ACTIVATOR (DIFFUSION-REACTION)")
-# show_data_diffs(
-#     diff_indices,
-#     channel=1,
-#     n_rows=4,
-#     n_cols=2,  # Number of columns as measured in A(x), U(x) pairs
-# )
-
-# print("INHIBITOR (DIFFUSION-REACTION)")
-# show_data_diffs(
-#     diff_indices,
-#     channel=2,
-#     n_rows=4,
-#     n_cols=2,  # Number of columns as measured in A(x), U(x) pairs
-# )
-
-# +
-# logger.setLevel(logging.WARNING)
-# ns_indices = [k[1] + 10*k[0] for k in ns_losses.keys()]
-
-# print("PARTICLE DENSITY (NAVIER-STOKES)")
-# show_data_diffs(
-#     ns_indices,
-#     channel=3,
-#     n_rows=4,
-#     n_cols=2,
-# )
-
-# print("X-VELOCITY (NAVIER-STOKES)")
-# show_data_diffs(
-#     ns_indices,
-#     channel=4,
-#     n_rows=4,
-#     n_cols=2,
-# )
-
-# print("Y-VELOCITY (NAVIER-STOKES)")
-# show_data_diffs(
-#     ns_indices,
-#     channel=5,
-#     n_rows=4,
-#     n_cols=2,
-# )
 
 # +
 def show_multi_physics_data_diffs(
-    data_loader,
-    model_stage,
-    n_rows=2,
-    n_cols=2,
+    model: Union[CodANO, CoDANOTemporal],
+    data_loader: data.DataLoader,
+    stage: Optional[StageEnum] = None,
 ):
-    swe_losses, diff_losses, ns_losses = get_data_losses(model, data_loader, cutoff=4)
-    show_data_args = dict(
-        data_loader=data_loader,
-        model_stage=model_stage,
-        n_rows=n_rows,
-        n_cols=n_cols,
+    swe_loss, diff_loss, ns_loss = get_multi_physics_data_losses(
+        model,
+        data_loader,
+        ((0, 125), (125, 250), (250, 300)),
+        stage=stage,
+        logger=logger,
     )
-    
-    logger.setLevel(logging.WARNING)  # plt is noisy
-    swe_indices = [k[1] + data_loader.batch_size*k[0] for k in swe_losses.keys()]
-    
+
     print("WATER DEPTH (SHALLOW WATER)")
-    show_data_diffs(
-        indices=swe_indices,
+    show_data_diff(
+        data_loader.dataset[swe_loss[0]],
+        swe_loss[2],
         channel=0,
-        **show_data_args,
+        logger=logger,
     )
     
-    diff_indices = [k[1] + data_loader.batch_size*k[0] for k in diff_losses.keys()]
     print("ACTIVATOR (DIFFUSION-REACTION)")
-    show_data_diffs(
-        indices=diff_indices,
+    show_data_diff(
+        data_loader.dataset[diff_loss[0]],
+        diff_loss[2],
         channel=1,
-        **show_data_args,
+        logger=logger,
     )
     
     print("INHIBITOR (DIFFUSION-REACTION)")
-    show_data_diffs(
-        indices=diff_indices,
+    show_data_diff(
+        data_loader.dataset[diff_loss[0]],
+        diff_loss[2],
         channel=2,
-        **show_data_args,
+        logger=logger,
     )
     
-    ns_indices = [k[1] + data_loader.batch_size*k[0] for k in ns_losses.keys()]    
     print("PARTICLE DENSITY (NAVIER-STOKES)")
-    show_data_diffs(
-        indices=ns_indices,
+    show_data_diff(
+        data_loader.dataset[ns_loss[0]],
+        ns_loss[2],
         channel=3,
-        **show_data_args,
+        logger=logger,
     )
     
     print("X-VELOCITY (NAVIER-STOKES)")
-    show_data_diffs(
-        indices=ns_indices,
+    show_data_diff(
+        data_loader.dataset[ns_loss[0]],
+        ns_loss[2],
         channel=4,
-        **show_data_args,
+        logger=logger,
     )
     
     print("Y-VELOCITY (NAVIER-STOKES)")
-    show_data_diffs(
-        indices=ns_indices,
+    show_data_diff(
+        data_loader.dataset[ns_loss[0]],
+        ns_loss[2],
         channel=5,
-        **show_data_args,
+        logger=logger,
     )
 
-show_multi_physics_data_diffs(train_reconstructive_loader, StageEnum.RECONSTRUCTIVE)
+show_multi_physics_data_diffs(
+    model,
+    train_reconstructive_loader,
+    StageEnum.RECONSTRUCTIVE,
+)
 # -
 
-show_multi_physics_data_diffs(test_reconstructive_loader, StageEnum.RECONSTRUCTIVE)
+show_multi_physics_data_diffs(
+    model,
+    test_reconstructive_loader,
+    StageEnum.RECONSTRUCTIVE,
+)
 
 # TODO make a small helper to (uniquely) name models
 #
@@ -541,9 +360,17 @@ test_single_physics(
 # test_single_physics(0, 4400)
 
 # +
-show_multi_physics_data_diffs(train_predictive_loader, StageEnum.PREDICTIVE)
+show_multi_physics_data_diffs(
+    model,
+    train_predictive_loader,
+    StageEnum.PREDICTIVE,
+)
 
-show_multi_physics_data_diffs(test_predictive_loader, StageEnum.PREDICTIVE)
+show_multi_physics_data_diffs(
+    model,
+    test_predictive_loader,
+    StageEnum.PREDICTIVE,
+)
 # -
 
 # torch.save(model, 'weights/model_4_sl.pth')

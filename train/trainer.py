@@ -13,6 +13,13 @@ from torch.optim.lr_scheduler import StepLR
 from data_utils.hdf5_datasets import Equation
 
 
+MAP_EQUATION_TO_CHANNELS = {
+    Equation.SWE: (0,),
+    Equation.DIFF: (1, 2),
+    Equation.NS: (3, 4, 5,),
+}
+
+
 def simple_trainer(
     model,
     train_loader,
@@ -193,7 +200,10 @@ def multi_physics_trainer(
             y = y[0].cuda()
             optimizer.zero_grad()
 
-            outs = model(x)
+            model.next_channels = tuple([
+                MAP_EQUATION_TO_CHANNELS[Equation(eq.item())] for eq in equations
+            ])
+            out, *_ = model(x)
             train_count += 1
 
             losses = torch.tensor(0.0, dtype=torch.float).cuda()
@@ -201,11 +211,10 @@ def multi_physics_trainer(
             # the same equations in one "mini-batch?"
             for k, eq in enumerate(equations):
                 loss = multi_physics_loss(
-                    y,
-                    outs[0],
+                    y[k],
+                    out[k],
                     loss_fn, 
                     Equation(eq.item()),
-                    batch_index=k,
                 )
                 losses += loss
 
@@ -220,7 +229,7 @@ def multi_physics_trainer(
                 )
 
             optimizer.step()
-            del x, y, outs, loss
+            del x, y, out, loss
             gc.collect()
 
         torch.cuda.empty_cache()
@@ -263,15 +272,17 @@ def multi_physics_trainer(
             x = x[0].cuda()
             y = y[0].cuda()
 
-            outs = model(x)
+            model.next_channels = tuple([
+                MAP_EQUATION_TO_CHANNELS[Equation(eq.item())] for eq in equations
+            ])
+            out, *_ = model(x)
 
             for k, eq in enumerate(equations):
                 loss = multi_physics_loss(
-                    y,
-                    outs[0],
+                    y[k],
+                    out[k],
                     loss_fn, 
                     Equation(eq.item()),
-                    batch_index=k,
                 )
                 test_l2 += loss.item()
                 n_test += 1
@@ -316,13 +327,13 @@ def test_single_physics(
             x = x[0].unsqueeze(0).cuda()
             y = y[0].unsqueeze(0).cuda()
 
-            outs = model(x)
+            model.next_channels = (MAP_EQUATION_TO_CHANNELS[eq],)
+            out, *_ = model(x)
             loss = multi_physics_loss(
-                y,
-                outs[0],
+                y[0],
+                out[0],
                 loss_fn,
                 Equation(eq),
-                batch_index=0,
             )
             test_l2 += loss.item()
             n_test += 1

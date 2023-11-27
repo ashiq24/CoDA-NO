@@ -4,20 +4,14 @@ from typing import Optional, List, Tuple, Union
 
 import numpy as np
 import torch
+from matplotlib import pyplot as plt
 from torch import nn
 from torch.utils import data
 
 from data_utils.hdf5_datasets import Equation
 from models.codano import CodANO, CoDANOTemporal
 from models.get_models import StageEnum
-from train.trainer import multi_physics_loss
-
-
-MAP_EQUATION_TO_CHANNELS = {
-    Equation.SWE: (0,),
-    Equation.DIFF: (1, 2),
-    Equation.NS: (3, 4, 5,),
-}
+from train.trainer import multi_physics_loss, MAP_EQUATION_TO_CHANNELS
 
 
 # When the model performs badly, HOW is it performing badly?
@@ -80,3 +74,55 @@ def get_multi_physics_data_losses(
     torch.cuda.empty_cache()
     return domain_losses
 
+
+N_ROWS = 3  # ground_truth, prediction, and error
+def show_data_diff(
+    ground_truth: torch.Tensor(),
+    prediction: torch.Tensor(),
+    channel: int,
+    n_cols=5,  # used as time axis
+    logger: Optional[logging.Logger] = None
+):
+    if logger is None:
+        logger = logging.getLogger()
+    logger.setLevel(logging.WARNING)  # plt is noisy on [DEBUG]
+
+    fig, axs = plt.subplots(
+        N_ROWS,
+        n_cols + 1,
+        figsize=(13, 8),  # (width, height)
+        subplot_kw={'xticks': [], 'yticks': []},
+    )
+
+    x = ground_truth[channel].cpu()
+    v_min = x.min()
+    v_max = x.max()
+    row = 0
+    for c in range(n_cols):
+        ax = axs[row, c]
+        _x = x[c]
+        im = ax.imshow(_x, vmin=v_min, vmax=v_max)
+    fig.colorbar(im, ax=axs[row, n_cols], location='left')
+
+    y = prediction[channel].cpu().detach().numpy()
+    v_min = y.min()
+    v_max = y.max()
+    row = 1
+    for c in range(n_cols):
+        ax = axs[row, c]
+        _y = y[c]
+        im = ax.imshow(_y, vmin=v_min, vmax=v_max)
+    fig.colorbar(im, ax=axs[row, n_cols], location='left')
+
+    error2 = np.square(x - y)
+    v_min = error2.min()
+    v_max = error2.max()
+    row = 2
+    for c in range(n_cols):
+        ax = axs[row, c]
+        _error2 = error2[c].cpu().detach().numpy()
+        im = ax.imshow(_error2, vmin=v_min, vmax=v_max)
+    fig.colorbar(im, ax=axs[row, n_cols], location='left')
+
+    plt.tight_layout()
+    plt.show()
