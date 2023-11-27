@@ -7,12 +7,12 @@ import wandb
 # -
 
 from data_utils.hdf5_datasets import *
+from data_utils.visualization import get_multi_physics_data_losses
 from layers.attention import TNOBlock3D
 from models.codano import CoDANOTemporal
 from models.get_models import *
 from train.trainer import (
     multi_physics_trainer,
-    multi_physics_loss,
     test_single_physics,
 )
 from utils import get_wandb_api_key
@@ -225,71 +225,8 @@ test_single_physics(
 
 # *Investigate and visualize performance of encoder/decoder reconstruction.*
 
-# +
-import gc
-
-gc.collect()
-torch.cuda.empty_cache()
-
 
 # +
-# When the model performs badly, HOW is it performing badly?
-def get_multi_physics_data_losses(model, data_loader, domains):
-    """Assumes `model` has been set to the apt stage by the caller."""
-    logger.setLevel(logging.DEBUG)
-    model.eval()
-    ys = [None for _ in range(len(data_loader.dataset) // data_loader.batch_size)]
-    losses = [0.0 for _ in range(len(data_loader.dataset))]
-
-    # TODO consider using tqdm for larger datasets for visibility
-    for j, (x, _) in enumerate(data_loader):
-        equations = x[1]
-        x = x[0].cuda()
-        out, *_ = model(x.clone())  # capture all but the first of the returned tuple in under
-
-        # We want to "remember" the worst-performing prediction
-        loss_min = np.inf
-        k_min = -1
-        # losses = torch.tensor(0.0, dtype=torch.float).cuda()
-        for k, eq in enumerate(equations):
-            loss = multi_physics_loss(
-                x.clone(),
-                out.clone(),
-                nn.MSELoss(),
-                Equation(eq.item()),
-                batch_index=k,
-            )
-            if loss < loss_min:
-                loss_min = loss
-                k_min = k
-            # losses += loss
-            idx = j * data_loader.batch_size + k
-            losses[idx] = loss.item()
-        
-        ys[j] = out[k_min].clone()
-        del x, out
-        gc.collect()
-        torch.cuda.empty_cache()        
-
-    # What are the worst learned data points?
-    # batch_size = data_loader.batch_size
-    # swe_losses = {
-    #     k: v for k, v in losses.items() 
-    #     if k[1] + batch_size * k[0] < 125
-    # }
-    # ns_losses = {
-    #     k: v for k, v in ns_losses.items()
-    #     if v > list(sorted(ns_losses.values(), reverse=True))[cutoff]
-    # }
-
-    # What are the worst learned data points for each domain?
-    domain_losses = []
-    for lo, hi in domains:
-        idx, _loss = max(enumerate(losses[lo:hi]), key=lambda ix: ix[1])
-        domain_losses.append((idx, ys[idx // data_loader.batch_size]))
-
-    return domain_losses
-
 # pprint.pprint(swe_losses)
 # pprint.pprint(diff_losses)
 # pprint.pprint(ns_losses)
@@ -297,6 +234,8 @@ swe2_losses, diff2_losses, ns2_losses = get_multi_physics_data_losses(
     model,
     train_reconstructive_loader,
     ((0, 125), (125, 250), (250, 300)),
+    stage=StageEnum.RECONSTRUCTIVE,
+    logger=logger,
 )
 
 # +

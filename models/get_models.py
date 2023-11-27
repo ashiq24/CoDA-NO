@@ -1,7 +1,7 @@
 import enum
 from functools import partial
 import logging
-from typing import Optional, Type, Union
+from typing import Optional, Type, Union, Tuple
 
 import numpy as np
 import torch
@@ -407,6 +407,7 @@ class SSLWrapper(nn.Module):
         self.predictor = predictor
 
         self.reconstruction = params.reconstruction
+        self.next_channels: Optional[Tuple[Tuple[int]]] = None
 
         self.enable_cls_token = params.enable_cls_token
 
@@ -458,6 +459,10 @@ class SSLWrapper(nn.Module):
                 channel_drop_rate=params.channel_drop_per_val,
             )
 
+    def reset_channels(self):
+        # TODO add a setting where `next_channels` have some persistence.
+        self.next_channels = None
+
     def forward(self, x, static_random_tensor=None):
         if self.stage == StageEnum.RECONSTRUCTIVE:
             return self.forward_reconstructive(x)
@@ -471,7 +476,13 @@ class SSLWrapper(nn.Module):
     def forward_reconstructive(self, x):
         # Append unpredicted features:
         with torch.no_grad():
-            x_masked, _mask = batched_masker(x.clone(), self.augmenter_masker)
+            x_masked, _mask = batched_masker(
+                x.clone(),
+                self.augmenter_masker,
+                batched_channels=self.next_channels,
+            )
+            # Enforce that `next_channels` must be set before every forward call
+            self.reset_channels()
 
         x_encoded = self.encoder(x_masked)
         # print("Feature Shape", x_encoded.shape)

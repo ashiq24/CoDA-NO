@@ -123,10 +123,8 @@ def multi_physics_loss(
     prediction,
     loss_fn,
     eq: Equation,
-    batch_index: int,
 ):
     slices = [
-        batch_index,
         slice(None),
         slice(None),
         slice(None),
@@ -135,11 +133,11 @@ def multi_physics_loss(
     # flat "projection" to attend to only the fields relevant
     # to the equation under study.
     if eq == Equation.SWE:
-        slices.insert(1, 0)
+        slices.insert(0, 0)
     elif eq == Equation.DIFF:
-        slices.insert(1, slice(1, 3))
+        slices.insert(0, slice(1, 3))
     elif eq == Equation.NS:
-        slices.insert(1, slice(3, None))
+        slices.insert(0, slice(3, None))
     else:
         raise ValueError(f"Invalid equation: {eq}")
 
@@ -203,8 +201,8 @@ def multi_physics_trainer(
             # the same equations in one "mini-batch?"
             for k, eq in enumerate(equations):
                 loss = multi_physics_loss(
-                    y.clone(), 
-                    outs[0].clone(),
+                    y,
+                    outs[0],
                     loss_fn, 
                     Equation(eq.item()),
                     batch_index=k,
@@ -269,7 +267,7 @@ def multi_physics_trainer(
 
             for k, eq in enumerate(equations):
                 loss = multi_physics_loss(
-                    y.clone(),
+                    y,
                     outs[0],
                     loss_fn, 
                     Equation(eq.item()),
@@ -320,7 +318,7 @@ def test_single_physics(
 
             outs = model(x)
             loss = multi_physics_loss(
-                y.clone(),
+                y,
                 outs[0],
                 loss_fn,
                 Equation(eq),

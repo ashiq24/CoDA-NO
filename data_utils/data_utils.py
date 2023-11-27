@@ -1,6 +1,7 @@
 import math
 import random
 import sys
+from typing import Optional, Tuple
 
 import numpy as np
 import torch
@@ -148,6 +149,8 @@ class MaskerUniformTemporal:
         np.random.seed()
         c, t, h, w = size
         mask = torch.ones(size, device=self.device)
+        # NOTE: this choice is made WITH replacements,
+        # which means a single channel could be masked multiple times.
         augmented_channels = np.random.choice(c, math.ceil(c * self.channel_per))
         # print(augmented_channels)
         drop_len = int(self.channel_drop_per * math.ceil(c * self.channel_per))
@@ -211,19 +214,18 @@ class MaskerUniformIndependent:
         max_block=0.7,
         drop_pix=0.3,
         channel_per=0.5,
-        channel_drop_per=0.2,
         device='cpu',
         min_block=10,
+        **_kwargs,
     ):
         self.drop_type = drop_type
         self.max_block = max_block
         self.drop_pix = drop_pix
         self.channel_per = channel_per
-        self.channel_drop_per = channel_drop_per
         self.device = device
         self.min_block = min_block
 
-    def __call__(self, size):
+    def __call__(self, size, channels: Optional[Tuple[Tuple[int]]] = None):
         """Returns a mask to be multiplied into a data tensor.
 
         Generates a binary mask of 0s and 1s to be point-wise multiplied into a
@@ -238,16 +240,18 @@ class MaskerUniformIndependent:
         np.random.seed()
         C, T, H, W = size
         mask = torch.ones(size, device=self.device)
-        augmented_channels = np.random.choice(C, math.ceil(C * self.channel_per))
+        augmented_channels = np.random.choice(
+            channels if channels is not None else C,
+            math.ceil(C * self.channel_per),
+            replace=False,
+        )
         # print(augmented_channels)
-        drop_len = int(self.channel_drop_per * math.ceil(C * self.channel_per))
-        mask[augmented_channels[:drop_len], :, :, :] = 0.0
-        for i in augmented_channels[drop_len:]:
+        for i in augmented_channels:
             for t in range(T):
                 # print("Masking")
                 n_drop_pix = self.drop_pix * H * W
-                mx_blk_height = int(H * self.max_block)
-                mx_blk_width = int(W * self.max_block)
+                max_block_height = int(H * self.max_block)
+                max_block_width = int(W * self.max_block)
 
                 while n_drop_pix > 0:
                     # Pick one corner of the mask:
@@ -256,11 +260,11 @@ class MaskerUniformIndependent:
 
                     # Pick lengths of the mask along each dimension:
                     mask_height = min(
-                        random.randint(self.min_block, mx_blk_height),
+                        random.randint(self.min_block, max_block_height),
                         H - y0
                     )
                     mask_width = min(
-                        random.randint(self.min_block, mx_blk_width),
+                        random.randint(self.min_block, max_block_width),
                         W - x0
                     )
 
@@ -276,15 +280,32 @@ class MaskerUniformIndependent:
         return None, mask
 
 
-def batched_masker(data_i, aug):
+def batched_masker(
+    data_i: torch.Tensor,  # with a batch dimension
+    aug,  # instance of a Masker like above
+    batched_channels: Optional[Tuple[Tuple[int]]] = None,
+):
     data = torch.zeros_like(data_i)
     data.copy_(data_i)
     mask = []
     aug.device = data_i.device
     # print(data_i.device)
-    for i in range(data.shape[0]):
-        _, n = aug(data[i].shape)
-        mask.append(n)
+    if batched_channels is None:
+        for i in range(data.shape[0]):
+            _, m = aug(data[i].shape)
+            mask.append(m)
+
+    else:
+        if len(batched_channels) != data.shape[0]:
+            raise ValueError(
+                "Require exactly one channel spec per batch item.\n"
+                f"Got {len(batched_channels)=}, {data.shape[0]=}"
+            )
+
+        for i, channels in enumerate(batched_channels):
+            _, m = aug(data[i].shape, channels)
+            mask.append(m)
+
     # print("loop done")
     masks = torch.stack(mask, dim=0)
     # print("returning from augmenter")
