@@ -302,16 +302,18 @@ def multi_physics_trainer(
 def test_single_physics(
     model: nn.Module,
     test_loader: data.DataLoader,
+    loss_fn,
     start: int,
     stop: int,
     script=True
 ) -> None:
-    loss_fn = nn.MSELoss()
+    # loss_fn = nn.MSELoss()
     t1 = default_timer()
     test_l2 = 0.0
     n_test = 0
 
     with torch.no_grad():
+        # TODO TqdmDeprecationWarning: Please use `tqdm.notebook.trange` instead of `tqdm.tnrange`
         _trange = tqdm.trange if script else tqdm.tnrange
         test_loader_trange = _trange(
             start,
@@ -327,7 +329,7 @@ def test_single_physics(
             x = x[0].unsqueeze(0).cuda()
             y = y[0].unsqueeze(0).cuda()
 
-            model.next_channels = (MAP_EQUATION_TO_CHANNELS[eq],)
+            model.next_channels = (MAP_EQUATION_TO_CHANNELS[Equation(eq)],)
             out, *_ = model(x)
             loss = multi_physics_loss(
                 y[0],
@@ -342,3 +344,4 @@ def test_single_physics(
     test_time = t2 - t1
     print(f"Time: {test_time:.2f}s\n"
           f"Loss: {test_l2 / n_test:.6f}")
+
