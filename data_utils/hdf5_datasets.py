@@ -204,6 +204,9 @@ class SWEDataset:
         return self.normalizers.get((key, index))
 
 
+# TODO is offset=0 the "right" way to consume this dataset?
+# The first time frame of each sample is a noisy (Gaussian? Perlin?) initial
+# condition, but then all following time frames look substantially different.
 class DiffusionReaction2DDataset:
     """
     Represents one HDF5 dataset of 2D Diffusion-Reaction trajectories from PDEBench.
@@ -708,18 +711,23 @@ class MultiPhysicsDataset(data.Dataset):
         common_args = dict(
             strides_on=strides_on,
             strides_off=strides_off,
-            offset=offset,
             predictive=predictive,
         )
 
-        self.swe_dataset = SWEDataset(**swe_args, **common_args)
+        self.swe_dataset = SWEDataset(
+            **swe_args,
+            **common_args,
+            offset=offset + swe_args.get("offset", 0),
+        )
         self.diff_dataset = DiffusionReaction2DDataset(
             **diff_args,
             **common_args,
+            offset=offset + diff_args.get("offset", 0),
         )
         self.ns_dataset = NSIncompressibleDataset(
             **ns_args,
             **common_args,
+            offset=offset + ns_args.get("offset", 0),
         )
         self.channel_dim = channel_dim
 

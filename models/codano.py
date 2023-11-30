@@ -15,6 +15,7 @@ from layers.regrider import Regird
 from layers.variable_encoding import VariableEncoding2d, FourierVariableEncoding3D
 
 
+# TODO replace with nerualop.MLP module
 class Projection(nn.Module):
     def __init__(
         self,
@@ -60,6 +61,8 @@ class Projection(nn.Module):
         return x
 
 
+# TODO replace with nerualop.MLP module
+# This may take some thinking about how to add the permutation equivariance einop.
 class ProjectionT(Projection):
     """Time-aware projection MLP layer"""
 
