@@ -14,6 +14,7 @@ from data_utils.data_utils import (
     MaskerNonuniformMesh,
     MaskerUniform,
     MaskerUniformTemporal,
+    MaskerUniformIndependent,
     batched_masker,
 )
 from layers.attention import TnoBlock2d, TNOBlock
@@ -417,7 +418,7 @@ class SSLWrapper(nn.Module):
 
         # print("Doing Wrapper for", self.stage)
         if params.grid_type == 'uniform':
-            Masker = MaskerUniformTemporal if params.time_axis else MaskerUniform
+            Masker = MaskerUniformIndependent if params.time_axis else MaskerUniform
             self.augmenter_masker = Masker(
                 drop_type=params.drop_type,
                 max_block=params.max_block,
@@ -523,6 +524,7 @@ class SSLWrapper(nn.Module):
     def forward_predictive(self, x):
         cls_offset = 1 if self.enable_cls_token else 0
 
+        # TODO wrap this in pretty method
         if self.freeze_encoder:
             with torch.no_grad():
                 x_encoded = self.encoder(x.clone())
@@ -530,7 +532,15 @@ class SSLWrapper(nn.Module):
             x_encoded = self.encoder(x.clone())
 
         out = self.predictor(x_encoded)
-        # TODO why aren't we using the decoder?
+
+        if self.reconstruction:
+            if self.freeze_encoder:
+                with torch.no_grad():
+                    y_decoded = self.decoder(out)
+            else:
+                y_decoded = self.decoder(out)
+
+            out = y_decoded
 
         # XXX why is the use of cls_offset inconsistent?
         # discarding CLS token and additional static channels if added.
@@ -550,3 +560,4 @@ class SSLWrapper(nn.Module):
         out = out[_slice]
 
         return out, None, None, None
+

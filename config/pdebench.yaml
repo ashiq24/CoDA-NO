@@ -126,7 +126,7 @@ codano_gino: &CODANO_GINO
     predictor:
         # Expected to be equal to encoder.hidden_token_codimension:
         input_token_codimension: 6
-        output_token_codimension:  1
+        output_token_codimension:  6
         ### TUNE P1 ###
         hidden_token_codimension: 6
         lifting_token_codimension: 12
@@ -185,7 +185,7 @@ fno_gino: &FNO_GINO
     predictor:
         # Expected to be equal to encoder.hidden_token_codimension:
         input_token_codimension: 6
-        output_token_codimension:  1
+        output_token_codimension:  6
         ### TUNE P1 ###
         hidden_token_codimension: 6
         lifting_token_codimension: 12

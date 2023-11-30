@@ -17,6 +17,7 @@ from train.trainer import multi_physics_loss, MAP_EQUATION_TO_CHANNELS
 # When the model performs badly, HOW is it performing badly?
 # because of masking, I need to remember the model output, which usually still
 # has edges in it from being masked.
+# TODO get masks from model wrapper and save those during train/test (opt)
 def get_multi_physics_data_losses(
     model: Union[CodANO, CoDANOTemporal],
     data_loader: data.DataLoader,
@@ -42,7 +43,7 @@ def get_multi_physics_data_losses(
     def update_losses(data_idx: int, item_loss: float, pred: torch.Tensor):
         for domain_idx, (lo, hi) in enumerate(domains):
             if lo <= data_idx < hi and item_loss > domain_losses[domain_idx][1]:
-                domain_losses[domain_idx] = (data_idx, item_loss, pred.clone())
+                domain_losses[domain_idx] = (data_idx, item_loss, pred)
 
 
     # TODO consider using tqdm for larger datasets for visibility
@@ -54,7 +55,7 @@ def get_multi_physics_data_losses(
         model.next_channels = tuple([
             MAP_EQUATION_TO_CHANNELS[Equation(eq.item())] for eq in equations
         ])
-        out, *_ = model(x.clone())
+        out, *_ = model(x)
         # capture all but the first of the returned tuple in underscore.
 
         # TODO add reporting for total/avg losses in each dataset
@@ -70,8 +71,8 @@ def get_multi_physics_data_losses(
 
         del x, y, out, loss
         gc.collect()
+        torch.cuda.empty_cache()
 
-    torch.cuda.empty_cache()
     return domain_losses
 
 
@@ -123,6 +124,77 @@ def show_data_diff(
         _error2 = error2[c].cpu().detach().numpy()
         im = ax.imshow(_error2, vmin=v_min, vmax=v_max)
     fig.colorbar(im, ax=axs[row, n_cols], location='left')
+    # TODO this makes the color last ax column be awkwardly half empty. fix.
 
     plt.tight_layout()
     plt.show()
+
+
+def show_multi_physics_data_diffs(
+    model: Union[CodANO, CoDANOTemporal],
+    data_loader: data.DataLoader,
+    stage: Optional[StageEnum] = None,
+):
+    swe_loss, diff_loss, ns_loss = get_multi_physics_data_losses(
+        model,
+        data_loader,
+        # TODO add these indexes to config
+        ((0, 125), (125, 250), (250, 300)),
+        stage=stage,
+        logger=logger,
+    )
+
+    print("WATER DEPTH (SHALLOW WATER)")
+    (depth, _), _ = data_loader.dataset[swe_loss[0]]
+    show_data_diff(
+        depth,
+        swe_loss[2],
+        channel=0,
+        logger=logger,
+    )
+    
+    print("ACTIVATOR (DIFFUSION-REACTION)")
+    (activator, _), _ = data_loader.dataset[diff_loss[0]]
+    show_data_diff(
+        activator,
+        diff_loss[2],
+        channel=1,
+        logger=logger,
+    )
+    
+    print("INHIBITOR (DIFFUSION-REACTION)")
+    (inhibitor, _), _ = data_loader.dataset[diff_loss[0]]
+    show_data_diff(
+        inhibitor,
+        diff_loss[2],
+        channel=2,
+        logger=logger,
+    )
+    
+    print("PARTICLE DENSITY (NAVIER-STOKES)")
+    (particles, _), _ = data_loader.dataset[ns_loss[0]]
+    show_data_diff(
+        particles,
+        ns_loss[2],
+        channel=3,
+        logger=logger,
+    )
+    
+    print("X-VELOCITY (NAVIER-STOKES)")
+    (velocity_x, _), _ = data_loader.dataset[ns_loss[0]]
+    show_data_diff(
+        velocity_x,
+        ns_loss[2],
+        channel=4,
+        logger=logger,
+    )
+    
+    print("Y-VELOCITY (NAVIER-STOKES)")
+    (velocity_y, _), _ = data_loader.dataset[ns_loss[0]]
+    show_data_diff(
+        velocity_y,
+        ns_loss[2],
+        channel=5,
+        logger=logger,
+    )
+

@@ -240,11 +240,19 @@ class MaskerUniformIndependent:
         np.random.seed()
         C, T, H, W = size
         mask = torch.ones(size, device=self.device)
-        augmented_channels = np.random.choice(
-            channels if channels is not None else C,
-            math.ceil(C * self.channel_per),
-            replace=False,
-        )
+        n_augmented_channels = math.ceil(C * self.channel_per)
+        if channels is None:
+            augmented_channels = np.random.choice(
+                C, n_augmented_channels, replace=False,
+            )
+
+        else:
+            augmented_channels = np.random.choice(
+                channels,
+                min(n_augmented_channels, len(channels)),
+                replace=False,
+            )
+
         # print(augmented_channels)
         for i in augmented_channels:
             for t in range(T):
