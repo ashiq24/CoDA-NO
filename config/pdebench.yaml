@@ -19,43 +19,6 @@ base_config: &BASE_CONFIG
     batch_size: 25
     n_variables: 6
 
-    encoder:
-        input_token_codimension: 1
-        ### TUNE P1 ###
-        hidden_token_codimension: 6
-        lifting_token_codimension: 12
-        n_heads: [2, 2]
-        n_modes: [[8, 12, 12], [8, 12, 12]]
-        ### TUNE P1 ###
-        n_layers: 2
-        scalings: [[1, 1], [1, 1]]
-
-    decoder:
-        # Expected to be equal to encoder.hidden_token_codimension:
-        input_token_codimension: 6
-        output_token_codimension: 1
-        ### TUNE P1 ###
-        hidden_token_codimension: 6
-        lifting_token_codimension: 12
-        n_heads: [2, 2]
-        n_modes: [[8, 12, 12], [8, 12, 12]]
-        ### TUNE P1 ###
-        n_layers: 2
-        scalings: [[1, 1], [1, 1]]
-
-    predictor:
-        # Expected to be equal to encoder.hidden_token_codimension:
-        input_token_codimension: 6
-        output_token_codimension:  1
-        ### TUNE P1 ###
-        hidden_token_codimension: 6
-        lifting_token_codimension: 12
-        n_heads: [2, 2, 2]
-        n_modes: [[8, 12, 12], [8, 12, 12], [8, 12, 12]]
-        ### TUNE P1 ###
-        n_layers: 3
-        scalings: [[1, 1], [1, 1], [1, 1]]
-
     per_channel_attention: False
 
     transform_type: 'fft'
@@ -91,15 +54,25 @@ base_config: &BASE_CONFIG
       clip: !!bool True
       threshold: 0.1
 
-    filepath_swe: "/mnt/mogab/data/pdebench/2D/shallow-water/2D_rdb_NA_NA.h5"
-    filepath_diff: "/mnt/mogab/data/pdebench/2D/diffusion-reaction/2D_diff-react_NA_NA.h5"
-    filepaths_ns: [
-        "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-90.h5",
-        # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-91.h5",
-        # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-92.h5",
-        # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-93.h5",
-        # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-94.h5",
-    ]
+    # PDEBench datasets:
+    shallow_water:
+        filepath: "/mnt/mogab/data/pdebench/2D/shallow-water/2D_rdb_NA_NA.h5"
+        subsampling_rate: 2,  # 64 x 64 resolution
+        sample_size: 25,  # 25 samples * 5 a/u pairs per sample
+    diffusion_reaction:
+        filepath: "/mnt/mogab/data/pdebench/2D/diffusion-reaction/2D_diff-react_NA_NA.h5"
+        subsampling_rate: 2,  # 64 x 64 resolution
+        sample_size: 25,  # 25 samples * 5 a/u pairs per sample
+    navier_stokes:
+        filepaths: [
+            "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-90.h5",
+            # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-91.h5",
+            # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-92.h5",
+            # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-93.h5",
+            # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-94.h5",
+        ]
+        subsampling_rate: 8,  # 64 x 64 resolution
+        sample_size: 1,  # 1 samples * 50 a/u pairs per sample
 
     # Weights and biases
     wandb:
@@ -184,6 +157,43 @@ fno_gino: &FNO_GINO
     # does not supporting turning on
     var_enco_channels: 0
     enable_cls_token: !!bool False
+
+    encoder:
+        input_token_codimension: 1
+        ### TUNE P1 ###
+        hidden_token_codimension: 6
+        lifting_token_codimension: 12
+        n_heads: [2, 2]
+        n_modes: [[8, 12, 12], [8, 12, 12]]
+        ### TUNE P1 ###
+        n_layers: 2
+        scalings: [[1, 1], [1, 1]]
+
+    decoder:
+        # Expected to be equal to encoder.hidden_token_codimension:
+        input_token_codimension: 6
+        output_token_codimension: 1
+        ### TUNE P1 ###
+        hidden_token_codimension: 6
+        lifting_token_codimension: 12
+        n_heads: [2, 2]
+        n_modes: [[8, 12, 12], [8, 12, 12]]
+        ### TUNE P1 ###
+        n_layers: 2
+        scalings: [[1, 1], [1, 1]]
+
+    predictor:
+        # Expected to be equal to encoder.hidden_token_codimension:
+        input_token_codimension: 6
+        output_token_codimension:  1
+        ### TUNE P1 ###
+        hidden_token_codimension: 6
+        lifting_token_codimension: 12
+        n_heads: [2, 2, 2]
+        n_modes: [[8, 12, 12], [8, 12, 12], [8, 12, 12]]
+        ### TUNE P1 ###
+        n_layers: 3
+        scalings: [[1, 1], [1, 1], [1, 1]]
 
 
 fno: &FNO

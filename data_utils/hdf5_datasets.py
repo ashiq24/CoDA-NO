@@ -18,7 +18,6 @@ from data_utils.data_loaders import Normalizer
 
 DEBUG = False
 
-
 class SWEDataset:
     """
     Represents one HDF5 dataset of 2D Shallow Water Equation trajectories
@@ -42,7 +41,7 @@ class SWEDataset:
 
     def __init__(
         self,
-        path: str,
+        filepath: str,
         subsampling_rate=None,
         strides_on=1,
         strides_off=1,
@@ -67,8 +66,8 @@ class SWEDataset:
         offset: int
             Temporal offset to be applied to each sample.
         """
-        self.path = path
-        self.file = h5py.File(path)
+        self.path = filepath
+        self.file = h5py.File(filepath)
         self._subsampling_rate = subsampling_rate
 
         self.strides_on = strides_on
@@ -227,7 +226,7 @@ class DiffusionReaction2DDataset:
 
     def __init__(
         self,
-        path: str,
+        filepath: str,
         subsampling_rate=None,
         strides_on=1,
         strides_off=1,
@@ -252,8 +251,8 @@ class DiffusionReaction2DDataset:
         offset: int
             Temporal offset to be applied to each sample.
         """
-        self.path = path
-        self.file = h5py.File(path)
+        self.path = filepath
+        self.file = h5py.File(filepath)
         self._subsampling_rate = subsampling_rate
 
         self.strides_on = strides_on
@@ -445,7 +444,7 @@ class NSIncompressibleDataset:
 
     def __init__(
         self,
-        paths: List[str],
+        filepaths: List[str],
         subsampling_rate=None,
         strides_on=1,
         strides_off=1,
@@ -453,8 +452,8 @@ class NSIncompressibleDataset:
         sample_size=None,
         predictive=True,
     ):
-        self.paths = paths
-        self.files = [h5py.File(p) for p in paths]
+        self.paths = filepaths
+        self.files = [h5py.File(p) for p in filepaths]
         self._subsampling_rate = subsampling_rate
 
         self.strides_on = strides_on
@@ -491,7 +490,7 @@ class NSIncompressibleDataset:
             (CLS.TIME_DURATION + stride_length_off - self.offset) //
              self.items_per_stride)
         # Each item within the file has 4 samples
-        self.len = (len(paths)
+        self.len = (len(filepaths)
                     * self.strides_per_file
                     * self.strides_on
                     * self.sample_size)
@@ -672,12 +671,9 @@ class MultiPhysicsDataset(data.Dataset):
 
     def __init__(
         self,
-        swe_file,
-        diff_file,
-        ns_files,
-        swe_opts=None,
-        diff_opts=None,
-        ns_opts=None,
+        swe_args,
+        diff_args,
+        ns_args,
         strides_on=1,
         strides_off=1,
         offset=0,
@@ -685,12 +681,27 @@ class MultiPhysicsDataset(data.Dataset):
         predictive=True,
 
     ):
-        if swe_opts is None:
-            swe_opts = {}
-        if diff_opts is None:
-            diff_opts = {}
-        if ns_opts is None:
-            ns_opts = {}
+        """
+        Each of the args dicts accepts optional keywords  "sample_size" and
+        "subsampling_rate"
+
+        Parameters
+        ---
+        swe_args : dict
+            Requires keyword "filepath" with the absolute path to the SWE dataset.
+        diff_args : dict
+            Requires keyword "filepath" with the absolute path to the
+            Diffusion-Reaction dataset.
+        ns_args : dict
+            Requires keyword "filepaths" with a list of absolute paths to
+            Navier-Stokes dataset files.
+        """
+        if swe_args is None:
+            swe_args = {}
+        if diff_args is None:
+            diff_args = {}
+        if ns_args is None:
+            ns_args = {}
         common_args = dict(
             strides_on=strides_on,
             strides_off=strides_off,
@@ -698,15 +709,13 @@ class MultiPhysicsDataset(data.Dataset):
             predictive=predictive,
         )
 
-        self.swe_dataset = SWEDataset(swe_file, **swe_opts, **common_args)
+        self.swe_dataset = SWEDataset(**swe_args, **common_args)
         self.diff_dataset = DiffusionReaction2DDataset(
-            diff_file,
-            **diff_opts,
+            **diff_args,
             **common_args,
         )
         self.ns_dataset = NSIncompressibleDataset(
-            ns_files,
-            **ns_opts,
+            **ns_args,
             **common_args,
         )
         self.channel_dim = channel_dim

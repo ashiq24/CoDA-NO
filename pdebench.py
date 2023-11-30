@@ -78,60 +78,33 @@ model = model.cuda()
 
 print(model)
 
-# +
-# make it smol
-opts = {
-    # 5 * 25 a/u data pairs, 64x64 resolution
-    'swe_opts': {
-        'subsampling_rate': 2,
-        'sample_size': 25,
-    },
-    # 5 * 25 a/u data pairs, 64x64 resolution
-    'diff_opts': {
-        'subsampling_rate': 2,
-        'sample_size': 25,
-    },
-    # 50 * 1 a/u data pairs, 64x64 resolution
-    'ns_opts': {
-        # NS dataset is at 4x higher resolution,
-        # so it must be subsampled at a 4x lower rate:
-        'subsampling_rate': 8,
-        'sample_size': 1,
-    },
-}
-
 # Datasets to be used in reconstructive (i.e. SSL) learning:
 train_reconstructive = MultiPhysicsDataset(
-    params.filepath_swe,
-    params.filepath_diff,
-    params.filepaths_ns,
+    swe_args=params.shallow_water,
+    diff_args=params.diffusion_reaction,
+    ns_args=params.navier_stokes,
     predictive=False,  # Target output will be the same as the input.
-    **opts,
 )
 test_reconstructive  = MultiPhysicsDataset(
-    params.filepath_swe,
-    params.filepath_diff,
-    params.filepaths_ns,
+    swe_args=params.shallow_water,
+    diff_args=params.diffusion_reaction,
+    ns_args=params.navier_stokes,
     offset=10,
     predictive=False,  # Target output will be the same as the input.
-    **opts,
 )
-
 # Datasets to be used in predictive (i.e. SL) learning:
 train_predictive = MultiPhysicsDataset(
-    params.filepath_swe,
-    params.filepath_diff,
-    params.filepaths_ns,
+    swe_args=params.shallow_water,
+    diff_args=params.diffusion_reaction,
+    ns_args=params.navier_stokes,
     predictive=True,  # Target output will be the next time trajectory.
-    **opts,
 )
 test_predictive  = MultiPhysicsDataset(
-    params.filepath_swe,
-    params.filepath_diff,
-    params.filepaths_ns,
+    swe_args=params.shallow_water,
+    diff_args=params.diffusion_reaction,
+    ns_args=params.navier_stokes,
     offset=10,
     predictive=True,  # Target output will be the next time trajectory.
-    **opts,
 )
 
 # +
