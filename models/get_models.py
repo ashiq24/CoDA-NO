@@ -409,11 +409,13 @@ class SSLWrapper(nn.Module):
 
         self.reconstruction = params.reconstruction
         self.next_channels: Optional[Tuple[Tuple[int]]] = None
+        self.last_masks = Optional[torch.Tensor] = None
 
         self.enable_cls_token = params.enable_cls_token
 
         self.stage = stage
         self.freeze_encoder = params.freeze_encoder
+        self.masking = params.masking or True
         self.grid_type = params.grid_type
 
         # print("Doing Wrapper for", self.stage)
@@ -464,6 +466,22 @@ class SSLWrapper(nn.Module):
         # TODO add a setting where `next_channels` have some persistence.
         self.next_channels = None
 
+    def do_mask(self, x):
+        if not self.masking:
+            return x
+
+        with torch.no_grad():
+            x_masked, masks = batched_masker(
+                x,
+                self.augmenter_masker,
+                batched_channels=self.next_channels,
+            )
+        self.last_masks = masks.type(torch.int8)  # for reconstructing on loss
+        # Enforce that `next_channels` must be set before every forward call:
+        self.reset_channels()
+
+        return x_masked
+
     def forward(self, x, static_random_tensor=None):
         if self.stage == StageEnum.RECONSTRUCTIVE:
             return self.forward_reconstructive(x)
@@ -476,20 +494,11 @@ class SSLWrapper(nn.Module):
 
     def forward_reconstructive(self, x):
         # Append unpredicted features:
-        with torch.no_grad():
-            x_masked, _mask = batched_masker(
-                x.clone(),
-                self.augmenter_masker,
-                batched_channels=self.next_channels,
-            )
-            # Enforce that `next_channels` must be set before every forward call
-            self.reset_channels()
-
+        x_masked = self.do_mask(x)
         x_encoded = self.encoder(x_masked)
         # print("Feature Shape", x_encoded.shape)
 
         cls_offset = 1 if self.enable_cls_token else 0
-
         if self.reconstruction:
             reconstructed = self.decoder(x_encoded)
             # Removing the CLS token and also discarding if some additional
@@ -521,27 +530,30 @@ class SSLWrapper(nn.Module):
 
         return reconstructed, clean_contra, aug_contra, neg_contra
 
-    def forward_predictive(self, x):
-        cls_offset = 1 if self.enable_cls_token else 0
-
+    def encode_input(self, x):
         # TODO wrap this in pretty method
         if self.freeze_encoder:
             with torch.no_grad():
-                x_encoded = self.encoder(x.clone())
+                return self.encoder(x)
         else:
-            x_encoded = self.encoder(x.clone())
+            return self.encoder(x)
 
+    def decode_output(self, x):
+        # TODO wrap this in pretty method
+        if self.freeze_encoder:
+            with torch.no_grad():
+                return self.decoder(x)
+        else:
+            return self.decoder(x)
+
+    def forward_predictive(self, x):
+        x_encoded = self.encode_input(x)
         out = self.predictor(x_encoded)
 
         if self.reconstruction:
-            if self.freeze_encoder:
-                with torch.no_grad():
-                    y_decoded = self.decoder(out)
-            else:
-                y_decoded = self.decoder(out)
+            out = self.decode_output(out)
 
-            out = y_decoded
-
+        cls_offset = 1 if self.enable_cls_token else 0
         # XXX why is the use of cls_offset inconsistent?
         # discarding CLS token and additional static channels if added.
         if self.grid_type == 'uniform':
@@ -560,4 +572,3 @@ class SSLWrapper(nn.Module):
         out = out[_slice]
 
         return out, None, None, None
-

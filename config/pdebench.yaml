@@ -28,8 +28,8 @@ base_config: &BASE_CONFIG
     ### TUNE P1 ###
     n_encoding_channels: 3
     encoding_modes_t: 8
-    encoding_modes_x: 12
-    encoding_modes_y: 12
+    encoding_modes_x: 16
+    encoding_modes_y: 16
     ### TUNE P1 ###
 
     reconstruction: True
@@ -44,6 +44,8 @@ base_config: &BASE_CONFIG
     # If False, it will fine tune the encoder during SL.
     # Otherwise, it will freeze the weight of the encoder trained by SSL.
     freeze_encoder: False
+    masking: True
+
     lr: 0.0001
     weight_decay: 0.00001
     scheduler_step: 20

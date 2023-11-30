@@ -17,7 +17,6 @@ from train.trainer import multi_physics_loss, MAP_EQUATION_TO_CHANNELS
 # When the model performs badly, HOW is it performing badly?
 # because of masking, I need to remember the model output, which usually still
 # has edges in it from being masked.
-# TODO get masks from model wrapper and save those during train/test (opt)
 def get_multi_physics_data_losses(
     model: Union[CodANO, CoDANOTemporal],
     data_loader: data.DataLoader,
@@ -134,6 +133,7 @@ def show_multi_physics_data_diffs(
     model: Union[CodANO, CoDANOTemporal],
     data_loader: data.DataLoader,
     stage: Optional[StageEnum] = None,
+    logger: Optional[logging.Logger] = None,
 ):
     swe_loss, diff_loss, ns_loss = get_multi_physics_data_losses(
         model,

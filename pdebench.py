@@ -1,13 +1,11 @@
 # +
-import pprint
 import sys
 
-import matplotlib.pyplot as plt
 import wandb
 # -
 
 from data_utils.hdf5_datasets import *
-from data_utils.visualization import get_multi_physics_data_losses, show_data_diff
+from data_utils.visualization import show_multi_physics_data_diffs
 from layers.attention import TNOBlock3D
 from models.codano import CoDANOTemporal
 from models.get_models import *
@@ -170,13 +168,16 @@ m1 = len(test_predictive.swe_dataset)
 # "midpoint" 2 - end diffusion-reaction; begin Navier-Stokes:
 m2 = m1 + len(test_predictive.diff_dataset)
 n = len(test_predictive_loader.dataset)
+# Can't use `len(test_predictive_loader)`
+# because this returns the length in units of batches.
 
 print("Test on the Shallow Water Equation dataset:")
 test_single_physics(
     model,
     test_reconstructive_loader,
-    0,   # start
-    m1,  # stop
+    nn.MSELoss(),
+    start=0,
+    stop=m1,
     script=False,
 )
     
@@ -184,8 +185,9 @@ print("Test on the Diffusion-Reaction dataset:")
 test_single_physics(
     model,
     test_reconstructive_loader,
-    m1,  # start
-    m2,  # stop
+    nn.MSELoss(),
+    start=m1,
+    stop=m2,
     script=False,
 )
 
@@ -193,8 +195,9 @@ print("Test on the Navier-Stokes dataset:")
 test_single_physics(
     model,
     test_reconstructive_loader,
-    m2,  # start
-    n,  # stop
+    nn.MSELoss(),
+    start=m2,
+    stop=n,
     script=False,
 )
 # print("Test on the mixed dataset:")
@@ -210,12 +213,14 @@ show_multi_physics_data_diffs(
     model,
     train_reconstructive_loader,
     StageEnum.RECONSTRUCTIVE,
+    logger=logger,
 )
 
 show_multi_physics_data_diffs(
     model,
     test_reconstructive_loader,
     StageEnum.RECONSTRUCTIVE,
+    logger=logger,
 )
 
 # TODO make a small helper to (uniquely) name models
@@ -251,8 +256,9 @@ print("Test on the Shallow Water Equation dataset:")
 test_single_physics(
     model,
     test_predictive_loader,
-    0,   # start
-    m1,  # stop
+    nn.MSELoss(),
+    start=0,
+    stop=m1,
     script=False,
 )
 
@@ -260,8 +266,9 @@ print("Test on the Diffusion-Reaction dataset:")
 test_single_physics(
     model,
     test_predictive_loader,
-    m1,  # start
-    m2,  # stop
+    nn.MSELoss(),
+    start=m1,
+    stop=m2,
     script=False,
 )
 
@@ -269,8 +276,9 @@ print("Test on the Navier-Stokes dataset:")
 test_single_physics(
     model,
     test_predictive_loader,
-    m2,  # start
-    n,  # stop
+    nn.MSELoss(),
+    start=m2,
+    stop=n,
     script=False,
 )
 # print("Test on the mixed dataset:")
@@ -281,6 +289,7 @@ show_multi_physics_data_diffs(
     model,
     train_predictive_loader,
     StageEnum.PREDICTIVE,
+    logger=logger,
 )
 
 # +
@@ -288,6 +297,7 @@ show_multi_physics_data_diffs(
 #     model,
 #     test_predictive_loader,
 #     StageEnum.PREDICTIVE,
+#     logger=logger,
 # )
 # -
 

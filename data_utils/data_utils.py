@@ -225,7 +225,7 @@ class MaskerUniformIndependent:
         self.device = device
         self.min_block = min_block
 
-    def __call__(self, size, channels: Optional[Tuple[Tuple[int]]] = None):
+    def __call__(self, size, channels: Optional[Tuple[int]] = None):
         """Returns a mask to be multiplied into a data tensor.
 
         Generates a binary mask of 0s and 1s to be point-wise multiplied into a
@@ -238,12 +238,12 @@ class MaskerUniformIndependent:
         """
 
         np.random.seed()
-        C, T, H, W = size
+        n_channels, time_duration, height, width = size
         mask = torch.ones(size, device=self.device)
-        n_augmented_channels = math.ceil(C * self.channel_per)
+        n_augmented_channels = math.ceil(n_channels * self.channel_per)
         if channels is None:
             augmented_channels = np.random.choice(
-                C, n_augmented_channels, replace=False,
+                n_channels, n_augmented_channels, replace=False,
             )
 
         else:
@@ -255,25 +255,25 @@ class MaskerUniformIndependent:
 
         # print(augmented_channels)
         for i in augmented_channels:
-            for t in range(T):
+            for t in range(time_duration):
                 # print("Masking")
-                n_drop_pix = self.drop_pix * H * W
-                max_block_height = int(H * self.max_block)
-                max_block_width = int(W * self.max_block)
+                n_drop_pix = self.drop_pix * height * width
+                max_block_height = int(height * self.max_block)
+                max_block_width = int(width * self.max_block)
 
                 while n_drop_pix > 0:
                     # Pick one corner of the mask:
-                    y0 = random.randint(0, H - 2)
-                    x0 = random.randint(0, W - 2)
+                    y0 = random.randint(0, height - 2)
+                    x0 = random.randint(0, width - 2)
 
                     # Pick lengths of the mask along each dimension:
                     mask_height = min(
                         random.randint(self.min_block, max_block_height),
-                        H - y0
+                        height - y0
                     )
                     mask_width = min(
                         random.randint(self.min_block, max_block_width),
-                        W - x0
+                        width - x0
                     )
 
                     block = [
@@ -289,14 +289,12 @@ class MaskerUniformIndependent:
 
 
 def batched_masker(
-    data_i: torch.Tensor,  # with a batch dimension
+    data: torch.Tensor,  # with a batch dimension
     aug,  # instance of a Masker like above
     batched_channels: Optional[Tuple[Tuple[int]]] = None,
 ):
-    data = torch.zeros_like(data_i)
-    data.copy_(data_i)
     mask = []
-    aug.device = data_i.device
+    aug.device = data.device
     # print(data_i.device)
     if batched_channels is None:
         for i in range(data.shape[0]):
