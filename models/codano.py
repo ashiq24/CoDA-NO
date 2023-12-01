@@ -11,7 +11,6 @@ import torch.nn.functional as F
 from neuralop.layers.padding import DomainPadding
 from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
-from layers.regrider import Regird
 from layers.variable_encoding import VariableEncoding2d, FourierVariableEncoding3D
 
 
@@ -143,8 +142,6 @@ class CodANO(nn.Module):
         integral_operator_top=partial(SpectralConvKernel2d, sht_grid="legendre-gauss"),
         integral_operator_bottom=\
             partial(SpectralConvKernel2d, isht_grid="legendre-gauss"),
-        re_grid_input=False,
-        re_grid_output=False,
         projection=True,
         lifting=True,
         domain_padding=None,
@@ -175,13 +172,6 @@ class CodANO(nn.Module):
             lifting_token_codimension = input_token_codimension
         if output_token_codimension is None:
             output_token_codimension = input_token_codimension
-        self.re_grid_input = re_grid_input
-        self.re_grid_output = re_grid_output
-
-        if self.re_grid_input:
-            self.input_regrider = Regird("equiangular", "legendre-gauss")
-        if self.re_grid_output:
-            self.output_regrider = Regird("legendre-gauss", "equiangular")
 
         self.hidden_token_codimension = hidden_token_codimension
         self.n_modes = n_modes
@@ -434,17 +424,17 @@ class CodANO(nn.Module):
     def get_device(self,):
         return self.cls_token.coefficients_r.device
 
-    def forward(self, inp):
-        if self.re_grid_input:
-            inp = self.input_regrider(inp)
-
+    def forward(self, inp: torch.Tensor):
+        self.logger.debug(f"{inp.shape} (raw)")
         if self.use_variable_encoding:
             x = self.encode_variables(inp)
+            self.logger.debug(f"{x.shape} (embedded)")
         else:
             x = inp
 
         if self.lifting:
             x = self.lifting(x)
+            self.logger.debug(f"{x.shape} (lifted)")
 
         if self.enable_cls_token:
             cls_token = self.cls_token(x).unsqueeze(0)
@@ -469,12 +459,11 @@ class CodANO(nn.Module):
             if layer_idx == self.n_layers - 1:
                 cur_output_shape = output_shape_en
             x = self.base[layer_idx](x, output_shape=cur_output_shape)
+            self.logger.debug(f"{x.shape} (block[{layer_idx}])")
 
         if self.projection:
             x = self.projection(x)
-
-        if self.re_grid_output:
-            x = self.output_regrider(x)
+            self.logger.debug(f"{x.shape} (projection)")
 
         return x
 

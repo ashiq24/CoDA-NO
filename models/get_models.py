@@ -418,6 +418,14 @@ class SSLWrapper(nn.Module):
         self.masking = params.masking or True
         self.grid_type = params.grid_type
 
+        if params.get("re_grid_input") or params.get("re_grid_output"):
+            raise NotImplementedError(
+                "This model does not support regridding of inputs or outputs.")
+        # if self.re_grid_input:
+        #     self.input_regrider = Regird("equiangular", "legendre-gauss")
+        # if self.re_grid_output:
+        #     self.output_regrider = Regird("legendre-gauss", "equiangular")
+
         # print("Doing Wrapper for", self.stage)
         if params.grid_type == 'uniform':
             Masker = MaskerUniformIndependent if params.time_axis else MaskerUniform
