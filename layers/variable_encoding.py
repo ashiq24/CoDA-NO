@@ -62,26 +62,26 @@ class VariableEncoding2d(nn.Module):
 
 # SHT doesn't make sense for 3 variables
 class FourierVariableEncoding3D(nn.Module):
-    def __init__(self, channel_size: int, modes: Tuple[int, ...]) -> None:
+    def __init__(self, n_features: int, modes: Tuple[int, ...]) -> None:
         super().__init__()
         if len(modes) != 3:
             raise ValueError(
                 f"Expected 3 frequency modes, but got {len(modes)} modes:\n{modes=}")
 
         self.modes = modes
-        self.weights_re = nn.Parameter(torch.empty(channel_size, *modes))
-        self.weights_im = nn.Parameter(torch.empty(channel_size, *modes))
+        self.weights_re = nn.Parameter(torch.empty(n_features, *modes))
+        self.weights_im = nn.Parameter(torch.empty(n_features, *modes))
         self.reset_parameters()
-        self.transform = torch.fft.ifftn
+        # self.transform = torch.fft.ifftn
 
     def reset_parameters(self):
         std = 1 / np.sqrt(reduce(lambda a, b: a * b, self.modes))
         torch.nn.init.normal_(self.weights_re, mean=0.0, std=std)
         torch.nn.init.normal_(self.weights_im, mean=0.0, std=std)
 
-    def forward(self, x):
+    def forward(self, x_shape):
         """Take a resolution and outputs the positional encodings"""
-        size_t, size_x, size_y = x.shape[-3], x.shape[-2], x.shape[-1]
+        *_, size_t, size_x, size_y = x_shape
         return torch.fft.ifftn(
             self.weights_re + 1.0j * self.weights_im,
             s=(size_t, size_x, size_y),

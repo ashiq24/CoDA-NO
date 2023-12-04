@@ -324,7 +324,7 @@ class CodANO(nn.Module):
     def _initialize_variable_encoding_channels(
         self,
         n_variables,
-        variable_encoding_args,
+        variable_encoding_args: VariableEncodingArgs,
     ):
         """
         Each variable along with its variable encoding should remain
@@ -424,17 +424,17 @@ class CodANO(nn.Module):
     def get_device(self,):
         return self.cls_token.coefficients_r.device
 
-    def forward(self, inp: torch.Tensor):
-        self.logger.debug(f"{inp.shape} (raw)")
-        if self.use_variable_encoding:
-            x = self.encode_variables(inp)
-            self.logger.debug(f"{x.shape} (embedded)")
-        else:
-            x = inp
+    def forward(self, x: torch.Tensor):
+        self.logger.debug(f"{x.shape} (raw)")
+        # if self.use_variable_encoding:
+        #     x = self.encode_variables(inp)
+        #     self.logger.debug(f"{x.shape} (embedded)")
+        # else:
+        #     x = inp
 
         if self.lifting:
             x = self.lifting(x)
-            self.logger.debug(f"{x.shape} (lifted)")
+            self.logger.debug(f"{x.shape} (lifting)")
 
         if self.enable_cls_token:
             cls_token = self.cls_token(x).unsqueeze(0)
@@ -475,6 +475,8 @@ class CodANO(nn.Module):
         learned encodings and static channels (where the latter may be
         positional encoding, etc.)
         """
+        raise NotImplementedError("Use SSLWraper.encode_variables")
+
         # Token dimensionality supersedes channel dimensionality:
         batch_size, _c, width, height = inp.shape
         token_size = (len(self.variable_channels) +
@@ -554,6 +556,8 @@ class CoDANOTemporal(CodANO):
         learned encodings and static channels (where the latter may be
         positional encoding, etc.)
         """
+        raise NotImplementedError("Use SSLWraper.encode_variables")
+
         # Token dimensionality supersedes channel dimensionality:
         batch_size, _c, duration, width, height = inp.shape
         token_size = (len(self.variable_channels) +

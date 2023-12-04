@@ -1,7 +1,7 @@
 import enum
 from functools import partial
 import logging
-from typing import Optional, Type, Union, Tuple
+from typing import Optional, Type, Union, Tuple, Dict
 
 import numpy as np
 import torch
@@ -13,12 +13,13 @@ from neuralop.models import FNO
 from data_utils.data_utils import (
     MaskerNonuniformMesh,
     MaskerUniform,
-    MaskerUniformTemporal,
     MaskerUniformIndependent,
     batched_masker,
 )
+from data_utils.hdf5_datasets import Equation
 from layers.attention import TnoBlock2d, TNOBlock
 from layers.fino import SpectralConvKernel2d, SpectralConvolutionKernel3D
+from layers.variable_encoding import FourierVariableEncoding3D
 from models.codano import CodANO, VariableEncodingArgs
 from models.codano_gino import CondnoGino
 from models.fno_gino import FnoGno
@@ -98,7 +99,6 @@ def get_ssl_models_codaNo(
         **params.encoder,
         lifting=True,
         projection=False,
-        re_grid_input=False,
         use_variable_encodings=params.use_variable_encodings,
         enable_cls_token=params.enable_cls_token,
         n_static_channels=n_static_channels,
@@ -114,7 +114,6 @@ def get_ssl_models_codaNo(
             **params.decoder,
             lifting=False,
             projection=True,
-            re_grid_output=False,
             enable_cls_token=params.enable_cls_token,
             logger=logger.getChild("decoder"),
             **common_args,
@@ -129,8 +128,7 @@ def get_ssl_models_codaNo(
     predictor = module(
         **params.predictor,
         lifting=False,
-        projection=True,
-        re_grid_output=False,
+        projection=False,
         logger=logger.getChild("predictor"),
         **common_args,
     )
@@ -397,6 +395,9 @@ class SSLWrapper(nn.Module):
         decoder,
         contrastive,
         predictor,
+        variables_per_equations: Dict[Equation, int],
+        n_encoding_channels: int = 0,
+        n_static_channels: int = 0,
         stage=StageEnum.PREDICTIVE,
         _logger=Optional[logging.Logger],
     ):
@@ -409,7 +410,7 @@ class SSLWrapper(nn.Module):
 
         self.reconstruction = params.reconstruction
         self.next_channels: Optional[Tuple[Tuple[int]]] = None
-        self.last_masks = Optional[torch.Tensor] = None
+        self.last_masks: Optional[torch.Tensor] = None
 
         self.enable_cls_token = params.enable_cls_token
 
@@ -425,6 +426,29 @@ class SSLWrapper(nn.Module):
         #     self.input_regrider = Regird("equiangular", "legendre-gauss")
         # if self.re_grid_output:
         #     self.output_regrider = Regird("legendre-gauss", "equiangular")
+
+        equation_to_encoders = {eq: [] for eq in variables_per_equations}
+        v = 0
+        for eq, size in variables_per_equations.items():
+            equation_to_encoders[eq] = equation_to_encoders[eq] + [v]
+            v += 1
+        self.equation_to_encoders: Dict[Equation, Tuple[int, ...]] = \
+            {k: list(v) for k, v in equation_to_encoders.items()}
+
+        # TODO support multiple encoders
+        self.variable_encoders = [
+            FourierVariableEncoding3D(
+                self.n_encoding_channels,
+                (
+                    params.encoding_modes_x,
+                    params.encoding_modes_y,
+                    params.encoding_modes_t,
+                ),
+            ) for _ in range(v)
+        ]
+
+        self.n_encoding_channels = n_encoding_channels
+        self.n_static_channels = n_static_channels
 
         # print("Doing Wrapper for", self.stage)
         if params.grid_type == 'uniform':
@@ -474,6 +498,95 @@ class SSLWrapper(nn.Module):
         # TODO add a setting where `next_channels` have some persistence.
         self.next_channels = None
 
+    # NOTE: this should support both 3D and 2D models
+    def _encode_variable(self, x: torch.Tensor, encoder):
+        """Applies variable encodings to given input variable.
+
+        Exactly 1 variable channel is expected in a squeezed "axis" (i.e.
+        the variable should not occupy a singleton axis).
+
+        Transform the low-dimensional input tensor to a higher-dimensional
+        representation where the variable has been augmented with both
+        learned encodings and static channels (where the latter may be
+        positional encoding, etc.)
+
+        Returns a Tensor like:
+        ``(batch_size, token_size, *domain_size)`` for:
+        ``batch_size, *domain_size = x.shape`` and:
+        ``token_size = 1 + self.n_encoding_channels + self.n_static_channels``
+        """
+        # Token dimensionality supersedes channel dimensionality:
+        batch_size, *domain_size = x.shape
+        token_size = 1 + self.n_encoding_channels + self.n_static_channels
+        encoding_channels = [n + 1 for n in range(self.n_encoding_channels)]
+        static_channels = [n + len(encoding_channels)
+                           for n in range(self.n_static_channels)]
+
+        y = torch.zeros(
+            (batch_size, token_size, *domain_size),
+            device=x.device,
+            dtype=x.dtype,
+        )
+        y[:, 0, ...] = x.unsqueeze(1)
+
+        variable_encoding = encoder(x.shape).to(x.device)
+        self.logger.debug(f"{variable_encoding.shape=}")
+        # Unsqueeze variable encoding in 0th dimension (indexed by `None` below)
+        # and repeat it until it matches the dimension of ``batch_size``
+        r_size = [batch_size, 1] + [1 for _ in domain_size]
+        y[:, encoding_channels, ...] = variable_encoding[None, ...].repeat(*r_size)
+
+        if self.n_static_channels > 0:
+            # Repeat `static_features` as many times as we can
+            # within the space of `static_channels`
+            n_static_copies = self.n_static_channels // self.static_features.shape[1]
+            r_size = [batch_size, n_static_copies] + [1 for _ in domain_size]
+            y[:, static_channels, ...] = self.static_features.repeat(*r_size)
+
+        return y
+
+    def encode_variables(self, x: torch.Tensor, encoders):
+        """Encodes each (physical) variable channel with an encoder.
+
+        Assumes the input ``x`` is shaped like:
+        ``(batch_size, n_variables, *domain_size)``
+
+        Then the 0th variable ``x[:, 0]`` will be encoded with the 0th encoder
+        ``encoders[0]``, the 1st variable will be encoded with the 1st encoder,
+        and so forth.
+
+        Returns:
+            Input x "augmented" with the encoding of each variable. The returned
+            Tensor is shaped like:
+            ``(batch_size, n_variables * token_size, *domain_size)`` for:
+            ``batch_size, *domain_size = x.shape`` and:
+            ``token_size = 1 + self.n_encoding_channels + self.n_static_channels``
+        """
+        xs = [self._encode_variable(x[:, i], encoder)
+              for i, encoder in enumerate(encoders)]
+        return torch.concatenate(xs, dim=1)
+
+    def forward(
+        self,
+        x: torch.Tensor,
+        static_random_tensor=None,
+        equation: Optional[Equation] = None,
+    ):
+        # TODO add support for arbitrary sets of variables.
+        # This would be especially useful for mixed-physics scenarios.
+        encoders_idx = self.equation_to_encoders[equation]
+        encoders = [self.variable_encoders[idx] for idx in encoders_idx]
+        x_embedded = self.encode_variables(x, encoders)
+
+        if self.stage == StageEnum.RECONSTRUCTIVE:
+            return self.forward_reconstructive(x_embedded)
+
+        if self.stage == StageEnum.PREDICTIVE:
+            return self.forward_predictive(x_embedded)
+
+        raise ValueError(f'Expected stage to be one of {list(StageEnum)};\n'
+                         f'Got {self.stage=}')
+
     def do_mask(self, x):
         if not self.masking:
             return x
@@ -490,18 +603,8 @@ class SSLWrapper(nn.Module):
 
         return x_masked
 
-    def forward(self, x, static_random_tensor=None):
-        if self.stage == StageEnum.RECONSTRUCTIVE:
-            return self.forward_reconstructive(x)
-
-        if self.stage == StageEnum.PREDICTIVE:
-            return self.forward_predictive(x)
-
-        raise ValueError(f'Expected stage to be one of {list(StageEnum)};\n'
-                         f'Got {self.stage=}')
-
+    # Assumes `x` is already embedded in its higher-dimensional repr:
     def forward_reconstructive(self, x):
-        # Append unpredicted features:
         x_masked = self.do_mask(x)
         x_encoded = self.encoder(x_masked)
         # print("Feature Shape", x_encoded.shape)
@@ -554,6 +657,7 @@ class SSLWrapper(nn.Module):
         else:
             return self.decoder(x)
 
+    # Assumes `x` is already embedded in its higher-dimensional repr:
     def forward_predictive(self, x):
         x_encoded = self.encode_input(x)
         out = self.predictor(x_encoded)

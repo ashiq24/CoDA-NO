@@ -64,6 +64,7 @@ if params.nettype == 'transformer':
         decoder,
         contrastive,
         predictor,
+        # variables_per_equation,
         stage=('ssl' if params.pretrain_ssl else 'sl'),
     )
 

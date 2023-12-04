@@ -323,6 +323,10 @@ class SpectralConvolutionKernel3D(SpectralConv):
         verbose=True,
         logger=None
     ):
+        if logger is None:
+            logger = logging.getLogger()
+        self.logger = logger
+
         if decomposition_kwargs is None:
             decomposition_kwargs = {}
         super().__init__(
@@ -344,11 +348,8 @@ class SpectralConvolutionKernel3D(SpectralConv):
             init_std=init_std,
             fft_norm=fft_norm,
         )
-
+        self.logger.debug(f"{out_channels=}")
         # self.shared = shared
-        if logger is None:
-            logger = logging.getLogger()
-        self.logger = logger
 
         # readjusting initialization
         if init_std == "auto":
@@ -424,15 +425,18 @@ class SpectralConvolutionKernel3D(SpectralConv):
         )
 
     def forward(self, x, indices=0, output_shape=None):
-        batch_size, channels, duration, height, width = x.shape
+        # In `TNOBlock.compute_attention()` different variables in the same
+        # instance as separate batches. That is:
+        # batch_size = batch_size_in * n_variables_in
+        batch_size, _augmented_channels, duration, height, width = x.shape
 
         x = self.forward_transform(x)
 
         m1, m2, m3 = self.half_n_modes[:3]
         slices = [
-            (slice(None), slice(None), s1, s2, slice(m3))
-            for s1 in [slice(m1), slice(-m1, None)]
-            for s2 in [slice(m2), slice(-m2, None)]
+            (slice(None), slice(None), s1, s2, slice(None, m3))
+            for s1 in [slice(None, m1), slice(-m1, None)]
+            for s2 in [slice(None, m2), slice(-m2, None)]
         ]
         """
         These ``slices`` encompass each relevant lo/hi frequency combination.
@@ -445,9 +449,9 @@ class SpectralConvolutionKernel3D(SpectralConv):
         {`0:m1`, `-m1:`} x {`0:m2`, `-m2:`}
         
         Recall that only the last N dimensions of the input tensor have been
-        transformed. We thus take all of the first D-N dimensions, as noted by
+        transformed. We thus take all of the first `D-N` dimensions, as noted by
         `slice(None)`. In this case, we expect the first 2 dimensions to
-        correspond to batches and channels, respectively.
+        correspond to batches and augmented_channels, respectively.
         
         As an example, the last element of ``slices`` would be used equivalently:
         ```python
@@ -458,13 +462,15 @@ class SpectralConvolutionKernel3D(SpectralConv):
         """
 
         # mode mixer
-        # uses separate MLP to mix mode along each co-dim/channels
+        # uses separate MLP to mix mode along each co-dim/augmented_channels
         if self.frequency_mixer:
             for w_re, w_im, _slice in zip(
                 self.weights_re, self.weights_im, slices
             ):
+                self.logger.debug(f"{_slice=}")
                 weights = w_re + 1.0j * w_im
                 x[_slice] = self.mode_mixer(x[_slice].clone(), weights)
+                self.logger.debug(f"{x[_slice].shape=}")
 
         # Spectral conv / channel mixer
         # The output will be of size:
@@ -474,6 +480,7 @@ class SpectralConvolutionKernel3D(SpectralConv):
             dtype=x.dtype,
             device=x.device,
         )
+        self.logger.debug(f"{out_fft=}")
 
         for i, _slice in enumerate(slices):
             out_fft[_slice] = self._contract(

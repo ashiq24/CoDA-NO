@@ -58,7 +58,7 @@ class TNOBlock(nn.Module):
         self.variable_codimension = token_codimension
         self.token_codimension = token_codimension
 
-        # codim of attention from each head
+        # (maybe) codim of attention from each head
         self.head_codimension = (head_codimension
                                  if head_codimension is not None
                                  else token_codimension)
@@ -263,6 +263,7 @@ class TnoBlock2d(TNOBlock):
 
         super().__init__(*args, **kwargs)
 
+    # XXX rewrite comments on TNO*3D
     def compute_attention(self, xa, batch_size):
         """Compute the key-query-value variant of the attention matrix.
 
@@ -374,13 +375,20 @@ class TNOBlock3D(TNOBlock):
 
         Assumes input ``xa`` has been normalized.
         """
+        # `xa` was rearranged like:
+        # rearrange(x, 'b (k d) t h w -> (b k) d t h w', d=self.token_codimension)
         k = self.K.convs(xa)
+        self.logger.debug(f"{k.shape=}")
         q = self.Q.convs(xa)
+        self.logger.debug(f"{q.shape=}")
         v = self.V.convs(xa)
+        self.logger.debug(f"{v.shape=}")
 
         v_duration, v_height, v_width = v.shape[-3:]
 
         rearrangement = dict(
+            # index `k` counts the number of variables.
+            # index `d` becomes the variable embedding dimensionality per head.
             pattern='(b k) (a d) t h w -> b a k (d t h w)',
             b=batch_size,
             a=self.n_head,
@@ -393,6 +401,7 @@ class TNOBlock3D(TNOBlock):
         dprod = (torch.matmul(q, k.transpose(-1, -2)) /
                  (self.temperature * np.sqrt(k.shape[-1])))
         dprod = F.softmax(dprod, dim=-1)
+        self.logger.debug(f"{dprod.shape=}")
 
         attention = torch.matmul(dprod, v)
         attention = rearrange(
@@ -431,18 +440,18 @@ class TNOBlock3D(TNOBlock):
             '(b k) d t h w -> b (k d) t h w',
             b=batch_size,
         )
-        # print("{attention.shape=}")
+        self.logger.debug("{attention.shape=}")
         attention = rearrange(
             attention,
             'b (k d) t h w -> (b k) d t h w',
             d=self.mixer_token_codimension)
-        # print("{attention.shape=}")
+        self.logger.debug("{attention.shape=}")
 
         attention_normalized = self.norm2(attention)
         output = self.mixer(attention_normalized, output_shape=output_shape)
 
         output = self.mixer_out_normalizer(output) + attention
-        # print(f"{output.shape=}")
+        self.logger.debug(f"{output.shape=}")
         output = rearrange(output, '(b k) d t h w -> b (k d) t h w', b=batch_size)
 
         return output
