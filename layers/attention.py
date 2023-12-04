@@ -8,8 +8,11 @@ from einops.layers.torch import Rearrange
 from .fino import SpectralConvKernel2d
 import torch
 
+
 def NO_OP(x, *_args, **_kwargs):
     return x
+
+
 class TnoBlock2d(nn.Module):
     def __init__(self, n_modes,
                  n_head=1,
@@ -54,14 +57,14 @@ class TnoBlock2d(nn.Module):
         self.per_channel_attention = per_channel_attention
 
         # making last mixer permutation equivariant
-        
+
         # K,Q,V operator with or without non_lin
-        
+
         if kqv_non_linear:
             kqv_activation = non_linearity
         else:
             kqv_activation = NO_OP
-            
+
         self.permutation_eq = permutation_eq
 
         if self.n_head is not None:

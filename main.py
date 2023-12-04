@@ -48,9 +48,9 @@ if __name__ == "__main__":
             encoder, decoder, contrastive, predictor = get_ssl_models_codano_gino(
                 params)
 
-        print("Parameters Encoder", count_parameters(encoder),"x10^6")
-        print("Parameters Decoder", count_parameters(decoder),"x10^6")
-        print("Parameters Perdictor", count_parameters(predictor),"x10^6")
+        print("Parameters Encoder", count_parameters(encoder), "x10^6")
+        print("Parameters Decoder", count_parameters(decoder), "x10^6")
+        print("Parameters Perdictor", count_parameters(predictor), "x10^6")
         # if params.grid_type == 'uniform':
         model = SslWrapper(
             params,
@@ -67,7 +67,7 @@ if __name__ == "__main__":
             model.set_initial_mesh(input_mesh)
     elif params.nettype == 'simple':
         model = get_model_fno(params)
-        print("Parameters Model", count_parameters(model),"x10^6")
+        print("Parameters Model", count_parameters(model), "x10^6")
 
     model = model.cuda()
     # non-uniform dataset
@@ -75,7 +75,8 @@ if __name__ == "__main__":
     # train, test = dataset.get_onestep_dataloader(location=params.data_location, dt=params.dt, ntrain=params.get('ntrain'),
     #                                              ntest=params.get('ntest'))
 
-    train, test = dataset.get_dataloader(params.mu_list,params.dt,ntrain=params.get('ntrain'),ntest=params.get('ntest'),sample_per_inlet=params.sample_per_inlet)
+    train, test = dataset.get_dataloader(params.mu_list, params.dt, ntrain=params.get(
+        'ntrain'), ntest=params.get('ntest'), sample_per_inlet=params.sample_per_inlet)
 
     normalizer = dataset.normalizer
     normalizer.cuda()
@@ -88,7 +89,7 @@ if __name__ == "__main__":
 
     simple_trainer(
         model,
-        train, 
+        train,
         test,
         params,
         wandb_log=params.wandb_log,

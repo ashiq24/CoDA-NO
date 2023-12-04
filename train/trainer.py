@@ -18,7 +18,7 @@ def simple_trainer(
         log_test_interval=1,
         normalizer=None,
         stage='ssl'):
-    print("Training Stage :", stage )
+    print("Training Stage :", stage)
     lr = params.lr
     weight_decay = params.weight_decay
     scheduler_step = params.scheduler_step
@@ -99,7 +99,8 @@ def simple_trainer(
 
             # Clip gradients to prevent exploding gradients
             if params.clip_gradient:
-                nn.utils.clip_grad_value_(model.parameters(), params.gradient_clip_value)
+                nn.utils.clip_grad_value_(
+                    model.parameters(), params.gradient_clip_value)
 
             optimizer.step()
             train_l2 += loss_l2.item()
@@ -114,7 +115,6 @@ def simple_trainer(
             scheduler.step(avg_train_l2)
         t2 = default_timer()
         epoch_train_time = t2 - t1
-        
 
         if ep % log_test_interval == 0:
 
@@ -125,7 +125,7 @@ def simple_trainer(
                 f"Epoch {ep}: Time: {epoch_train_time:.2f}s, Loss {stage}: {avg_train_l2:.6f}")
 
             wandb.log(values_to_log, commit=True)
-    weight_path = weight_path + params.config + "_"+ stage+'.pt'
+    weight_path = weight_path + params.config + "_" + stage+'.pt'
     torch.save(model.state_dict(), weight_path)
 
     model.eval()

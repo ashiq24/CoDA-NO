@@ -184,7 +184,8 @@ class SpectralConvKernel2d(SpectralConv):
                                                           :,
                                                           :self.half_n_modes[0],
                                                           :self.half_n_modes[1]],
-                                                        self._get_weight(2 * indices),
+                                                        self._get_weight(
+                                                            2 * indices),
                                                         separable=self.separable)
         # Lower block
         out_fft[:, :, -
