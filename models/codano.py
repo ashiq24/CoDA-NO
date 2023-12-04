@@ -165,7 +165,7 @@ class CodANO(nn.Module):
             integral_operator_top = integral_operator
         self.n_dim = len(n_modes[0])
         self.input_token_codimension = input_token_codimension
-        self.n_variables = n_variables
+        # self.n_variables = n_variables
         if hidden_token_codimension is None:
             hidden_token_codimension = input_token_codimension
         if lifting_token_codimension is None:
@@ -238,17 +238,10 @@ class CodANO(nn.Module):
         self.domain_padding_mode = domain_padding_mode
 
         # Code for variable encoding
-        self.use_variable_encoding = use_variable_encodings
-        if self.use_variable_encoding:
-            if variable_encoding_args is None:
-                raise ValueError(
-                    "Must provide a value for `variable_encoding_args`\n"
-                    f"Got {variable_encoding_args=}"
-                )
-            self._initialize_variable_encoding_channels(
-                n_variables,
-                variable_encoding_args,
-            )
+        if use_variable_encodings:
+            raise NotImplementedError(
+                "CODA no longer handles variable encodings. Encoding must be "
+                "done by the caller.")
 
         # A variable + it's variable encoding + the static channel(s)
         # together constitute a token
@@ -267,11 +260,11 @@ class CodANO(nn.Module):
                 hidden_token_codimension,
                 lifting_token_codimension,
             )
-        elif self.use_variable_encoding:
-            hidden_token_codimension = n_lifted_channels
+        # elif self.use_variable_encoding:
+        #     hidden_token_codimension = n_lifted_channels
 
-        count = 1 if enable_cls_token else 0
-        self.codimension_size = hidden_token_codimension * (n_variables + count)
+        cls_dimension = 1 if enable_cls_token else 0
+        self.codimension_size = hidden_token_codimension * n_variables + cls_dimension
 
         self.logger.debug(f"Expected number of channels: {self.codimension_size=}")
 
@@ -321,6 +314,7 @@ class CodANO(nn.Module):
                 n_channels=hidden_token_codimension)
             self.cls_token = self._mk_variable_encoder(cls_token_args)
 
+    # TODO(mogab) remove in favor of encoding at Adjoint level.
     def _initialize_variable_encoding_channels(
         self,
         n_variables,
@@ -425,7 +419,8 @@ class CodANO(nn.Module):
         return self.cls_token.coefficients_r.device
 
     def forward(self, x: torch.Tensor):
-        self.logger.debug(f"{x.shape} (raw)")
+        # You're better off stepping through forward() with `pdb`
+        # self.logger.debug(f"{x.shape} (raw)")
         # if self.use_variable_encoding:
         #     x = self.encode_variables(inp)
         #     self.logger.debug(f"{x.shape} (embedded)")
@@ -434,7 +429,7 @@ class CodANO(nn.Module):
 
         if self.lifting:
             x = self.lifting(x)
-            self.logger.debug(f"{x.shape} (lifting)")
+            # self.logger.debug(f"{x.shape} (lifting)")
 
         if self.enable_cls_token:
             cls_token = self.cls_token(x).unsqueeze(0)
@@ -459,11 +454,11 @@ class CodANO(nn.Module):
             if layer_idx == self.n_layers - 1:
                 cur_output_shape = output_shape_en
             x = self.base[layer_idx](x, output_shape=cur_output_shape)
-            self.logger.debug(f"{x.shape} (block[{layer_idx}])")
+            # self.logger.debug(f"{x.shape} (block[{layer_idx}])")
 
         if self.projection:
             x = self.projection(x)
-            self.logger.debug(f"{x.shape} (projection)")
+            # self.logger.debug(f"{x.shape} (projection)")
 
         return x
 

@@ -326,6 +326,7 @@ class SpectralConvolutionKernel3D(SpectralConv):
         if logger is None:
             logger = logging.getLogger()
         self.logger = logger
+        self.verbose = verbose
 
         if decomposition_kwargs is None:
             decomposition_kwargs = {}
@@ -348,7 +349,8 @@ class SpectralConvolutionKernel3D(SpectralConv):
             init_std=init_std,
             fft_norm=fft_norm,
         )
-        self.logger.debug(f"{out_channels=}")
+        if self.verbose:
+            self.logger.debug(f"{out_channels=}")
         # self.shared = shared
 
         # readjusting initialization
@@ -360,11 +362,11 @@ class SpectralConvolutionKernel3D(SpectralConv):
 
         # weights for frequency mixers
         modes = tuple(self.half_n_modes[:3])
-        if verbose:
+        if self.verbose:
             self.logger.debug(f"{self.half_n_modes[:3]=}")
         if frequency_mixer:
             # Initializing weights for frequency mixing:
-            if verbose:
+            if self.verbose:
                 self.logger.debug(f"{frequency_mixer=}")
 
             s = np.sqrt(self.in_channels) * reduce(lambda x, y: x * y, modes)
@@ -467,10 +469,12 @@ class SpectralConvolutionKernel3D(SpectralConv):
             for w_re, w_im, _slice in zip(
                 self.weights_re, self.weights_im, slices
             ):
-                self.logger.debug(f"{_slice=}")
+                # if self.verbose:
+                #     self.logger.debug(f"{_slice=}")
                 weights = w_re + 1.0j * w_im
                 x[_slice] = self.mode_mixer(x[_slice].clone(), weights)
-                self.logger.debug(f"{x[_slice].shape=}")
+                # if self.verbose:
+                #     self.logger.debug(f"{x[_slice].shape=}")
 
         # Spectral conv / channel mixer
         # The output will be of size:
@@ -480,7 +484,7 @@ class SpectralConvolutionKernel3D(SpectralConv):
             dtype=x.dtype,
             device=x.device,
         )
-        self.logger.debug(f"{out_fft=}")
+        # self.logger.debug(f"{out_fft.shape=}")
 
         for i, _slice in enumerate(slices):
             out_fft[_slice] = self._contract(

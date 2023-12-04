@@ -1,7 +1,7 @@
 import enum
 from functools import partial
 import logging
-from typing import Optional, Type, Union, Tuple, Dict
+from typing import Optional, Type, Union, Tuple, Dict, List
 
 import numpy as np
 import torch
@@ -75,13 +75,17 @@ def get_ssl_models_codaNo(
     logger.debug(
         f"per variable token dimension="
         f"{1 + params.n_encoding_channels + n_static_channels}")
-    logger.debug(
-        f"\n {params.n_variables=}"
-        f"\n {n_static_channels=}")
+    # logger.debug(
+    #     # f"\n {params.n_variables=}"
+    #     f"\n {n_static_channels=}"
+    # )
 
+    # TODO(mogab): Is this variable count still necessary? Probably?
+    # TODO(mogab): Assumes no two equations share any variables.
+    n_variables = sum(params.variables_per_equation.values())
     common_args = dict(
         operator_block=block,
-        n_variables=params.n_variables,
+        n_variables=n_variables,
         integral_operator=integral_operator,
         integral_operator_top=integral_operator,
         integral_operator_bottom=integral_operator,
@@ -99,7 +103,7 @@ def get_ssl_models_codaNo(
         **params.encoder,
         lifting=True,
         projection=False,
-        use_variable_encodings=params.use_variable_encodings,
+        # use_variable_encodings=params.use_variable_encodings,
         enable_cls_token=params.enable_cls_token,
         n_static_channels=n_static_channels,
         static_features=static_features,
@@ -202,7 +206,7 @@ def get_ssl_models_codano_gino(params):
         static_channels_num = 0
 
     print("Token Dim-->", 1 + params.n_encoding_channels + static_channels_num)
-    print("var num", params.n_variables, "static channels", static_channels_num)
+    # print("var num", params.n_variables, "static channels", static_channels_num)
 
     encoder = CondnoGino(
         params.in_token_codim_en,
@@ -399,7 +403,7 @@ class SSLWrapper(nn.Module):
         n_encoding_channels: int = 0,
         n_static_channels: int = 0,
         stage=StageEnum.PREDICTIVE,
-        _logger=Optional[logging.Logger],
+        logger=Optional[logging.Logger],
     ):
         super(SSLWrapper, self).__init__()
 
@@ -407,6 +411,10 @@ class SSLWrapper(nn.Module):
         self.decoder = decoder
         self.contrastive = contrastive
         self.predictor = predictor
+
+        if logger is None:
+            logger = logging.getLogger()
+        self.logger = logger
 
         self.reconstruction = params.reconstruction
         self.next_channels: Optional[Tuple[Tuple[int]]] = None
@@ -430,12 +438,14 @@ class SSLWrapper(nn.Module):
         equation_to_encoders = {eq: [] for eq in variables_per_equations}
         v = 0
         for eq, size in variables_per_equations.items():
-            equation_to_encoders[eq] = equation_to_encoders[eq] + [v]
-            v += 1
+            for _ in range(size):
+                equation_to_encoders[eq] = equation_to_encoders[eq] + [v]
+                v += 1
         self.equation_to_encoders: Dict[Equation, Tuple[int, ...]] = \
-            {k: list(v) for k, v in equation_to_encoders.items()}
+            {k: tuple(v) for k, v in equation_to_encoders.items()}
 
-        # TODO support multiple encoders
+        # TODO support multiple encoders (?)
+        self.n_encoding_channels = n_encoding_channels
         self.variable_encoders = [
             FourierVariableEncoding3D(
                 self.n_encoding_channels,
@@ -527,10 +537,11 @@ class SSLWrapper(nn.Module):
             device=x.device,
             dtype=x.dtype,
         )
-        y[:, 0, ...] = x.unsqueeze(1)
+        # y[:, 0, ...] = x.unsqueeze(1)
+        y[:, 0, ...] = x
 
         variable_encoding = encoder(x.shape).to(x.device)
-        self.logger.debug(f"{variable_encoding.shape=}")
+        # self.logger.debug(f"{variable_encoding.shape=}")
         # Unsqueeze variable encoding in 0th dimension (indexed by `None` below)
         # and repeat it until it matches the dimension of ``batch_size``
         r_size = [batch_size, 1] + [1 for _ in domain_size]
@@ -570,12 +581,23 @@ class SSLWrapper(nn.Module):
         self,
         x: torch.Tensor,
         static_random_tensor=None,
-        equation: Optional[Equation] = None,
+        # ``Tensor`` contains wrapped ``int`` corresponding to ``Equation`` enum:
+        equations: Optional[torch.Tensor] = None,
     ):
+        if equations is None or len(equations) == 0:
+            raise ValueError("The equation(s) must be defined for a variable encoding.")
+
+        _equations: Set[int] = {eq.item() for eq in equations}
+        if len(_equations) > 1:
+            raise ValueError(
+                "All equations in a batch must be of the same kind. "
+                f"Received multiple different kinds in one batch: {_equations=}")
+
+        equation: Equation = Equation(_equations.pop())
         # TODO add support for arbitrary sets of variables.
         # This would be especially useful for mixed-physics scenarios.
-        encoders_idx = self.equation_to_encoders[equation]
-        encoders = [self.variable_encoders[idx] for idx in encoders_idx]
+        encoders_idxs = self.equation_to_encoders[equation]
+        encoders = [self.variable_encoders[idx] for idx in encoders_idxs]
         x_embedded = self.encode_variables(x, encoders)
 
         if self.stage == StageEnum.RECONSTRUCTIVE:

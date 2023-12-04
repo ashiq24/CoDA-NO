@@ -375,14 +375,15 @@ class TNOBlock3D(TNOBlock):
 
         Assumes input ``xa`` has been normalized.
         """
+        # You're better off stepping through forward() with `pdb`
         # `xa` was rearranged like:
         # rearrange(x, 'b (k d) t h w -> (b k) d t h w', d=self.token_codimension)
         k = self.K.convs(xa)
-        self.logger.debug(f"{k.shape=}")
+        # self.logger.debug(f"{k.shape=}")
         q = self.Q.convs(xa)
-        self.logger.debug(f"{q.shape=}")
+        # self.logger.debug(f"{q.shape=}")
         v = self.V.convs(xa)
-        self.logger.debug(f"{v.shape=}")
+        # self.logger.debug(f"{v.shape=}")
 
         v_duration, v_height, v_width = v.shape[-3:]
 
@@ -401,7 +402,7 @@ class TNOBlock3D(TNOBlock):
         dprod = (torch.matmul(q, k.transpose(-1, -2)) /
                  (self.temperature * np.sqrt(k.shape[-1])))
         dprod = F.softmax(dprod, dim=-1)
-        self.logger.debug(f"{dprod.shape=}")
+        # self.logger.debug(f"{dprod.shape=}")
 
         attention = torch.matmul(dprod, v)
         attention = rearrange(
@@ -440,18 +441,18 @@ class TNOBlock3D(TNOBlock):
             '(b k) d t h w -> b (k d) t h w',
             b=batch_size,
         )
-        self.logger.debug("{attention.shape=}")
+        # self.logger.debug(f"{attention.shape=}")
         attention = rearrange(
             attention,
             'b (k d) t h w -> (b k) d t h w',
             d=self.mixer_token_codimension)
-        self.logger.debug("{attention.shape=}")
+        # self.logger.debug(f"{attention.shape=}")
 
         attention_normalized = self.norm2(attention)
         output = self.mixer(attention_normalized, output_shape=output_shape)
 
         output = self.mixer_out_normalizer(output) + attention
-        self.logger.debug(f"{output.shape=}")
+        # self.logger.debug(f"{output.shape=}")
         output = rearrange(output, '(b k) d t h w -> b (k d) t h w', b=batch_size)
 
         return output

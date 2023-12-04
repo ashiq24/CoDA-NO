@@ -192,7 +192,7 @@ def multi_physics_trainer(
             train_loader,
             desc=f'Epoch {ep}/{epochs}',
             leave=False,
-            ncols=100
+            # ncols=100,
         )
         for x, y in train_loader_tqdm:
             equations = x[1]
@@ -203,23 +203,27 @@ def multi_physics_trainer(
             model.next_channels = tuple([
                 MAP_EQUATION_TO_CHANNELS[Equation(eq.item())] for eq in equations
             ])
-            out, *_ = model(x)
-            train_count += 1
+            out, *_ = model(x, equations=equations)
+            train_count += 1  # i think this should be `+= batch_size`
 
             losses = torch.tensor(0.0, dtype=torch.float).cuda()
             # Could this be made more efficient by collecting
             # the same equations in one "mini-batch?"
             for k, eq in enumerate(equations):
-                loss = multi_physics_loss(
-                    y[k],
-                    out[k],
-                    loss_fn, 
-                    Equation(eq.item()),
+                # loss = multi_physics_loss(
+                #     y[k],
+                #     out[k],
+                #     loss_fn, 
+                #     Equation(eq.item()),
+                # )
+                loss = loss_fn(
+                    y[k].view(1, -1),
+                    out[k].view(1, -1),
                 )
                 losses += loss
 
-            loss.backward()
-            train_l2 += loss.item()
+            losses.backward()
+            train_l2 += losses.item()
 
             # Clip gradients to prevent exploding gradients:
             if params.gradient['clip']:
@@ -229,7 +233,7 @@ def multi_physics_trainer(
                 )
 
             optimizer.step()
-            del x, y, out, loss
+            del x, y, out, losses
             gc.collect()
 
         torch.cuda.empty_cache()
@@ -239,6 +243,7 @@ def multi_physics_trainer(
             t2 = default_timer()
             epoch_train_time = t2 - t1
             avg_train_l2 = train_l2 / train_count
+            # print(f"{train_l2=}", f"{train_count=}", f"{avg_train_l2=}", sep='\n')
             print(f"Epoch {ep}: | "
                   f"Time: {epoch_train_time:.2f}s | "
                   f"Loss: {avg_train_l2:.4f}")

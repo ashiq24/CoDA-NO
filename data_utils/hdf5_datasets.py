@@ -714,20 +714,21 @@ class MultiPhysicsDataset(data.Dataset):
             predictive=predictive,
         )
 
+        swe_args.update(offset=offset + swe_args.get("offset", default=0))
+        diff_args.update(offset=offset + diff_args.get("offset", default=0))
+        ns_args.update(offset=offset + ns_args.get("offset", default=0))
+ 
         self.swe_dataset = SWEDataset(
             **swe_args,
             **common_args,
-            offset=offset + swe_args.get("offset", 0),
         )
         self.diff_dataset = DiffusionReaction2DDataset(
             **diff_args,
             **common_args,
-            offset=offset + diff_args.get("offset", 0),
         )
         self.ns_dataset = NSIncompressibleDataset(
             **ns_args,
             **common_args,
-            offset=offset + ns_args.get("offset", 0),
         )
         self.channel_dim = channel_dim
 
@@ -748,7 +749,7 @@ class MultiPhysicsDataset(data.Dataset):
         """
         Returns fields A(x), U(x) across 6 variables.
 
-        Shape: (T, W, H, C)
+        Shape: (C, T, W, H)
         Channels:
             height, (shallow water eqn)
             activator, inhibitor, (diffusion-reaction eqn)
@@ -760,18 +761,22 @@ class MultiPhysicsDataset(data.Dataset):
         if idx < len(self.swe_dataset):
             # old shapes were like (T, W, H, C)
             swe_x, swe_y = self.swe_dataset[int(idx)]
-            swe_x = pad_with_noise(
-                # new shapes will be like (C, T, W, H)
-                torch.permute(swe_x, (3, 0, 1, 2)),
-                channels_after=5,
-                channel_dim=self.channel_dim,
-            )
-            swe_y = pad_with_noise(
-                # new shapes will be like (C, T, W, H)
-                torch.permute(swe_y, (3, 0, 1, 2)),
-                channels_after=5,
-                channel_dim=self.channel_dim,
-            )
+            # new shapes will be like (C, T, W, H)
+            swe_x = torch.permute(swe_x, (3, 0, 1, 2))
+            swe_y = torch.permute(swe_y, (3, 0, 1, 2))
+
+            # swe_x = pad_with_noise(
+            #     # new shapes will be like (C, T, W, H)
+            #     torch.permute(swe_x, (3, 0, 1, 2)),
+            #     channels_after=5,
+            #     channel_dim=self.channel_dim,
+            # )
+            # swe_y = pad_with_noise(
+            #     # new shapes will be like (C, T, W, H)
+            #     torch.permute(swe_y, (3, 0, 1, 2)),
+            #     channels_after=5,
+            #     channel_dim=self.channel_dim,
+            # )
 
             return (
                 # mark this datum as Shallow Water eqn
@@ -783,20 +788,24 @@ class MultiPhysicsDataset(data.Dataset):
         if idx < len(self.diff_dataset):
             # old shape was like (T, W, H, C)
             diff_x, diff_y = self.diff_dataset[int(idx)]
-            diff_x = pad_with_noise(
-                # new shape will be like (C, T, W, H)
-                torch.permute(diff_x, (3, 0, 1, 2)),
-                channels_before=1,
-                channels_after=3,
-                channel_dim=self.channel_dim,
-            )
-            diff_y = pad_with_noise(
-                # new shape will be like (C, T, W, H)
-                torch.permute(diff_y, (3, 0, 1, 2)),
-                channels_before=1,
-                channels_after=3,
-                channel_dim=self.channel_dim,
-            )
+            # new shapes will be like (C, T, W, H)
+            diff_x = torch.permute(diff_x, (3, 0, 1, 2))
+            diff_y = torch.permute(diff_y, (3, 0, 1, 2))
+
+            # diff_x = pad_with_noise(
+            #     # new shape will be like (C, T, W, H)
+            #     torch.permute(diff_x, (3, 0, 1, 2)),
+            #     channels_before=1,
+            #     channels_after=3,
+            #     channel_dim=self.channel_dim,
+            # )
+            # diff_y = pad_with_noise(
+            #     # new shape will be like (C, T, W, H)
+            #     torch.permute(diff_y, (3, 0, 1, 2)),
+            #     channels_before=1,
+            #     channels_after=3,
+            #     channel_dim=self.channel_dim,
+            # )
 
             # mark this datum as Diffusion-Reaction eqn
             return (
@@ -808,18 +817,22 @@ class MultiPhysicsDataset(data.Dataset):
         if idx < len(self.ns_dataset):
             # old shape was like (T, W, H, C)
             ns_x, ns_y = self.ns_dataset[int(idx)]
-            ns_x = pad_with_noise(
-                # new shape will be like (C, T, W, H)
-                torch.permute(ns_x, (3, 0, 1, 2)),
-                channels_before=3,
-                channel_dim=self.channel_dim,
-            )
-            ns_y = pad_with_noise(
-                # new shape will be like (C, T, W, H)
-                torch.permute(ns_y, (3, 0, 1, 2)),
-                channels_before=3,
-                channel_dim=self.channel_dim,
-            )
+            # new shapes will be like (C, T, W, H)
+            ns_x = torch.permute(ns_x, (3, 0, 1, 2))
+            ns_y = torch.permute(ns_y, (3, 0, 1, 2))
+
+            # ns_x = pad_with_noise(
+            #     # new shape will be like (C, T, W, H)
+            #     torch.permute(ns_x, (3, 0, 1, 2)),
+            #     channels_before=3,
+            #     channel_dim=self.channel_dim,
+            # )
+            # ns_y = pad_with_noise(
+            #     # new shape will be like (C, T, W, H)
+            #     torch.permute(ns_y, (3, 0, 1, 2)),
+            #     channels_before=3,
+            #     channel_dim=self.channel_dim,
+            # )
 
             # TODO consider returning a triple
             # instead of a nested 4-ple with redundancy.
