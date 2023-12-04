@@ -49,7 +49,7 @@ def get_onestep_dataloader(train_test_split=0.2, location='../Data/MP_data/',\
     test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(normalizer(test_t0),\
                                              normalizer(test_t1)),batch_size=batch_size, shuffle=False)
 
-        return train_loader, test_loader
+    return train_loader, test_loader
 
 def get_dummy_dataloaders(train_test_split=0.2, channels=7, resolution=256,\
                            location=None, batch_size=32, dtype=torch.float):
