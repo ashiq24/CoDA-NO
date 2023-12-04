@@ -22,7 +22,7 @@ if __name__ == "__main__":
     config = sys.argv[1]
     print("Loading config", config)
     params = YParams('./config/ssl_ns_elastic.yaml', config, print_params=True)
-
+    params.config = config
     # Set up WandB logging
     params.wandb_name = config
     params.wandb_group = params.nettype
@@ -48,9 +48,9 @@ if __name__ == "__main__":
             encoder, decoder, contrastive, predictor = get_ssl_models_codano_gino(
                 params)
 
-        print("Parameters Encoder", count_parameters(encoder),"x10^6")
-        print("Parameters Decoder", count_parameters(decoder),"x10^6")
-        print("Parameters Perdictor", count_parameters(predictor),"x10^6")
+        print("Parameters Encoder", count_parameters(encoder), "x10^6")
+        print("Parameters Decoder", count_parameters(decoder), "x10^6")
+        print("Parameters Perdictor", count_parameters(predictor), "x10^6")
         # if params.grid_type == 'uniform':
         model = SslWrapper(
             params,
@@ -67,19 +67,25 @@ if __name__ == "__main__":
             model.set_initial_mesh(input_mesh)
     elif params.nettype == 'simple':
         model = get_model_fno(params)
-        print("Parameters Model", count_parameters(model),"x10^6")
+        print("Parameters Model", count_parameters(model), "x10^6")
 
     model = model.cuda()
     # non-uniform dataset
-    dataset = Dataset()
-    train, test = dataset.get_onestep_dataloader(dt=params.dt, ntrain=params.get('ntrain'),
-                                                 ntest=params.get('ntest'))
+    dataset = NsElasticDataset(params.data_location)
+    # train, test = dataset.get_onestep_dataloader(location=params.data_location, dt=params.dt, ntrain=params.get('ntrain'),
+    #                                              ntest=params.get('ntest'))
+
+    train, test = dataset.get_dataloader(params.mu_list, params.dt, ntrain=params.get(
+        'ntrain'), ntest=params.get('ntest'), sample_per_inlet=params.sample_per_inlet)
 
     normalizer = dataset.normalizer
     normalizer.cuda()
 
     # uniform dataset dummy
     # train, test = get_dummy_dataloaders()
+    if params.training_stage == 'fine_tune':
+        print(f"Loading Pretrained weights from {params.pretrain_weight}")
+        model.load_state_dict(torch.load(params.pretrain_weight))
 
     simple_trainer(
         model,
@@ -91,7 +97,7 @@ if __name__ == "__main__":
         normalizer=normalizer,
         stage=stage)
 
-    if params.pretrain_ssl:
+    if params.pretrain_ssl and not params.ssl_only:
         # if we were pre-training (ssl), then we will train (sl)
         model.stage = 'sl'
         simple_trainer(

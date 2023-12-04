@@ -35,17 +35,20 @@ def simple_trainer(
     scheduler_step = params.scheduler_step
     scheduler_gamma = params.scheduler_gamma
     epochs = params.epochs
-    # weight_path = params.weight_path
-    optimizer = Adam(
-        model.parameters(),
-        lr=lr,
-        weight_decay=weight_decay,
-        amsgrad=False
-    )
-    scheduler = StepLR(
-        optimizer,
-        step_size=scheduler_step,
-        gamma=scheduler_gamma)
+    weight_path = params.weight_path
+    optimizer = Adam(model.parameters(), lr=lr,
+                     weight_decay=weight_decay, amsgrad=False)
+    if params.scheduler_type == 'step':
+        scheduler = StepLR(
+            optimizer,
+            step_size=scheduler_step,
+            gamma=scheduler_gamma)
+    else:
+        scheduler = ReduceLROnPlateau(
+            optimizer,
+            patience=scheduler_step,
+            factor=scheduler_gamma)
+
     loss_p = nn.MSELoss()
     loss_p1 = nn.L1Loss()
     for ep in range(epochs):
@@ -105,7 +108,8 @@ def simple_trainer(
 
             # Clip gradients to prevent exploding gradients
             if params.clip_gradient:
-                nn.utils.clip_grad_value_(model.parameters(), params.gradient_clip_value)
+                nn.utils.clip_grad_value_(
+                    model.parameters(), params.gradient_clip_value)
 
             optimizer.step()
             train_l2 += loss.item()
@@ -113,10 +117,13 @@ def simple_trainer(
             gc.collect()
 
         torch.cuda.empty_cache()
-        scheduler.step()
+        avg_train_l2 = train_l2 / train_count
+        if params.scheduler_type != 'step':
+            scheduler.step(avg_train_l2)
+        else:
+            scheduler.step(avg_train_l2)
         t2 = default_timer()
         epoch_train_time = t2 - t1
-        avg_train_l2 = train_l2 / train_count
 
         if ep % log_test_interval == 0:
 
@@ -125,10 +132,9 @@ def simple_trainer(
                   f"Time: {epoch_train_time:.2f}s, "
                   f"Loss: {avg_train_l2:.4f}")
 
-            if wandb_log:
-                wandb.log(values_to_log, step=ep, commit=True)
-
-    # torch.save(model.state_dict(), weight_path)
+            wandb.log(values_to_log, commit=True)
+    weight_path = weight_path + params.config + "_" + stage+'.pt'
+    torch.save(model.state_dict(), weight_path)
 
     model.eval()
     test_l2 = 0.0

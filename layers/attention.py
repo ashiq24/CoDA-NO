@@ -48,6 +48,7 @@ class TNOBlock(nn.Module):
         per_channel_attention=True,
         permutation_eq=True,
         temperature=1.0,
+        kqv_non_linear=False,
         logger=None,
         **_kwargs,
     ):
@@ -74,6 +75,14 @@ class TNOBlock(nn.Module):
         # self.per_channel_attention = per_channel_attention
 
         # making last mixer permutation equivariant
+
+        # K,Q,V operator with or without non_lin
+
+        if kqv_non_linear:
+            kqv_activation = non_linearity
+        else:
+            kqv_activation = NO_OP
+
         self.permutation_eq = permutation_eq
 
         if self.n_head is not None:

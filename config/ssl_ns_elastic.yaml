@@ -1,5 +1,6 @@
 base_config: &BASE_CONFIG
     ## SSL parameters
+    config: " "
     nettype: 'transformer'
     evaluation_channel_drop: 1
     drop_type : 'zeros'
@@ -14,7 +15,8 @@ base_config: &BASE_CONFIG
     drop_pix_val: 0.4
     channel_per_val: 0.2
     channel_drop_per_val: 1.0
-
+    
+    scheduler_type: 'step'
     batch_size: 4
 
     var_num: 5
@@ -57,6 +59,9 @@ base_config: &BASE_CONFIG
     # if True, it will fine tune the encoder during SL
     # otherwise it will freeze the weight of the encoder 
     # which is trained by SSL
+
+    ## training Hyeper parameters
+    training_stage: 'regular'
     freeze_encoder : !!bool False
     lr: 0.03
     weight_decay: 0.0000
@@ -65,7 +70,8 @@ base_config: &BASE_CONFIG
     epochs: 50
     clip_gradient: !!bool True
     gradient_clip_value: 0.001
-    weight_path: '../weights/ssl_weight.pt'
+    ssl_only: !!bool False
+    weight_path: '../weights/'
 
     # Weights and biases
     wandb_log: True
@@ -80,9 +86,11 @@ codano_gno: &CODANO_GNO
     # dataset hyper 
     ntrain: None
     ntest: None
-    input_mesh_location: "../Data/MP_data/mesh.csv"
+    sample_per_inlet: 186 # set to 186 to make total data per mu 5000
+    input_mesh_location: "../Data/test_data/mesh.csv"
+    data_location: "../Data/NS_ES"
     dt: 2 #dt in markovian model
-    
+    mu_list: [1, 0.01]
     radius: 0.15
     gno_mlp_layers: [10]
     grid_size: [251, 42]
@@ -90,11 +98,12 @@ codano_gno: &CODANO_GNO
     
     # training. hypers
     
-    epochs: 30
+    epochs: 20
     batch_size: 1
     lr: 0.01
     weight_decay: 0.0000
-    scheduler_step: 10
+    scheduler_type: 'rdp'
+    scheduler_step: 3
     scheduler_gamma: 0.8
     gradient_clip_value: 0.001
     
@@ -129,10 +138,31 @@ codano_gno: &CODANO_GNO
 codano_non_lin: &CODANO_NON_LIN
     <<: *CODANO_GNO
     kqv_non_linear: !!bool True
-    
+
+codano_gno_full:
+    <<: *CODANO_GNO
+    ssl_only: !!bool True
+    mu_list : [1, 0.1,0.01]
+codano_gno_.01:
+    <<: *CODANO_GNO
+    mu_list : [0.01]
+codano_gno_.1:
+    <<: *CODANO_GNO
+    mu_list : [0.1]
+codano_gno_.5:
+    <<: *CODANO_GNO
+    mu_list : [0.5]
+codano_gno_1:
+    <<: *CODANO_GNO
+    mu_list : [1]
+codano_gno_10:
+    <<: *CODANO_GNO
+    mu_list : [10]  
+
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
-    epochs: 10
+    epochs: 50
+    mu_list: [1]
     lr: 0.03
     weight_decay: 0.0000
     scheduler_step: 30
@@ -140,7 +170,7 @@ codano_test: &CODANO_TEST
     scheduler_gamma: 0.8
     channel_per_val: 0.5
     ntrain: 1
-    ntest: 5
+    ntest: 1
     kqv_non_linear: !!bool True
     channel_per: 0.3
     channel_drop_per: 0.5
@@ -165,12 +195,14 @@ fno_gno: &FNO_GNO
     
     # training hyper
     
-    lr: 0.01
+    lr: 0.001
+    epochs: 20
+    scheduler_type: 'rdp'
     weight_decay: 0.0000
-    scheduler_step: 10
-    scheduler_gamma: 0.5
+    scheduler_step: 3
+    scheduler_gamma: 0.8
     clip_gradient: !!bool True
-    gradient_clip_value: 0.1
+    gradient_clip_value: 1.0
     
     
     
@@ -178,13 +210,34 @@ fno_gno: &FNO_GNO
     var_enco_channels: 0
     enable_cls_token: !!bool False
 
-fno_test: &FNO_TEST
+fno_test_.01: &FNO_TEST
     <<: *FNO_GNO
+    mu_list: [0.01]
     channel_per_val: 0.5
-    epochs: 100
+    epochs: 300
+    scheduler_type: 'rdp'
     ntrain: 1
     ntest: 5
-    
+
+fno_gno_.01: 
+    <<: *FNO_GNO
+    mu_list: [0.01]
+fno_gno_.1: 
+    <<: *FNO_GNO
+    mu_list: [0.1]
+fno_gno_.5: 
+    <<: *FNO_GNO
+    mu_list: [0.5]
+fno_gno_1: 
+    <<: *FNO_GNO
+    mu_list: [1]
+fno_gno_10: 
+    <<: *FNO_GNO
+    mu_list: [10]
+fno_gno_combined: 
+    <<: *FNO_GNO
+    mu_list: [0.01,0.1,1]
+
 fno: &FNO
     <<: *FNO_GNO
     wandb_name: 'fno'
@@ -192,5 +245,42 @@ fno: &FNO
     grid_type: 'uniform'
 
 
+codano_finetune: &CODANO_FINETUNE
+    <<: *CODANO_GNO
+    training_stage: 'fine_tune'
+    freeze_encoder : !!bool True
+    pretrain_ssl : !!bool False
+    lr: 0.01
+    pretrain_weight: "../weights/codano_gno_full_ssl.pt"
+
+codano_finetune_test:
+    <<: *CODANO_FINETUNE
+    pretrain_weight: "../weights/codano_gno_ssl.pt"
+    mu_list: [10]
+    dt: 2
+    ntrain: 1
+    ntest: 5
+
+codano_finetune_.01:
+    <<: *CODANO_FINETUNE
+    mu_list : [0.01]
+codano_finetune_.1:
+    <<: *CODANO_FINETUNE
+    mu_list : [0.1]
+codano_finetune_.5:
+    <<: *CODANO_FINETUNE
+    mu_list : [0.5]
+codano_finetune_1:
+    <<: *CODANO_FINETUNE
+    mu_list : [1]
+codano_finetune_.10:
+    <<: *CODANO_FINETUNE
+    mu_list : [10] 
 
 
+    
+
+
+
+    
+    
