@@ -9,3 +9,12 @@ wandb/*
 wandb/*
 */.ipynb_cache/*
 */.ipynb_checkpoints/*
+*/.ipynb_checkpoints/*
+.ipynb_checkpoints/*
+
+*__pycache__/*
+*/__pycache__/*
+*.out
+
+# Virtual environment(s):
+.venv/*

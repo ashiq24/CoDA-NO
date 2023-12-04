@@ -11,7 +11,7 @@ from neuralop.layers.padding import DomainPadding
 from neuralop.layers.fno_block import FNOBlocks
 import numpy as np
 import torch
-from layers.variable_encoding import VaribaleEncoding2d
+from layers.variable_encoding import VariableEncoding2d
 
 
 class FnoGno(nn.Module):
@@ -178,6 +178,7 @@ class FnoGno(nn.Module):
         return initial_scale
 
     def get_device(self,):
+<<<<<<< HEAD
         return self.cls_token.coefficients_r.device
 
     def forward(
@@ -185,6 +186,11 @@ class FnoGno(nn.Module):
             inp,
             out_grid_displacement=None,
             in_grid_displacement=None):
+=======
+        return self.cls_token.weights_re.device
+    
+    def forward(self, inp):
+>>>>>>> mogab
         '''
         inp = (batch_size, n_points, in_dims/Channels)
         currenly only batch_size = 1

@@ -1,9 +1,11 @@
-from ruamel.yaml import YAML
-import logging
 import json
+import logging
+import pprint
+
+from ruamel.yaml import YAML
 
 
-class ParamsBase():
+class ParamsBase:
     """Convenience wrapper around a dictionary
 
     Allows referring to dictionary items as attributes, and tracking which
@@ -23,7 +25,7 @@ class ParamsBase():
         self.__setattr__(key, val)
 
     def __contains__(self, key):
-        return (key in self.params)
+        return key in self.params
 
     def get(self, key, default=None):
         if hasattr(self, key):
@@ -50,19 +52,22 @@ class ParamsBase():
         for key, val in config.items():
             if val == 'None':
                 val = None
+
+            if type(val) == dict:
+                child = ParamsBase()
+                child.update_params(val)
+                val = child
+
             self.params[key] = val
             self.__setattr__(key, val)
 
 
 class YParams(ParamsBase):
-
     def __init__(self, yaml_filename, config_name, print_params=False):
         """Open parameters stored with ``config_name`` in the yaml file ``yaml_filename``"""
         super().__init__()
         self._yaml_filename = yaml_filename
         self._config_name = config_name
-        if print_params:
-            print("------------------ Configuration ------------------")
 
         with open(yaml_filename) as _file:
             d = YAML().load(_file)[config_name]
@@ -70,8 +75,10 @@ class YParams(ParamsBase):
         self.update_params(d)
 
         if print_params:
-            for key, val in d.items():
-                print(key, val)
+            print("------------------ Configuration ------------------")
+            for k, v in d.items():
+                print(k, end='=')
+                pprint.pprint(v)
             print("---------------------------------------------------")
 
     def log(self):
