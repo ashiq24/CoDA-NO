@@ -155,7 +155,7 @@ codano_gno_.5:
 codano_gno_1:
     <<: *CODANO_GNO
     mu_list : [1]
-codano_gno_.10:
+codano_gno_10:
     <<: *CODANO_GNO
     mu_list : [10]  
 
