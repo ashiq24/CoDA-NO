@@ -3,12 +3,12 @@ import gc
 from timeit import default_timer
 import tqdm
 import wandb
-
+from data_utils.data_utils import *
 import torch
 from torch import nn
 from torch.utils import data
 from torch.optim import Adam
-from torch.optim.lr_scheduler import StepLR
+from torch.optim.lr_scheduler import StepLR, ReduceLROnPlateau
 
 from data_utils.hdf5_datasets import Equation
 
@@ -28,6 +28,7 @@ def simple_trainer(
     wandb_log=False,
     log_test_interval=1,
     stage='ssl',
+    normalizer=None,
 ):
 
     lr = params.lr
@@ -91,10 +92,15 @@ def simple_trainer(
 
             optimizer.zero_grad()
 
-            out = model(x, out_grid_displacement, in_grid_displacement)
+            out = model(
+                x,
+                out_grid_displacement=out_grid_displacement,
+                in_grid_displacement=in_grid_displacement)
 
             if isinstance(out, (list, tuple)):
                 out = out[0]
+            
+            #print('Shapes', out.shape, x.shape)
             train_count += 1
 
             if stage == 'ssl':
@@ -167,7 +173,8 @@ def simple_trainer(
                     x, y = normalizer(x), normalizer(y)
 
             batch_size = x.shape[0]
-            out, _, _, _ = model(x)
+            out, _, _, _ = model(x, in_grid_displacement=in_grid_displacement,out_grid_displacement=out_grid_displacement)
+            
             ntest += 1
             if stage == 'ssl':
                 target = x.clone()

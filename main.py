@@ -52,13 +52,14 @@ if __name__ == "__main__":
         print("Parameters Decoder", count_parameters(decoder), "x10^6")
         print("Parameters Perdictor", count_parameters(predictor), "x10^6")
         # if params.grid_type == 'uniform':
-        model = SslWrapper(
+        
+        model = SSLWrapper(
             params,
             encoder,
             decoder,
             contrastive,
             predictor,
-            stage=stage)
+            stage=StageEnum.RECONSTRUCTIVE if stage == 'ssl' else StageEnum.SUPERVISED)
         if params.grid_type != 'uniform':
             print("Setting the Grid")
             mesh = np.loadtxt(params.input_mesh_location, delimiter=',')
@@ -99,7 +100,7 @@ if __name__ == "__main__":
 
     if params.pretrain_ssl and not params.ssl_only:
         # if we were pre-training (ssl), then we will train (sl)
-        model.stage = 'sl'
+        model.stage = StageEnum.SUPERVISED
         simple_trainer(
             model,
             train,

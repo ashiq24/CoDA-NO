@@ -15,7 +15,7 @@ class Normalizer():
         self.persample = persample
         self.mean = mean
         self.std = std
-        if self.std < 0:
+        if self.std is not None and self.std < 0:
             raise ValueError(f"Cannot have a negative standard deviation: {std=}")
         self.eps = eps
 

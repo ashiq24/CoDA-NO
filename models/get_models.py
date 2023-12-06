@@ -230,7 +230,7 @@ def get_ssl_models_codano_gino(params):
             integral_operator_bottom=int_op_bottom,
             var_encoding=params.use_variable_encoding,
             var_enco_channels=params.n_encoding_channels,
-            var_num=params.var_num,
+            var_num=params.n_variables,
             enable_cls_token=params.enable_cls_token,
             static_channels_num=static_channels_num,
             static_features=static_features,
@@ -263,7 +263,7 @@ def get_ssl_models_codano_gino(params):
             integral_operator_top=int_op_top,
             integral_operator_bottom=int_op_bottom,
             per_channel_attention=params.per_channel_attention,
-            enable_cls_token=params.enable_cls_token,
+            enable_cls_token=False, # should not add cls again in the decoder
         )
     else:
         decoder = None
@@ -400,7 +400,7 @@ class SSLWrapper(nn.Module):
         decoder,
         contrastive,
         predictor,
-        variables_per_equations: Dict[Equation, int],
+        variables_per_equations: Dict[Equation, int] = {},
         n_encoding_channels: int = 0,
         n_static_channels: int = 0,
         stage=StageEnum.PREDICTIVE,
@@ -436,30 +436,31 @@ class SSLWrapper(nn.Module):
         # if self.re_grid_output:
         #     self.output_regrider = Regird("legendre-gauss", "equiangular")
 
-        equation_to_encoders = {eq: [] for eq in variables_per_equations}
-        v = 0
-        for eq, size in variables_per_equations.items():
-            for _ in range(size):
-                equation_to_encoders[eq] = equation_to_encoders[eq] + [v]
-                v += 1
-        self.equation_to_encoders: Dict[Equation, Tuple[int, ...]] = \
-            {k: tuple(v) for k, v in equation_to_encoders.items()}
+        if self.grid_type == 'uniform':  # TODO add a different option for this
+            equation_to_encoders = {eq: [] for eq in variables_per_equations}
+            v = 0
+            for eq, size in variables_per_equations.items():
+                for _ in range(size):
+                    equation_to_encoders[eq] = equation_to_encoders[eq] + [v]
+                    v += 1
+            self.equation_to_encoders: Dict[Equation, Tuple[int, ...]] = \
+                {k: tuple(v) for k, v in equation_to_encoders.items()}
 
-        # TODO support multiple encoders (?)
-        self.n_encoding_channels = n_encoding_channels
-        self.variable_encoders = [
-            FourierVariableEncoding3D(
-                self.n_encoding_channels,
-                (
-                    params.encoding_modes_x,
-                    params.encoding_modes_y,
-                    params.encoding_modes_t,
-                ),
-            ) for _ in range(v)
-        ]
+            # TODO support multiple encoders (?)
+            self.n_encoding_channels = n_encoding_channels
+            self.variable_encoders = [
+                FourierVariableEncoding3D(
+                    self.n_encoding_channels,
+                    (
+                        params.encoding_modes_x,
+                        params.encoding_modes_y,
+                        params.encoding_modes_t,
+                    ),
+                ) for _ in range(v)
+            ]
 
-        self.n_encoding_channels = n_encoding_channels
-        self.n_static_channels = n_static_channels
+            self.n_encoding_channels = n_encoding_channels
+            self.n_static_channels = n_static_channels
 
         # print("Doing Wrapper for", self.stage)
         if params.grid_type == 'uniform':
@@ -508,6 +509,9 @@ class SSLWrapper(nn.Module):
     def reset_channels(self):
         # TODO add a setting where `next_channels` have some persistence.
         self.next_channels = None
+    
+    def set_initial_mesh(self, mesh):
+        self.register_buffer('initial_mesh', mesh)
 
     # NOTE: this should support both 3D and 2D models
     def _encode_variable(self, x: torch.Tensor, encoder):
@@ -584,28 +588,33 @@ class SSLWrapper(nn.Module):
         static_random_tensor=None,
         # ``Tensor`` contains wrapped ``int`` corresponding to ``Equation`` enum:
         equations: Optional[torch.Tensor] = None,
+        out_grid_displacement=None,
+        in_grid_displacement=None
     ):
-        if equations is None or len(equations) == 0:
-            raise ValueError("The equation(s) must be defined for a variable encoding.")
+        if self.grid_type == 'uniform':
+            if equations is None or len(equations) == 0:
+                raise ValueError("The equation(s) must be defined for a variable encoding.")
 
-        _equations: Set[int] = {eq.item() for eq in equations}
-        if len(_equations) > 1:
-            raise ValueError(
-                "All equations in a batch must be of the same kind. "
-                f"Received multiple different kinds in one batch: {_equations=}")
+            _equations: Set[int] = {eq.item() for eq in equations}
+            if len(_equations) > 1:
+                raise ValueError(
+                    "All equations in a batch must be of the same kind. "
+                    f"Received multiple different kinds in one batch: {_equations=}")
 
-        equation: Equation = Equation(_equations.pop())
-        # TODO add support for arbitrary sets of variables.
-        # This would be especially useful for mixed-physics scenarios.
-        encoders_idxs = self.equation_to_encoders[equation]
-        encoders = [self.variable_encoders[idx] for idx in encoders_idxs]
-        x_embedded = self.encode_variables(x, encoders)
+            equation: Equation = Equation(_equations.pop())
+            # TODO add support for arbitrary sets of variables.
+            # This would be especially useful for mixed-physics scenarios.
+            encoders_idxs = self.equation_to_encoders[equation]
+            encoders = [self.variable_encoders[idx] for idx in encoders_idxs]
+            x_embedded = self.encode_variables(x, encoders)
+        else:
+            x_embedded = x
 
         if self.stage == StageEnum.RECONSTRUCTIVE:
-            return self.forward_reconstructive(x_embedded)
+            return self.forward_reconstructive(x_embedded, in_grid_displacement, out_grid_displacement)
 
         if self.stage == StageEnum.PREDICTIVE:
-            return self.forward_predictive(x_embedded)
+            return self.forward_predictive(x_embedded, in_grid_displacement, out_grid_displacement)
 
         raise ValueError(f'Expected stage to be one of {list(StageEnum)};\n'
                          f'Got {self.stage=}')
@@ -627,14 +636,22 @@ class SSLWrapper(nn.Module):
         return x_masked
 
     # Assumes `x` is already embedded in its higher-dimensional repr:
-    def forward_reconstructive(self, x):
+    def forward_reconstructive(self, x, in_grid_displacement=None, out_grid_displacement=None):
+        # adjusting for chnage of mesh 
+        if self.grid_type != "uniform":
+            with torch.no_grad():
+                self.encoder.lifting.update_grid(
+                    self.initial_mesh + in_grid_displacement, None)
+                self.decoder.projection.update_grid(
+                    None, self.initial_mesh + out_grid_displacement)
         x_masked = self.do_mask(x)
         x_encoded = self.encoder(x_masked)
-        # print("Feature Shape", x_encoded.shape)
+        #print("Feature Shape", x_encoded.shape)
 
         cls_offset = 1 if self.enable_cls_token else 0
         if self.reconstruction:
             reconstructed = self.decoder(x_encoded)
+            #print("Reconstructed Shape", reconstructed.shape)
             # Removing the CLS token and also discarding if some additional
             # channels if in the end
             if self.grid_type == 'uniform':
@@ -661,6 +678,7 @@ class SSLWrapper(nn.Module):
         clean_contra = None
         neg_contra = None
         aug_contra = None
+        #print(reconstructed.shape, _slice)
 
         return reconstructed, clean_contra, aug_contra, neg_contra
 
@@ -681,11 +699,18 @@ class SSLWrapper(nn.Module):
             return self.decoder(x)
 
     # Assumes `x` is already embedded in its higher-dimensional repr:
-    def forward_predictive(self, x):
+    def forward_predictive(self, x, in_grid_displacement=None, out_grid_displacement=None):
+        if self.grid_type != 'unifrom':
+            with torch.no_grad():
+                self.encoder.lifting.update_grid(
+                    self.initial_mesh + in_grid_displacement, None)
+                self.predictor.projection.update_grid(
+                    None, self.initial_mesh + out_grid_displacement)
+
         x_encoded = self.encode_input(x)
         out = self.predictor(x_encoded)
 
-        if self.reconstruction:
+        if self.reconstruction and self.grid_type == 'uniform':
             out = self.decode_output(out)
 
         cls_offset = 1 if self.enable_cls_token else 0
@@ -705,5 +730,5 @@ class SSLWrapper(nn.Module):
                 slice(cls_offset, None),
             ]
         out = out[_slice]
-
+        #print(out.shape, _slice)
         return out, None, None, None

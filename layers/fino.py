@@ -44,7 +44,14 @@ class SpectralConvKernel2d(SpectralConv):
         isht_grid="legendre-gauss",
         sht_norm="backward",
         frequency_mixer=False,
+        verbose=True,
+        logger=None
     ):
+        if logger is None:
+            logger = logging.getLogger()
+        self.logger = logger
+        self.verbose = verbose
+        
         if decomposition_kwargs is None:
             decomposition_kwargs = {}
         super().__init__(
