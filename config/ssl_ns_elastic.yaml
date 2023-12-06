@@ -44,11 +44,13 @@ base_config: &BASE_CONFIG
     per_channel_attention: !!bool True
     
 
-    fft_type: 'fft' # might be also spherical harmonics transform or 'sht'
+    #fft_type: 'fft' #  Duplicate should be removed
+    transform_type: 'fft' # might be also spherical harmonics transform or 'sht'
+
     tno_integral_op: 'fno'
 
     var_encoding: !!bool True
-    var_enco_channels: 3
+    n_encoding_channels: 3
     reconstruction: !!bool True
     enable_cls_token: !!bool True
 
@@ -108,7 +110,7 @@ codano_gno: &CODANO_GNO
     gradient_clip_value: 0.001
     
     
-    var_enco_channels: 8
+    n_encoding_channels: 8
     n_modes_en:       [[180,30], [180,30], [180,30]]
     n_modes_dec:       [[180,30]]
     n_modes_pred:       [[180,30], [180,30]]
@@ -207,7 +209,7 @@ fno_gno: &FNO_GNO
     
     
     # does not supporting turning on
-    var_enco_channels: 0
+    n_encoding_channels: 0
     enable_cls_token: !!bool False
 
 fno_test_.01: &FNO_TEST
