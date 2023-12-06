@@ -6,7 +6,7 @@ import torch
 from data_utils.data_loaders import *
 from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
-from data_utils.data_utils import MakserNonuniform, batched_masker, MaskerUniform, get_meshes
+from data_utils.data_utils import MaskerNonuniformMesh, batched_masker, MaskerUniform, get_meshes
 from models.codano import CodANO
 from models.get_models import *
 from train.trainer import simple_trainer
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     grid_non, grid_uni = get_meshes(
         params.input_mesh_location, params.grid_size)
 
-    test_augmenter = MakserNonuniform(
+    test_augmenter = MaskerNonuniformMesh(
         grid_non_uni=grid_non.clone().detach(),
         gird_uni=grid_uni.clone().detach(),
         radius=params.masking_radius,

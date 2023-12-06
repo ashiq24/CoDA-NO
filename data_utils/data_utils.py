@@ -384,3 +384,29 @@ class MaskerNonuniformMesh(object):
                 if max_location == 0:
                     break
         return None, mask
+
+
+def get_meshes(input_mesh_location, grid_size):
+    mesh = np.loadtxt(input_mesh_location, delimiter=',')
+    input_mesh = torch.transpose(torch.stack([torch.tensor(
+        mesh[0, :]), torch.tensor(mesh[1, :])]), 0, 1).type(torch.float).cuda()
+
+    minx, maxx = np.min(mesh[0, :]), np.max(mesh[0, :])
+    miny, maxy = np.min(mesh[1, :]), np.max(mesh[1, :])
+
+    size_x, size_y = grid_size
+    idx_x = torch.arange(start=minx,
+                         end=maxx + (maxx - minx) / size_x - 1e-5,
+                         step=(maxx - minx) / (size_x - 1))
+    idx_y = torch.arange(start=miny,
+                         end=maxy + (maxy - miny) / size_y - 1e-5,
+                         step=(maxy - miny) / (size_y - 1))
+    x, y = torch.meshgrid(idx_x, idx_y, indexing='ij')
+    output_mesh = torch.transpose(torch.stack(
+        [x.flatten(), y.flatten()]), 0, 1).type(torch.float).cuda()
+
+    return input_mesh, output_mesh
+
+
+def get_mesh_displacement(x):
+    return x[0, :, -2:].clone().detach()

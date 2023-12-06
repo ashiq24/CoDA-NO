@@ -2,6 +2,7 @@ import pickle
 import random
 import h5py
 import os
+import torch
 import numpy as np
 from torchvision.transforms import Normalize
 from torch.utils.data import ConcatDataset, random_split, DataLoader
