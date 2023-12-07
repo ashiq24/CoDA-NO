@@ -6,7 +6,7 @@ import torch
 import numpy as np
 from torchvision.transforms import Normalize
 from torch.utils.data import ConcatDataset, random_split, DataLoader
-
+import itertools
 
 class Normalizer():
     def __init__(self, mean, std, eps=1e-6, persample=False):
@@ -163,7 +163,7 @@ class NsElasticDataset():
         return ConcatDataset(train_datasets), ConcatDataset(test_datasets)
 
 
-class Dataset():
+class DatasetSimple():
     def __init__(self,):
         self.normalizer = None
 

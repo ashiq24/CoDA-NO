@@ -5,6 +5,7 @@ import tqdm
 import wandb
 from data_utils.data_utils import *
 import torch
+from models.get_models import *
 from torch import nn
 from torch.utils import data
 from torch.optim import Adam
@@ -27,7 +28,7 @@ def simple_trainer(
     params,
     wandb_log=False,
     log_test_interval=1,
-    stage='ssl',
+    stage=StageEnum.RECONSTRUCTIVE,
     normalizer=None,
 ):
 
@@ -76,7 +77,7 @@ def simple_trainer(
                 last 3 channel is displacement, taking (x,y), z is 0
                 '''
                 with torch.no_grad():
-                    if stage == 'ssl':
+                    if stage == StageEnum.RECONSTRUCTIVE:
                         out_grid_displacement = get_mesh_displacement(x)
                         in_grid_displacement = get_mesh_displacement(x)
                     else:
@@ -103,7 +104,7 @@ def simple_trainer(
             #print('Shapes', out.shape, x.shape)
             train_count += 1
 
-            if stage == 'ssl':
+            if stage == StageEnum.RECONSTRUCTIVE:
                 target = x.clone()
             else:
                 target = y.clone()
@@ -158,7 +159,7 @@ def simple_trainer(
                 last 3 channel is displacement, taking (x,y), z is 0
                 '''
                 with torch.no_grad():
-                    if stage == 'ssl':
+                    if stage == StageEnum.RECONSTRUCTIVE:
                         out_grid_displacement = get_mesh_displacement(x)
                         in_grid_displacement = get_mesh_displacement(x)
                     else:
@@ -176,7 +177,7 @@ def simple_trainer(
             out, _, _, _ = model(x, in_grid_displacement=in_grid_displacement,out_grid_displacement=out_grid_displacement)
             
             ntest += 1
-            if stage == 'ssl':
+            if stage == StageEnum.RECONSTRUCTIVE:
                 target = x.clone()
             else:
                 target = y.clone()

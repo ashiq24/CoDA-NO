@@ -36,9 +36,9 @@ if __name__ == "__main__":
             entity=params.wandb_entity)
 
     if params.pretrain_ssl:
-        stage = 'ssl'
+        stage = StageEnum.RECONSTRUCTIVE
     else:
-        stage = 'sl'
+        stage = StageEnum.PREDICTIVE
 
     if params.nettype == 'transformer':
         if params.grid_type == 'uniform':
@@ -59,7 +59,7 @@ if __name__ == "__main__":
             decoder,
             contrastive,
             predictor,
-            stage=StageEnum.RECONSTRUCTIVE if stage == 'ssl' else StageEnum.SUPERVISED)
+            stage=stage)
         if params.grid_type != 'uniform':
             print("Setting the Grid")
             mesh = np.loadtxt(params.input_mesh_location, delimiter=',')
@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
     if params.pretrain_ssl and not params.ssl_only:
         # if we were pre-training (ssl), then we will train (sl)
-        model.stage = StageEnum.SUPERVISED
+        model.stage = StageEnum.PREDICTIVE
         simple_trainer(
             model,
             train,
