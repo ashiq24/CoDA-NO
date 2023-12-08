@@ -87,9 +87,10 @@ def simple_trainer(
                 out_grid_displacement = None
                 in_grid_displacement = None
 
-            if normalizer is not None:
-                with torch.no_grad():
-                    x, y = normalizer(x), normalizer(y)
+            # data is normalized within the dataset
+            # if normalizer is not None:
+            #     with torch.no_grad():
+            #         x, y = normalizer(x), normalizer(y)
 
             optimizer.zero_grad()
 
@@ -140,7 +141,10 @@ def simple_trainer(
                   f"Loss: {avg_train_l2:.4f}")
 
             wandb.log(values_to_log, commit=True)
-    weight_path = weight_path + params.config + "_" + stage+'.pt'
+
+    stage_string = 'ssl' if stage == StageEnum.RECONSTRUCTIVE else 'sl'
+    
+    weight_path = weight_path + params.config + "_" + stage_string+'.pt'
     torch.save(model.state_dict(), weight_path)
 
     model.eval()
@@ -169,9 +173,10 @@ def simple_trainer(
                 out_grid_displacement = None
                 in_grid_displacement = None
 
-            if normalizer is not None:
-                with torch.no_grad():
-                    x, y = normalizer(x), normalizer(y)
+            # data is normalized within the dataset
+            # if normalizer is not None:
+            #     with torch.no_grad():
+            #         x, y = normalizer(x), normalizer(y)
 
             batch_size = x.shape[0]
             out, _, _, _ = model(x, in_grid_displacement=in_grid_displacement,out_grid_displacement=out_grid_displacement)

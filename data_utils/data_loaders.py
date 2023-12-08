@@ -7,6 +7,8 @@ import numpy as np
 from torchvision.transforms import Normalize
 from torch.utils.data import ConcatDataset, random_split, DataLoader
 import itertools
+from neuralop.datasets.tensor_dataset import TensorDataset
+
 
 class Normalizer():
     def __init__(self, mean, std, eps=1e-6, persample=False):
@@ -154,11 +156,19 @@ class NsElasticDataset():
 
                     if not normalize:
                         self.normalizer = None
+                    else:
+                        mean, var = torch.mean(
+                            train_t0, dim=(
+                                0, 1)), torch.mean(
+                            torch.var(
+                                train_t0, dim=(1)), dim=0)
+
+                        normalizer = Normalizer(mean, var**0.5)
 
                     train_datasets.append(
-                        torch.utils.data.TensorDataset(train_t0, train_t1))
+                        TensorDataset(train_t0, train_t1, normalizer, normalizer))
                     test_datasets.append(
-                        torch.utils.data.TensorDataset(test_t0, test_t1))
+                        TensorDataset(test_t0, test_t1, normalizer, normalizer))
         #####
         return ConcatDataset(train_datasets), ConcatDataset(test_datasets)
 
