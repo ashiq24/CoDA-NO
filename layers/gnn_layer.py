@@ -87,4 +87,8 @@ class GnnLayer(nn.Module):
         out = self.it(self.input_grid, self.neighbour,
                       self.output_grid, x)
         # print("out shape", out.shape)
+
+        if torch.equal(out.shape, x.shape):
+            out = out + x
+            
         return out

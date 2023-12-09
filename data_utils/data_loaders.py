@@ -158,7 +158,7 @@ class NsElasticDataset():
                     # keeping vx,xy, P, dx,dy
                     varable_idices = [0, 1, 3, 4, 5]
                     combined = torch.cat(
-                        [velocities, pressure, displacements], dim=-1)[:sample_per_inlet, :, varable_idices]
+                        [velocities, pressure, displacements], dim=-1)[-sample_per_inlet:, :, varable_idices]
 
                     # print("sample data", combined[50,500,:])
                     step_t0 = combined[:-dt, ...]
