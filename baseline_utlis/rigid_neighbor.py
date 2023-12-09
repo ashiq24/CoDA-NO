@@ -21,7 +21,6 @@ def simple_neighbor_search(data: torch.Tensor, queries: torch.Tensor, n_neigbor:
     k = sorted_dist[:,n_neigbor]
     dists = dists - k[:,None]  
     in_nbr = torch.where(dists < 0, 1., 0.) # i,j is one if j is i's neighbor
-    print(in_nbr)
     nbr_indices = in_nbr.nonzero()[:,1:].reshape(-1,) # only keep the column indices
     nbrhd_sizes = torch.cumsum(torch.sum(in_nbr, dim=1), dim=0) # num points in each neighborhood, summed cumulatively
     splits = torch.cat((torch.tensor([0.]).to(queries.device), nbrhd_sizes))
@@ -30,7 +29,7 @@ def simple_neighbor_search(data: torch.Tensor, queries: torch.Tensor, n_neigbor:
     nbr_dict['neighbors_row_splits'] = splits.long()
     return nbr_dict
 
-class NeighborSearch(nn.Module):
+class FixedNeighborSearch(nn.Module):
     """Neighbor search within a ball of a given radius
 
     Parameters

@@ -64,8 +64,15 @@ def simple_trainer(
             leave=False,
             ncols=100
         )
-        for x, y in train_loader_iter:
+        for data in train_loader_iter:
+            x, y = data['x'], data['y']
+
+            #print('difference',torch.norm(x -y))
+
             x, y = x.cuda(), y.cuda()
+            print("Input Shape", x.shape, torch.mean(x, dim=(0,1)), torch.std(x, dim=(0,1)))
+            #print("output Shape", y.shape)
+            
             batch_size = x.shape[0]
 
             if params.grid_type == "non uniform":
@@ -78,19 +85,16 @@ def simple_trainer(
                 '''
                 with torch.no_grad():
                     if stage == StageEnum.RECONSTRUCTIVE:
-                        out_grid_displacement = get_mesh_displacement(x)
-                        in_grid_displacement = get_mesh_displacement(x)
+                        out_grid_displacement = data['d_grid_x'].cuda()[0]
+                        in_grid_displacement = data['d_grid_x'].cuda()[0]
                     else:
-                        out_grid_displacement = get_mesh_displacement(y)
-                        in_grid_displacement = get_mesh_displacement(x)
+                        out_grid_displacement = data['d_grid_y'].cuda()[0]
+                        in_grid_displacement = data['d_grid_x'].cuda()[0]
+                    
+                    #print("grid difference",torch.norm(out_grid_displacement -in_grid_displacement))
             else:
                 out_grid_displacement = None
                 in_grid_displacement = None
-
-            # data is normalized within the dataset
-            # if normalizer is not None:
-            #     with torch.no_grad():
-            #         x, y = normalizer(x), normalizer(y)
 
             optimizer.zero_grad()
 
@@ -151,8 +155,10 @@ def simple_trainer(
     test_l2 = 0.0
     ntest = 0
     with torch.no_grad():
-        for x, y in test_loader:
+        for data in test_loader:
+            x, y = data['x'], data['y']
             x, y = x.cuda(), y.cuda()
+            
 
             if params.grid_type == "non uniform":
                 '''
@@ -164,22 +170,19 @@ def simple_trainer(
                 '''
                 with torch.no_grad():
                     if stage == StageEnum.RECONSTRUCTIVE:
-                        out_grid_displacement = get_mesh_displacement(x)
-                        in_grid_displacement = get_mesh_displacement(x)
+                        out_grid_displacement = data['d_grid_x'].cuda()[0]
+                        in_grid_displacement = data['d_grid_x'].cuda()[0]
                     else:
-                        out_grid_displacement = get_mesh_displacement(y)
-                        in_grid_displacement = get_mesh_displacement(x)
+                        out_grid_displacement = data['d_grid_y'].cuda()[0]
+                        in_grid_displacement = data['d_grid_x'].cuda()[0]
             else:
                 out_grid_displacement = None
                 in_grid_displacement = None
 
-            # data is normalized within the dataset
-            # if normalizer is not None:
-            #     with torch.no_grad():
-            #         x, y = normalizer(x), normalizer(y)
-
             batch_size = x.shape[0]
-            out, _, _, _ = model(x, in_grid_displacement=in_grid_displacement,out_grid_displacement=out_grid_displacement)
+            out= model(x, in_grid_displacement=in_grid_displacement,out_grid_displacement=out_grid_displacement)
+            if isinstance(out, (list, tuple)):
+                out = out[0]
             
             ntest += 1
             if stage == StageEnum.RECONSTRUCTIVE:

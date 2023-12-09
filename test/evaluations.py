@@ -2,6 +2,7 @@ import torch
 from data_utils.data_utils import *
 import torch.nn as nn
 from timeit import default_timer
+from models.get_models import *
 import gc
 from tqdm import tqdm
 import wandb
@@ -19,7 +20,8 @@ def missing_variable_testing(
         ntest = 0
         test_l2 = 0
         loss_p = nn.MSELoss()
-        for x, y in test_loader:
+        for data in test_loader:
+            x, y = data['x'], data['y']
             x, y = x.cuda(), y.cuda()
 
             if params.grid_type == "non uniform":
@@ -31,12 +33,12 @@ def missing_variable_testing(
                 last 3 channel is displacement, taking (x,y), z is 0
                 '''
                 with torch.no_grad():
-                    if stage == 'ssl':
-                        out_grid_displacement = get_mesh_displacement(x)
-                        in_grid_displacement = get_mesh_displacement(x)
+                    if stage == StageEnum.RECONSTRUCTIVE:
+                        out_grid_displacement = data['d_grid_x'].cuda()[0]
+                        in_grid_displacement = data['d_grid_x'].cuda()[0]
                     else:
-                        out_grid_displacement = get_mesh_displacement(y)
-                        in_grid_displacement = get_mesh_displacement(x)
+                        out_grid_displacement = data['d_grid_y'].cuda()[0]
+                        in_grid_displacement = data['d_grid_x'].cuda()[0]
             else:
                 out_grid_displacement = None
                 in_grid_displacement = None

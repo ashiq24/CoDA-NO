@@ -241,6 +241,16 @@ fno_gno_combined:
     <<: *FNO_GNO
     mu_list: [0.01,0.1,1]
 
+gnn_test:
+    <<: *FNO_GNO
+    epochs: 300
+    nettype: 'gnn'
+    mu_list: [1]
+    n_neigbor: 20
+    ntrain: 1
+    ntest: 5
+    dt: 1
+
 fno: &FNO
     <<: *FNO_GNO
     wandb_name: 'fno'

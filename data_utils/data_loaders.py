@@ -8,7 +8,25 @@ from torchvision.transforms import Normalize
 from torch.utils.data import ConcatDataset, random_split, DataLoader
 import itertools
 from neuralop.datasets.tensor_dataset import TensorDataset
+from data_utils import get_mesh_displacement
+class IrregularMeshTensorDataset(TensorDataset):
+    def __init__(self, x, y, transform_x=None, transform_y=None):
+        super().__init__( x, y, transform_x, transform_y)
+    
+    def __getitem__(self, index):
+        x = self.x[index]
+        y = self.y[index]
+        
+        d_grid_x = get_mesh_displacement(x)
+        d_grid_y = get_mesh_displacement(y)
 
+        if self.transform_x is not None:
+            x = self.transform_x(x)
+
+        if self.transform_y is not None:
+            x = self.transform_y(x)
+
+        return {'x': x, 'y':y, 'd_grid_x':d_grid_x, 'd_grid_y':d_grid_y}
 
 class Normalizer():
     def __init__(self, mean, std, eps=1e-6, persample=False):
@@ -17,14 +35,12 @@ class Normalizer():
         self.persample = persample
         self.mean = mean
         self.std = std
-        if self.std is not None and self.std < 0:
-            raise ValueError(f"Cannot have a negative standard deviation: {std=}")
         self.eps = eps
 
     def __call__(self, data):
         if self.persample:
-            self.mean = torch.mean(data, dim=(1))
-            self.std = torch.var(data, dim=(1))**0.5
+            self.mean = torch.mean(data, dim=(0))
+            self.std = torch.var(data, dim=(0))**0.5
         return (data - self.mean) / (self.std + self.eps)
 
     def denormalize(self, data):
@@ -95,7 +111,7 @@ class NsElasticDataset():
             self,
             mu_list,
             dt,
-            normalize=True,
+            normalize=False,
             batch_size=1,
             train_test_split=0.2,
             sample_per_inlet=200,
@@ -139,7 +155,9 @@ class NsElasticDataset():
                     # keeping vx,xy, P, dx,dy
                     varable_idices = [0, 1, 3, 4, 5]
                     combined = torch.cat(
-                        [velocities, pressure, displacements], dim=-1)[-sample_per_inlet:, :, varable_idices]
+                        [velocities, pressure, displacements], dim=-1)[:sample_per_inlet, :, varable_idices]
+                    
+                    #print("sample data", combined[50,500,:])
                     step_t0 = combined[:-dt, ...]
                     step_t1 = combined[dt:, ...]
 
@@ -155,20 +173,16 @@ class NsElasticDataset():
                                                 ], step_t1[indexs[ntrain:ntrain + ntest]]
 
                     if not normalize:
-                        self.normalizer = None
+                        normalizer = None
                     else:
-                        mean, var = torch.mean(
-                            train_t0, dim=(
-                                0, 1)), torch.mean(
-                            torch.var(
-                                train_t0, dim=(1)), dim=0)
+                        mean, var = torch.mean(train_t0, dim=(0, 1)), torch.var(train_t0, dim=(0, 1))
 
                         normalizer = Normalizer(mean, var**0.5)
 
                     train_datasets.append(
-                        TensorDataset(train_t0, train_t1, normalizer, normalizer))
+                        IrregularMeshTensorDataset(train_t0, train_t1, normalizer, normalizer))
                     test_datasets.append(
-                        TensorDataset(test_t0, test_t1, normalizer, normalizer))
+                        IrregularMeshTensorDataset(test_t0, test_t1, normalizer, normalizer))
         #####
         return ConcatDataset(train_datasets), ConcatDataset(test_datasets)
 

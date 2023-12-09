@@ -66,7 +66,7 @@ if __name__ == "__main__":
             input_mesh = torch.transpose(torch.stack([torch.tensor(
                 mesh[0, :]), torch.tensor(mesh[1, :])]), 0, 1).type(torch.float).cuda()
             model.set_initial_mesh(input_mesh)
-    elif params.nettype == 'simple':
+    elif params.nettype in ['simple', 'gnn']:
         model = get_model_fno(params)
         print("Parameters Model", count_parameters(model), "x10^6")
 

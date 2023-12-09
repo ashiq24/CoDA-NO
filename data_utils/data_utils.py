@@ -410,4 +410,4 @@ def get_meshes(input_mesh_location, grid_size):
 
 
 def get_mesh_displacement(x):
-    return x[0, :, -2:].clone().detach()
+    return x[ :, -2:].clone().detach()

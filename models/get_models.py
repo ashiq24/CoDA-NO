@@ -2,7 +2,6 @@ import enum
 from functools import partial
 import logging
 from typing import Optional, Type, Union, Tuple, Dict, List
-
 import numpy as np
 import torch
 from torch import nn
@@ -23,7 +22,7 @@ from layers.variable_encoding import FourierVariableEncoding3D
 from models.codano import CodANO, VariableEncodingArgs
 from models.codano_gino import CondnoGino
 from models.fno_gino import FnoGno
-
+from models.gnn import GNN
 
 # TODO merge methods get_ssl_models_coda*()
 def get_ssl_models_codaNo(
@@ -346,7 +345,6 @@ def get_model_fno(params):
         raise (Exception('Int. Op. config Error'))
     print("Generating Encoder")
     if params.grid_type == 'uniform':
-
         model = FNO(
             params.n_modes,
             params.hidden_dim,
@@ -359,27 +357,44 @@ def get_model_fno(params):
             SpectralConv=int_op,
         )
     else:
-        model = FnoGno(
-            params.in_dim,
-            params.out_dim,
-            input_grid=input_mesh,
-            output_grid=output_mesh,
-            radius=params.radius,
-            gno_mlp_layers=params.gno_mlp_layers,
-            grid_size=params.grid_size,
-            hidden_dim=params.hidden_dim,
-            lifting_dim=params.lifting_dim,
-            n_layers=params.n_layers,
-            n_modes=params.n_modes,
-            scalings=params.scalings,
-            lifting=True,
-            projection=True,
-            operator_block=block,
-            re_grid_input=False,
-            integral_operator=int_op,
-            integral_operator_top=int_op_top,
-            integral_operator_bottom=int_op_bottom,
-        )
+        if params.nettype == 'gnn':
+            model = GNN(
+                params.in_dim,
+                params.out_dim,
+                input_grid=input_mesh,
+                output_grid=output_mesh,
+                n_neigbor=params.n_neigbor,
+                gno_mlp_layers=params.gno_mlp_layers,
+                hidden_dim=params.hidden_dim,
+                lifting_dim=params.lifting_dim,
+                initial_mesh=input_mesh,
+                n_layers=params.n_layers,
+                lifting=True,
+                projection=True,
+            )
+        else:
+            model = FnoGno(
+                params.in_dim,
+                params.out_dim,
+                input_grid=input_mesh,
+                output_grid=output_mesh,
+                radius=params.radius,
+                gno_mlp_layers=params.gno_mlp_layers,
+                grid_size=params.grid_size,
+                hidden_dim=params.hidden_dim,
+                lifting_dim=params.lifting_dim,
+                n_layers=params.n_layers,
+                n_modes=params.n_modes,
+                scalings=params.scalings,
+                initial_mesh=input_mesh,
+                lifting=True,
+                projection=True,
+                operator_block=block,
+                re_grid_input=False,
+                integral_operator=int_op,
+                integral_operator_top=int_op_top,
+                integral_operator_bottom=int_op_bottom,
+            )
 
     return model
 
