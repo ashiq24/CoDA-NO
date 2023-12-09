@@ -31,8 +31,9 @@ from YParams import YParams
 
 
 # +
-## SSL model 
-params = YParams('./config/pdebench_overfit.yaml', 'codano_gino', print_params=False)
+# SSL model
+params = YParams('./config/pdebench_overfit.yaml',
+                 'codano_gino', print_params=False)
 verbose = True
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout, force=True)
@@ -65,8 +66,9 @@ if params.nettype == 'transformer':
             logger=logger,
         )
     else:
-        encoder, decoder, contrastive, predictor = get_ssl_models_codano_gino(params)
-    
+        encoder, decoder, contrastive, predictor = get_ssl_models_codano_gino(
+            params)
+
     if verbose:
         logger.info(f"{params.pretrain_ssl=}")
     variables = {
@@ -77,7 +79,7 @@ if params.nettype == 'transformer':
         raise NotImplementedError("Static features not currently handled.")
     else:
         n_static_channels = 0
-    
+
     model = SSLWrapper(
         params,
         encoder,
@@ -175,7 +177,7 @@ multi_physics_trainer(
 #     m1,  # stop
 #     script=False,
 # )
-    
+
 # print("Test on the Diffusion-Reaction dataset:")
 # test_single_physics(
 #     model,

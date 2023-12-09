@@ -247,6 +247,7 @@ gnn_test:
     nettype: 'gnn'
     mu_list: [1]
     n_neigbor: 20
+    gno_mlp_layers: [20]
     ntrain: 1
     ntest: 5
     dt: 1

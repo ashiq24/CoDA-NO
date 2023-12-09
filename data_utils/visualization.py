@@ -44,7 +44,6 @@ def get_multi_physics_data_losses(
             if lo <= data_idx < hi and item_loss > domain_losses[domain_idx][1]:
                 domain_losses[domain_idx] = (data_idx, item_loss, pred)
 
-
     # TODO consider using tqdm for larger datasets for visibility
     for j, (x, y) in enumerate(data_loader):
         j_outer = j * data_loader.batch_size
@@ -76,6 +75,8 @@ def get_multi_physics_data_losses(
 
 
 N_ROWS = 3  # ground_truth, prediction, and error
+
+
 def show_data_diff(
     ground_truth: torch.Tensor(),
     prediction: torch.Tensor(),
@@ -152,7 +153,7 @@ def show_multi_physics_data_diffs(
         channel=0,
         logger=logger,
     )
-    
+
     print("ACTIVATOR (DIFFUSION-REACTION)")
     (activator, _), _ = data_loader.dataset[diff_loss[0]]
     show_data_diff(
@@ -161,7 +162,7 @@ def show_multi_physics_data_diffs(
         channel=1,
         logger=logger,
     )
-    
+
     print("INHIBITOR (DIFFUSION-REACTION)")
     (inhibitor, _), _ = data_loader.dataset[diff_loss[0]]
     show_data_diff(
@@ -170,7 +171,7 @@ def show_multi_physics_data_diffs(
         channel=2,
         logger=logger,
     )
-    
+
     print("PARTICLE DENSITY (NAVIER-STOKES)")
     (particles, _), _ = data_loader.dataset[ns_loss[0]]
     show_data_diff(
@@ -179,7 +180,7 @@ def show_multi_physics_data_diffs(
         channel=3,
         logger=logger,
     )
-    
+
     print("X-VELOCITY (NAVIER-STOKES)")
     (velocity_x, _), _ = data_loader.dataset[ns_loss[0]]
     show_data_diff(
@@ -188,7 +189,7 @@ def show_multi_physics_data_diffs(
         channel=4,
         logger=logger,
     )
-    
+
     print("Y-VELOCITY (NAVIER-STOKES)")
     (velocity_y, _), _ = data_loader.dataset[ns_loss[0]]
     show_data_diff(
@@ -197,4 +198,3 @@ def show_multi_physics_data_diffs(
         channel=5,
         logger=logger,
     )
-

@@ -42,6 +42,7 @@ class MaskerUniform:
     For masking with data points from data sets with irregular meshes,
     use ``MaskerNonuniformMesh`` (below).
     """
+
     def __init__(
         self,
         drop_type='zeros',
@@ -77,7 +78,8 @@ class MaskerUniform:
         C, H, W = size
         mask = torch.ones(size, device=self.device)
         drop_t = self.drop_type
-        augmented_channels = np.random.choice(C, math.ceil(C * self.channel_per))
+        augmented_channels = np.random.choice(
+            C, math.ceil(C * self.channel_per))
         # print(augmented_channels)
         drop_len = int(self.channel_drop_per * math.ceil(C * self.channel_per))
         mask[augmented_channels[:drop_len], :, :] = 0.0
@@ -116,6 +118,7 @@ class MaskerUniformTemporal:
     drop_pix : float; defaults to 0.3
         Minimum fraction of pixels to be masked.
     """
+
     def __init__(
         self,
         drop_type='zeros',
@@ -151,7 +154,8 @@ class MaskerUniformTemporal:
         mask = torch.ones(size, device=self.device)
         # NOTE: this choice is made WITH replacements,
         # which means a single channel could be masked multiple times.
-        augmented_channels = np.random.choice(c, math.ceil(c * self.channel_per))
+        augmented_channels = np.random.choice(
+            c, math.ceil(c * self.channel_per))
         # print(augmented_channels)
         drop_len = int(self.channel_drop_per * math.ceil(c * self.channel_per))
         mask[augmented_channels[:drop_len], :, :, :] = 0.0
@@ -208,6 +212,7 @@ class MaskerUniformIndependent:
     drop_pix : float; defaults to 0.3
         Minimum fraction of pixels to be masked.
     """
+
     def __init__(
         self,
         drop_type='zeros',
@@ -410,4 +415,4 @@ def get_meshes(input_mesh_location, grid_size):
 
 
 def get_mesh_displacement(x):
-    return x[ :, -2:].clone().detach()
+    return x[:, -2:].clone().detach()

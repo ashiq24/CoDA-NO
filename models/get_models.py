@@ -25,6 +25,8 @@ from models.fno_gino import FnoGno
 from models.gnn import GNN
 
 # TODO merge methods get_ssl_models_coda*()
+
+
 def get_ssl_models_codaNo(
     params,
     module: Type[CodANO],
@@ -48,7 +50,7 @@ def get_ssl_models_codaNo(
         )
     elif params.tno_integral_operator == 'fino':
         integral_operator = partial(
-            convolution, 
+            convolution,
             transform_type=params.transform_type,
             frequency_mixer=True,
             verbose=verbose,
@@ -209,32 +211,32 @@ def get_ssl_models_codano_gino(params):
 
     encoder = CondnoGino(
         params.in_token_codim_en,
-            input_grid=input_mesh,
-            output_grid=output_mesh,
-            radius=params.radius,
-            gno_mlp_layers=params.gno_mlp_layers,
-            grid_size=params.grid_size,
-            hidden_token_codim=params.hidden_token_codim_en,
-            lifting_token_codim=params.lifting_token_codim_en,
-            n_layers=params.n_layers_en,
-            n_heads=params.n_heads_en,
-            n_modes=params.n_modes_en,
-            scalings=params.scalings_en,
-            lifting=True,
-            projection=False,
-            operator_block=block,
-            re_grid_input=False,
-            integral_operator=int_op,
-            integral_operator_top=int_op_top,
-            integral_operator_bottom=int_op_bottom,
-            var_encoding=params.use_variable_encoding,
-            var_enco_channels=params.n_encoding_channels,
-            var_num=params.n_variables,
-            enable_cls_token=params.enable_cls_token,
-            static_channels_num=static_channels_num,
-            static_features=static_features,
-            per_channel_attention=params.per_channel_attention,
-        )
+        input_grid=input_mesh,
+        output_grid=output_mesh,
+        radius=params.radius,
+        gno_mlp_layers=params.gno_mlp_layers,
+        grid_size=params.grid_size,
+        hidden_token_codim=params.hidden_token_codim_en,
+        lifting_token_codim=params.lifting_token_codim_en,
+        n_layers=params.n_layers_en,
+        n_heads=params.n_heads_en,
+        n_modes=params.n_modes_en,
+        scalings=params.scalings_en,
+        lifting=True,
+        projection=False,
+        operator_block=block,
+        re_grid_input=False,
+        integral_operator=int_op,
+        integral_operator_top=int_op_top,
+        integral_operator_bottom=int_op_bottom,
+        var_encoding=params.use_variable_encoding,
+        var_enco_channels=params.n_encoding_channels,
+        var_num=params.n_variables,
+        enable_cls_token=params.enable_cls_token,
+        static_channels_num=static_channels_num,
+        static_features=static_features,
+        per_channel_attention=params.per_channel_attention,
+    )
     print("*********************")
 
     if params.reconstruction:
@@ -262,7 +264,7 @@ def get_ssl_models_codano_gino(params):
             integral_operator_top=int_op_top,
             integral_operator_bottom=int_op_bottom,
             per_channel_attention=params.per_channel_attention,
-            enable_cls_token=False, # should not add cls again in the decoder
+            enable_cls_token=False,  # should not add cls again in the decoder
         )
     else:
         decoder = None
@@ -273,28 +275,28 @@ def get_ssl_models_codano_gino(params):
     print('generating Predictor')
     predictor = CondnoGino(
         params.hidden_token_codim_en,
-            input_grid=input_mesh,
-            output_grid=output_mesh,
-            radius=params.radius,
-            grid_size=params.grid_size,
-            gno_mlp_layers=params.gno_mlp_layers,
-            hidden_token_codim=params.hidden_token_codim_en,
-            lifting_token_codim=params.lifting_token_codim_pred,
-            out_token_codim=params.out_token_codim_pred,
-            n_layers=params.n_layers_pred,
-            n_heads=params.n_heads_pred,
-            n_modes=params.n_modes_pred,
-            scalings=params.scalings_pred,
-            lifting=False,
-            projection=True,
-            re_grid_output=False,
-            operator_block=block,
-            integral_operator=int_op,
-            var_num=params.n_variables,
-            integral_operator_top=int_op_top,
-            integral_operator_bottom=int_op_bottom,
-            per_channel_attention=params.per_channel_attention,
-        )
+        input_grid=input_mesh,
+        output_grid=output_mesh,
+        radius=params.radius,
+        grid_size=params.grid_size,
+        gno_mlp_layers=params.gno_mlp_layers,
+        hidden_token_codim=params.hidden_token_codim_en,
+        lifting_token_codim=params.lifting_token_codim_pred,
+        out_token_codim=params.out_token_codim_pred,
+        n_layers=params.n_layers_pred,
+        n_heads=params.n_heads_pred,
+        n_modes=params.n_modes_pred,
+        scalings=params.scalings_pred,
+        lifting=False,
+        projection=True,
+        re_grid_output=False,
+        operator_block=block,
+        integral_operator=int_op,
+        var_num=params.n_variables,
+        integral_operator_top=int_op_top,
+        integral_operator_bottom=int_op_bottom,
+        per_channel_attention=params.per_channel_attention,
+    )
     print("*********************")
 
     return encoder, decoder, contrastive, predictor
@@ -399,6 +401,7 @@ def get_model_fno(params):
     return model
 
     return model
+
 
 class StageEnum(enum.Enum):
     RECONSTRUCTIVE = "RECONSTRUCTIVE"
@@ -524,7 +527,7 @@ class SSLWrapper(nn.Module):
     def reset_channels(self):
         # TODO add a setting where `next_channels` have some persistence.
         self.next_channels = None
-    
+
     def set_initial_mesh(self, mesh):
         self.register_buffer('initial_mesh', mesh)
 
@@ -565,7 +568,8 @@ class SSLWrapper(nn.Module):
         # Unsqueeze variable encoding in 0th dimension (indexed by `None` below)
         # and repeat it until it matches the dimension of ``batch_size``
         r_size = [batch_size, 1] + [1 for _ in domain_size]
-        y[:, encoding_channels, ...] = variable_encoding[None, ...].repeat(*r_size)
+        y[:, encoding_channels, ...] = variable_encoding[None, ...].repeat(
+            *r_size)
 
         if self.n_static_channels > 0:
             # Repeat `static_features` as many times as we can
@@ -608,7 +612,8 @@ class SSLWrapper(nn.Module):
     ):
         if self.grid_type == 'uniform':
             if equations is None or len(equations) == 0:
-                raise ValueError("The equation(s) must be defined for a variable encoding.")
+                raise ValueError(
+                    "The equation(s) must be defined for a variable encoding.")
 
             _equations: Set[int] = {eq.item() for eq in equations}
             if len(_equations) > 1:
@@ -652,7 +657,7 @@ class SSLWrapper(nn.Module):
 
     # Assumes `x` is already embedded in its higher-dimensional repr:
     def forward_reconstructive(self, x, in_grid_displacement=None, out_grid_displacement=None):
-        # adjusting for chnage of mesh 
+        # adjusting for chnage of mesh
         if self.grid_type != "uniform":
             with torch.no_grad():
                 self.encoder.lifting.update_grid(
@@ -661,12 +666,12 @@ class SSLWrapper(nn.Module):
                     None, self.initial_mesh + out_grid_displacement)
         x_masked = self.do_mask(x)
         x_encoded = self.encoder(x_masked)
-        #print("Feature Shape", x_encoded.shape)
+        # print("Feature Shape", x_encoded.shape)
 
         cls_offset = 1 if self.enable_cls_token else 0
         if self.reconstruction:
             reconstructed = self.decoder(x_encoded)
-            #print("Reconstructed Shape", reconstructed.shape)
+            # print("Reconstructed Shape", reconstructed.shape)
             # Removing the CLS token and also discarding if some additional
             # channels if in the end
             if self.grid_type == 'uniform':
@@ -693,7 +698,7 @@ class SSLWrapper(nn.Module):
         clean_contra = None
         neg_contra = None
         aug_contra = None
-        #print(reconstructed.shape, _slice)
+        # print(reconstructed.shape, _slice)
 
         return reconstructed, clean_contra, aug_contra, neg_contra
 
@@ -745,5 +750,5 @@ class SSLWrapper(nn.Module):
                 slice(cls_offset, None),
             ]
         out = out[_slice]
-        #print(out.shape, _slice)
+        # print(out.shape, _slice)
         return out, None, None, None

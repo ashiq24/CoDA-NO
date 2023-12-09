@@ -12,11 +12,15 @@ from .fino import SpectralConvKernel2d, SpectralConvolutionKernel3D
 
 # Address the following:
 # ``AttributeError: Can't pickle local object '.<locals>.<lambda>'``
+
+
 def NO_OP(x, *_args, **_kwargs):
-  return x
+    return x
+
 
 AffineNormalizer2D = partial(nn.InstanceNorm2d, affine=True)
 AffineNormalizer3D = partial(nn.InstanceNorm3d, affine=True)
+
 
 class TNOBlock(nn.Module):
     def __init__(
@@ -239,7 +243,8 @@ class TNOBlock(nn.Module):
             )
             self.norm1 = Normalizer(self.token_codimension)
             self.norm2 = Normalizer(self.mixer_token_codimension)
-            self.mixer_out_normalizer = Normalizer(self.mixer_token_codimension)
+            self.mixer_out_normalizer = Normalizer(
+                self.mixer_token_codimension)
 
         else:
             self.mixer = FNOBlocks(
@@ -320,7 +325,8 @@ class TnoBlock2d(TNOBlock):
 
         assert x.shape[1] % self.token_codimension == 0
 
-        xa = rearrange(x, 'b (t d) h w -> (b t) d h w', d=self.token_codimension)
+        xa = rearrange(x, 'b (t d) h w -> (b t) d h w',
+                       d=self.token_codimension)
         xa_norm = self.norm1(xa)
 
         attention = self.compute_attention(xa_norm, batch_size)
@@ -328,7 +334,8 @@ class TnoBlock2d(TNOBlock):
             attention = self.proj.convs(attention)
 
         attention = self.attention_normalizer(attention) + xa
-        attention = rearrange(attention, '(b t) d h w -> b (t d) h w', b=batch_size)
+        attention = rearrange(
+            attention, '(b t) d h w -> b (t d) h w', b=batch_size)
         # print("{attention.shape=}")
         attention = rearrange(
             attention,
@@ -352,13 +359,15 @@ class TnoBlock2d(TNOBlock):
         assert x.shape[1] % self.token_codimension == 0
 
         x_norm = self.norm1(x)
-        xa = rearrange(x_norm, 'b (t d) h w -> (b t) d h w', d=self.token_codimension)
+        xa = rearrange(x_norm, 'b (t d) h w -> (b t) d h w',
+                       d=self.token_codimension)
 
         attention = self.compute_attention(xa, batch_size)
         if self.proj is not None:
             attention = self.proj.convs(attention)
 
-        attention = rearrange(attention, '(b t) d h w -> b (t d) h w', b=batch_size)
+        attention = rearrange(
+            attention, '(b t) d h w -> b (t d) h w', b=batch_size)
         attention_normalized = self.norm2(attention)
         output = self.mixer(attention_normalized, output_shape=output_shape)
 
@@ -407,7 +416,6 @@ class TNOBlock3D(TNOBlock):
         q = rearrange(q, **rearrangement)
         v = rearrange(v, **rearrangement)
 
-
         dprod = (torch.matmul(q, k.transpose(-1, -2)) /
                  (self.temperature * np.sqrt(k.shape[-1])))
         dprod = F.softmax(dprod, dim=-1)
@@ -437,7 +445,8 @@ class TNOBlock3D(TNOBlock):
 
         assert x.shape[1] % self.token_codimension == 0
 
-        xa = rearrange(x, 'b (k d) t h w -> (b k) d t h w', d=self.token_codimension)
+        xa = rearrange(x, 'b (k d) t h w -> (b k) d t h w',
+                       d=self.token_codimension)
         xa_norm = self.norm1(xa)
 
         attention = self.compute_attention(xa_norm, batch_size)
@@ -462,7 +471,8 @@ class TNOBlock3D(TNOBlock):
 
         output = self.mixer_out_normalizer(output) + attention
         # self.logger.debug(f"{output.shape=}")
-        output = rearrange(output, '(b k) d t h w -> b (k d) t h w', b=batch_size)
+        output = rearrange(
+            output, '(b k) d t h w -> b (k d) t h w', b=batch_size)
 
         return output
 
@@ -473,7 +483,8 @@ class TNOBlock3D(TNOBlock):
         assert x.shape[1] % self.token_codimension == 0
 
         x_norm = self.norm1(x)
-        xa = rearrange(x_norm, 'b (k d) t h w -> (b k) d t h w', d=self.token_codimension)
+        xa = rearrange(x_norm, 'b (k d) t h w -> (b k) d t h w',
+                       d=self.token_codimension)
 
         attention = self.compute_attention(xa, batch_size)
         if self.proj is not None:

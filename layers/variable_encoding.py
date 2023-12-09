@@ -12,8 +12,10 @@ class VariableEncoding2d(nn.Module):
         super().__init__()
         self.mode_x = mode_x
         self.mode_y = mode_y
-        self.coefficients_r = nn.Parameter(torch.empty(channel, mode_x, mode_y))
-        self.coefficients_i = nn.Parameter(torch.empty(channel, mode_x, mode_y))
+        self.coefficients_r = nn.Parameter(
+            torch.empty(channel, mode_x, mode_y))
+        self.coefficients_i = nn.Parameter(
+            torch.empty(channel, mode_x, mode_y))
         self.reset_parameters()
         self.basis = basis
         if basis == 'fft':
@@ -55,7 +57,7 @@ class VariableEncoding2d(nn.Module):
 
         else:
             return self.transform(
-                self.coefficients_r + 1.0j *self.coefficients_i,
+                self.coefficients_r + 1.0j * self.coefficients_i,
                 s=(size_x, size_y)
             ).real
 
@@ -87,4 +89,3 @@ class FourierVariableEncoding3D(nn.Module):
             s=(size_t, size_x, size_y),
             norm="forward",  # don't multiply by any normalization factor
         ).real
-

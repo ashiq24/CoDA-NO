@@ -18,6 +18,7 @@ from data_utils.data_loaders import Normalizer
 
 DEBUG = False
 
+
 class SWEDataset:
     """
     Represents one HDF5 dataset of 2D Shallow Water Equation trajectories
@@ -131,11 +132,12 @@ class SWEDataset:
             raise IndexError(f"Cannot access item {index} of {self.len}")
 
         CLS = self.__class__
-        sample_idx, k = divmod(index, self.strides_per_sample * self.strides_on)
+        sample_idx, k = divmod(
+            index, self.strides_per_sample * self.strides_on)
         stride_idx, local_idx = divmod(k, self.strides_on)
         time_idx = self.offset \
-                   + (stride_idx * self.items_per_stride) \
-                   + (local_idx * CLS.TRAJECTORY_LENGTH)
+            + (stride_idx * self.items_per_stride) \
+            + (local_idx * CLS.TRAJECTORY_LENGTH)
         # TODO use logger
         if DEBUG:
             print(f"{sample_idx=}, {k=}, {stride_idx=}, {local_idx=}, {time_idx=}")
@@ -162,7 +164,6 @@ class SWEDataset:
             )
             return torch.as_tensor(sample), torch.as_tensor(sample)
 
-
     def _reconstruct_sample(
         self,
         sample_idx,
@@ -182,7 +183,7 @@ class SWEDataset:
         sample_key = self.samples[sample_idx]
         norm = self.get_normalizer(sample_key, time_idx)
         datum = self.file[sample_key]['data'][
-            time_idx : time_idx+t_steps,
+            time_idx: time_idx+t_steps,
             ::self.subsampling_rate,
             ::self.subsampling_rate
         ]
@@ -194,7 +195,7 @@ class SWEDataset:
             # including respecting subsampling:
             steps = self.__class__.TRAJECTORY_LENGTH // 2
             datum = self.file[key]['data'][
-                index : index + steps,
+                index: index + steps,
                 ::self.subsampling_rate,
                 ::self.subsampling_rate
             ]
@@ -320,11 +321,12 @@ class DiffusionReaction2DDataset:
             raise IndexError(f"Cannot access item {index} of {self.len}")
 
         CLS = self.__class__
-        sample_idx, k = divmod(index, self.strides_per_sample * self.strides_on)
+        sample_idx, k = divmod(
+            index, self.strides_per_sample * self.strides_on)
         stride_idx, local_idx = divmod(k, self.strides_on)
         time_idx = self.offset \
-                   + (stride_idx * self.items_per_stride) \
-                   + (local_idx * CLS.TRAJECTORY_LENGTH)
+            + (stride_idx * self.items_per_stride) \
+            + (local_idx * CLS.TRAJECTORY_LENGTH)
         if DEBUG:
             print(f"{sample_idx=}, {k=}, {stride_idx=}, {local_idx=}, {time_idx=}")
 
@@ -368,7 +370,7 @@ class DiffusionReaction2DDataset:
         norm_activator = self.get_normalizer(sample_key, time_idx, 0)
         norm_inhibitor = self.get_normalizer(sample_key, time_idx, 1)
         data0 = self.file[sample_key]['data'][
-            time_idx : time_idx+t_steps,
+            time_idx: time_idx+t_steps,
             ::self.subsampling_rate,
             ::self.subsampling_rate
         ]
@@ -494,7 +496,7 @@ class NSIncompressibleDataset:
         self.items_per_stride = stride_length_on + stride_length_off
         self.strides_per_file: int = (
             (CLS.TIME_DURATION + stride_length_off - self.offset) //
-             self.items_per_stride)
+            self.items_per_stride)
         # Each item within the file has 4 samples
         self.len = (len(filepaths)
                     * self.strides_per_file
@@ -524,7 +526,8 @@ class NSIncompressibleDataset:
         # Each item within the file has 4 samples
         index2, sample_idx = divmod(index, 4)
         # file_idx : which file we should read from.
-        file_idx, index3 = divmod(index2, self.strides_per_file * self.strides_on)
+        file_idx, index3 = divmod(
+            index2, self.strides_per_file * self.strides_on)
         # local_idx : which index to address within that file.
         stride_idx, local_idx = divmod(index3, self.strides_on)
 
@@ -548,7 +551,8 @@ class NSIncompressibleDataset:
                 time_idx,
                 t_steps=CLS.TRAJECTORY_LENGTH,
             )
-            trajectory = np.concatenate([sample.particles, sample.velocity], axis=-1)
+            trajectory = np.concatenate(
+                [sample.particles, sample.velocity], axis=-1)
 
             mid = CLS.TRAJECTORY_LENGTH // 2
             return torch.as_tensor(trajectory[:mid]), torch.as_tensor(trajectory[mid:])
@@ -560,7 +564,8 @@ class NSIncompressibleDataset:
                 time_idx,
                 t_steps=CLS.TRAJECTORY_LENGTH // 2,
             )
-            trajectory = np.concatenate([sample.particles, sample.velocity], axis=-1)
+            trajectory = np.concatenate(
+                [sample.particles, sample.velocity], axis=-1)
 
             return torch.as_tensor(trajectory), torch.as_tensor(trajectory)
 
@@ -582,18 +587,20 @@ class NSIncompressibleDataset:
         h5_file = self.files[file_idx]
         sample_idx = sample_idx % self.sample_size
 
-        norm_p = self.get_normalizer(file_idx, sample_idx, time_idx, 'particles')
+        norm_p = self.get_normalizer(
+            file_idx, sample_idx, time_idx, 'particles')
         particles = h5_file['particles'][
             sample_idx,
-            time_idx : time_idx+t_steps,
+            time_idx: time_idx+t_steps,
             ::self.subsampling_rate,
             ::self.subsampling_rate,
         ]
 
-        norm_v = self.get_normalizer(file_idx, sample_idx, time_idx, 'velocity')
+        norm_v = self.get_normalizer(
+            file_idx, sample_idx, time_idx, 'velocity')
         velocity = h5_file['velocity'][
             sample_idx,
-            time_idx : time_idx+t_steps,
+            time_idx: time_idx+t_steps,
             ::self.subsampling_rate,
             ::self.subsampling_rate,
         ]
@@ -620,7 +627,7 @@ class NSIncompressibleDataset:
         if self.normalizers.get(key) is None:
             datum = self.files[path_idx][channel][
                 sample_idx,
-                time_idx : time_idx+t_steps,
+                time_idx: time_idx+t_steps,
                 ::self.subsampling_rate,
                 ::self.subsampling_rate,
             ]
@@ -717,7 +724,7 @@ class MultiPhysicsDataset(data.Dataset):
         swe_args.update(offset=offset + swe_args.get("offset", default=0))
         diff_args.update(offset=offset + diff_args.get("offset", default=0))
         ns_args.update(offset=offset + ns_args.get("offset", default=0))
- 
+
         self.swe_dataset = SWEDataset(
             **swe_args,
             **common_args,
@@ -745,7 +752,7 @@ class MultiPhysicsDataset(data.Dataset):
             ([1 / (3 * len(self.ns_dataset))] * len(self.ns_dataset))
 
     # TODO positional encoding
-    def __getitem__(self, idx) -> Tuple[Tuple[torch.Tensor, int],Tuple[torch.Tensor, int]]:
+    def __getitem__(self, idx) -> Tuple[Tuple[torch.Tensor, int], Tuple[torch.Tensor, int]]:
         """
         Returns fields A(x), U(x) across 6 variables.
 
@@ -843,4 +850,5 @@ class MultiPhysicsDataset(data.Dataset):
             )
 
         idx -= len(self.ns_dataset)
-        raise IndexError(f"Cannot access item {idx + len(self)} of {len(self)}")
+        raise IndexError(
+            f"Cannot access item {idx + len(self)} of {len(self)}")

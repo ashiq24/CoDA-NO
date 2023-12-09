@@ -67,12 +67,12 @@ def simple_trainer(
         for data in train_loader_iter:
             x, y = data['x'], data['y']
 
-            #print('difference',torch.norm(x -y))
+            # print('difference',torch.norm(x -y))
 
             x, y = x.cuda(), y.cuda()
-            print("Input Shape", x.shape, torch.mean(x, dim=(0,1)), torch.std(x, dim=(0,1)))
-            #print("output Shape", y.shape)
-            
+            # print("Input Shape", x.shape, torch.mean(x, dim=(0,1)), torch.std(x, dim=(0,1)))
+            # print("output Shape", y.shape)
+
             batch_size = x.shape[0]
 
             if params.grid_type == "non uniform":
@@ -90,8 +90,8 @@ def simple_trainer(
                     else:
                         out_grid_displacement = data['d_grid_y'].cuda()[0]
                         in_grid_displacement = data['d_grid_x'].cuda()[0]
-                    
-                    #print("grid difference",torch.norm(out_grid_displacement -in_grid_displacement))
+
+                    # print("grid difference",torch.norm(out_grid_displacement -in_grid_displacement))
             else:
                 out_grid_displacement = None
                 in_grid_displacement = None
@@ -105,8 +105,8 @@ def simple_trainer(
 
             if isinstance(out, (list, tuple)):
                 out = out[0]
-            
-            #print('Shapes', out.shape, x.shape)
+
+            # print('Shapes', out.shape, x.shape)
             train_count += 1
 
             if stage == StageEnum.RECONSTRUCTIVE:
@@ -147,7 +147,7 @@ def simple_trainer(
             wandb.log(values_to_log, commit=True)
 
     stage_string = 'ssl' if stage == StageEnum.RECONSTRUCTIVE else 'sl'
-    
+
     weight_path = weight_path + params.config + "_" + stage_string+'.pt'
     torch.save(model.state_dict(), weight_path)
 
@@ -158,7 +158,6 @@ def simple_trainer(
         for data in test_loader:
             x, y = data['x'], data['y']
             x, y = x.cuda(), y.cuda()
-            
 
             if params.grid_type == "non uniform":
                 '''
@@ -180,10 +179,11 @@ def simple_trainer(
                 in_grid_displacement = None
 
             batch_size = x.shape[0]
-            out= model(x, in_grid_displacement=in_grid_displacement,out_grid_displacement=out_grid_displacement)
+            out = model(x, in_grid_displacement=in_grid_displacement,
+                        out_grid_displacement=out_grid_displacement)
             if isinstance(out, (list, tuple)):
                 out = out[0]
-            
+
             ntest += 1
             if stage == StageEnum.RECONSTRUCTIVE:
                 target = x.clone()
@@ -289,7 +289,7 @@ def multi_physics_trainer(
                 # loss = multi_physics_loss(
                 #     y[k],
                 #     out[k],
-                #     loss_fn, 
+                #     loss_fn,
                 #     Equation(eq.item()),
                 # )
                 loss = loss_fn(
@@ -329,7 +329,8 @@ def multi_physics_trainer(
                 # With the current reconstructive/predictive training phases,
                 # W&B rejects logs from all epochs that are "out of order"
                 # (i.e. all phases after the first).
-                values_to_log = dict(train_err=avg_train_l2, time=epoch_train_time)
+                values_to_log = dict(
+                    train_err=avg_train_l2, time=epoch_train_time)
                 wandb.log(values_to_log, step=ep, commit=True)
 
     # torch.save(model.state_dict(), weight_path)
@@ -362,7 +363,7 @@ def multi_physics_trainer(
                 loss = multi_physics_loss(
                     y[k],
                     out[k],
-                    loss_fn, 
+                    loss_fn,
                     Equation(eq.item()),
                 )
                 test_l2 += loss.item()
@@ -425,4 +426,3 @@ def test_single_physics(
     test_time = t2 - t1
     print(f"Time: {test_time:.2f}s\n"
           f"Loss: {test_l2 / n_test:.6f}")
-

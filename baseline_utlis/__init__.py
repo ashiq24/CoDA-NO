@@ -1,1 +1,1 @@
-from .rigid_neighbor import * 
+from .rigid_neighbor import *

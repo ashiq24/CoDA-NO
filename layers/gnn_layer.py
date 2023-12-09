@@ -1,4 +1,4 @@
-from baseline_utlis import FixedNeighborSearch 
+from baseline_utlis import FixedNeighborSearch
 from neuralop.layers.integral_transform import IntegralTransform
 from neuralop.layers.mlp import MLPLinear
 from einops import rearrange
@@ -6,6 +6,7 @@ from neuralop.layers.embeddings import PositionalEmbedding
 import torch.nn as nn
 import torch
 import torch.nn.functional as F
+
 
 class GnnLayer(nn.Module):
     def __init__(self, in_dim, out_dim,
@@ -56,18 +57,17 @@ class GnnLayer(nn.Module):
         output_grid=None
     ):
 
-        #print("upadted input grid", input_grid.shape)
-        #print("upadted output grid", output_grid.shape)
+        # print("upadted input grid", input_grid.shape)
+        # print("upadted output grid", output_grid.shape)
 
         if input_grid is None:
             input_grid = self.input_grid
         if output_grid is None:
             output_grid = self.output_grid
 
-
         NS = FixedNeighborSearch(use_open3d=False)
-        #print("input grid", input_grid)
-        #print("output grid", output_grid)
+        # print("input grid", input_grid)
+        # print("output grid", output_grid)
         self.neighbour = NS(
             input_grid.clone(),
             output_grid.clone(),
@@ -83,8 +83,8 @@ class GnnLayer(nn.Module):
 
         x = inp
         x = self.projection(x)
-        #print("x shape", x.shape)
+        # print("x shape", x.shape)
         out = self.it(self.input_grid, self.neighbour,
                       self.output_grid, x)
-        #print("out shape", out.shape)
+        # print("out shape", out.shape)
         return out

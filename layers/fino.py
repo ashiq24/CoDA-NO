@@ -8,7 +8,6 @@ import torch_harmonics as th
 from neuralop.layers.spectral_convolution import SpectralConv
 
 
-
 class SpectralConvKernel2d(SpectralConv):
     """
     Parameters
@@ -51,7 +50,7 @@ class SpectralConvKernel2d(SpectralConv):
             logger = logging.getLogger()
         self.logger = logger
         self.verbose = verbose
-        
+
         if decomposition_kwargs is None:
             decomposition_kwargs = {}
         super().__init__(

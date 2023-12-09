@@ -18,7 +18,7 @@ from YParams import YParams
 
 
 # +
-## SSL model 
+# SSL model
 # params = YParams('./config/ssl.yaml', 'codano_gino', print_params=True)
 # params = YParams('./config/test.yaml', 'codano_gino', print_params=True)
 params = YParams('./config/pdebench.yaml', 'codano_gino', print_params=False)
@@ -54,8 +54,9 @@ if params.nettype == 'transformer':
             logger=logger,
         )
     else:
-        encoder, decoder, contrastive, predictor = get_ssl_models_codano_gino(params)
-    
+        encoder, decoder, contrastive, predictor = get_ssl_models_codano_gino(
+            params)
+
     if verbose:
         logger.info(f"{params.pretrain_ssl=}")
     model = SSLWrapper(
@@ -84,7 +85,7 @@ train_reconstructive = MultiPhysicsDataset(
     ns_args=params.navier_stokes,
     predictive=False,  # Target output will be the same as the input.
 )
-test_reconstructive  = MultiPhysicsDataset(
+test_reconstructive = MultiPhysicsDataset(
     swe_args=params.shallow_water,
     diff_args=params.diffusion_reaction,
     ns_args=params.navier_stokes,
@@ -98,7 +99,7 @@ train_predictive = MultiPhysicsDataset(
     ns_args=params.navier_stokes,
     predictive=True,  # Target output will be the next time trajectory.
 )
-test_predictive  = MultiPhysicsDataset(
+test_predictive = MultiPhysicsDataset(
     swe_args=params.shallow_water,
     diff_args=params.diffusion_reaction,
     ns_args=params.navier_stokes,
@@ -181,7 +182,7 @@ test_single_physics(
     stop=m1,
     script=False,
 )
-    
+
 print("Test on the Diffusion-Reaction dataset:")
 test_single_physics(
     model,

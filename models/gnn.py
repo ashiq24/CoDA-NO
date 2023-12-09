@@ -14,6 +14,7 @@ import numpy as np
 import torch
 from layers.variable_encoding import VariableEncoding2d
 
+
 class GNN(nn.Module):
     def __init__(self,
                  in_dim,
@@ -46,7 +47,6 @@ class GNN(nn.Module):
         if out_dim is None:
             out_dim = in_dim
 
-
         self.input_grid = input_grid
         self.output_grid = output_grid
 
@@ -57,8 +57,6 @@ class GNN(nn.Module):
         self.n_neigbor = n_neigbor
         self.gno_mlp_layers = gno_mlp_layers
 
-
-
         self.register_buffer('initial_mesh', initial_mesh)
         # Code for varibale encoding
 
@@ -67,7 +65,7 @@ class GNN(nn.Module):
             print('Using lifing Layer')
             self.lifting = MLPLinear(
                 layers=[self.in_dim, self.hidden_dim],
-                )
+            )
 
         self.base = nn.ModuleList([])
         for i in range(self.n_layers):
@@ -77,14 +75,14 @@ class GNN(nn.Module):
                 self.initial_mesh,
                 self.initial_mesh,
                 gno_mlp_layers,
-                hidden_dim,
+                lifting_dim,
                 n_neigbor))
-        
+
         if self.projection:
             print("Using Projection Layer")
             self.projection = MLPLinear(
-                layers =[self.hidden_dim,out_dim]
-                )
+                layers=[self.hidden_dim, out_dim]
+            )
 
     def forward(
             self,
@@ -95,32 +93,31 @@ class GNN(nn.Module):
         inp = (batch_size, n_points, in_dims/Channels)
         currenly only batch_size = 1
         '''
-        #print("Input Shape", inp.shape)
-        #print("Input Grid Shape", self.input_grid.shape)
-        #print("Output Grid Shape", self.output_grid.shape)
-        #print("initial mesh shape", self.initial_mesh.shape)
-        #print(" in_grid_displacement", in_grid_displacement.shape)
-        #print(" out_grid_displacement", out_grid_displacement.shape)
+        # print("Input Shape", inp.shape)
+        # print("Input Grid Shape", self.input_grid.shape)
+        # print("Output Grid Shape", self.output_grid.shape)
+        # print("initial mesh shape", self.initial_mesh.shape)
+        # print(" in_grid_displacement", in_grid_displacement.shape)
+        # print(" out_grid_displacement", out_grid_displacement.shape)
 
         if out_grid_displacement is not None:
             with torch.no_grad():
                 for i in range(self.n_layers):
                     if i == self.n_layers - 1:
-                        #print("Doing different mesh for last layer")
+                        # print("Doing different mesh for last layer")
                         in_grid = self.initial_mesh+in_grid_displacement
                         out_grid = self.initial_mesh+out_grid_displacement
-                        #print("in_grid", in_grid)
-                        #print("out_grid", out_grid)
-                        #print("=====================================")
+                        # print("in_grid", in_grid)
+                        # print("out_grid", out_grid)
+                        # print("=====================================")
                     else:
                         in_grid = self.initial_mesh+in_grid_displacement
                         out_grid = self.initial_mesh+in_grid_displacement
-                    #print("in_grid", in_grid.shape)
-                    #print("out_grid", out_grid.shape)
+                    # print("in_grid", in_grid.shape)
+                    # print("out_grid", out_grid.shape)
                     self.base[i].update_grid(
                         in_grid,
                         out_grid)
-
 
         if self.lifting:
             x = self.lifting(inp)
@@ -128,7 +125,7 @@ class GNN(nn.Module):
             x = inp
         x = x[0, ...]
         for layer_idx in range(self.n_layers):
-            #print(x.shape)
+            # print(x.shape)
             x = self.base[layer_idx](x)
 
         if self.projection:

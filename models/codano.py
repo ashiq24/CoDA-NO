@@ -47,7 +47,7 @@ class Projection(nn.Module):
     def forward(self, x):
         batch = x.shape[0]
         if self.permutation_invariant:
-            assert x.shape[1] % self.in_channels == 0,\
+            assert x.shape[1] % self.in_channels == 0, \
                 "Total Number of Channels is not divisible by number of tokens"
             x = rearrange(x, 'b (g c) h w -> (b g) c h w', c=self.in_channels)
 
@@ -73,9 +73,10 @@ class ProjectionT(Projection):
         batch_size = x.shape[0]
 
         if self.permutation_invariant:
-            assert x.shape[1] % self.in_channels == 0,\
+            assert x.shape[1] % self.in_channels == 0, \
                 "Total Number of Channels is not divisible by number of tokens"
-            x = rearrange(x, 'b (g c) t h w -> (b g) c t h w', c=self.in_channels)
+            x = rearrange(x, 'b (g c) t h w -> (b g) c t h w',
+                          c=self.in_channels)
 
         x = self.fc1(x)
         x = self.norm(x)
@@ -139,9 +140,10 @@ class CodANO(nn.Module):
         per_channel_attention=False,
         operator_block=TnoBlock2d,
         integral_operator=SpectralConvKernel2d,
-        integral_operator_top=partial(SpectralConvKernel2d, sht_grid="legendre-gauss"),
-        integral_operator_bottom=\
-            partial(SpectralConvKernel2d, isht_grid="legendre-gauss"),
+        integral_operator_top=partial(
+            SpectralConvKernel2d, sht_grid="legendre-gauss"),
+        integral_operator_bottom=partial(
+            SpectralConvKernel2d, isht_grid="legendre-gauss"),
         projection=True,
         lifting=True,
         domain_padding=None,
@@ -156,7 +158,8 @@ class CodANO(nn.Module):
     ):
         super().__init__()
         self.n_layers = n_layers
-        assert len(n_modes) == n_layers, "number of modes for all layers are not given"
+        assert len(
+            n_modes) == n_layers, "number of modes for all layers are not given"
         assert len(n_heads) == n_layers, \
             "number of Attention head for all layers are not given"
         if integral_operator_bottom is None:
@@ -246,8 +249,8 @@ class CodANO(nn.Module):
         # A variable + it's variable encoding + the static channel(s)
         # together constitute a token
         n_lifted_channels = self.input_token_codimension + \
-                            variable_encoding_args.n_channels + \
-                            self.n_static_channels
+            variable_encoding_args.n_channels + \
+            self.n_static_channels
         if self.lifting:
             self.logger.debug(
                 'using lifting with:'
@@ -266,7 +269,8 @@ class CodANO(nn.Module):
         cls_dimension = 1 if enable_cls_token else 0
         self.codimension_size = hidden_token_codimension * n_variables + cls_dimension
 
-        self.logger.debug(f"Expected number of channels: {self.codimension_size=}")
+        self.logger.debug(
+            f"Expected number of channels: {self.codimension_size=}")
 
         self.base = nn.ModuleList([])
         for i in range(self.n_layers):
@@ -349,7 +353,8 @@ class CodANO(nn.Module):
         expansion_factor = 1 + self.n_static_channels + self.n_encoding_channels
         # Allocate every Nth channel for the untransformed variable
         # where N=``expansion_factor``
-        self.variable_channels = [i * expansion_factor for i in range(n_variables)]
+        self.variable_channels = [
+            i * expansion_factor for i in range(n_variables)]
 
         # Allocate N static channels for each known variable,
         # where N=``n_static_channels``
@@ -502,6 +507,7 @@ class CodANO(nn.Module):
                     .repeat(batch_size, n_static_copies, 1, 1)
 
         return x
+
 
 class CoDANOTemporal(CodANO):
     """Time-aware Co-domain Attention Operator that acts on 2+1 dim states"""

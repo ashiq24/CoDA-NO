@@ -9,14 +9,16 @@ from torch.utils.data import ConcatDataset, random_split, DataLoader
 import itertools
 from neuralop.datasets.tensor_dataset import TensorDataset
 from data_utils import get_mesh_displacement
+
+
 class IrregularMeshTensorDataset(TensorDataset):
     def __init__(self, x, y, transform_x=None, transform_y=None):
-        super().__init__( x, y, transform_x, transform_y)
-    
+        super().__init__(x, y, transform_x, transform_y)
+
     def __getitem__(self, index):
         x = self.x[index]
         y = self.y[index]
-        
+
         d_grid_x = get_mesh_displacement(x)
         d_grid_y = get_mesh_displacement(y)
 
@@ -26,7 +28,8 @@ class IrregularMeshTensorDataset(TensorDataset):
         if self.transform_y is not None:
             x = self.transform_y(x)
 
-        return {'x': x, 'y':y, 'd_grid_x':d_grid_x, 'd_grid_y':d_grid_y}
+        return {'x': x, 'y': y, 'd_grid_x': d_grid_x, 'd_grid_y': d_grid_y}
+
 
 class Normalizer():
     def __init__(self, mean, std, eps=1e-6, persample=False):
@@ -156,8 +159,8 @@ class NsElasticDataset():
                     varable_idices = [0, 1, 3, 4, 5]
                     combined = torch.cat(
                         [velocities, pressure, displacements], dim=-1)[:sample_per_inlet, :, varable_idices]
-                    
-                    #print("sample data", combined[50,500,:])
+
+                    # print("sample data", combined[50,500,:])
                     step_t0 = combined[:-dt, ...]
                     step_t1 = combined[dt:, ...]
 
@@ -175,7 +178,8 @@ class NsElasticDataset():
                     if not normalize:
                         normalizer = None
                     else:
-                        mean, var = torch.mean(train_t0, dim=(0, 1)), torch.var(train_t0, dim=(0, 1))
+                        mean, var = torch.mean(train_t0, dim=(
+                            0, 1)), torch.var(train_t0, dim=(0, 1))
 
                         normalizer = Normalizer(mean, var**0.5)
 

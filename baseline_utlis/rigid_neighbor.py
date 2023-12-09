@@ -1,8 +1,10 @@
 import torch
 from torch import nn
 
-#Requires either open3d torch instalation or torch_cluster
-#Uses open3d by default which, as of 07/23/2023, requires torch 1.13.1
+# Requires either open3d torch instalation or torch_cluster
+# Uses open3d by default which, as of 07/23/2023, requires torch 1.13.1
+
+
 def simple_neighbor_search(data: torch.Tensor, queries: torch.Tensor, n_neigbor: float):
     """
 
@@ -16,18 +18,22 @@ def simple_neighbor_search(data: torch.Tensor, queries: torch.Tensor, n_neigbor:
 
     """
 
-    dists = torch.cdist(queries, data).to(queries.device) # shaped num query points x num data points
+    # shaped num query points x num data points
+    dists = torch.cdist(queries, data).to(queries.device)
     sorted_dist, _ = torch.sort(dists, dim=1)
-    k = sorted_dist[:,n_neigbor]
-    dists = dists - k[:,None]  
-    in_nbr = torch.where(dists < 0, 1., 0.) # i,j is one if j is i's neighbor
-    nbr_indices = in_nbr.nonzero()[:,1:].reshape(-1,) # only keep the column indices
-    nbrhd_sizes = torch.cumsum(torch.sum(in_nbr, dim=1), dim=0) # num points in each neighborhood, summed cumulatively
+    k = sorted_dist[:, n_neigbor]
+    dists = dists - k[:, None]
+    in_nbr = torch.where(dists < 0, 1., 0.)  # i,j is one if j is i's neighbor
+    # only keep the column indices
+    nbr_indices = in_nbr.nonzero()[:, 1:].reshape(-1,)
+    # num points in each neighborhood, summed cumulatively
+    nbrhd_sizes = torch.cumsum(torch.sum(in_nbr, dim=1), dim=0)
     splits = torch.cat((torch.tensor([0.]).to(queries.device), nbrhd_sizes))
     nbr_dict = {}
     nbr_dict['neighbors_index'] = nbr_indices.long().to(queries.device)
     nbr_dict['neighbors_row_splits'] = splits.long()
     return nbr_dict
+
 
 class FixedNeighborSearch(nn.Module):
     """Neighbor search within a ball of a given radius
@@ -38,12 +44,12 @@ class FixedNeighborSearch(nn.Module):
         Whether to use open3d or torch_cluster
         NOTE: open3d implementation requires 3d data
     """
+
     def __init__(self, use_open3d=True, use_torch_cluster=False):
         super().__init__()
         self.search_fn = simple_neighbor_search
         self.use_open3d = False
-        
-        
+
     def forward(self, data, queries, n_neigbor):
         """Find the neighbors, in data, of each point in queries
         within a ball of radius. Returns in CRS format.
@@ -58,7 +64,7 @@ class FixedNeighborSearch(nn.Module):
             NOTE: open3d requires d=3
         radius : float
             Radius of each ball: B(queries[j], radius)
-        
+
         Output
         ----------
         return_dict : dict
@@ -76,7 +82,6 @@ class FixedNeighborSearch(nn.Module):
         """
         return_dict = {}
 
-       
         return_dict = self.search_fn(data, queries, n_neigbor)
-        
+
         return return_dict

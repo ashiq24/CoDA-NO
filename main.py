@@ -52,7 +52,7 @@ if __name__ == "__main__":
         print("Parameters Decoder", count_parameters(decoder), "x10^6")
         print("Parameters Perdictor", count_parameters(predictor), "x10^6")
         # if params.grid_type == 'uniform':
-        
+
         model = SSLWrapper(
             params,
             encoder,
