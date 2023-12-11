@@ -164,7 +164,7 @@ codano_gno_10:
 
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
-    epochs: 300
+    epochs: 3
     mu_list: [1]
     lr: 0.03
     weight_decay: 0.0000
@@ -174,6 +174,7 @@ codano_test: &CODANO_TEST
     channel_per_val: 0.5
     ntrain: 1
     ntest: 1
+    ssl_only: !!bool False
     kqv_non_linear: !!bool True
     channel_per: 0.3
     channel_drop_per: 0.5

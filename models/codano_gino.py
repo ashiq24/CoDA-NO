@@ -186,10 +186,10 @@ class CondnoGino(nn.Module):
             self.base.append(self.operator_block(
                 n_modes=self.n_modes[i],
                 n_head=self.n_heads[i],
-                token_codim=hidden_token_codim,
+                token_codimension=hidden_token_codim,
                 output_scaling_factor=[self.scalings[i]],
-                SpectralConv=conv_op,
-                codim_size=self.codim_size,
+                SpectralConvolution=conv_op,
+                codimension_size=self.codim_size,
                 per_channel_attention=self.per_channel_attention,
                 kqv_non_linear=kqv_non_linear,
                 **self.layer_kwargs))
@@ -233,6 +233,9 @@ class CondnoGino(nn.Module):
         inp = (batch_size, n_points, in_dims/Channels)
         currenly only batch_size = 1
         '''
+        inp = inp[0, :, :]
+        inp = inp[None,...]
+        print(inp.shape)
         if self.re_grid_input:
             inp = self.input_regrider(inp)
         if self.lifting:

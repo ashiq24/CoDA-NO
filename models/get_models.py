@@ -185,12 +185,12 @@ def get_ssl_models_codano_gino(params):
 
     if params.tno_integral_op == 'fno':
         int_op = partial(SpectralConvKernel2d,
-                         fft_type=params.transform_type,
+                         transform_type=params.transform_type,
                          frequency_mixer=False)
         int_op_top = int_op
         int_op_bottom = int_op
     elif params.tno_integral_op == 'fino':
-        int_op = partial(SpectralConvKernel2d, fft_type=params.transform_type)
+        int_op = partial(SpectralConvKernel2d, transform_type=params.transform_type)
         int_op_top = int_op
         int_op_bottom = int_op
     else:
@@ -634,6 +634,7 @@ class SSLWrapper(nn.Module):
             return self.forward_reconstructive(x_embedded, in_grid_displacement, out_grid_displacement)
 
         if self.stage == StageEnum.PREDICTIVE:
+            #print(in_grid_displacement, out_grid_displacement)
             return self.forward_predictive(x_embedded, in_grid_displacement, out_grid_displacement)
 
         raise ValueError(f'Expected stage to be one of {list(StageEnum)};\n'
@@ -722,6 +723,7 @@ class SSLWrapper(nn.Module):
     def forward_predictive(self, x, in_grid_displacement=None, out_grid_displacement=None):
         if self.grid_type != 'unifrom':
             with torch.no_grad():
+                #print(in_grid_displacement, out_grid_displacement)
                 self.encoder.lifting.update_grid(
                     self.initial_mesh + in_grid_displacement, None)
                 self.predictor.projection.update_grid(

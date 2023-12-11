@@ -40,18 +40,20 @@ def missing_variable_testing(
                         out_grid_displacement = data['d_grid_y'].cuda()[0]
                         in_grid_displacement = data['d_grid_x'].cuda()[0]
             else:
+                print("Uniform Grids")
                 out_grid_displacement = None
                 in_grid_displacement = None
 
-            if normalizer is not None:
-                with torch.no_grad():
-                    x, y = normalizer(x), normalizer(y)
+            # if normalizer is not None:
+            #     with torch.no_grad():
+            #         x, y = normalizer(x), normalizer(y)
 
             if augmenter is not None:
                 x, _ = batched_masker(x, augmenter)
 
             batch_size = x.shape[0]
-            out = model(x, out_grid_displacement, in_grid_displacement)
+            #print(in_grid_displacement, out_grid_displacement)
+            out = model(x, out_grid_displacement=out_grid_displacement, in_grid_displacement=in_grid_displacement)
 
             if isinstance(out, (list, tuple)):
                 out = out[0]
@@ -60,7 +62,7 @@ def missing_variable_testing(
             target = y.clone()
 
             test_l2 += loss_p(target.reshape(batch_size, -1), out.reshape(batch_size, -1)
-                              ).item() / torch.norm(target.reshape(batch_size, -1), p=2, dim=-1).item()
+                              ).item()
 
     test_l2 /= ntest
     t2 = default_timer()

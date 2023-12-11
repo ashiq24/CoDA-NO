@@ -237,7 +237,7 @@ class TNOBlock(nn.Module):
                 in_channels=self.mixer_token_codimension,
                 out_channels=self.mixer_token_codimension,
                 apply_skip=True,
-                n_layers=1,
+                n_layers=2,
                 **mixer_args,
                 **common_args,
             )
@@ -283,9 +283,9 @@ class TnoBlock2d(TNOBlock):
 
         Assumes input ``xa`` has been normalized.
         """
-        k = self.K.convs(xa)
-        q = self.Q.convs(xa)
-        v = self.V.convs(xa)
+        k = self.K(xa)
+        q = self.Q(xa)
+        v = self.V(xa)
 
         value_x, value_y = v.shape[-2], v.shape[-1]
 

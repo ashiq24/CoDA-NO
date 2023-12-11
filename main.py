@@ -13,6 +13,7 @@ from train.trainer import simple_trainer
 from utils import get_wandb_api_key
 from models.model_helpers import count_parameters
 from test.evaluations import missing_variable_testing
+from torchsummary import summary
 
 import random
 
@@ -48,6 +49,7 @@ if __name__ == "__main__":
             encoder, decoder, contrastive, predictor = get_ssl_models_codano_gino(
                 params)
 
+        summary(encoder.cuda(), ( 1317,5))
         print("Parameters Encoder", count_parameters(encoder), "x10^6")
         print("Parameters Decoder", count_parameters(decoder), "x10^6")
         print("Parameters Perdictor", count_parameters(predictor), "x10^6")
