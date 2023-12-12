@@ -164,7 +164,7 @@ codano_gno_10:
 
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
-    epochs: 3
+    epochs: 300
     mu_list: [1]
     lr: 0.03
     weight_decay: 0.0000
