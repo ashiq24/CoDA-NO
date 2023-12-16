@@ -331,9 +331,9 @@ class TnoBlock2d(TNOBlock):
 
         attention = self.compute_attention(xa_norm, batch_size)
         if self.proj is not None:
-            attention = self.proj.convs(attention)
+            attention = self.proj(attention)
 
-        attention = self.attention_normalizer(attention) + xa
+        attention = self.attention_normalizer(attention+xa) 
         attention = rearrange(
             attention, '(b t) d h w -> b (t d) h w', b=batch_size)
         # print("{attention.shape=}")
@@ -364,7 +364,7 @@ class TnoBlock2d(TNOBlock):
 
         attention = self.compute_attention(xa, batch_size)
         if self.proj is not None:
-            attention = self.proj.convs(attention)
+            attention = self.proj(attention)
 
         attention = rearrange(
             attention, '(b t) d h w -> b (t d) h w', b=batch_size)
@@ -396,11 +396,11 @@ class TNOBlock3D(TNOBlock):
         # You're better off stepping through forward() with `pdb`
         # `xa` was rearranged like:
         # rearrange(x, 'b (k d) t h w -> (b k) d t h w', d=self.token_codimension)
-        k = self.K.convs(xa)
+        k = self.K(xa)
         # self.logger.debug(f"{k.shape=}")
-        q = self.Q.convs(xa)
+        q = self.Q(xa)
         # self.logger.debug(f"{q.shape=}")
-        v = self.V.convs(xa)
+        v = self.V(xa)
         # self.logger.debug(f"{v.shape=}")
 
         v_duration, v_height, v_width = v.shape[-3:]
@@ -451,9 +451,9 @@ class TNOBlock3D(TNOBlock):
 
         attention = self.compute_attention(xa_norm, batch_size)
         if self.proj is not None:
-            attention = self.proj.convs(attention)
+            attention = self.proj(attention)
 
-        attention = self.attention_normalizer(attention) + xa
+        attention = self.attention_normalizer(attention + xa) 
         attention = rearrange(
             attention,
             '(b k) d t h w -> b (k d) t h w',
@@ -488,7 +488,7 @@ class TNOBlock3D(TNOBlock):
 
         attention = self.compute_attention(xa, batch_size)
         if self.proj is not None:
-            attention = self.proj.convs(attention)
+            attention = self.proj(attention)
 
         attention = rearrange(
             attention,

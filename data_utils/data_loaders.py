@@ -18,15 +18,17 @@ class IrregularMeshTensorDataset(TensorDataset):
     def __getitem__(self, index):
         x = self.x[index]
         y = self.y[index]
-
+        
         d_grid_x = get_mesh_displacement(x)
         d_grid_y = get_mesh_displacement(y)
 
         if self.transform_x is not None:
+            #print('before normalize ',torch.mean(x, dim = (0)))
             x = self.transform_x(x)
+            #print('afet normalize ',torch.mean(x, dim = (0)))
 
         if self.transform_y is not None:
-            x = self.transform_y(x)
+            y = self.transform_y(y)
 
         return {'x': x, 'y': y, 'd_grid_x': d_grid_x, 'd_grid_y': d_grid_y}
 
@@ -114,7 +116,7 @@ class NsElasticDataset():
             self,
             mu_list,
             dt,
-            normalize=False,
+            normalize=True,
             batch_size=1,
             train_test_split=0.2,
             sample_per_inlet=200,
@@ -158,7 +160,7 @@ class NsElasticDataset():
                     # keeping vx,xy, P, dx,dy
                     varable_idices = [0, 1, 3, 4, 5]
                     combined = torch.cat(
-                        [velocities, pressure, displacements], dim=-1)[-sample_per_inlet:, :, varable_idices]
+                        [velocities, pressure, displacements], dim=-1)[:sample_per_inlet, :, varable_idices]
 
                     # print("sample data", combined[50,500,:])
                     step_t0 = combined[:-dt, ...]
@@ -178,10 +180,11 @@ class NsElasticDataset():
                     if not normalize:
                         normalizer = None
                     else:
-                        mean, var = torch.mean(train_t0, dim=(
-                            0, 1)), torch.var(train_t0, dim=(0, 1))
+                        mean= torch.min(train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]
+                        var = torch.max(train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]\
+                        - torch.min(train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]
 
-                        normalizer = Normalizer(mean, var**0.5)
+                        normalizer = Normalizer(mean, var)
 
                     train_datasets.append(
                         IrregularMeshTensorDataset(train_t0, train_t1, normalizer, normalizer))

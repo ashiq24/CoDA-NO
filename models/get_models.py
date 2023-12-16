@@ -335,12 +335,12 @@ def get_model_fno(params):
 
     if params.tno_integral_op == 'fno':
         int_op = partial(SpectralConvKernel2d,
-                         fft_type=params.transform_type,
+                         transform_type=params.transform_type,
                          frequency_mixer=False)
         int_op_top = int_op
         int_op_bottom = int_op
     elif params.tno_integral_op == 'fino':
-        int_op = partial(SpectralConvKernel2d, fft_type=params.transform_type)
+        int_op = partial(SpectralConvKernel2d, transform_type=params.transform_type)
         int_op_top = int_op
         int_op_bottom = int_op
     else:
