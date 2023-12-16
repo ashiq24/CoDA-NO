@@ -180,9 +180,11 @@ class NsElasticDataset():
                     if not normalize:
                         normalizer = None
                     else:
-                        mean= torch.min(train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]
-                        var = torch.max(train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]\
-                        - torch.min(train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]
+                        mean, var = torch.mean(train_t0, dim=(
+                            0, 1)), torch.var(train_t0, dim=(0, 1))**0.5
+#                         mean= torch.min(train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]
+#                         var = torch.max(train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]\
+#                         - torch.min(train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]
 
                         normalizer = Normalizer(mean, var)
 
