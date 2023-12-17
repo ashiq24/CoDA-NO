@@ -97,8 +97,10 @@ class NsElasticDataset():
             'Visualization')
 
         filename = os.path.join(path, 'displacement.h5')
+        #print(filename)
         h5f = h5py.File(filename, 'r')
         displacements_tensor = self._readh5(h5f)
+        #print("Displacement Tensor", displacements_tensor.shape, np.max(displacements_tensor.numpy()), np.min(displacements_tensor.numpy()))
 
         filename = os.path.join(path, 'pressure.h5')
         h5f = h5py.File(filename, 'r')
