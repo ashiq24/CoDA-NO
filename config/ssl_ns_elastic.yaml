@@ -112,9 +112,9 @@ codano_gno: &CODANO_GNO
     
     
     n_encoding_channels: 8
-    n_modes_en:       [[180,30], [180,30], [180,30]]
-    n_modes_dec:       [[180,30]]
-    n_modes_pred:       [[180,30], [180,30]]
+    n_modes_en:       [[251, 42], [251, 42], [251, 42]]
+    n_modes_dec:       [[251, 42]]
+    n_modes_pred:       [[251, 42], [251, 42]]
     
     
     scalings_en:     [[1,1], [1,1], [1,1]]
@@ -166,15 +166,17 @@ codano_test: &CODANO_TEST
     <<: *CODANO_GNO
     epochs: 300
     mu_list: [1]
-    lr: 0.03
+    lr: 0.01
     weight_decay: 0.0000
     scheduler_step: 30
     gradient_clip_value: 0.001
     scheduler_gamma: 0.8
     channel_per_val: 0.5
     ntrain: 1
+    radius: 0.08
     ntest: 1
     ssl_only: !!bool False
+    pretrain_ssl : !!bool False
     kqv_non_linear: !!bool True
     channel_per: 0.3
     channel_drop_per: 0.5
@@ -214,7 +216,7 @@ fno_gno: &FNO_GNO
     n_encoding_channels: 0
     enable_cls_token: !!bool False
 
-fno_test_.01: &FNO_TEST
+fno_test: &FNO_TEST
     <<: *FNO_GNO
     mu_list: [0.01]
     channel_per_val: 0.5
@@ -247,11 +249,16 @@ gnn_test:
     epochs: 300
     nettype: 'gnn'
     mu_list: [1]
-    n_neigbor: 20
-    gno_mlp_layers: [20]
-    ntrain: 1
-    ntest: 5
-    dt: 1
+
+    
+    n_neigbor: 10
+    gno_mlp_layers: [200, 200]
+    hidden_dim: 128
+    lifting_dim: 256
+    projection_dim: 256
+    #ntrain: 3
+    #ntest: 5
+    dt: 2
 
 fno: &FNO
     <<: *FNO_GNO

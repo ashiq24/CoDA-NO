@@ -70,7 +70,7 @@ def simple_trainer(
             # print('difference',torch.norm(x -y))
 
             x, y = x.cuda(), y.cuda()
-            # print("Input Shape", x.shape, torch.mean(x, dim=(0,1)), torch.std(x, dim=(0,1)))
+            #print("Input Shape", x.shape, torch.mean(x, dim=(0,1)), torch.std(x, dim=(0,1)))
             # print("output Shape", y.shape)
 
             batch_size = x.shape[0]

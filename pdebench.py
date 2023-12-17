@@ -21,7 +21,7 @@ from YParams import YParams
 # SSL model
 # params = YParams('./config/ssl.yaml', 'codano_gino', print_params=True)
 # params = YParams('./config/test.yaml', 'codano_gino', print_params=True)
-params = YParams('./config/pdebench.yaml', 'codano_gino', print_params=False)
+params = YParams('./config/pdebench_overfit.yaml', 'codano_gino', print_params=False)
 verbose = True
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout, force=True)
@@ -160,7 +160,7 @@ multi_physics_trainer(
     # wandb_log=False,  # debug
     log_interval=params.wandb['log_interval'],
     # log_interval=1,
-    script=False,
+    script=True,
 )
 
 # +

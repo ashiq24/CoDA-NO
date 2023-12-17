@@ -30,7 +30,7 @@ class GnnLayer(nn.Module):
         self.out_dim = out_dim
         self.input_grid = input_grid
         self.output_grid = output_grid
-        self.mlp_layers = [2 * n_dim] + mlp_layers + [out_dim]
+        self.mlp_layers = [2 * n_dim + out_dim] + mlp_layers + [out_dim]
         self.n_neigbor = n_neigbor
         # project to higher dim
         self.projection = MLPLinear([self.in_dim,
@@ -49,7 +49,7 @@ class GnnLayer(nn.Module):
         for key, value in self.neighbour.items():
             self.neighbour[key] = self.neighbour[key].cuda()
 
-        self.it = IntegralTransform(mlp_layers=self.mlp_layers)
+        self.it = IntegralTransform(mlp_layers=self.mlp_layers, transform_type='nonlinear')
 
     def update_grid(
         self,
@@ -88,7 +88,7 @@ class GnnLayer(nn.Module):
                       self.output_grid, x)
         # print("out shape", out.shape)
 
-        if torch.equal(out.shape, x.shape):
+        if out.shape==x.shape:
             out = out + x
             
         return out
