@@ -21,7 +21,7 @@ MAP_EQUATION_TO_CHANNELS = {
 }
 
 
-def simple_trainer(
+def nonuniform_mesh_trainer(
     model,
     train_loader,
     test_loader,

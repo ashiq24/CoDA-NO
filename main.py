@@ -9,7 +9,7 @@ from layers.fino import SpectralConvKernel2d
 from data_utils.data_utils import MaskerNonuniformMesh, batched_masker, MaskerUniform, get_meshes
 from models.codano import CodANO
 from models.get_models import *
-from train.trainer import simple_trainer
+from train.trainer import nonuniform_mesh_trainer
 from utils import get_wandb_api_key
 from models.model_helpers import count_parameters
 from test.evaluations import missing_variable_testing
@@ -90,7 +90,7 @@ if __name__ == "__main__":
         print(f"Loading Pretrained weights from {params.pretrain_weight}")
         model.load_state_dict(torch.load(params.pretrain_weight))
 
-    simple_trainer(
+    nonuniform_mesh_trainer(
         model,
         train,
         test,

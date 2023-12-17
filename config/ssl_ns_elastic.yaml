@@ -175,8 +175,8 @@ codano_test: &CODANO_TEST
     ntrain: 1
     radius: 0.08
     ntest: 1
-    ssl_only: !!bool False
-    pretrain_ssl : !!bool False
+    ssl_only: !!bool True
+    pretrain_ssl : !!bool True
     kqv_non_linear: !!bool True
     channel_per: 0.3
     channel_drop_per: 0.5
