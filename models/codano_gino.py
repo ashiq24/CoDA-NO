@@ -215,7 +215,7 @@ class CondnoGino(nn.Module):
         if enable_cls_token:
             print("intializing CLS token")
             self.cls_token = VariableEncoding2d(
-                hidden_token_codim, var_enco_mode_x, var_enco_mode_y, basis=var_enco_basis)
+                hidden_token_codim, (var_enco_mode_x, var_enco_mode_y), basis=var_enco_basis)
 
     def get_output_scaling_factor(self, initial_scale, scalings_per_layer):
         for k in scalings_per_layer:

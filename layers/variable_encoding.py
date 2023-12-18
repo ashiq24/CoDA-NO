@@ -88,36 +88,3 @@ class FourierVariableEncoding3D(nn.Module):
             s=(size_t, size_x, size_y),
             norm="forward",  # don't multiply by any normalization factor
         ).real
-
-class EncodingWrapper(nn.Module):
-    def __init__(
-        self,
-        n_features: int,
-        modes: Tuple[int, ...],
-        basis: str = 'fft',
-        mesh: str = 'uniform',
-        n_dim: int = 2,
-        positional_encoding_dim: int: 8) -> None:
-        super().__init__()
-        self.n_features = n_features
-        self.modes = modes
-        self.basis = basis
-        self.mesh = mesh
-        self.n_dim = n_dim
-        self.positional_encoding_dim = positional_encoding_dim
-        if mesh == 'uniform':
-            if len(modes) == 2:
-                self.encoding = VariableEncoding2d(n_features, modes, basis=basis)
-            elif len(modes) == 3:
-                self.encoding = FourierVariableEncoding3D(n_features, modes)
-        else:
-            self.var_encoder = MLPLinear(
-                [n_dim + 2 * postional_em_dim, self.var_encoding_channels * var_num])
-            self.PE = PositionalEmbedding(postional_em_dim)
-            self.variable_channels = [
-                i * (var_encoding_channels + self.in_dim) for i in range(var_num)]
-            self.encoding_channels = list(set([i for i in range(
-                (var_encoding_channels + 1) * var_num)]) - set(self.variable_channels)) 
-
-    def forward(self, x):
-        return self.encoding(x)
