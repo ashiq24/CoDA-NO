@@ -198,19 +198,15 @@ def get_ssl_models_codano_gino(params):
     print("Generating Encoder")
 
     static_features = None
-    static_channels_num = 0
+    static_channels_num = params.n_static_channels
 
-    if params.add_static_feature:
-        # taking the static features from  which will be passed to the encoder
-        # to concated with each of the input varibales
-        static_features = None
-        static_channels_num = 0
+    
 
     print("Token Dim-->", 1 + params.n_encoding_channels + static_channels_num)
-    # print("var num", params.n_variables, "static channels", static_channels_num)
+    expanded_token_dim = 1 + params.n_encoding_channels + static_channels_num
 
     encoder = CondnoGino(
-        params.in_token_codim_en,
+        expanded_token_dim,
         input_grid=input_mesh,
         output_grid=output_mesh,
         radius=params.radius,
@@ -229,8 +225,8 @@ def get_ssl_models_codano_gino(params):
         integral_operator=int_op,
         integral_operator_top=int_op_top,
         integral_operator_bottom=int_op_bottom,
-        var_encoding=params.use_variable_encoding,
-        var_enco_channels=params.n_encoding_channels,
+        var_encoding=False,
+        var_enco_channels=0,
         var_num=params.n_variables,
         enable_cls_token=params.enable_cls_token,
         static_channels_num=static_channels_num,
@@ -449,10 +445,6 @@ class SSLWrapper(nn.Module):
         if params.get("re_grid_input") or params.get("re_grid_output"):
             raise NotImplementedError(
                 "This model does not support regridding of inputs or outputs.")
-        # if self.re_grid_input:
-        #     self.input_regrider = Regird("equiangular", "legendre-gauss")
-        # if self.re_grid_output:
-        #     self.output_regrider = Regird("legendre-gauss", "equiangular")
 
         if self.grid_type == 'uniform':  # TODO add a different option for this
             equation_to_encoders = {eq: [] for eq in variables_per_equations}

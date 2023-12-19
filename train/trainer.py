@@ -30,6 +30,9 @@ def nonuniform_mesh_trainer(
     log_test_interval=1,
     stage=StageEnum.RECONSTRUCTIVE,
     normalizer=None,
+    variable_encoder=None,
+    token_expander=None,
+    initial_mesh=None, 
 ):
 
     lr = params.lr
@@ -65,11 +68,25 @@ def nonuniform_mesh_trainer(
             ncols=100
         )
         for data in train_loader_iter:
+
+            optimizer.zero_grad()
+
             x, y = data['x'], data['y']
 
+            static_features = data['static_features']
+            equation = [i[0] for i in data['equation']]
+            print(x.shape, y.shape, static_features.shape, data['equation'])
+
+
             # print('difference',torch.norm(x -y))
+            
 
             x, y = x.cuda(), y.cuda()
+            print(initial_mesh.shape, data['d_grid_x'].cuda()[0].shape, equation)
+            if variable_encoder is not None and token_expander is not None:
+                inp = token_expander(x, variable_encoder(initial_mesh +data['d_grid_x'].cuda()[0], equation), static_features.cuda())
+            else:
+                inp = x
             #print("Input Shape", x.shape, torch.mean(x, dim=(0,1)), torch.std(x, dim=(0,1)))
             # print("output Shape", y.shape)
 
@@ -96,10 +113,10 @@ def nonuniform_mesh_trainer(
                 out_grid_displacement = None
                 in_grid_displacement = None
 
-            optimizer.zero_grad()
+            
 
             out = model(
-                x,
+                inp,
                 out_grid_displacement=out_grid_displacement,
                 in_grid_displacement=in_grid_displacement)
 

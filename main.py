@@ -8,9 +8,10 @@ from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
 from data_utils.data_utils import MaskerNonuniformMesh, batched_masker, MaskerUniform, get_meshes
 from models.codano import CodANO
+from layers.variable_encoding import *
 from models.get_models import *
 from train.trainer import nonuniform_mesh_trainer
-from utils import get_wandb_api_key
+from utils import get_wandb_api_key, TokenExpansion
 from models.model_helpers import count_parameters
 from test.evaluations import missing_variable_testing
 from torchsummary import summary
@@ -49,11 +50,26 @@ if __name__ == "__main__":
             encoder, decoder, contrastive, predictor = get_ssl_models_codano_gino(
                 params)
 
-        summary(encoder.cuda(), ( 1317,5))
+            variable_encoder = get_variable_encoder(params)
+            k = variable_encoder(torch.randn(1317, 2), equation=['NS'])
+            print(k.shape)
+            k = variable_encoder(torch.randn(1317, 2))
+            print(k.shape)
+            token_expander = TokenExpansion(sum([params.equation_dict[i] for i in params.equation_dict.keys()]), params.n_encoding_channels, params.n_static_channels)
+
+            variable_encoder.cuda()
+            token_expander.cuda()
+            # x = token_expander(torch.randn(1, 1317, 5), k, torch.randn(1, 1317, 10))
+
+            # print(x.shape)
+            # exit()
+
+        #summary(encoder.cuda(), ( 1317,5))
         print("Parameters Encoder", count_parameters(encoder), "x10^6")
         print("Parameters Decoder", count_parameters(decoder), "x10^6")
         print("Parameters Perdictor", count_parameters(predictor), "x10^6")
-        # if params.grid_type == 'uniform':
+            
+            
 
         model = SSLWrapper(
             params,
@@ -68,13 +84,18 @@ if __name__ == "__main__":
             input_mesh = torch.transpose(torch.stack([torch.tensor(
                 mesh[0, :]), torch.tensor(mesh[1, :])]), 0, 1).type(torch.float).cuda()
             model.set_initial_mesh(input_mesh)
+        
     elif params.nettype in ['simple', 'gnn']:
         model = get_model_fno(params)
         print("Parameters Model", count_parameters(model), "x10^6")
+        mesh = None
+        variable_encoder = None
+        token_expander = None
 
     model = model.cuda()
     # non-uniform dataset
-    dataset = NsElasticDataset(params.data_location)
+    print(list(params.equation_dict.keys()))
+    dataset = NsElasticDataset(params.data_location, equation=list(params.equation_dict.keys()))
     # train, test = dataset.get_onestep_dataloader(location=params.data_location, dt=params.dt, ntrain=params.get('ntrain'),
     #                                              ntest=params.get('ntest'))
 
@@ -98,7 +119,10 @@ if __name__ == "__main__":
         wandb_log=params.wandb_log,
         log_test_interval=params.wandb_log_test_interval,
         normalizer=normalizer,
-        stage=stage)
+        stage=stage,
+        variable_encoder=variable_encoder,
+        token_expander=token_expander,
+        initial_mesh=input_mesh)
 
     if params.pretrain_ssl and not params.ssl_only:
         # if we were pre-training (ssl), then we will train (sl)

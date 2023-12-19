@@ -12,8 +12,26 @@ from data_utils import get_mesh_displacement
 
 
 class IrregularMeshTensorDataset(TensorDataset):
-    def __init__(self, x, y, transform_x=None, transform_y=None):
+    def __init__(self, x, y, transform_x=None, transform_y=None, equation=None, i1=0,i2=0,i3=0, mu=0.1, mesh=None):
         super().__init__(x, y, transform_x, transform_y)
+        self.i1 = i1
+        self.i2 = i2
+        self.i3 = i3
+        self.mu = mu
+        self.mesh = mesh
+        self.equation = equation
+        self._creat_static_features()
+    
+    def _creat_static_features(self,):
+        n_grid_points = self.x.shape[1]
+        if len(self.equation) == 1:
+            # Assumeing equaiion is NS
+            n_variables = 3
+        else:
+            n_variables = self.x.shape[-1]
+        raynolds = torch.ones(n_grid_points, 1)*self.mu
+        inlet = (self.i1*torch.sin(self.mesh[:,1]) + self.i2*torch.sin(2*self.mesh[:,1]) + self.i3*torch.sin(3*self.mesh[:,1]))[:,None]**2
+        self.static_features =  torch.cat([raynolds, inlet], dim=-1).repeat(1, n_variables)
 
     def __getitem__(self, index):
         x = self.x[index]
@@ -23,14 +41,17 @@ class IrregularMeshTensorDataset(TensorDataset):
         d_grid_y = get_mesh_displacement(y)
 
         if self.transform_x is not None:
-            #print('before normalize ',torch.mean(x, dim = (0)))
             x = self.transform_x(x)
-            #print('afet normalize ',torch.mean(x, dim = (0)))
 
         if self.transform_y is not None:
             y = self.transform_y(y)
 
-        return {'x': x, 'y': y, 'd_grid_x': d_grid_x, 'd_grid_y': d_grid_y}
+        if len(self.equation) == 1:
+            # Assumeing equaiion is NS
+            x = x[:,:3]
+            y = y[:,:3]
+
+        return {'x': x, 'y': y, 'd_grid_x': d_grid_x, 'd_grid_y': d_grid_y, 'static_features': self.static_features, 'equation': self.equation}
 
 
 class Normalizer():
@@ -58,12 +79,20 @@ class Normalizer():
 
 
 class NsElasticDataset():
-    def __init__(self, location):
+    def __init__(self, location, equation, mesh_location='../Data/test_data/mesh.csv'):
         self.location = location
-        self._ivals12 = [-0.5, 0, 1.0]
-        self._ivals3 = [-0.1, 0, 0.05]
+        self._ivals12 = [-0.5] #, 0, 1.0]
+        self._ivals3 = [-0.1]#, 0, 0.05]
         self._mu = [0.1, 0.01, 0.5, 1, 10]
-        # need to decide on how to normalize
+        self.equation = equation
+
+        mesh = np.loadtxt(mesh_location, delimiter=',')
+        self.input_mesh = torch.transpose(
+            torch.stack([torch.tensor(mesh[0, :]), torch.tensor(mesh[1, :])]),
+            dim0=0,
+            dim1=1,
+        ).type(torch.float)
+
         self.normalizer = Normalizer(None, None, persample=True)
 
     def _readh5(self, h5f, dtype=torch.float32):
@@ -191,9 +220,9 @@ class NsElasticDataset():
                         normalizer = Normalizer(mean, var)
 
                     train_datasets.append(
-                        IrregularMeshTensorDataset(train_t0, train_t1, normalizer, normalizer))
+                        IrregularMeshTensorDataset(train_t0, train_t1, normalizer, normalizer, i1=i1, i2=i2, i3=i3, mu=mu, equation=self.equation, mesh=self.input_mesh))
                     test_datasets.append(
-                        IrregularMeshTensorDataset(test_t0, test_t1, normalizer, normalizer))
+                        IrregularMeshTensorDataset(test_t0, test_t1, normalizer, normalizer, i1=i1, i2=i2, i3=i3, mu=mu, equation=self.equation, mesh=self.input_mesh))
         #####
         return ConcatDataset(train_datasets), ConcatDataset(test_datasets)
 

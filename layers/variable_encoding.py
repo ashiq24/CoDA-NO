@@ -1,6 +1,6 @@
 from functools import reduce
 from typing import Tuple
-
+from neuralop.layers.mlp import MLPLinear
 import numpy as np
 import torch
 from torch import nn
@@ -88,3 +88,71 @@ class FourierVariableEncoding3D(nn.Module):
             s=(size_t, size_x, size_y),
             norm="forward",  # don't multiply by any normalization factor
         ).real
+
+class VariableEncodingIrregularMesh(nn.Module):
+    def __init__(
+        self,
+        n_variables: int,
+        variable_encoding_size:int,
+        n_dim: int = 2,
+        positional_encoding_dim: int= 8) -> None:
+        super().__init__()
+        self.n_variables = n_variables
+        self.variable_encoding_size = variable_encoding_size
+        self.n_dim = n_dim
+        self.positional_encoding_dim = positional_encoding_dim
+        self.var_encoder = MLPLinear(
+            [n_dim + self.n_dim * positional_encoding_dim, self.variable_encoding_size * n_variables])
+        self.PE = PositionalEmbedding(positional_encoding_dim)
+
+    def forward(self, grid_poits):
+        pe = self.PE(grid_poits.reshape(-1))
+        pe = pe.reshape(grid_poits.shape[0], -1)
+        grid_pe = torch.cat([grid_poits, pe], axis=1)
+        var_encoding = self.var_encoder(grid_pe)
+        return var_encoding
+
+class VariableEncodingWrapper(nn.Module):
+    def __init__(
+        self,
+        equation_dict: dict,
+        variable_encoding_size:int,
+        n_dim: int = 2,
+        positional_encoding_dim: int= 8) -> None:
+        super().__init__()
+        self.n_dim = n_dim
+        self.equation_dict = equation_dict
+        self.variable_encoding_size = variable_encoding_size
+        self.model_dict = nn.ModuleDict()
+        for i in equation_dict.keys():
+            self.model_dict[i] = VariableEncodingIrregularMesh(
+                n_variables=equation_dict[i],
+                variable_encoding_size=self.variable_encoding_size,
+                n_dim=n_dim,
+                positional_encoding_dim=positional_encoding_dim
+            )
+    def load_encoder(self, equation: str, path: str):      
+        self.model_dict[equation].load_state_dict(torch.load(path))
+    
+    def save_encoder(self, equation: str, path: str):
+        torch.save(self.model_dict[equation].state_dict(), path)
+    
+    def save_all_encoder(self, path: str):
+        for i in self.equation_dict.keys():
+            torch.save(self.model_dict[i].state_dict(), path + f"_{i}")
+
+    def forward(self, grid_poits, equation: str = None):
+        encoding_list = []
+        if equation is None:
+            equation = list(self.equation_dict.keys())
+        for i in equation:
+            encoding_list.append(self.model_dict[i](grid_poits))
+        return torch.cat(encoding_list, axis=1).unsqueeze(0)
+
+
+def get_variable_encoder(params):
+    varianle_encoder = VariableEncodingWrapper(params.equation_dict,
+                                                variable_encoding_size=params.n_encoding_channels,
+                                                n_dim=params.n_dim,
+                                                positional_encoding_dim=params.positional_encoding_dim)
+    return varianle_encoder

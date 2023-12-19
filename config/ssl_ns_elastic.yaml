@@ -21,7 +21,7 @@ base_config: &BASE_CONFIG
     use_variable_encoding: !!bool True
     n_variables: 5
     masking: !!bool True
-    in_token_codim_en: 1s
+    in_token_codim_en: 1
     kqv_non_linear: !!bool False
     hidden_token_codim_en: 6
     lifting_token_codim_en: 12
@@ -88,6 +88,8 @@ codano_gno: &CODANO_GNO
     <<: *BASE_CONFIG
     # dataset hyper 
     ntrain: None
+    n_dim: 2
+    equation_dict: { "NS": 3} # , "ES": 2}
     ntest: None
     sample_per_inlet: 186 # set to 186 to make total data per mu 5000
     input_mesh_location: "../Data/test_data/mesh.csv"
@@ -122,7 +124,7 @@ codano_gno: &CODANO_GNO
     scalings_pred:     [[1,1], [1,1]]
     
     masking_radius: 0.08
-    
+    n_static_channels: 2
     in_token_codim_en: 1
     hidden_token_codim_en: 30
     lifting_token_codim_en: 40
@@ -137,6 +139,7 @@ codano_gno: &CODANO_GNO
     
     pretrain_ssl : !!bool True
     freeze_encoder : !!bool True
+    positional_encoding_dim: 4
 
 codano_non_lin: &CODANO_NON_LIN
     <<: *CODANO_GNO
