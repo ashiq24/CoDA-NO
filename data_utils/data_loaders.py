@@ -23,9 +23,13 @@ class IrregularMeshTensorDataset(TensorDataset):
         self._creat_static_features()
     
     def _creat_static_features(self,):
+        '''
+        creating static channels for inlet and reynolds number 
+        '''
         n_grid_points = self.x.shape[1]
         if len(self.equation) == 1:
-            # Assumeing equaiion is NS
+            # equation can be either  ['NS'] or ['NS', 'ES']
+            # of 3 or 5 channels/varibales
             n_variables = 3
         else:
             n_variables = self.x.shape[-1]
@@ -58,7 +62,7 @@ class Normalizer():
     def __init__(self, mean, std, eps=1e-6, persample=False):
         print("Means: ", mean)
         print("stds ", std)
-        self.persample = persample
+        self.persample = persample # if true, instance norm type normalizer
         self.mean = mean
         self.std = std
         self.eps = eps
@@ -81,9 +85,9 @@ class Normalizer():
 class NsElasticDataset():
     def __init__(self, location, equation, mesh_location='../Data/test_data/mesh.csv'):
         self.location = location
-        self._ivals12 = [-0.5] #, 0, 1.0]
-        self._ivals3 = [-0.1]#, 0, 0.05]
-        self._mu = [0.1, 0.01, 0.5, 1, 10]
+        self._ivals12 = [-0.5, 0, 1.0] # values related to inlet condition
+        self._ivals3 = [-0.1, 0, 0.05]
+        self._mu = [0.1, 0.01, 0.5, 1, 10] # Reynolds number
         self.equation = equation
 
         mesh = np.loadtxt(mesh_location, delimiter=',')
@@ -226,6 +230,11 @@ class NsElasticDataset():
         #####
         return ConcatDataset(train_datasets), ConcatDataset(test_datasets)
 
+
+
+####
+## Following is test codes 
+###
 
 class DatasetSimple():
     def __init__(self,):

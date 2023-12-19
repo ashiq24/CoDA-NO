@@ -75,14 +75,9 @@ def nonuniform_mesh_trainer(
 
             static_features = data['static_features']
             equation = [i[0] for i in data['equation']]
-            print(x.shape, y.shape, static_features.shape, data['equation'])
-
-
-            # print('difference',torch.norm(x -y))
-            
-
+            #print(x.shape, y.shape, static_features.shape, data['equation'])
             x, y = x.cuda(), y.cuda()
-            print(initial_mesh.shape, data['d_grid_x'].cuda()[0].shape, equation)
+            #print(initial_mesh.shape, data['d_grid_x'].cuda()[0].shape, equation)
             if variable_encoder is not None and token_expander is not None:
                 inp = token_expander(x, variable_encoder(initial_mesh +data['d_grid_x'].cuda()[0], equation), static_features.cuda())
             else:
@@ -165,16 +160,28 @@ def nonuniform_mesh_trainer(
 
     stage_string = 'ssl' if stage == StageEnum.RECONSTRUCTIVE else 'sl'
 
-    weight_path = weight_path + params.config + "_" + stage_string+'.pt'
-    torch.save(model.state_dict(), weight_path)
+    weight_path_model = weight_path + params.config + "_" + stage_string+'.pt'
+    torch.save(model.state_dict(), weight_path_model)
+    if variable_encoder is not None:
+        variable_path = weight_path + params.config + "_variable_encoder_" 
+        variable_encoder.save_all_encoder(variable_path)
 
     model.eval()
     test_l2 = 0.0
     ntest = 0
     with torch.no_grad():
         for data in test_loader:
+
             x, y = data['x'], data['y']
+            static_features = data['static_features']
+            equation = [i[0] for i in data['equation']]
+            #print(x.shape, y.shape, static_features.shape, data['equation'])
             x, y = x.cuda(), y.cuda()
+            #print(initial_mesh.shape, data['d_grid_x'].cuda()[0].shape, equation)
+            if variable_encoder is not None and token_expander is not None:
+                inp = token_expander(x, variable_encoder(initial_mesh +data['d_grid_x'].cuda()[0], equation), static_features.cuda())
+            else:
+                inp = x
 
             if params.grid_type == "non uniform":
                 '''
@@ -196,7 +203,7 @@ def nonuniform_mesh_trainer(
                 in_grid_displacement = None
 
             batch_size = x.shape[0]
-            out = model(x, in_grid_displacement=in_grid_displacement,
+            out = model(inp, in_grid_displacement=in_grid_displacement,
                         out_grid_displacement=out_grid_displacement)
             if isinstance(out, (list, tuple)):
                 out = out[0]

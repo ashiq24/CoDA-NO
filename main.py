@@ -59,12 +59,7 @@ if __name__ == "__main__":
 
             variable_encoder.cuda()
             token_expander.cuda()
-            # x = token_expander(torch.randn(1, 1317, 5), k, torch.randn(1, 1317, 10))
 
-            # print(x.shape)
-            # exit()
-
-        #summary(encoder.cuda(), ( 1317,5))
         print("Parameters Encoder", count_parameters(encoder), "x10^6")
         print("Parameters Decoder", count_parameters(decoder), "x10^6")
         print("Parameters Perdictor", count_parameters(predictor), "x10^6")
@@ -110,6 +105,8 @@ if __name__ == "__main__":
     if params.training_stage == 'fine_tune':
         print(f"Loading Pretrained weights from {params.pretrain_weight}")
         model.load_state_dict(torch.load(params.pretrain_weight))
+        print(f"Loading Pretrained weights from {params.NS_variable_encoder_path}")
+        variable_encoder.load_encoder("NS", params.NS_variable_encoder_path)
 
     nonuniform_mesh_trainer(
         model,
@@ -127,7 +124,7 @@ if __name__ == "__main__":
     if params.pretrain_ssl and not params.ssl_only:
         # if we were pre-training (ssl), then we will train (sl)
         model.stage = StageEnum.PREDICTIVE
-        simple_trainer(
+        nonuniform_mesh_trainer(
             model,
             train,
             test,
@@ -135,7 +132,10 @@ if __name__ == "__main__":
             wandb_log=params.wandb_log,
             log_test_interval=params.wandb_log_test_interval,
             normalizer=normalizer,
-            stage=model.stage)
+            stage=model.stage,
+            variable_encoder=variable_encoder,
+            token_expander=token_expander,
+            initial_mesh=input_mesh)
 
     grid_non, grid_uni = get_meshes(
         params.input_mesh_location, params.grid_size)
@@ -156,7 +156,10 @@ if __name__ == "__main__":
         test_augmenter,
         normalizer,
         'sl',
-        params)
+        params,
+        variable_encoder=variable_encoder,
+        token_expander=token_expander,
+        initial_mesh=input_mesh)
 
     if params.wandb_log:
         wandb.finish()

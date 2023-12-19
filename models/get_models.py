@@ -441,12 +441,12 @@ class SSLWrapper(nn.Module):
         self.freeze_encoder = params.freeze_encoder
         self.masking = params.masking or True
         self.grid_type = params.grid_type
-
-        if params.get("re_grid_input") or params.get("re_grid_output"):
-            raise NotImplementedError(
-                "This model does not support regridding of inputs or outputs.")
+        # grid type is either uniform or non uniform
+        # uniform == PDE bench dataset 
+        # non uniform == NS Elastc dataset or archtectures with GNO layers 
 
         if self.grid_type == 'uniform':  # TODO add a different option for this
+            
             equation_to_encoders = {eq: [] for eq in variables_per_equations}
             v = 0
             for eq, size in variables_per_equations.items():
@@ -472,7 +472,6 @@ class SSLWrapper(nn.Module):
             self.n_encoding_channels = n_encoding_channels
             self.n_static_channels = n_static_channels
 
-        # print("Doing Wrapper for", self.stage)
         if params.grid_type == 'uniform':
             Masker = MaskerUniformIndependent if params.time_axis else MaskerUniform
             self.augmenter_masker = Masker(
@@ -483,8 +482,6 @@ class SSLWrapper(nn.Module):
                 channel_drop_per=params.channel_drop_per,
             )
 
-            # XXX unused in testing
-            # If following augmenter is used by external method during testing
             self.validation_augmenter = Masker(
                 drop_type=params.drop_type,
                 max_block=params.max_block_val,
@@ -524,6 +521,7 @@ class SSLWrapper(nn.Module):
         self.register_buffer('initial_mesh', mesh)
 
     # NOTE: this should support both 3D and 2D models
+    # only used for uniform grids
     def _encode_variable(self, x: torch.Tensor, encoder):
         """Applies variable encodings to given input variable.
 
@@ -572,6 +570,7 @@ class SSLWrapper(nn.Module):
 
         return y
 
+    # only used for uniform grids
     def encode_variables(self, x: torch.Tensor, encoders):
         """Encodes each (physical) variable channel with an encoder.
 
@@ -603,6 +602,7 @@ class SSLWrapper(nn.Module):
         in_grid_displacement=None
     ):
         if self.grid_type == 'uniform':
+            # used for PDE bench datasets
             if equations is None or len(equations) == 0:
                 raise ValueError(
                     "The equation(s) must be defined for a variable encoding.")
@@ -653,10 +653,12 @@ class SSLWrapper(nn.Module):
         # adjusting for chnage of mesh
         if self.grid_type != "uniform":
             with torch.no_grad():
+                # updating neigbors of GNO layers for the new mesh at each time step
                 self.encoder.lifting.update_grid(
                     self.initial_mesh + in_grid_displacement, None)
                 self.decoder.projection.update_grid(
                     None, self.initial_mesh + out_grid_displacement)
+
         x_masked = self.do_mask(x)
         x_encoded = self.encoder(x_masked)
         # print("Feature Shape", x_encoded.shape)
@@ -664,7 +666,7 @@ class SSLWrapper(nn.Module):
         cls_offset = 1 if self.enable_cls_token else 0
         if self.reconstruction:
             reconstructed = self.decoder(x_encoded)
-            # print("Reconstructed Shape", reconstructed.shape)
+
             # Removing the CLS token and also discarding if some additional
             # channels if in the end
             if self.grid_type == 'uniform':
@@ -715,7 +717,7 @@ class SSLWrapper(nn.Module):
     def forward_predictive(self, x, in_grid_displacement=None, out_grid_displacement=None):
         if self.grid_type != 'unifrom':
             with torch.no_grad():
-                #print(in_grid_displacement, out_grid_displacement)
+                # updating neigbors of GNO layers for the new mesh at each time step
                 self.encoder.lifting.update_grid(
                     self.initial_mesh + in_grid_displacement, None)
                 self.predictor.projection.update_grid(
@@ -728,8 +730,11 @@ class SSLWrapper(nn.Module):
             out = self.decode_output(out)
 
         cls_offset = 1 if self.enable_cls_token else 0
-        # XXX why is the use of cls_offset inconsistent?
+
         # discarding CLS token and additional static channels if added.
+        # channel dimention is different for uniform and non uniform grids 
+        # i.e. channel first/last data format
+
         if self.grid_type == 'uniform':
             _slice = [
                 slice(None),  # :
@@ -744,5 +749,5 @@ class SSLWrapper(nn.Module):
                 slice(cls_offset, None),
             ]
         out = out[_slice]
-        # print(out.shape, _slice)
+
         return out, None, None, None

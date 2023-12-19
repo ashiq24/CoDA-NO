@@ -119,6 +119,10 @@ class VariableEncodingWrapper(nn.Module):
         variable_encoding_size:int,
         n_dim: int = 2,
         positional_encoding_dim: int= 8) -> None:
+        '''
+        For each equation in the equation_dict, we create a VariableEncodingIrregularMesh
+        dic is of form {"Equation": n_variables, ...}
+        '''
         super().__init__()
         self.n_dim = n_dim
         self.equation_dict = equation_dict
@@ -139,7 +143,7 @@ class VariableEncodingWrapper(nn.Module):
     
     def save_all_encoder(self, path: str):
         for i in self.equation_dict.keys():
-            torch.save(self.model_dict[i].state_dict(), path + f"_{i}")
+            torch.save(self.model_dict[i].state_dict(), path + f"_{i}"+".pt")
 
     def forward(self, grid_poits, equation: str = None):
         encoding_list = []

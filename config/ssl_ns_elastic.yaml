@@ -167,7 +167,7 @@ codano_gno_10:
 
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
-    epochs: 300
+    epochs: 5
     mu_list: [1]
     lr: 0.01
     weight_decay: 0.0000
@@ -178,7 +178,7 @@ codano_test: &CODANO_TEST
     ntrain: 1
     radius: 0.08
     ntest: 1
-    ssl_only: !!bool True
+    ssl_only: !!bool False
     pretrain_ssl : !!bool True
     kqv_non_linear: !!bool True
     channel_per: 0.3
@@ -272,15 +272,18 @@ fno: &FNO
 
 codano_finetune: &CODANO_FINETUNE
     <<: *CODANO_GNO
+    epochs: 20
     training_stage: 'fine_tune'
+    equation_dict: { "NS": 3 , "ES": 2}
     freeze_encoder : !!bool True
     pretrain_ssl : !!bool False
     lr: 0.01
     pretrain_weight: "../weights/codano_gno_full_ssl.pt"
+    NS_variable_encoder_path: "../weights/codano_test_variable_encoder__NS.pt"
 
 codano_finetune_test:
     <<: *CODANO_FINETUNE
-    pretrain_weight: "../weights/codano_gno_ssl.pt"
+    pretrain_weight: "../weights/codano_test_ssl.pt"
     mu_list: [10]
     dt: 2
     ntrain: 1

@@ -14,7 +14,14 @@ def missing_variable_testing(
         augmenter,
         normalizer,
         stage,
-        params):
+        params,
+        variable_encoder=None,
+        token_expander=None,
+        initial_mesh=None,):
+    """
+    This function is used to test the model on missing/maksed variable testing
+    Masking or dropping the variable is done by augmenter
+    """
     print('Evaluating for Stage: ', stage)
     with torch.no_grad():
         ntest = 0
@@ -22,7 +29,21 @@ def missing_variable_testing(
         loss_p = nn.MSELoss()
         for data in test_loader:
             x, y = data['x'], data['y']
+
+            static_features = data['static_features']
+            equation = [i[0] for i in data['equation']]
+            #print(x.shape, y.shape, static_features.shape, data['equation'])
             x, y = x.cuda(), y.cuda()
+
+            if augmenter is not None:
+                x, _ = batched_masker(x, augmenter)
+
+            #print(initial_mesh.shape, data['d_grid_x'].cuda()[0].shape, equation)
+
+            if variable_encoder is not None and token_expander is not None:
+                inp = token_expander(x, variable_encoder(initial_mesh +data['d_grid_x'].cuda()[0], equation), static_features.cuda())
+            else:
+                inp = x
 
             if params.grid_type == "non uniform":
                 '''
@@ -44,16 +65,9 @@ def missing_variable_testing(
                 out_grid_displacement = None
                 in_grid_displacement = None
 
-            # if normalizer is not None:
-            #     with torch.no_grad():
-            #         x, y = normalizer(x), normalizer(y)
-
-            if augmenter is not None:
-                x, _ = batched_masker(x, augmenter)
-
             batch_size = x.shape[0]
             #print(in_grid_displacement, out_grid_displacement)
-            out = model(x, out_grid_displacement=out_grid_displacement, in_grid_displacement=in_grid_displacement)
+            out = model(inp, out_grid_displacement=out_grid_displacement, in_grid_displacement=in_grid_displacement)
 
             if isinstance(out, (list, tuple)):
                 out = out[0]
