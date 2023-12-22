@@ -77,7 +77,7 @@ base_config: &BASE_CONFIG
     weight_path: '../weights/'
 
     # Weights and biases
-    wandb_log: True
+    wandb_log: False
     wandb_name: 'codano'
     wandb_group: 'neuraloperator'
     wandb_project: 'CoDA-NO'
@@ -92,7 +92,7 @@ codano_gno: &CODANO_GNO
     equation_dict: { "NS": 3} # , "ES": 2}
     ntest: None
     sample_per_inlet: 186 # set to 186 to make total data per mu 5000
-    input_mesh_location: "../Data/test_data/mesh.csv"
+    input_mesh_location: "/home/user/CoDA-NO/Data/test_data/mesh.csv"
     data_location: "../Data/NS_ES"
     dt: 2 #dt in markovian model
     mu_list: [1, 0.01]
