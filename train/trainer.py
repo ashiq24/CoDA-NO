@@ -225,6 +225,12 @@ def nonuniform_mesh_trainer(
     print("Test Error : ", test_l2)
 
 
+############
+# Followings are Training Routings for PDE bench dataset
+############
+
+
+
 def multi_physics_loss(
     ground_truth,
     prediction,

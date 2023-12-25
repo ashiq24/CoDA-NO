@@ -124,7 +124,7 @@ codano_gno: &CODANO_GNO
     scalings_pred:     [[1,1], [1,1]]
     
     masking_radius: 0.08
-    n_static_channels: 2
+    n_static_channels: 4
     in_token_codim_en: 1
     hidden_token_codim_en: 30
     lifting_token_codim_en: 40

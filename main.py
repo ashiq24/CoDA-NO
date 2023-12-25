@@ -42,6 +42,9 @@ if __name__ == "__main__":
     else:
         stage = StageEnum.PREDICTIVE
 
+    variable_encoder = None
+    token_expander = None
+
     if params.nettype == 'transformer':
         if params.grid_type == 'uniform':
             encoder, decoder, contrastive, predictor = get_ssl_models_codaNo(
@@ -50,22 +53,21 @@ if __name__ == "__main__":
             encoder, decoder, contrastive, predictor = get_ssl_models_codano_gino(
                 params)
 
-            variable_encoder = get_variable_encoder(params)
-            k = variable_encoder(torch.randn(1317, 2), equation=['NS'])
-            print(k.shape)
-            k = variable_encoder(torch.randn(1317, 2))
-            print(k.shape)
-            token_expander = TokenExpansion(sum([params.equation_dict[i] for i in params.equation_dict.keys()]), params.n_encoding_channels, params.n_static_channels)
-
-            variable_encoder.cuda()
-            token_expander.cuda()
+            if params.use_variable_encoding:
+                variable_encoder = get_variable_encoder(params)
+                k = variable_encoder(torch.randn(1317, 2), equation=['NS'])
+                print(k.shape)
+                k = variable_encoder(torch.randn(1317, 2))
+                print(k.shape)
+                token_expander = TokenExpansion(sum([params.equation_dict[i] for i in params.equation_dict.keys()]),\
+                     params.n_encoding_channels, params.n_static_channels)
+                variable_encoder.cuda()
+                token_expander.cuda()
 
         print("Parameters Encoder", count_parameters(encoder), "x10^6")
         print("Parameters Decoder", count_parameters(decoder), "x10^6")
         print("Parameters Perdictor", count_parameters(predictor), "x10^6")
             
-            
-
         model = SSLWrapper(
             params,
             encoder,
@@ -84,9 +86,7 @@ if __name__ == "__main__":
         model = get_model_fno(params)
         print("Parameters Model", count_parameters(model), "x10^6")
         mesh = None
-        variable_encoder = None
-        token_expander = None
-
+        
     model = model.cuda()
     # non-uniform dataset
     print(list(params.equation_dict.keys()))
@@ -105,8 +105,9 @@ if __name__ == "__main__":
     if params.training_stage == 'fine_tune':
         print(f"Loading Pretrained weights from {params.pretrain_weight}")
         model.load_state_dict(torch.load(params.pretrain_weight))
-        print(f"Loading Pretrained weights from {params.NS_variable_encoder_path}")
-        variable_encoder.load_encoder("NS", params.NS_variable_encoder_path)
+        if params.use_variable_encoding:
+            print(f"Loading Pretrained weights from {params.NS_variable_encoder_path}")
+            variable_encoder.load_encoder("NS", params.NS_variable_encoder_path)
 
     nonuniform_mesh_trainer(
         model,

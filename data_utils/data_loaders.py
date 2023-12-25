@@ -22,7 +22,7 @@ class IrregularMeshTensorDataset(TensorDataset):
         self.equation = equation
         self._creat_static_features()
     
-    def _creat_static_features(self,):
+    def _creat_static_features(self, d_grid=None):
         '''
         creating static channels for inlet and reynolds number 
         '''
@@ -33,9 +33,16 @@ class IrregularMeshTensorDataset(TensorDataset):
             n_variables = 3
         else:
             n_variables = self.x.shape[-1]
+        if d_grid is not None:
+            positional_enco = self.mesh + d_grid
+        else:
+            positional_enco = self.mesh
+
         raynolds = torch.ones(n_grid_points, 1)*self.mu
-        inlet = (self.i1*torch.sin(self.mesh[:,1]) + self.i2*torch.sin(2*self.mesh[:,1]) + self.i3*torch.sin(3*self.mesh[:,1]))[:,None]**2
-        self.static_features =  torch.cat([raynolds, inlet], dim=-1).repeat(1, n_variables)
+        inlet = (self.i1*torch.sin(positional_enco[:,1]) + self.i2*torch.sin(2*positional_enco[:,1])+\
+             self.i3*torch.sin(3*positional_enco[:,1]))[:,None]**2
+        
+        self.static_features =  torch.cat([raynolds, inlet, positional_enco], dim=-1).repeat(1, n_variables)
 
     def __getitem__(self, index):
         x = self.x[index]
@@ -43,6 +50,8 @@ class IrregularMeshTensorDataset(TensorDataset):
         
         d_grid_x = get_mesh_displacement(x)
         d_grid_y = get_mesh_displacement(y)
+
+        self._creat_static_features(d_grid_x)
 
         if self.transform_x is not None:
             x = self.transform_x(x)
@@ -55,7 +64,9 @@ class IrregularMeshTensorDataset(TensorDataset):
             x = x[:,:3]
             y = y[:,:3]
 
-        return {'x': x, 'y': y, 'd_grid_x': d_grid_x, 'd_grid_y': d_grid_y, 'static_features': self.static_features, 'equation': self.equation}
+        return {'x': x, 'y': y, 'd_grid_x': d_grid_x,\
+             'd_grid_y': d_grid_y, 'static_features': self.static_features,\
+             'equation': self.equation}
 
 
 class Normalizer():
