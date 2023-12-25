@@ -41,7 +41,7 @@ class GnoPremEq(nn.Module):
         assert postional_em_dim % 2 == 0
         n_dim = input_grid.shape[-1]
         self.radius = radius
-        self.n_neigbor = 10
+        self.n_neigbor = 5
         self.var_num = var_num
         self.in_dim = in_dim
         self.out_dim = out_dim

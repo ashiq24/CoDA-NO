@@ -16,7 +16,7 @@ base_config: &BASE_CONFIG
     channel_per_val: 0.2
     channel_drop_per_val: 1.0
     n_neigbor: 10
-    
+
     scheduler_type: 'step'
     batch_size: 4
     use_variable_encoding: !!bool True
@@ -170,7 +170,7 @@ codano_test: &CODANO_TEST
     <<: *CODANO_GNO
     epochs: 100
     mu_list: [1]
-    lr: 0.005
+    lr: 0.01
     weight_decay: 0.0000
     scheduler_step: 5
     gradient_clip_value: 0.01
@@ -189,16 +189,20 @@ codano_test: &CODANO_TEST
 fno_gno: &FNO_GNO
     <<: *CODANO_GNO
     nettype: 'simple'
-    
+
+    # data config
+    equation_dict: { "NS": 3}
+    n_variables: 3
+    in_dim: 3
+    out_dim: 3
+
     #architecture 
-    in_dim: 5
     hidden_dim: 64
     lifting_dim: 128
     projection_dim: 128
     n_modes:       [[180,30], [180,30],[180,30], [180,30]]
     scalings:      [[1,1],[1,1],[1,1], [1,1]]
     n_layers: 4
-    out_dim:  5
     grid_size: [251, 42]
     pretrain_ssl : !!bool False
     freeze_encoder : !!bool False
