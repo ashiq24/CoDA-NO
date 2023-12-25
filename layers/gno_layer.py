@@ -1,6 +1,7 @@
 from neuralop.layers.neighbor_search import NeighborSearch
 from neuralop.layers.integral_transform import IntegralTransform
 from neuralop.layers.mlp import MLPLinear
+from baseline_utlis import FixedNeighborSearch
 from einops import rearrange
 from neuralop.layers.embeddings import PositionalEmbedding
 import torch.nn as nn
@@ -20,6 +21,7 @@ class GnoPremEq(nn.Module):
         radius,
         var_encoding=False,
         var_encoding_channels=1,
+        n_layers=2,
         postional_em_dim=4,  # always even
     ):
         '''
@@ -39,15 +41,17 @@ class GnoPremEq(nn.Module):
         assert postional_em_dim % 2 == 0
         n_dim = input_grid.shape[-1]
         self.radius = radius
+        self.n_neigbor = 10
         self.var_num = var_num
         self.in_dim = in_dim
         self.out_dim = out_dim
         self.input_grid = input_grid
         self.output_grid = output_grid
-        self.mlp_layers = [2 * n_dim] + mlp_layers + [out_dim]
+        self.mlp_layers = [2 * n_dim + self.out_dim] + mlp_layers + [out_dim]
         self.var_encoding = var_encoding
         self.postional_em_dim = postional_em_dim
         self.var_encoding_channels = var_encoding_channels
+        self.n_layers = n_layers
 
         # get varibale encoding
         if self.var_encoding:
@@ -68,39 +72,56 @@ class GnoPremEq(nn.Module):
 
         # apply GNO to get  uniform grid
 
-        NS = NeighborSearch(use_open3d=False)
+        self.neighbour = None
+        self.neighbour_last = None
+        self.update_grid()
 
-        self.neighbour = NS(
-            input_grid.clone().cpu(),
-            output_grid.clone().cpu(),
-            radius=radius)
+       
 
-        for key, value in self.neighbour.items():
-            self.neighbour[key] = self.neighbour[key].cuda()
-
-        self.it = IntegralTransform(
-            mlp_layers=self.mlp_layers,
-            transform_type='linear',
-            mlp_non_linearity=F.gelu)
+        self.it = torch.nn.ModuleList()
+        for i in range(n_layers):
+            self.it.append(IntegralTransform(
+                mlp_layers=self.mlp_layers,
+                transform_type='nonlinear',
+                mlp_non_linearity=F.gelu))
 
     def update_grid(
         self,
         input_grid=None,
         output_grid=None
     ):
-        return
         if input_grid is None:
             input_grid = self.input_grid
         if output_grid is None:
             output_grid = self.output_grid
 
-        NS = NeighborSearch(use_open3d=False)
-
+        NS = FixedNeighborSearch(use_open3d=False)
         self.neighbour = NS(
-            input_grid.clone(),
-            output_grid.clone(),
-            radius=self.radius)
+            input_grid.clone().cpu(),
+            input_grid.clone().cpu(),
+            n_neigbor=self.n_neigbor )
 
+        for key, value in self.neighbour.items():
+            self.neighbour[key] = self.neighbour[key].cuda()
+
+        NS_last = FixedNeighborSearch(use_open3d=False)
+        self.neighbour_last = NS_last(
+            input_grid.clone().cpu(),
+            output_grid.clone().cpu(),
+            n_neigbor=self.n_neigbor)
+        
+        for key, value in self.neighbour_last.items():
+            self.neighbour_last[key] = self.neighbour_last[key].cuda()
+            
+    def _intergral_transform(self, x):
+        for i in range(self.n_layers):
+            if i == self.n_layers - 1:
+                x = self.it[i](self.input_grid, self.neighbour_last,
+                            self.output_grid, x)
+            else:
+                x = self.it[i](self.input_grid, self.neighbour,
+                            self.input_grid, x)
+        return x
     def forward(self, inp):
         '''
         inp : (batch_size, n_points, in_dims/Channels)
@@ -134,10 +155,8 @@ class GnoPremEq(nn.Module):
 
         for i in range(x.shape[-2]):
             # print(i)
-            # print(x[:,i,:].shape)
 
-            temp = self.it(self.input_grid, self.neighbour,
-                           self.output_grid, x[:, i, :])
+            temp = self._intergral_transform(x[:, i, :])
             if out is None:
                 out = temp[None, ...]
             else:

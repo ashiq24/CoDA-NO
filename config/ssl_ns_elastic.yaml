@@ -15,6 +15,7 @@ base_config: &BASE_CONFIG
     drop_pix_val: 0.4
     channel_per_val: 0.2
     channel_drop_per_val: 1.0
+    n_neigbor: 10
     
     scheduler_type: 'step'
     batch_size: 4
@@ -72,7 +73,7 @@ base_config: &BASE_CONFIG
     scheduler_gamma: 0.5
     epochs: 50
     clip_gradient: !!bool True
-    gradient_clip_value: 0.001
+    gradient_clip_value: 0.1
     ssl_only: !!bool False
     weight_path: '../weights/'
 
@@ -123,12 +124,12 @@ codano_gno: &CODANO_GNO
     scalings_dec:     [[1,1]]
     scalings_pred:     [[1,1], [1,1]]
     
-    masking_radius: 0.08
+    masking_radius: 0.05
     n_static_channels: 4
     in_token_codim_en: 1
-    hidden_token_codim_en: 30
-    lifting_token_codim_en: 40
-    lifting_token_codim_pred: 40
+    hidden_token_codim_en: 40
+    lifting_token_codim_en: 80
+    lifting_token_codim_pred: 80
     out_token_codim_pred:  1
     n_layers_en: 3
     n_heads_en:      [30,30,30]  
@@ -167,19 +168,19 @@ codano_gno_10:
 
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
-    epochs: 5
+    epochs: 100
     mu_list: [1]
-    lr: 0.01
+    lr: 0.005
     weight_decay: 0.0000
-    scheduler_step: 30
-    gradient_clip_value: 0.001
+    scheduler_step: 5
+    gradient_clip_value: 0.01
     scheduler_gamma: 0.8
-    channel_per_val: 0.5
+    channel_per_val: 0.5  # channel dropping percentage during validation
     ntrain: 1
-    radius: 0.08
+    radius: 0.05
     ntest: 1
     ssl_only: !!bool False
-    pretrain_ssl : !!bool True
+    pretrain_ssl : !!bool False
     kqv_non_linear: !!bool True
     channel_per: 0.3
     channel_drop_per: 0.5
@@ -221,9 +222,9 @@ fno_gno: &FNO_GNO
 
 fno_test: &FNO_TEST
     <<: *FNO_GNO
-    mu_list: [0.01]
+    mu_list: [1]
     channel_per_val: 0.5
-    epochs: 300
+    epochs: 100
     scheduler_type: 'rdp'
     ntrain: 1
     ntest: 5
@@ -249,9 +250,16 @@ fno_gno_combined:
 
 gnn_test:
     <<: *FNO_GNO
-    epochs: 300
-    nettype: 'gnn'
+    # data config
     mu_list: [1]
+    equation_dict: { "NS": 3}
+    n_variables: 3
+    in_dim: 3
+    out_dim: 3
+
+    epochs: 100
+    nettype: 'gnn'
+    
 
     
     n_neigbor: 10
@@ -259,8 +267,8 @@ gnn_test:
     hidden_dim: 128
     lifting_dim: 256
     projection_dim: 256
-    #ntrain: 3
-    #ntest: 5
+    ntrain: 1
+    ntest: 5
     dt: 2
 
 fno: &FNO

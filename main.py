@@ -85,7 +85,7 @@ if __name__ == "__main__":
     elif params.nettype in ['simple', 'gnn']:
         model = get_model_fno(params)
         print("Parameters Model", count_parameters(model), "x10^6")
-        mesh = None
+        input_mesh = None
         
     model = model.cuda()
     # non-uniform dataset
