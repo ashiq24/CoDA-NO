@@ -67,11 +67,11 @@ params.wandb_group = params.nettype
 if params.wandb_log:
     wandb.login(key=get_wandb_api_key())
     wandb.init(
-        config=params,
-        name=params.wandb_name,
-        group=params.wandb_group,
-        project=params.wandb_project,
-        entity=params.wandb_entity)
+        config=config,
+        name="codano",
+        group="neuraloperator",
+        project="CoDA-NO",
+        entity="robert18")
 
 if params.pretrain_ssl:
     stage = StageEnum.RECONSTRUCTIVE
