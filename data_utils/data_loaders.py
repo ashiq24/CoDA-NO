@@ -9,7 +9,7 @@ from torch.utils.data import ConcatDataset, random_split, DataLoader
 import itertools
 from neuralop.datasets.tensor_dataset import TensorDataset
 from data_utils import get_mesh_displacement
-
+from torch.utils.data.distributed import DistributedSampler
 
 class IrregularMeshTensorDataset(TensorDataset):
     def __init__(self, x, y, transform_x=None, transform_y=None, equation=None, i1=0,i2=0,i3=0, mu=0.1, mesh=None):
@@ -83,11 +83,11 @@ class Normalizer():
 
 
 class NsElasticDataset():
-    def __init__(self, location, equation, mesh_location='../Data/test_data/mesh.csv'):
+    def __init__(self, location, equation, mesh_location='/home/user/CoDA-NO/Data/test_data/mesh.csv'):
         self.location = location
-        self._ivals12 = [-0.5, 0, 1.0] # values related to inlet condition
-        self._ivals3 = [-0.1, 0, 0.05]
-        self._mu = [0.1, 0.01, 0.5, 1, 10] # Reynolds number
+        self._ivals12 = [1.0] # values related to inlet condition
+        self._ivals3 = [-0.1]
+        self._mu = [0.1] # Reynolds number
         self.equation = equation
 
         mesh = np.loadtxt(mesh_location, delimiter=',')
@@ -118,6 +118,8 @@ class NsElasticDataset():
         return readings_tensor
 
     def get_data(self, mu, i1, i2, i3):
+        i1 = 1.0
+        print("Loading data for mu=", mu, "i1=", i1, "i2=", i2, "i3=", i3)
         if mu not in self._mu:
             raise ValueError(f"Value of mu must be one of {self._mu}")
         if i1 not in self._ivals12 or i2 not in self._ivals12 or i3 not in self._ivals3:
@@ -179,6 +181,7 @@ class NsElasticDataset():
 
         train_dataloader = DataLoader(
             train_dataset, batch_size=batch_size, **data_loader_kwargs)
+        #, shuffle=False, sampler=DistributedSampler(test_dataset)
         test_dataloader = DataLoader(
             test_dataset, batch_size=batch_size, **data_loader_kwargs)
 

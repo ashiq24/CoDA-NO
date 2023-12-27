@@ -74,14 +74,14 @@ base_config: &BASE_CONFIG
     clip_gradient: !!bool True
     gradient_clip_value: 0.001
     ssl_only: !!bool False
-    weight_path: '../weights/'
+    weight_path: '/home/user/weights'
 
     # Weights and biases
     wandb_log: False
     wandb_name: 'codano'
     wandb_group: 'neuraloperator'
     wandb_project: 'CoDA-NO'
-    wandb_entity: 'ashiq24'
+    wandb_entity: 'robert18'
     wandb_log_test_interval: 1
 
 codano_gno: &CODANO_GNO
@@ -93,17 +93,26 @@ codano_gno: &CODANO_GNO
     ntest: None
     sample_per_inlet: 186 # set to 186 to make total data per mu 5000
     input_mesh_location: "/home/user/CoDA-NO/Data/test_data/mesh.csv"
-    data_location: "../Data/NS_ES"
+    data_location: "/home/user/CoDA-NO/Data/test_data/NS_ES"
     dt: 2 #dt in markovian model
-    mu_list: [1, 0.01]
+    mu_list: [0.1]
     radius: 0.15
     gno_mlp_layers: [10]
     grid_size: [251, 42]
     grid_type: 'non uniform'
     
+     # Dataset related
+    data:
+        batch_size: 8
+        n_train: 1000
+        train_resolution: 16
+        n_tests: [100, 50]
+        test_resolutions: [16, 32]
+        test_batch_sizes: [4, 2]
+        positional_encoding: True
     # training. hypers
     
-    epochs: 20
+    epochs: 1
     batch_size: 1
     lr: 0.01
     weight_decay: 0.0000
@@ -167,9 +176,24 @@ codano_gno_10:
 
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
-    epochs: 5
-    mu_list: [1]
+    epochs: 1
+    mu_list: [0.1]
     lr: 0.01
+    #Distributed computing
+    verbose: True
+    distributed:
+        use_distributed: True
+        wireup_info: 'mpi'
+        wireup_store: 'tcp'
+        model_parallel_size: 2
+        seed: 666
+    
+    # Patching
+    patching:
+        levels: 0
+        padding: 0
+        stitching: False
+        
     weight_decay: 0.0000
     scheduler_step: 30
     gradient_clip_value: 0.001
@@ -203,7 +227,7 @@ fno_gno: &FNO_GNO
     freeze_encoder : !!bool False
     
     # training hyper
-    
+
     lr: 0.001
     epochs: 20
     scheduler_type: 'rdp'
