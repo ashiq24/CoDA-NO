@@ -94,7 +94,7 @@ codano_gno: &CODANO_GNO
     ntest: None
     sample_per_inlet: 186 # set to 186 to make total data per mu 5000
     input_mesh_location: "../Data/test_data/mesh.csv"
-    data_location: "../Data/NS_ES"
+    data_location: "../Data/TF_cfd_results"
     dt: 2 #dt in markovian model
     mu_list: [1, 0.01]
     radius: 0.15
@@ -169,7 +169,7 @@ codano_gno_10:
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
     epochs: 100
-    mu_list: [1]
+    mu_list: [1.0]
     lr: 0.01
     weight_decay: 0.0000
     scheduler_step: 5

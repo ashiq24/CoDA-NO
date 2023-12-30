@@ -12,11 +12,11 @@ from data_utils import get_mesh_displacement
 
 
 class IrregularMeshTensorDataset(TensorDataset):
-    def __init__(self, x, y, transform_x=None, transform_y=None, equation=None, i1=0,i2=0,i3=0, mu=0.1, mesh=None):
+    def __init__(self, x, y, transform_x=None, transform_y=None, equation=None, x1=0,x2=0, mu=0.1, mesh=None):
         super().__init__(x, y, transform_x, transform_y)
-        self.i1 = i1
-        self.i2 = i2
-        self.i3 = i3
+        self.x1 = x1
+        self.x2 = x2
+
         self.mu = mu
         self.mesh = mesh
         self.equation = equation
@@ -39,8 +39,8 @@ class IrregularMeshTensorDataset(TensorDataset):
             positional_enco = self.mesh
 
         raynolds = torch.ones(n_grid_points, 1)*self.mu
-        inlet = (self.i1*torch.sin(positional_enco[:,1]) + self.i2*torch.sin(2*positional_enco[:,1])+\
-             self.i3*torch.sin(3*positional_enco[:,1]))[:,None]**2
+        inlet = ( (-self.x1/2+positional_enco[:,1]) * (-self.x2/2+positional_enco[:,1])\
+             )[:,None]**2
         
         self.static_features =  torch.cat([raynolds, inlet, positional_enco], dim=-1).repeat(1, n_variables)
 
@@ -96,11 +96,9 @@ class Normalizer():
 class NsElasticDataset():
     def __init__(self, location, equation, mesh_location='../Data/test_data/mesh.csv'):
         self.location = location
-        self._ivals12 = [-0.5, 0, 1.0] # values related to inlet condition
-        self._ivals3 = [-0.1, 0, 0.05]
         self._x1 = [-4.0, -2.0, 0.0, 2.0, 4.0, 6.0]
         self._x2 = [-4.0, -2.0, 0.0, 2.0, 4.0, 6.0]
-        self._mu = [0.1, 0.01, 0.5, 1, 10] # 
+        self._mu = [0.1, 0.01, 0.5, 1, 10] 
         self.equation = equation
 
         mesh = np.loadtxt(mesh_location, delimiter=',')
@@ -130,18 +128,17 @@ class NsElasticDataset():
         print(f"Loaded tensor Size: {readings_tensor.shape}")
         return readings_tensor
 
-    def get_data(self, mu, i1, i2, i3):
+    def get_data(self, mu, x1, x2):
         if mu not in self._mu:
             raise ValueError(f"Value of mu must be one of {self._mu}")
-        if i1 not in self._ivals12 or i2 not in self._ivals12 or i3 not in self._ivals3:
+        if x1 not in self._x1 or x2 not in self._x2:
             raise ValueError(
                 f"Value of is must be one of {self._ivals3} and {self._ivals12} ")
         path = os.path.join(
             self.location,
             'mu='+str(mu),
-            'i1='+str(i1),
-            'i2='+str(i2),
-            'i3='+str(i3),
+            'x1='+str(x1),
+            'x2='+str(x2),
             'Visualization')
 
         filename = os.path.join(path, 'displacement.h5')
@@ -197,50 +194,65 @@ class NsElasticDataset():
 
         return train_dataloader, test_dataloader
 
-    def get_tensor_dataset(self, mu, dt, normalize=True, train_test_split=0.2, sample_per_inlet=200):
+    def get_tensor_dataset(
+        self,
+        mu,
+        dt,
+        normalize=True,
+        min_max_normalize=False,
+        train_test_split=0.2,
+        sample_per_inlet=200,
+        x1_list=None,
+        x2_list=None):
+        if x1_list is None:
+            x1_list = self._x1
+        if x2_list is None:
+            x2_list = self._x2
+
         train_datasets = []
         test_datasets = []
-        for i1 in self._ivals12:
-            for i2 in self._ivals12:
-                for i3 in self._ivals3:
-                    velocities, pressure, displacements = self.get_data(
-                        mu, i1, i2, i3)
-                    # keeping vx,xy, P, dx,dy
-                    varable_idices = [0, 1, 3, 4, 5]
-                    combined = torch.cat(
-                        [velocities, pressure, displacements], dim=-1)[:sample_per_inlet, :, varable_idices]
+        for x1 in x1_list:
+            for x2 in x2_list:
+                velocities, pressure, displacements = self.get_data(
+                    mu, x1, x2)
+                # keeping vx,xy, P, dx,dy
+                varable_idices = [0, 1, 3, 4, 5]
+                combined = torch.cat(
+                    [velocities, pressure, displacements], dim=-1)[:sample_per_inlet, :, varable_idices]
 
-                    # print("sample data", combined[50,500,:])
-                    step_t0 = combined[:-dt, ...]
-                    step_t1 = combined[dt:, ...]
+                # print("sample data", combined[50,500,:])
+                step_t0 = combined[:-dt, ...]
+                step_t1 = combined[dt:, ...]
 
-                    indexs = [i for i in range(step_t0.shape[0])]
+                indexs = [i for i in range(step_t0.shape[0])]
 
-                    ntrain = int((1-train_test_split) * len(indexs))
-                    ntest = len(indexs) - ntrain
+                ntrain = int((1-train_test_split) * len(indexs))
+                ntest = len(indexs) - ntrain
 
-                    random.shuffle(indexs)
-                    train_t0, test_t0 = step_t0[indexs[:ntrain]
-                                                ], step_t0[indexs[ntrain:ntrain + ntest]]
-                    train_t1, test_t1 = step_t1[indexs[:ntrain]
-                                                ], step_t1[indexs[ntrain:ntrain + ntest]]
+                random.shuffle(indexs)
+                train_t0, test_t0 = step_t0[indexs[:ntrain]
+                                            ], step_t0[indexs[ntrain:ntrain + ntest]]
+                train_t1, test_t1 = step_t1[indexs[:ntrain]
+                                            ], step_t1[indexs[ntrain:ntrain + ntest]]
 
-                    if not normalize:
-                        normalizer = None
-                    else:
+                if not normalize:
+                    normalizer = None
+                else:
+                    if not min_max_normalize:
                         mean, var = torch.mean(train_t0, dim=(
                             0, 1)), torch.var(train_t0, dim=(0, 1))**0.5
-#                         mean= torch.min(train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]
-#                         var = torch.max(train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]\
-#                         - torch.min(train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]
+                    else:
+                        mean= torch.min(train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]
+                        var = torch.max(train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]\
+                        - torch.min(train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]
 
-                        normalizer = Normalizer(mean, var)
+                    normalizer = Normalizer(mean, var)
 
-                    train_datasets.append(
-                        IrregularMeshTensorDataset(train_t0, train_t1, normalizer, normalizer, i1=i1, i2=i2, i3=i3, mu=mu, equation=self.equation, mesh=self.input_mesh))
-                    test_datasets.append(
-                        IrregularMeshTensorDataset(test_t0, test_t1, normalizer, normalizer, i1=i1, i2=i2, i3=i3, mu=mu, equation=self.equation, mesh=self.input_mesh))
-        #####
+                train_datasets.append(
+                    IrregularMeshTensorDataset(train_t0, train_t1, normalizer, normalizer, x1=x1, x2=x2, mu=mu, equation=self.equation, mesh=self.input_mesh))
+                test_datasets.append(
+                    IrregularMeshTensorDataset(test_t0, test_t1, normalizer, normalizer, x1=x1, x2=x2, mu=mu, equation=self.equation, mesh=self.input_mesh))
+
         return ConcatDataset(train_datasets), ConcatDataset(test_datasets)
 
 
