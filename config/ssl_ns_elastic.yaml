@@ -176,8 +176,8 @@ codano_gno_10:
 
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
-    epochs: 1
-    mu_list: [0.1]
+    epochs: 10
+    mu_list: [0.1]                 
     lr: 0.01
     #Distributed computing
     verbose: True
