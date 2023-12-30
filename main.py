@@ -11,7 +11,7 @@ from models.codano import CodANO
 from layers.variable_encoding import *
 from models.get_models import *
 from train.trainer import nonuniform_mesh_trainer
-from utils import get_wandb_api_key, TokenExpansion
+from utils import *
 from models.model_helpers import count_parameters
 from test.evaluations import missing_variable_testing
 from torchsummary import summary
@@ -77,9 +77,8 @@ if __name__ == "__main__":
             stage=stage)
         if params.grid_type != 'uniform':
             print("Setting the Grid")
-            mesh = np.loadtxt(params.input_mesh_location, delimiter=',')
-            input_mesh = torch.transpose(torch.stack([torch.tensor(
-                mesh[0, :]), torch.tensor(mesh[1, :])]), 0, 1).type(torch.float).cuda()
+            mesh = get_mesh(params.input_mesh_location)
+            input_mesh = torch.from_numpy(mesh).type(torch.float).cuda()
             model.set_initial_mesh(input_mesh)
         
     elif params.nettype in ['simple', 'gnn']:
@@ -90,7 +89,10 @@ if __name__ == "__main__":
     model = model.cuda()
     # non-uniform dataset
     print(list(params.equation_dict.keys()))
-    dataset = NsElasticDataset(params.data_location, equation=list(params.equation_dict.keys()))
+    dataset = NsElasticDataset(
+        params.data_location,
+        equation=list(params.equation_dict.keys()),
+        mesh_location=params.input_mesh_location)
     # train, test = dataset.get_onestep_dataloader(location=params.data_location, dt=params.dt, ntrain=params.get('ntrain'),
     #                                              ntest=params.get('ntest'))
 

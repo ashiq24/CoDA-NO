@@ -2,7 +2,7 @@ import math
 import random
 import sys
 from typing import Optional, Tuple
-
+from utils import *
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -393,12 +393,11 @@ class MaskerNonuniformMesh(object):
 
 
 def get_meshes(input_mesh_location, grid_size):
-    mesh = np.loadtxt(input_mesh_location, delimiter=',')
-    input_mesh = torch.transpose(torch.stack([torch.tensor(
-        mesh[0, :]), torch.tensor(mesh[1, :])]), 0, 1).type(torch.float).cuda()
+    mesh = get_mesh(input_mesh_location)
+    input_mesh = torch.from_numpy(mesh).type(torch.float).cuda()
 
-    minx, maxx = np.min(mesh[0, :]), np.max(mesh[0, :])
-    miny, maxy = np.min(mesh[1, :]), np.max(mesh[1, :])
+    minx, maxx = np.min(mesh[:, 0]), np.max(mesh[:, 0])
+    miny, maxy = np.min(mesh[:, 1]), np.max(mesh[:, 1])
 
     size_x, size_y = grid_size
     idx_x = torch.arange(start=minx,

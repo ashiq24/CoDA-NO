@@ -5,7 +5,7 @@ from typing import Optional, Type, Union, Tuple, Dict, List
 import numpy as np
 import torch
 from torch import nn
-
+from utils import *
 from neuralop.layers.fno_block import FNOBlocks
 from neuralop.models import FNO
 
@@ -149,15 +149,11 @@ def get_ssl_models_codano_gino(params):
     # For SLL it has a reconstruction head and a dense contarstive head
 
     # read input grid and prepare uniform grid
-    mesh = np.loadtxt(params.input_mesh_location, delimiter=',')
-    input_mesh = torch.transpose(
-        torch.stack([torch.tensor(mesh[0, :]), torch.tensor(mesh[1, :])]),
-        dim0=0,
-        dim1=1,
-    ).type(torch.float).cuda()
+    mesh = get_mesh(params.input_mesh_location)
+    input_mesh = torch.from_numpy(mesh).type(torch.float).cuda()
 
-    minx, maxx = np.min(mesh[0, :]), np.max(mesh[0, :])
-    miny, maxy = np.min(mesh[1, :]), np.max(mesh[1, :])
+    minx, maxx = np.min(mesh[:, 0]), np.max(mesh[ :,0])
+    miny, maxy = np.min(mesh[:,1]), np.max(mesh[:, 1])
 
     size_x, size_y = params.grid_size
     idx_x = torch.arange(
@@ -299,15 +295,11 @@ def get_ssl_models_codano_gino(params):
 
 
 def get_model_fno(params):
-    mesh = np.loadtxt(params.input_mesh_location, delimiter=',')
-    input_mesh = torch.transpose(
-        torch.stack([torch.tensor(mesh[0, :]), torch.tensor(mesh[1, :])]),
-        dim0=0,
-        dim1=1,
-    ).type(torch.float).cuda()
+    mesh = get_mesh(params.input_mesh_location)
+    input_mesh = torch.from_numpy(mesh).type(torch.float).cuda()
 
-    minx, maxx = np.min(mesh[0, :]), np.max(mesh[0, :])
-    miny, maxy = np.min(mesh[1, :]), np.max(mesh[1, :])
+    minx, maxx = np.min(mesh[:, 0]), np.max(mesh[:, 0])
+    miny, maxy = np.min(mesh[:, 1]), np.max(mesh[:, 1])
 
     size_x, size_y = params.grid_size
     idx_x = torch.arange(start=minx,

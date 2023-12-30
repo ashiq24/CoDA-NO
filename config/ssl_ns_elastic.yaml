@@ -93,7 +93,7 @@ codano_gno: &CODANO_GNO
     equation_dict: { "NS": 3} # , "ES": 2}
     ntest: None
     sample_per_inlet: 186 # set to 186 to make total data per mu 5000
-    input_mesh_location: "../Data/test_data/mesh.csv"
+    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
     data_location: "../Data/TF_cfd_results"
     dt: 2 #dt in markovian model
     mu_list: [1, 0.01]
@@ -168,7 +168,7 @@ codano_gno_10:
 
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
-    epochs: 100
+    epochs: 5
     mu_list: [1.0]
     lr: 0.01
     weight_decay: 0.0000
@@ -180,7 +180,7 @@ codano_test: &CODANO_TEST
     radius: 0.05
     ntest: 1
     ssl_only: !!bool False
-    pretrain_ssl : !!bool False
+    pretrain_ssl : !!bool True
     kqv_non_linear: !!bool True
     channel_per: 0.3
     channel_drop_per: 0.5
@@ -226,9 +226,9 @@ fno_gno: &FNO_GNO
 
 fno_test: &FNO_TEST
     <<: *FNO_GNO
-    mu_list: [1]
+    mu_list: [1.0]
     channel_per_val: 0.5
-    epochs: 100
+    epochs: 10
     scheduler_type: 'rdp'
     ntrain: 1
     ntest: 5
@@ -255,7 +255,7 @@ fno_gno_combined:
 gnn_test:
     <<: *FNO_GNO
     # data config
-    mu_list: [1]
+    mu_list: [1.0]
     equation_dict: { "NS": 3}
     n_variables: 3
     in_dim: 3

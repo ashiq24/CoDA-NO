@@ -7,6 +7,7 @@ import numpy as np
 from torchvision.transforms import Normalize
 from torch.utils.data import ConcatDataset, random_split, DataLoader
 import itertools
+from utils import *
 from neuralop.datasets.tensor_dataset import TensorDataset
 from data_utils import get_mesh_displacement
 
@@ -94,19 +95,15 @@ class Normalizer():
 
 
 class NsElasticDataset():
-    def __init__(self, location, equation, mesh_location='../Data/test_data/mesh.csv'):
+    def __init__(self, location, equation, mesh_location):
         self.location = location
         self._x1 = [-4.0, -2.0, 0.0, 2.0, 4.0, 6.0]
-        self._x2 = [-4.0, -2.0, 0.0, 2.0, 4.0, 6.0]
+        self._x2 = [-4.0, -2.0, 0, 2.0, 4.0, 6.0]
         self._mu = [0.1, 0.01, 0.5, 1, 10] 
         self.equation = equation
 
-        mesh = np.loadtxt(mesh_location, delimiter=',')
-        self.input_mesh = torch.transpose(
-            torch.stack([torch.tensor(mesh[0, :]), torch.tensor(mesh[1, :])]),
-            dim0=0,
-            dim1=1,
-        ).type(torch.float)
+        mesh = get_mesh(mesh_location)
+        self.input_mesh = torch.from_numpy(mesh).type(torch.float)
 
         self.normalizer = Normalizer(None, None, persample=True)
 
@@ -213,8 +210,12 @@ class NsElasticDataset():
         test_datasets = []
         for x1 in x1_list:
             for x2 in x2_list:
-                velocities, pressure, displacements = self.get_data(
-                    mu, x1, x2)
+                try:
+                    velocities, pressure, displacements = self.get_data(
+                        mu, x1, x2)
+                except FileNotFoundError:
+                    print(f"File not found for mu={mu}, x1={x1}, x2={x2}")
+                    continue
                 # keeping vx,xy, P, dx,dy
                 varable_idices = [0, 1, 3, 4, 5]
                 combined = torch.cat(

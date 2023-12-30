@@ -1,6 +1,8 @@
 import os
 import torch
 import torch.nn as nn
+import h5py
+import numpy as np
 
 def get_wandb_api_key(api_key_file="config/wandb_api_key.txt"):
     try:
@@ -51,3 +53,9 @@ class TokenExpansion(nn.Module):
             x[:, :, self.encoding_channels] = variable_encodings.repeat(x.shape[0], 1, 1)
 
         return x
+
+def get_mesh(location):
+    """Get the mesh from a location."""
+    h5f = h5py.File(location, 'r')
+    mesh = h5f['mesh/coordinates']
+    return mesh[:]
