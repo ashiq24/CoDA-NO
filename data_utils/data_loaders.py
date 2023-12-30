@@ -98,7 +98,7 @@ class NsElasticDataset():
         self.location = location
         self._ivals12 = [-0.5]#, 0, 1.0] # values related to inlet condition
         self._ivals3 = [-0.1]#, 0, 0.05]
-        self._mu = [0.1, 0.01, 0.5, 1, 10] # Reynolds number
+        self._mu = [0.1, 0.01, 0.5, 1, 10] # 
         self.equation = equation
 
         mesh = np.loadtxt(mesh_location, delimiter=',')
