@@ -96,8 +96,10 @@ class Normalizer():
 class NsElasticDataset():
     def __init__(self, location, equation, mesh_location='../Data/test_data/mesh.csv'):
         self.location = location
-        self._ivals12 = [-0.5]#, 0, 1.0] # values related to inlet condition
-        self._ivals3 = [-0.1]#, 0, 0.05]
+        self._ivals12 = [-0.5, 0, 1.0] # values related to inlet condition
+        self._ivals3 = [-0.1, 0, 0.05]
+        self._x1 = [-4.0, -2.0, 0.0, 2.0, 4.0, 6.0]
+        self._x2 = [-4.0, -2.0, 0.0, 2.0, 4.0, 6.0]
         self._mu = [0.1, 0.01, 0.5, 1, 10] # 
         self.equation = equation
 
