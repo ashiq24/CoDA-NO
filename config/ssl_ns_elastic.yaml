@@ -1,5 +1,6 @@
 base_config: &BASE_CONFIG
     ## SSL parameters
+    random_seed: 42
     config: " "
     nettype: 'transformer'
     evaluation_channel_drop: 1
@@ -168,6 +169,11 @@ codano_gno_10:
 
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
+
+    equation_dict: { "NS": 3 , "ES": 2}
+    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../Data/TF_fsi2_results"
+
     epochs: 5
     mu_list: [1.0]
     lr: 0.01
@@ -292,11 +298,17 @@ codano_finetune: &CODANO_FINETUNE
     lr: 0.01
     pretrain_weight: "../weights/codano_gno_full_ssl.pt"
     NS_variable_encoder_path: "../weights/codano_test_variable_encoder__NS.pt"
+    ES_variable_encoder_path: "../weights/codano_test_variable_encoder__ES.pt"
 
 codano_finetune_test:
     <<: *CODANO_FINETUNE
+    epochs: 5
+    equation_dict: { "NS": 3 }
+    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
+    data_location: "../Data/TF_cfd_results"
+
     pretrain_weight: "../weights/codano_test_ssl.pt"
-    mu_list: [10]
+    mu_list: [10.0]
     dt: 2
     ntrain: 1
     ntest: 5

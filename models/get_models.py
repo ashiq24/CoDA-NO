@@ -510,7 +510,8 @@ class SSLWrapper(nn.Module):
         self.next_channels = None
 
     def set_initial_mesh(self, mesh):
-        self.register_buffer('initial_mesh', mesh)
+        #self.register_buffer('initial_mesh', mesh)
+        self.initial_mesh = mesh
 
     # NOTE: this should support both 3D and 2D models
     # only used for uniform grids

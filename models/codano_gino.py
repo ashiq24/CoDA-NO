@@ -235,7 +235,6 @@ class CondnoGino(nn.Module):
         '''
         inp = inp[0, :, :]
         inp = inp[None,...]
-        print(inp.shape)
         if self.re_grid_input:
             inp = self.input_regrider(inp)
         if self.lifting:

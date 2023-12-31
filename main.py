@@ -1,8 +1,10 @@
 from YParams import YParams
 import os
 import wandb
+import argparse
 import sys
 import torch
+import numpy as np
 from data_utils.data_loaders import *
 from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
@@ -15,15 +17,27 @@ from utils import *
 from models.model_helpers import count_parameters
 from test.evaluations import missing_variable_testing
 from torchsummary import summary
-
 import random
 
 if __name__ == "__main__":
-    torch.manual_seed(42)
-    random.seed(42)
-    config = sys.argv[1]
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", nargs="?", default="base_config", type=str)
+    parser.add_argument("--ntrain", nargs="?", default=None, type=int)
+    parsed_args = parser.parse_args()
+
+    config = parsed_args.config #sys.argv[1]
     print("Loading config", config)
     params = YParams('./config/ssl_ns_elastic.yaml', config, print_params=True)
+
+    if parsed_args.ntrain is not None:
+        params.ntrain = parsed_args.ntrain
+        print("Overriding ntrain to", params.ntrain)
+
+    torch.manual_seed(params.random_seed)
+    random.seed(params.random_seed)
+    np.random.seed(params.random_seed)
+
     params.config = config
     # Set up WandB logging
     params.wandb_name = config
@@ -106,10 +120,15 @@ if __name__ == "__main__":
     # train, test = get_dummy_dataloaders()
     if params.training_stage == 'fine_tune':
         print(f"Loading Pretrained weights from {params.pretrain_weight}")
-        model.load_state_dict(torch.load(params.pretrain_weight))
+        model.load_state_dict(torch.load(params.pretrain_weight), strict=False)
         if params.use_variable_encoding:
             print(f"Loading Pretrained weights from {params.NS_variable_encoder_path}")
-            variable_encoder.load_encoder("NS", params.NS_variable_encoder_path)
+            if "NS" in params.equation_dict.keys():
+                print("Loading NS variable encoder")
+                variable_encoder.load_encoder("NS", params.NS_variable_encoder_path)
+            if "ES" in params.equation_dict.keys() and params.ES_variable_encoder_path is not None:
+                print("Loading ES variable encoder")
+                variable_encoder.load_encoder("ES", params.ES_variable_encoder_path)
 
     nonuniform_mesh_trainer(
         model,
