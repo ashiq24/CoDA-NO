@@ -5,7 +5,11 @@
 
 config file: config/ssl_ns_elastic.yaml
 
-Updated the "input_mesh_location" and "data_location" in the config file and run the following command
+Update the wandb cradentials.
+
+Update the "input_mesh_location" and "data_location" in the config file and run the following command.
+
+
 ```
 python main.py --config "config name" --ntrain N
 ```
