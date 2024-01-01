@@ -98,7 +98,7 @@ codano_gno: &CODANO_GNO
     data_location: "../Data/TF_cfd_results"
     dt: 2 #dt in markovian model
     mu_list: [1, 0.01]
-    fixed_neighbour: !!bool True
+    fixed_neighbour: !!bool True # if true, it will use fixed neighbour for GNO i.e. uses a GNN layer
     radius: 0.15
     gno_mlp_layers: [10]
     grid_size: [251, 42]
