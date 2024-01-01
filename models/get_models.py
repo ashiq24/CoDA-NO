@@ -67,11 +67,11 @@ def get_ssl_models_codaNo(
     static_features = None
     n_static_channels = 0
 
-    if params.add_static_feature:
-        # Taking the static features from  which will be passed to the encoder
-        # to concatenated with each of the input variables.
-        static_features = None
-        n_static_channels = 0
+    # if params.add_static_feature:
+    #     # Taking the static features from  which will be passed to the encoder
+    #     # to concatenated with each of the input variables.
+    #     static_features = None
+    #     n_static_channels = 0
 
     logger.debug(
         f"per variable token dimension="
@@ -152,8 +152,8 @@ def get_ssl_models_codano_gino(params):
     mesh = get_mesh(params.input_mesh_location)
     input_mesh = torch.from_numpy(mesh).type(torch.float).cuda()
 
-    minx, maxx = np.min(mesh[:, 0]), np.max(mesh[ :,0])
-    miny, maxy = np.min(mesh[:,1]), np.max(mesh[:, 1])
+    minx, maxx = np.min(mesh[:, 0]), np.max(mesh[:, 0])
+    miny, maxy = np.min(mesh[:, 1]), np.max(mesh[:, 1])
 
     size_x, size_y = params.grid_size
     idx_x = torch.arange(
@@ -186,7 +186,8 @@ def get_ssl_models_codano_gino(params):
         int_op_top = int_op
         int_op_bottom = int_op
     elif params.tno_integral_op == 'fino':
-        int_op = partial(SpectralConvKernel2d, transform_type=params.transform_type)
+        int_op = partial(SpectralConvKernel2d,
+                         transform_type=params.transform_type)
         int_op_top = int_op
         int_op_bottom = int_op
     else:
@@ -196,8 +197,6 @@ def get_ssl_models_codano_gino(params):
     static_features = None
     static_channels_num = params.n_static_channels
 
-    
-
     print("Token Dim-->", 1 + params.n_encoding_channels + static_channels_num)
     expanded_token_dim = 1 + params.n_encoding_channels + static_channels_num
 
@@ -206,6 +205,8 @@ def get_ssl_models_codano_gino(params):
         input_grid=input_mesh,
         output_grid=output_mesh,
         radius=params.radius,
+        n_neigbor=params.n_neigbor,
+        fixed_neighbour=params.fixed_neighbour,
         gno_mlp_layers=params.gno_mlp_layers,
         grid_size=params.grid_size,
         hidden_token_codim=params.hidden_token_codim_en,
@@ -238,6 +239,8 @@ def get_ssl_models_codano_gino(params):
             input_grid=input_mesh,
             output_grid=output_mesh,
             radius=params.radius,
+            n_neigbor=params.n_neigbor,
+            fixed_neighbour=params.fixed_neighbour,
             grid_size=params.grid_size,
             gno_mlp_layers=params.gno_mlp_layers,
             hidden_token_codim=params.hidden_token_codim_en,
@@ -270,6 +273,8 @@ def get_ssl_models_codano_gino(params):
         input_grid=input_mesh,
         output_grid=output_mesh,
         radius=params.radius,
+        n_neigbor=params.n_neigbor,
+        fixed_neighbour=params.fixed_neighbour,
         grid_size=params.grid_size,
         gno_mlp_layers=params.gno_mlp_layers,
         hidden_token_codim=params.hidden_token_codim_en,
@@ -328,17 +333,19 @@ def get_model_fno(params):
         int_op_top = int_op
         int_op_bottom = int_op
     elif params.tno_integral_op == 'fino':
-        int_op = partial(SpectralConvKernel2d, transform_type=params.transform_type)
+        int_op = partial(SpectralConvKernel2d,
+                         transform_type=params.transform_type)
         int_op_top = int_op
         int_op_bottom = int_op
     else:
         raise (Exception('Int. Op. config Error'))
     print("Generating Encoder")
+    in_dim = params.in_dim + params.n_static_channels
     if params.grid_type == 'uniform':
         model = FNO(
             params.n_modes,
             params.hidden_dim,
-            in_channels=params.in_dim,
+            in_channels=in_dim,
             out_channels=params.out_dim,
             lifting_channels=params.lifting_dim,
             projection_channels=params.projection_dim,
@@ -349,7 +356,7 @@ def get_model_fno(params):
     else:
         if params.nettype == 'gnn':
             model = GNN(
-                params.in_dim,
+                in_dim,
                 params.out_dim,
                 input_grid=input_mesh,
                 output_grid=output_mesh,
@@ -364,7 +371,7 @@ def get_model_fno(params):
             )
         else:
             model = FnoGno(
-                params.in_dim,
+                in_dim,
                 params.out_dim,
                 input_grid=input_mesh,
                 output_grid=output_mesh,
@@ -431,14 +438,14 @@ class SSLWrapper(nn.Module):
 
         self.stage = stage
         self.freeze_encoder = params.freeze_encoder
-        self.masking = params.masking or True
+        self.masking = params.masking
         self.grid_type = params.grid_type
         # grid type is either uniform or non uniform
-        # uniform == PDE bench dataset 
-        # non uniform == NS Elastc dataset or archtectures with GNO layers 
+        # uniform == PDE bench dataset
+        # non uniform == NS Elastc dataset or archtectures with GNO layers
 
         if self.grid_type == 'uniform':  # TODO add a different option for this
-            
+
             equation_to_encoders = {eq: [] for eq in variables_per_equations}
             v = 0
             for eq, size in variables_per_equations.items():
@@ -510,7 +517,7 @@ class SSLWrapper(nn.Module):
         self.next_channels = None
 
     def set_initial_mesh(self, mesh):
-        #self.register_buffer('initial_mesh', mesh)
+        # self.register_buffer('initial_mesh', mesh)
         self.initial_mesh = mesh
 
     # NOTE: this should support both 3D and 2D models
@@ -619,7 +626,7 @@ class SSLWrapper(nn.Module):
             return self.forward_reconstructive(x_embedded, in_grid_displacement, out_grid_displacement)
 
         if self.stage == StageEnum.PREDICTIVE:
-            #print(in_grid_displacement, out_grid_displacement)
+            # print(in_grid_displacement, out_grid_displacement)
             return self.forward_predictive(x_embedded, in_grid_displacement, out_grid_displacement)
 
         raise ValueError(f'Expected stage to be one of {list(StageEnum)};\n'
@@ -725,7 +732,7 @@ class SSLWrapper(nn.Module):
         cls_offset = 1 if self.enable_cls_token else 0
 
         # discarding CLS token and additional static channels if added.
-        # channel dimention is different for uniform and non uniform grids 
+        # channel dimention is different for uniform and non uniform grids
         # i.e. channel first/last data format
 
         if self.grid_type == 'uniform':

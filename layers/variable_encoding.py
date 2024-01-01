@@ -89,13 +89,14 @@ class FourierVariableEncoding3D(nn.Module):
             norm="forward",  # don't multiply by any normalization factor
         ).real
 
+
 class VariableEncodingIrregularMesh(nn.Module):
     def __init__(
-        self,
-        n_variables: int,
-        variable_encoding_size:int,
-        n_dim: int = 2,
-        positional_encoding_dim: int= 8) -> None:
+            self,
+            n_variables: int,
+            variable_encoding_size: int,
+            n_dim: int = 2,
+            positional_encoding_dim: int = 8) -> None:
         super().__init__()
         self.n_variables = n_variables
         self.variable_encoding_size = variable_encoding_size
@@ -112,13 +113,14 @@ class VariableEncodingIrregularMesh(nn.Module):
         var_encoding = self.var_encoder(grid_pe)
         return var_encoding
 
+
 class VariableEncodingWrapper(nn.Module):
     def __init__(
-        self,
-        equation_dict: dict,
-        variable_encoding_size:int,
-        n_dim: int = 2,
-        positional_encoding_dim: int= 8) -> None:
+            self,
+            equation_dict: dict,
+            variable_encoding_size: int,
+            n_dim: int = 2,
+            positional_encoding_dim: int = 8) -> None:
         '''
         For each equation in the equation_dict, we create a VariableEncodingIrregularMesh
         dic is of form {"Equation": n_variables, ...}
@@ -135,12 +137,13 @@ class VariableEncodingWrapper(nn.Module):
                 n_dim=n_dim,
                 positional_encoding_dim=positional_encoding_dim
             )
-    def load_encoder(self, equation: str, path: str):      
+
+    def load_encoder(self, equation: str, path: str):
         self.model_dict[equation].load_state_dict(torch.load(path))
-    
+
     def save_encoder(self, equation: str, path: str):
         torch.save(self.model_dict[equation].state_dict(), path)
-    
+
     def save_all_encoder(self, path: str):
         for i in self.equation_dict.keys():
             torch.save(self.model_dict[i].state_dict(), path + f"_{i}"+".pt")
@@ -156,7 +159,7 @@ class VariableEncodingWrapper(nn.Module):
 
 def get_variable_encoder(params):
     varianle_encoder = VariableEncodingWrapper(params.equation_dict,
-                                                variable_encoding_size=params.n_encoding_channels,
-                                                n_dim=params.n_dim,
-                                                positional_encoding_dim=params.positional_encoding_dim)
+                                               variable_encoding_size=params.n_encoding_channels,
+                                               n_dim=params.n_dim,
+                                               positional_encoding_dim=params.positional_encoding_dim)
     return varianle_encoder

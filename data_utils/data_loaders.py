@@ -13,7 +13,7 @@ from data_utils import get_mesh_displacement
 
 
 class IrregularMeshTensorDataset(TensorDataset):
-    def __init__(self, x, y, transform_x=None, transform_y=None, equation=None, x1=0,x2=0, mu=0.1, mesh=None):
+    def __init__(self, x, y, transform_x=None, transform_y=None, equation=None, x1=0, x2=0, mu=0.1, mesh=None):
         super().__init__(x, y, transform_x, transform_y)
         self.x1 = x1
         self.x2 = x2
@@ -22,7 +22,7 @@ class IrregularMeshTensorDataset(TensorDataset):
         self.mesh = mesh
         self.equation = equation
         self._creat_static_features()
-    
+
     def _creat_static_features(self, d_grid=None):
         '''
         creating static channels for inlet and reynolds number 
@@ -40,15 +40,16 @@ class IrregularMeshTensorDataset(TensorDataset):
             positional_enco = self.mesh
 
         raynolds = torch.ones(n_grid_points, 1)*self.mu
-        inlet = ( (-self.x1/2+positional_enco[:,1]) * (-self.x2/2+positional_enco[:,1])\
-             )[:,None]**2
-        
-        self.static_features =  torch.cat([raynolds, inlet, positional_enco], dim=-1).repeat(1, n_variables)
+        inlet = ((-self.x1/2+positional_enco[:, 1]) * (-self.x2/2+positional_enco[:, 1])
+                 )[:, None]**2
+
+        self.static_features = torch.cat(
+            [raynolds, inlet, positional_enco], dim=-1).repeat(1, n_variables)
 
     def __getitem__(self, index):
         x = self.x[index]
         y = self.y[index]
-        
+
         d_grid_x = get_mesh_displacement(x)
         d_grid_y = get_mesh_displacement(y)
 
@@ -62,19 +63,19 @@ class IrregularMeshTensorDataset(TensorDataset):
 
         if len(self.equation) == 1:
             # Assumeing equaiion is NS
-            x = x[:,:3]
-            y = y[:,:3]
+            x = x[:, :3]
+            y = y[:, :3]
 
-        return {'x': x, 'y': y, 'd_grid_x': d_grid_x,\
-             'd_grid_y': d_grid_y, 'static_features': self.static_features,\
-             'equation': self.equation}
+        return {'x': x, 'y': y, 'd_grid_x': d_grid_x,
+                'd_grid_y': d_grid_y, 'static_features': self.static_features,
+                'equation': self.equation}
 
 
 class Normalizer():
     def __init__(self, mean, std, eps=1e-6, persample=False):
         print("Means: ", mean)
         print("stds ", std)
-        self.persample = persample # if true, instance norm type normalizer
+        self.persample = persample  # if true, instance norm type normalizer
         self.mean = mean
         self.std = std
         self.eps = eps
@@ -99,7 +100,7 @@ class NsElasticDataset():
         self.location = location
         self._x1 = [-4.0, -2.0, 0.0, 2.0, 4.0, 6.0]
         self._x2 = [-4.0, -2.0, 0, 2.0, 4.0, 6.0]
-        self._mu = [0.1, 0.01, 0.5, 1, 10] 
+        self._mu = [0.1, 0.01, 0.5, 1, 10]
         self.equation = equation
 
         mesh = get_mesh(mesh_location)
@@ -139,10 +140,10 @@ class NsElasticDataset():
             'Visualization')
 
         filename = os.path.join(path, 'displacement.h5')
-        #print(filename)
+        # print(filename)
         h5f = h5py.File(filename, 'r')
         displacements_tensor = self._readh5(h5f)
-        #print("Displacement Tensor", displacements_tensor.shape, np.max(displacements_tensor.numpy()), np.min(displacements_tensor.numpy()))
+        # print("Displacement Tensor", displacements_tensor.shape, np.max(displacements_tensor.numpy()), np.min(displacements_tensor.numpy()))
 
         filename = os.path.join(path, 'pressure.h5')
         h5f = h5py.File(filename, 'r')
@@ -176,7 +177,8 @@ class NsElasticDataset():
             test_datasets.append(test)
         train_dataset = ConcatDataset(train_datasets)
         test_dataset = ConcatDataset(test_datasets)
-
+        print("****Train dataset size***: ", len(train_dataset))
+        print("***Test dataset size***: ", len(test_dataset))
         if ntrain is not None:
             train_dataset = random_split(
                 train_dataset, [ntrain, len(train_dataset)-ntrain])[0]
@@ -192,15 +194,15 @@ class NsElasticDataset():
         return train_dataloader, test_dataloader
 
     def get_tensor_dataset(
-        self,
-        mu,
-        dt,
-        normalize=True,
-        min_max_normalize=False,
-        train_test_split=0.2,
-        sample_per_inlet=200,
-        x1_list=None,
-        x2_list=None):
+            self,
+            mu,
+            dt,
+            normalize=True,
+            min_max_normalize=False,
+            train_test_split=0.2,
+            sample_per_inlet=200,
+            x1_list=None,
+            x2_list=None):
         if x1_list is None:
             x1_list = self._x1
         if x2_list is None:
@@ -243,9 +245,11 @@ class NsElasticDataset():
                         mean, var = torch.mean(train_t0, dim=(
                             0, 1)), torch.var(train_t0, dim=(0, 1))**0.5
                     else:
-                        mean= torch.min(train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]
+                        mean = torch.min(
+                            train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]
                         var = torch.max(train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]\
-                        - torch.min(train_t0.view(-1, train_t0.shape[-1]), dim=0)[0]
+                            - torch.min(train_t0.view(-1,
+                                        train_t0.shape[-1]), dim=0)[0]
 
                     normalizer = Normalizer(mean, var)
 
@@ -257,9 +261,8 @@ class NsElasticDataset():
         return ConcatDataset(train_datasets), ConcatDataset(test_datasets)
 
 
-
 ####
-## Following is test codes 
+# Following is test codes
 ###
 
 class DatasetSimple():

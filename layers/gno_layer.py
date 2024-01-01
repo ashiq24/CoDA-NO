@@ -20,6 +20,8 @@ class GnoPremEq(nn.Module):
         projection_hidden_dim,
         radius,
         var_encoding=False,
+        n_neigbor=10,
+        fixed_neighbour=False,
         var_encoding_channels=1,
         n_layers=2,
         postional_em_dim=4,  # always even
@@ -41,7 +43,8 @@ class GnoPremEq(nn.Module):
         assert postional_em_dim % 2 == 0
         n_dim = input_grid.shape[-1]
         self.radius = radius
-        self.n_neigbor = 5
+        self.fixed_neighbour = fixed_neighbour
+        self.n_neigbor = n_neigbor
         self.var_num = var_num
         self.in_dim = in_dim
         self.out_dim = out_dim
@@ -76,8 +79,6 @@ class GnoPremEq(nn.Module):
         self.neighbour_last = None
         self.update_grid()
 
-       
-
         self.it = torch.nn.ModuleList()
         for i in range(n_layers):
             self.it.append(IntegralTransform(
@@ -95,11 +96,18 @@ class GnoPremEq(nn.Module):
         if output_grid is None:
             output_grid = self.output_grid
 
-        NS = FixedNeighborSearch(use_open3d=False)
-        self.neighbour = NS(
-            input_grid.clone().cpu(),
-            input_grid.clone().cpu(),
-            n_neigbor=self.n_neigbor )
+        if self.fixed_neighbour:
+            NS = FixedNeighborSearch(use_open3d=False)
+            self.neighbour = NS(
+                input_grid.clone().cpu(),
+                input_grid.clone().cpu(),
+                n_neigbor=self.n_neigbor)
+        else:
+            NS = NeighborSearch(use_open3d=False)
+            self.neighbour = NS(
+                input_grid.clone().cpu(),
+                input_grid.clone().cpu(),
+                radius=self.radius)
 
         for key, value in self.neighbour.items():
             self.neighbour[key] = self.neighbour[key].cuda()
@@ -109,19 +117,20 @@ class GnoPremEq(nn.Module):
             input_grid.clone().cpu(),
             output_grid.clone().cpu(),
             n_neigbor=self.n_neigbor)
-        
+
         for key, value in self.neighbour_last.items():
             self.neighbour_last[key] = self.neighbour_last[key].cuda()
-            
+
     def _intergral_transform(self, x):
         for i in range(self.n_layers):
             if i == self.n_layers - 1:
                 x = self.it[i](self.input_grid, self.neighbour_last,
-                            self.output_grid, x)
+                               self.output_grid, x)
             else:
                 x = self.it[i](self.input_grid, self.neighbour,
-                            self.input_grid, x)
+                               self.input_grid, x)
         return x
+
     def forward(self, inp):
         '''
         inp : (batch_size, n_points, in_dims/Channels)

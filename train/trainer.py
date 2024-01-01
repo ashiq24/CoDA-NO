@@ -32,7 +32,7 @@ def nonuniform_mesh_trainer(
     normalizer=None,
     variable_encoder=None,
     token_expander=None,
-    initial_mesh=None, 
+    initial_mesh=None,
 ):
 
     lr = params.lr
@@ -75,15 +75,17 @@ def nonuniform_mesh_trainer(
 
             static_features = data['static_features']
             equation = [i[0] for i in data['equation']]
-            #print(x.shape, y.shape, static_features.shape, data['equation'])
             x, y = x.cuda(), y.cuda()
-            #print(initial_mesh.shape, data['d_grid_x'].cuda()[0].shape, equation)
             if variable_encoder is not None and token_expander is not None:
-                inp = token_expander(x, variable_encoder(initial_mesh +data['d_grid_x'].cuda()[0], equation), static_features.cuda())
+                inp = token_expander(x, variable_encoder(
+                    initial_mesh + data['d_grid_x'].cuda()[0], equation), static_features.cuda())
+
+            elif params.n_static_channels > 0:
+                inp = torch.cat(
+                    [x, static_features[:, :, :params.n_static_channels].cuda()], dim=-1)
+                print(inp.shape, x.shape, static_features.shape)
             else:
                 inp = x
-            #print("Input Shape", x.shape, torch.mean(x, dim=(0,1)), torch.std(x, dim=(0,1)))
-            # print("output Shape", y.shape)
 
             batch_size = x.shape[0]
 
@@ -107,8 +109,6 @@ def nonuniform_mesh_trainer(
             else:
                 out_grid_displacement = None
                 in_grid_displacement = None
-
-            
 
             out = model(
                 inp,
@@ -163,7 +163,7 @@ def nonuniform_mesh_trainer(
     weight_path_model = weight_path + params.config + "_" + stage_string+'.pt'
     torch.save(model.state_dict(), weight_path_model)
     if variable_encoder is not None:
-        variable_path = weight_path + params.config + "_variable_encoder_" 
+        variable_path = weight_path + params.config + "_variable_encoder_"
         variable_encoder.save_all_encoder(variable_path)
 
     model.eval()
@@ -175,11 +175,12 @@ def nonuniform_mesh_trainer(
             x, y = data['x'], data['y']
             static_features = data['static_features']
             equation = [i[0] for i in data['equation']]
-            #print(x.shape, y.shape, static_features.shape, data['equation'])
+            # print(x.shape, y.shape, static_features.shape, data['equation'])
             x, y = x.cuda(), y.cuda()
-            #print(initial_mesh.shape, data['d_grid_x'].cuda()[0].shape, equation)
+            # print(initial_mesh.shape, data['d_grid_x'].cuda()[0].shape, equation)
             if variable_encoder is not None and token_expander is not None:
-                inp = token_expander(x, variable_encoder(initial_mesh +data['d_grid_x'].cuda()[0], equation), static_features.cuda())
+                inp = token_expander(x, variable_encoder(
+                    initial_mesh + data['d_grid_x'].cuda()[0], equation), static_features.cuda())
             else:
                 inp = x
 
@@ -228,7 +229,6 @@ def nonuniform_mesh_trainer(
 ############
 # Followings are Training Routings for PDE bench dataset
 ############
-
 
 
 def multi_physics_loss(

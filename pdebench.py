@@ -21,7 +21,8 @@ from YParams import YParams
 # SSL model
 # params = YParams('./config/ssl.yaml', 'codano_gino', print_params=True)
 # params = YParams('./config/test.yaml', 'codano_gino', print_params=True)
-params = YParams('./config/pdebench_overfit.yaml', 'codano_gino', print_params=False)
+params = YParams('./config/pdebench_overfit.yaml',
+                 'codano_gino', print_params=False)
 verbose = True
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout, force=True)

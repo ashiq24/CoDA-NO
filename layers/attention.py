@@ -333,7 +333,7 @@ class TnoBlock2d(TNOBlock):
         if self.proj is not None:
             attention = self.proj(attention)
 
-        attention = self.attention_normalizer(attention+xa) 
+        attention = self.attention_normalizer(attention+xa)
         attention = rearrange(
             attention, '(b t) d h w -> b (t d) h w', b=batch_size)
         # print("{attention.shape=}")
@@ -453,7 +453,7 @@ class TNOBlock3D(TNOBlock):
         if self.proj is not None:
             attention = self.proj(attention)
 
-        attention = self.attention_normalizer(attention + xa) 
+        attention = self.attention_normalizer(attention + xa)
         attention = rearrange(
             attention,
             '(b k) d t h w -> b (k d) t h w',

@@ -20,13 +20,13 @@ from torchsummary import summary
 import random
 
 if __name__ == "__main__":
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", nargs="?", default="base_config", type=str)
     parser.add_argument("--ntrain", nargs="?", default=None, type=int)
     parsed_args = parser.parse_args()
 
-    config = parsed_args.config #sys.argv[1]
+    config = parsed_args.config  # sys.argv[1]
     print("Loading config", config)
     params = YParams('./config/ssl_ns_elastic.yaml', config, print_params=True)
 
@@ -73,15 +73,15 @@ if __name__ == "__main__":
                 print(k.shape)
                 k = variable_encoder(torch.randn(1317, 2))
                 print(k.shape)
-                token_expander = TokenExpansion(sum([params.equation_dict[i] for i in params.equation_dict.keys()]),\
-                     params.n_encoding_channels, params.n_static_channels)
+                token_expander = TokenExpansion(sum([params.equation_dict[i] for i in params.equation_dict.keys()]),
+                                                params.n_encoding_channels, params.n_static_channels)
                 variable_encoder.cuda()
                 token_expander.cuda()
 
         print("Parameters Encoder", count_parameters(encoder), "x10^6")
         print("Parameters Decoder", count_parameters(decoder), "x10^6")
         print("Parameters Perdictor", count_parameters(predictor), "x10^6")
-            
+
         model = SSLWrapper(
             params,
             encoder,
@@ -94,12 +94,12 @@ if __name__ == "__main__":
             mesh = get_mesh(params.input_mesh_location)
             input_mesh = torch.from_numpy(mesh).type(torch.float).cuda()
             model.set_initial_mesh(input_mesh)
-        
+
     elif params.nettype in ['simple', 'gnn']:
         model = get_model_fno(params)
         print("Parameters Model", count_parameters(model), "x10^6")
         input_mesh = None
-        
+
     model = model.cuda()
     # non-uniform dataset
     print(list(params.equation_dict.keys()))
@@ -122,13 +122,16 @@ if __name__ == "__main__":
         print(f"Loading Pretrained weights from {params.pretrain_weight}")
         model.load_state_dict(torch.load(params.pretrain_weight), strict=False)
         if params.use_variable_encoding:
-            print(f"Loading Pretrained weights from {params.NS_variable_encoder_path}")
+            print(
+                f"Loading Pretrained weights from {params.NS_variable_encoder_path}")
             if "NS" in params.equation_dict.keys():
                 print("Loading NS variable encoder")
-                variable_encoder.load_encoder("NS", params.NS_variable_encoder_path)
+                variable_encoder.load_encoder(
+                    "NS", params.NS_variable_encoder_path)
             if "ES" in params.equation_dict.keys() and params.ES_variable_encoder_path is not None:
                 print("Loading ES variable encoder")
-                variable_encoder.load_encoder("ES", params.ES_variable_encoder_path)
+                variable_encoder.load_encoder(
+                    "ES", params.ES_variable_encoder_path)
 
     nonuniform_mesh_trainer(
         model,

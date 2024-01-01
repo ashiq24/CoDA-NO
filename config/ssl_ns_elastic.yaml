@@ -3,28 +3,28 @@ base_config: &BASE_CONFIG
     random_seed: 42
     config: " "
     nettype: 'transformer'
-    evaluation_channel_drop: 1
-    drop_type : 'zeros'
+    evaluation_channel_drop: 1 # number of varibales dropped for prediction task with partially observed data
+    drop_type : 'zeros' # dropped values are replaced by zeros
     grid_type: 'uniform'
-    max_block : 0.3
-    drop_pix: 0.4
-    channel_per: 0.5
-    channel_drop_per: 0.5
-
-    validation_aug: !!bool False
+    max_block : 0.3         #Block size for dropping pixels during data augmentation
+    drop_pix: 0.4           #percentage of pixels dropped during data augmentation
+    channel_per: 0.5        # percentage of channels affected by data augmentation
+    channel_drop_per: 0.5   # percentage of affected channels to be dropped completly
+    validation_aug: !!bool False 
     max_block_val : 0.3
     drop_pix_val: 0.4
     channel_per_val: 0.2
     channel_drop_per_val: 1.0
     n_neigbor: 10
 
-    scheduler_type: 'step'
+    scheduler_type: 'step' # lr scheduler type
     batch_size: 4
     use_variable_encoding: !!bool True
     n_variables: 5
-    masking: !!bool True
+    masking: !!bool True  # if true, it will perform data augmentation for SSL
     in_token_codim_en: 1
     kqv_non_linear: !!bool False
+
     hidden_token_codim_en: 6
     lifting_token_codim_en: 12
     lifting_token_codim_pred: 12
@@ -57,7 +57,7 @@ base_config: &BASE_CONFIG
     reconstruction: !!bool True
     enable_cls_token: !!bool True
 
-    add_static_feature: !!bool False
+    # add_static_feature: !!bool False
 
     pretrain_ssl : !!bool True #if true we pretrain the model by SSL
 
@@ -66,8 +66,8 @@ base_config: &BASE_CONFIG
     # which is trained by SSL
 
     ## training Hyeper parameters
-    training_stage: 'regular'
-    freeze_encoder : !!bool False
+    training_stage: 'regular'  # can be regular or fine_tune
+    freeze_encoder : !!bool False # if true, it will freeze the encoder during SL
     lr: 0.03
     weight_decay: 0.0000
     scheduler_step: 50
@@ -75,7 +75,7 @@ base_config: &BASE_CONFIG
     epochs: 50
     clip_gradient: !!bool True
     gradient_clip_value: 0.1
-    ssl_only: !!bool False
+    ssl_only: !!bool False  # if true, it will only train the model by SSL and will not be followed by SL
     weight_path: '../weights/'
 
     # Weights and biases
@@ -91,20 +91,20 @@ codano_gno: &CODANO_GNO
     # dataset hyper 
     ntrain: None
     n_dim: 2
-    equation_dict: { "NS": 3} # , "ES": 2}
+    equation_dict: { "NS": 3}
     ntest: None
-    sample_per_inlet: 186 # set to 186 to make total data per mu 5000
+    sample_per_inlet: 500
     input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
     data_location: "../Data/TF_cfd_results"
     dt: 2 #dt in markovian model
     mu_list: [1, 0.01]
+    fixed_neighbour: !!bool True
     radius: 0.15
     gno_mlp_layers: [10]
     grid_size: [251, 42]
     grid_type: 'non uniform'
     
     # training. hypers
-    
     epochs: 20
     batch_size: 1
     lr: 0.01
@@ -114,13 +114,11 @@ codano_gno: &CODANO_GNO
     scheduler_gamma: 0.8
     gradient_clip_value: 0.001
     
-    
+    enable_cls_token: !!bool True
     n_encoding_channels: 8
     n_modes_en:       [[251, 42], [251, 42], [251, 42]]
     n_modes_dec:       [[251, 42]]
     n_modes_pred:       [[251, 42], [251, 42]]
-    
-    
     scalings_en:     [[1,1], [1,1], [1,1]]
     scalings_dec:     [[1,1]]
     scalings_pred:     [[1,1], [1,1]]
@@ -140,40 +138,42 @@ codano_gno: &CODANO_GNO
     n_heads_pred:    [30,30]
     
     pretrain_ssl : !!bool True
-    freeze_encoder : !!bool True
+    freeze_encoder : !!bool False
+    ssl_only: !!bool True
     positional_encoding_dim: 4
+    
 
 codano_non_lin: &CODANO_NON_LIN
     <<: *CODANO_GNO
     kqv_non_linear: !!bool True
-
-codano_gno_full:
+codano_gno_NS_ES: &CODANO_GNO_NS_ES
     <<: *CODANO_GNO
-    ssl_only: !!bool True
-    mu_list : [1, 0.1,0.01]
-codano_gno_.01:
-    <<: *CODANO_GNO
-    mu_list : [0.01]
-codano_gno_.1:
-    <<: *CODANO_GNO
-    mu_list : [0.1]
-codano_gno_.5:
-    <<: *CODANO_GNO
-    mu_list : [0.5]
-codano_gno_1:
-    <<: *CODANO_GNO
-    mu_list : [1]
-codano_gno_10:
-    <<: *CODANO_GNO
-    mu_list : [10]  
-
-codano_test: &CODANO_TEST
-    <<: *CODANO_GNO
-
     equation_dict: { "NS": 3 , "ES": 2}
     input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
     data_location: "../Data/TF_fsi2_results"
+    mu_list: [1.0, 10.0]
+    dt: 2
+    radius: 0.05
+    
 
+
+codano_gno_NS: &CODANO_GNO_NS
+    <<: *CODANO_GNO
+    equation_dict: { "NS": 3 }
+    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
+    data_location: "../Data/TF_cfd_results"
+    mu_list: [1.0, 10.0]
+    dt: 2
+    radius: 0.05
+    ntrain: 1
+    ntest: 1
+
+
+codano_test: &CODANO_TEST
+    <<: *CODANO_GNO
+    equation_dict: { "NS": 3 , "ES": 2}
+    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../Data/TF_fsi2_results"
     epochs: 5
     mu_list: [1.0]
     lr: 0.01
@@ -195,13 +195,11 @@ codano_test: &CODANO_TEST
 fno_gno: &FNO_GNO
     <<: *CODANO_GNO
     nettype: 'simple'
-
     # data config
     equation_dict: { "NS": 3}
     n_variables: 3
     in_dim: 3
     out_dim: 3
-
     #architecture 
     hidden_dim: 64
     lifting_dim: 128
@@ -214,9 +212,8 @@ fno_gno: &FNO_GNO
     freeze_encoder : !!bool False
     
     # training hyper
-    
     lr: 0.001
-    epochs: 20
+    epochs: 50
     scheduler_type: 'rdp'
     weight_decay: 0.0000
     scheduler_step: 3
@@ -224,11 +221,53 @@ fno_gno: &FNO_GNO
     clip_gradient: !!bool True
     gradient_clip_value: 1.0
     
-    
-    
     # does not supporting turning on
     n_encoding_channels: 0
     enable_cls_token: !!bool False
+
+    ntest: 100
+
+
+fno_NSES_.5: &FNO_NSES_.5
+    <<: *FNO_GNO
+    equation_dict: { "NS": 3 , "ES": 2}
+    n_variables: 5
+    in_dim: 5
+    out_dim: 5
+
+    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../Data/TF_fsi2_results"
+    mu_list: [0.5]
+
+
+
+    
+fno_NSES_1: &FNO_NSES_1
+    <<: *FNO_NSES_.5
+    mu_list: [1.0]
+fno_NSES_5: &FNO_NSES_5
+    <<: *FNO_NSES_.5
+    mu_list: [5]
+fno_NSES_10: &FNO_NSES_10
+    <<: *FNO_NSES_.5
+    mu_list: [10.0]
+
+fno_NS_1: &FNO_NS_1 
+    <<: *FNO_GNO
+    equation_dict: { "NS": 3}
+    n_variables: 3
+    in_dim: 3
+    out_dim: 3
+    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
+    data_location: "../Data/TF_cfd_results"
+    mu_list: [1.0]
+fno_NS_5: &FNO_NS_5
+    <<: *FNO_NS_1
+    mu_list: [5]
+fno_NS_10: &FNO_NS_10
+    <<: *FNO_NS_1
+    mu_list: [10.0]
+
 
 fno_test: &FNO_TEST
     <<: *FNO_GNO
@@ -239,26 +278,7 @@ fno_test: &FNO_TEST
     ntrain: 1
     ntest: 5
 
-fno_gno_.01: 
-    <<: *FNO_GNO
-    mu_list: [0.01]
-fno_gno_.1: 
-    <<: *FNO_GNO
-    mu_list: [0.1]
-fno_gno_.5: 
-    <<: *FNO_GNO
-    mu_list: [0.5]
-fno_gno_1: 
-    <<: *FNO_GNO
-    mu_list: [1]
-fno_gno_10: 
-    <<: *FNO_GNO
-    mu_list: [10]
-fno_gno_combined: 
-    <<: *FNO_GNO
-    mu_list: [0.01,0.1,1]
-
-gnn_test:
+gnn: &GNN
     <<: *FNO_GNO
     # data config
     mu_list: [1.0]
@@ -266,20 +286,56 @@ gnn_test:
     n_variables: 3
     in_dim: 3
     out_dim: 3
-
-    epochs: 100
+    epochs: 50
     nettype: 'gnn'
-    
-
     
     n_neigbor: 10
     gno_mlp_layers: [200, 200]
     hidden_dim: 128
     lifting_dim: 256
     projection_dim: 256
+    dt: 2
+
+gnn_NSES_.5: &GNN_NSES_.5
+    <<: *GNN
+    equation_dict: { "NS": 3 , "ES": 2}
+    n_variables: 5
+    in_dim: 5
+    out_dim: 5
+
+    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../Data/TF_fsi2_results"
+    mu_list: [0.5]
+    
+gnn_NSES_1: &gnn_NSES_1
+    <<: *GNN_NSES_.5
+    mu_list: [1.0]
+gnn_NSES_5: &GNN_NSES_5
+    <<: *GNN_NSES_.5
+    mu_list: [5]
+gnn_NSES_10: &GNN_NSES_10
+    <<: *GNN_NSES_.5
+    mu_list: [10.0]
+
+gnn_NS_1: &GNN_NS_1 
+    <<: *GNN
+    equation_dict: { "NS": 3}
+    n_variables: 3
+    in_dim: 3
+    out_dim: 3
+    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
+    data_location: "../Data/TF_cfd_results"
+    mu_list: [1.0]
+gnn_NS_5: &GNN_NS_5
+    <<: *GNN_NS_1
+    mu_list: [5]
+gnn_NS_10: &GNN_NS_10
+    <<: *GNN_NS_1
+    mu_list: [10.0]
+gnn_test: 
+    <<: *GNN
     ntrain: 1
     ntest: 5
-    dt: 2
 
 fno: &FNO
     <<: *FNO_GNO
@@ -290,15 +346,65 @@ fno: &FNO
 
 codano_finetune: &CODANO_FINETUNE
     <<: *CODANO_GNO
-    epochs: 20
+    epochs: 30
     training_stage: 'fine_tune'
-    equation_dict: { "NS": 3 , "ES": 2}
     freeze_encoder : !!bool True
     pretrain_ssl : !!bool False
     lr: 0.01
-    pretrain_weight: "../weights/codano_gno_full_ssl.pt"
-    NS_variable_encoder_path: "../weights/codano_test_variable_encoder__NS.pt"
-    ES_variable_encoder_path: "../weights/codano_test_variable_encoder__ES.pt"
+    
+    
+
+### finetuning confing naming convention
+# ft_{ssl dataset}_{sl dataset}_{mu}
+
+ft_NSES_NSES_.5: &FT_NSES_NSES_.5
+    <<: *CODANO_FINETUNE
+
+    equation_dict: { "NS": 3 , "ES": 2}
+    pretrain_weight: "../weights/codano_gno_NS_ES_ssl.pt"
+    NS_variable_encoder_path: "../weights/codano_gno_NS_ES_variable_encoder__NS.pt"
+    ES_variable_encoder_path: "../weights/codano_gno_NS_ES_variable_encoder__ES.pt"
+
+    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../Data/TF_fsi2_results"
+
+    mu_list: [0.5]
+   
+ft_NSES_NSES_1: &FINETUNE_NSES_1
+    <<: *FT_NSES_NSES_.5
+    mu_list: [1.0]
+ft_NSES_NSES_5: &FINETUNE_NSES_5
+    <<: *FT_NSES_NSES_.5
+    mu_list: [5]
+ft_NSES_NSES_10: &FINETUNE_NSES_10
+    <<: *FT_NSES_NSES_.5
+    mu_list: [10.0]
+
+
+ft_NS_NSES_.5: &FT_NS_NSES_.5
+    <<: *CODANO_FINETUNE
+
+    equation_dict: { "NS": 3 , "ES": 2}
+    pretrain_weight: "../weights/codano_gno_NS_ssl.pt"
+    NS_variable_encoder_path: "../weights/codano_gno_NS_variable_encoder__NS.pt"
+    ES_variable_encoder_path: None
+
+    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../Data/TF_fsi2_results"
+
+    mu_list: [0.5]
+   
+   
+ft_NS_NSES_1: &FINETUNE_NS_1
+    <<: *FT_NS_NSES_.5
+    mu_list: [1.0]
+ft_NS_NSES_5: &FINETUNE_NS_5
+    <<: *FT_NS_NSES_.5
+    mu_list: [5]
+ft_NS_NSES_10: &FINETUNE_NS_10
+    <<: *FT_NS_NSES_.5
+    mu_list: [10.0]
+
 
 codano_finetune_test:
     <<: *CODANO_FINETUNE
@@ -306,33 +412,8 @@ codano_finetune_test:
     equation_dict: { "NS": 3 }
     input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
     data_location: "../Data/TF_cfd_results"
-
     pretrain_weight: "../weights/codano_test_ssl.pt"
     mu_list: [10.0]
     dt: 2
     ntrain: 1
     ntest: 5
-
-codano_finetune_.01:
-    <<: *CODANO_FINETUNE
-    mu_list : [0.01]
-codano_finetune_.1:
-    <<: *CODANO_FINETUNE
-    mu_list : [0.1]
-codano_finetune_.5:
-    <<: *CODANO_FINETUNE
-    mu_list : [0.5]
-codano_finetune_1:
-    <<: *CODANO_FINETUNE
-    mu_list : [1]
-codano_finetune_.10:
-    <<: *CODANO_FINETUNE
-    mu_list : [10] 
-
-
-    
-
-
-
-    
-    

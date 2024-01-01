@@ -20,6 +20,8 @@ class CondnoGino(nn.Module):
                  output_grid=None,
                  grid_size=None,
                  radius=None,
+                 n_neigbor=10,
+                 fixed_neighbour=False,
                  out_token_codim=None,
                  hidden_token_codim=None,
                  lifting_token_codim=None,
@@ -113,7 +115,10 @@ class CondnoGino(nn.Module):
         self.operator_block = operator_block
         self.lifting = lifting
         self.projection = projection
+
         self.radius = radius
+        self.n_neigbor = n_neigbor
+        self.fixed_neighbour = fixed_neighbour
         self.gno_mlp_layers = gno_mlp_layers
         self.per_channel_attention = per_channel_attention
 
@@ -158,6 +163,8 @@ class CondnoGino(nn.Module):
                 projection_hidden_dim=lifting_token_codim,
                 mlp_layers=self.gno_mlp_layers,
                 radius=self.radius,
+                n_neigbor=n_neigbor,
+                fixed_neighbour=fixed_neighbour,
                 var_encoding=var_encoding,
                 var_encoding_channels=var_enco_channels)
 
@@ -205,6 +212,8 @@ class CondnoGino(nn.Module):
                 output_grid=self.input_grid,
                 mlp_layers=self.gno_mlp_layers,
                 radius=self.radius,
+                n_neigbor=n_neigbor,
+                fixed_neighbour=fixed_neighbour,
                 var_encoding=False,
                 projection_hidden_dim=lifting_token_codim,
                 var_encoding_channels=0)
@@ -234,7 +243,7 @@ class CondnoGino(nn.Module):
         currenly only batch_size = 1
         '''
         inp = inp[0, :, :]
-        inp = inp[None,...]
+        inp = inp[None, ...]
         if self.re_grid_input:
             inp = self.input_regrider(inp)
         if self.lifting:

@@ -4,6 +4,7 @@ import torch.nn as nn
 import h5py
 import numpy as np
 
+
 def get_wandb_api_key(api_key_file="config/wandb_api_key.txt"):
     try:
         return os.environ["WANDB_API_KEY"]
@@ -11,6 +12,7 @@ def get_wandb_api_key(api_key_file="config/wandb_api_key.txt"):
         with open(api_key_file, "r") as f:
             key = f.read()
         return key.strip()
+
 
 class TokenExpansion(nn.Module):
     def __init__(self, n_variables: int, n_encoding_channels, n_static_channels: int) -> None:
@@ -35,7 +37,7 @@ class TokenExpansion(nn.Module):
                 - set(self.variable_channels)
                 - set(self.static_channels)
             ))
-        
+
         print(self.variable_channels)
         print(self.static_channels)
         print(self.encoding_channels)
@@ -45,14 +47,17 @@ class TokenExpansion(nn.Module):
         x: (batch_size, n_variables)
         """
         x = torch.zeros((inp.shape[0], inp.shape[1], len(
-                self.variable_channels) + len(self.encoding_channels) + len(self.static_channels)), device=inp.device, dtype=inp.dtype)
+            self.variable_channels) + len(self.encoding_channels) + len(self.static_channels)), device=inp.device, dtype=inp.dtype)
         x[:, :, self.variable_channels] = inp
         if self.n_static_channels != 0:
-            x[:, :, self.static_channels] = static_channels.repeat(x.shape[0], 1, 1)
+            x[:, :, self.static_channels] = static_channels.repeat(
+                x.shape[0], 1, 1)
         if self.n_encoding_channels != 0:
-            x[:, :, self.encoding_channels] = variable_encodings.repeat(x.shape[0], 1, 1)
+            x[:, :, self.encoding_channels] = variable_encodings.repeat(
+                x.shape[0], 1, 1)
 
         return x
+
 
 def get_mesh(location):
     """Get the mesh from a location."""

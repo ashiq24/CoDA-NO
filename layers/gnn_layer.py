@@ -49,7 +49,8 @@ class GnnLayer(nn.Module):
         for key, value in self.neighbour.items():
             self.neighbour[key] = self.neighbour[key].cuda()
 
-        self.it = IntegralTransform(mlp_layers=self.mlp_layers, transform_type='nonlinear')
+        self.it = IntegralTransform(
+            mlp_layers=self.mlp_layers, transform_type='nonlinear')
 
     def update_grid(
         self,
@@ -88,7 +89,7 @@ class GnnLayer(nn.Module):
                       self.output_grid, x)
         # print("out shape", out.shape)
 
-        if out.shape==x.shape:
+        if out.shape == x.shape:
             out = out + x
-            
+
         return out
