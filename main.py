@@ -10,6 +10,8 @@ from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
 from data_utils.data_utils import MaskerNonuniformMesh, batched_masker, MaskerUniform, get_meshes
 from models.codano import CodANO
+from configmypy import ConfigPipeline, YamlConfig, ArgparseConfig
+
 from layers.variable_encoding import *
 from models.get_models import *
 from train.trainer import nonuniform_mesh_trainer
@@ -17,6 +19,15 @@ from utils import *
 from models.model_helpers import count_parameters
 from test.evaluations import missing_variable_testing
 from torchsummary import summary
+from torch.nn.parallel import DistributedDataParallel as DDP
+import torch.multiprocessing as mp
+from torch.utils.data.distributed import DistributedSampler
+from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.distributed import init_process_group, destroy_process_group
+import os
+from neuralop.training import setup
+import neuralop.mpu.comm as comm
+
 import random
 
 if __name__ == "__main__":
@@ -51,10 +62,10 @@ if __name__ == "__main__":
             project=params.wandb_project,
             entity=params.wandb_entity)
 
-    if params.pretrain_ssl:
-        stage = StageEnum.RECONSTRUCTIVE
-    else:
-        stage = StageEnum.PREDICTIVE
+if params.pretrain_ssl:
+    stage = StageEnum.RECONSTRUCTIVE
+else:
+    stage = StageEnum.PREDICTIVE
 
     variable_encoder = None
     token_expander = None
@@ -110,11 +121,11 @@ if __name__ == "__main__":
     # train, test = dataset.get_onestep_dataloader(location=params.data_location, dt=params.dt, ntrain=params.get('ntrain'),
     #                                              ntest=params.get('ntest'))
 
-    train, test = dataset.get_dataloader(params.mu_list, params.dt, ntrain=params.get(
-        'ntrain'), ntest=params.get('ntest'), sample_per_inlet=params.sample_per_inlet)
+train, test = dataset.get_dataloader(params.mu_list, params.dt, ntrain=params.get(
+    'ntrain'), ntest=params.get('ntest'), sample_per_inlet=params.sample_per_inlet)
 
-    normalizer = dataset.normalizer
-    normalizer.cuda()
+normalizer = dataset.normalizer
+normalizer.cuda()
 
     # uniform dataset dummy
     # train, test = get_dummy_dataloaders()
@@ -133,6 +144,22 @@ if __name__ == "__main__":
                 variable_encoder.load_encoder(
                     "ES", params.ES_variable_encoder_path)
 
+nonuniform_mesh_trainer(
+    model,
+    train,
+    test,
+    params,
+    wandb_log=params.wandb_log,
+    log_test_interval=params.wandb_log_test_interval,
+    normalizer=normalizer,
+    stage=stage,
+    variable_encoder=variable_encoder,
+    token_expander=token_expander,
+    initial_mesh=input_mesh)
+
+if params.pretrain_ssl and not params.ssl_only:
+    # if we were pre-training (ssl), then we will train (sl)
+    model.stage = StageEnum.PREDICTIVE
     nonuniform_mesh_trainer(
         model,
         train,
@@ -141,50 +168,42 @@ if __name__ == "__main__":
         wandb_log=params.wandb_log,
         log_test_interval=params.wandb_log_test_interval,
         normalizer=normalizer,
-        stage=stage,
+        stage=model.stage,
         variable_encoder=variable_encoder,
         token_expander=token_expander,
         initial_mesh=input_mesh)
 
-    if params.pretrain_ssl and not params.ssl_only:
-        # if we were pre-training (ssl), then we will train (sl)
-        model.stage = StageEnum.PREDICTIVE
-        nonuniform_mesh_trainer(
-            model,
-            train,
-            test,
-            params,
-            wandb_log=params.wandb_log,
-            log_test_interval=params.wandb_log_test_interval,
-            normalizer=normalizer,
-            stage=model.stage,
-            variable_encoder=variable_encoder,
-            token_expander=token_expander,
-            initial_mesh=input_mesh)
+grid_non, grid_uni = get_meshes(
+    params.input_mesh_location, params.grid_size)
 
-    grid_non, grid_uni = get_meshes(
-        params.input_mesh_location, params.grid_size)
+test_augmenter = MaskerNonuniformMesh(
+    grid_non_uni=grid_non.clone().detach(),
+    gird_uni=grid_uni.clone().detach(),
+    radius=params.masking_radius,
+    drop_type=params.drop_type,
+    drop_pix=params.drop_pix_val,
+    channel_aug_rate=params.channel_per_val,
+    channel_drop_rate=params.channel_drop_per_val,
+    verbose=True)
 
-    test_augmenter = MaskerNonuniformMesh(
-        grid_non_uni=grid_non.clone().detach(),
-        gird_uni=grid_uni.clone().detach(),
-        radius=params.masking_radius,
-        drop_type=params.drop_type,
-        drop_pix=params.drop_pix_val,
-        channel_aug_rate=params.channel_per_val,
-        channel_drop_rate=params.channel_drop_per_val,
-        verbose=True)
+missing_variable_testing(
+    model,
+    test,
+    test_augmenter,
+    normalizer,
+    'sl',
+    params,
+    variable_encoder=variable_encoder,
+    token_expander=token_expander,
+    initial_mesh=input_mesh)
 
-    missing_variable_testing(
-        model,
-        test,
-        test_augmenter,
-        normalizer,
-        'sl',
-        params,
-        variable_encoder=variable_encoder,
-        token_expander=token_expander,
-        initial_mesh=input_mesh)
+if params.wandb_log:
+    wandb.finish()
 
-    if params.wandb_log:
-        wandb.finish()
+#destroy_process_group()
+
+#if __name__ == "__main__":
+    #device = 0
+    #world_size = 2
+    #mp.spawn(main, args=(world_size, ), nprocs=world_size, join=True)
+#main()
