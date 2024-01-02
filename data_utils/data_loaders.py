@@ -100,7 +100,7 @@ class NsElasticDataset():
         self.location = location
         self._x1 = [-4.0, -2.0, 0.0, 2.0, 4.0, 6.0]
         self._x2 = [-4.0, -2.0, 0, 2.0, 4.0, 6.0]
-        self._mu = [0.1, 0.01, 0.5, 1, 10]
+        self._mu = [0.1, 0.01, 0.5,5, 1, 10]
         self.equation = equation
 
         mesh = get_mesh(mesh_location)
