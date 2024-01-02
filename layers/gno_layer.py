@@ -72,7 +72,7 @@ class GnoPremEq(nn.Module):
         self.projection = MLPLinear([self.var_encoding_channels + self.in_dim,
                                     projection_hidden_dim, out_dim],
                                     non_linearity=F.gelu)
-
+ 
         # apply GNO to get  uniform grid
 
         self.neighbour = None
@@ -178,7 +178,7 @@ class GnoPremEq(nn.Module):
 class GNO(nn.Module):
     def __init__(self, in_dim, out_dim,
                  input_grid, output_grid, mlp_layers, projection_hidden_dim,
-                 radius):
+                 radius, fixed_neighbour=False, n_neigbor=10):
         '''
         var_num: number of variables
         in_dim: Input Condim/channel per variables
@@ -198,6 +198,8 @@ class GNO(nn.Module):
         self.input_grid = input_grid
         self.output_grid = output_grid
         self.mlp_layers = [2 * n_dim] + mlp_layers + [out_dim]
+        self.fixed_neighbour = fixed_neighbour
+        self.n_neigbor = n_neigbor
         self.radius = radius
         # project to higher dim
         self.projection = MLPLinear([self.in_dim,
@@ -206,12 +208,15 @@ class GNO(nn.Module):
         print(self.mlp_layers)
         # apply GNO to get  uniform grid
 
-        NS = NeighborSearch(use_open3d=False)
+        # NS = NeighborSearch(use_open3d=False)
 
-        self.neighbour = NS(
-            input_grid.clone().cpu(),
-            output_grid.clone().cpu(),
-            radius=radius)
+        # self.neighbour = NS(
+        #     input_grid.clone().cpu(),
+        #     output_grid.clone().cpu(),
+        #     radius=radius)
+
+        self.neighbour = None
+        self.update_grid()
 
         for key, value in self.neighbour.items():
             self.neighbour[key] = self.neighbour[key].cuda()
@@ -227,13 +232,18 @@ class GNO(nn.Module):
             input_grid = self.input_grid
         if output_grid is None:
             output_grid = self.output_grid
-
-        NS = NeighborSearch(use_open3d=False)
-
-        self.neighbour = NS(
-            input_grid.clone(),
-            output_grid.clone(),
-            radius=self.radius)
+        if self.fixed_neighbour:
+            NS = FixedNeighborSearch(use_open3d=False)
+            self.neighbour = NS(
+                input_grid.clone(),
+                output_grid.clone(),
+                n_neigbor=self.n_neigbor)
+        else:
+            NS = NeighborSearch(use_open3d=False)
+            self.neighbour = NS(
+                input_grid.clone(),
+                output_grid.clone(),
+                radius=self.radius)
 
     def forward(self, inp):
         '''

@@ -22,6 +22,8 @@ class FnoGno(nn.Module):
                  output_grid=None,
                  grid_size=None,
                  radius=None,
+                 fixed_neighbour=False,
+                 n_neigbor=10,
                  hidden_dim=None,
                  lifting_dim=None,
                  n_layers=4,
@@ -99,6 +101,8 @@ class FnoGno(nn.Module):
         self.lifting = lifting
         self.projection = projection
         self.radius = radius
+        self.fixed_neighbour = fixed_neighbour
+        self.n_neigbor = n_neigbor
         self.gno_mlp_layers = gno_mlp_layers
 
         # calculating scaling
@@ -138,7 +142,9 @@ class FnoGno(nn.Module):
                 output_grid=self.output_grid,
                 projection_hidden_dim=lifting_dim,
                 mlp_layers=self.gno_mlp_layers,
-                radius=self.radius)
+                radius=self.radius,
+                fixed_neighbour=self.fixed_neighbour,
+                n_neigbor=self.n_neigbor)
 
         self.base = nn.ModuleList([])
         for i in range(self.n_layers):
@@ -167,7 +173,9 @@ class FnoGno(nn.Module):
                 projection_hidden_dim=lifting_dim,
                 output_grid=self.input_grid,
                 mlp_layers=self.gno_mlp_layers,
-                radius=self.radius)
+                radius=self.radius,
+                fixed_neighbour=self.fixed_neighbour,
+                n_neigbor=self.n_neigbor)
 
     def get_output_scaling_factor(self, initial_scale, scalings_per_layer):
         for k in scalings_per_layer:

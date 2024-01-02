@@ -83,7 +83,6 @@ def nonuniform_mesh_trainer(
             elif params.n_static_channels > 0:
                 inp = torch.cat(
                     [x, static_features[:, :, :params.n_static_channels].cuda()], dim=-1)
-                print(inp.shape, x.shape, static_features.shape)
             else:
                 inp = x
 
@@ -181,6 +180,9 @@ def nonuniform_mesh_trainer(
             if variable_encoder is not None and token_expander is not None:
                 inp = token_expander(x, variable_encoder(
                     initial_mesh + data['d_grid_x'].cuda()[0], equation), static_features.cuda())
+            elif params.n_static_channels > 0:
+                inp = torch.cat(
+                    [x, static_features[:, :, :params.n_static_channels].cuda()], dim=-1)
             else:
                 inp = x
 
@@ -222,8 +224,8 @@ def nonuniform_mesh_trainer(
     t2 = default_timer()
 
     if wandb_log:
-        wandb.log({'test_error': test_l2}, commit=True)
-    print("Test Error : ", test_l2)
+        wandb.log({'test_error_'+stage_string: test_l2}, commit=True)
+    print("Test Error : "+stage_string, test_l2)
 
 
 ############

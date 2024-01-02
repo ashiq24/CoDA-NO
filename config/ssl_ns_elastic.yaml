@@ -105,7 +105,7 @@ codano_gno: &CODANO_GNO
     grid_type: 'non uniform'
     
     # training. hypers
-    epochs: 20
+    epochs: 5
     batch_size: 1
     lr: 0.01
     weight_decay: 0.0000
@@ -220,7 +220,8 @@ fno_gno: &FNO_GNO
     scheduler_gamma: 0.8
     clip_gradient: !!bool True
     gradient_clip_value: 1.0
-    
+    fixed_neighbour: !!bool True
+    n_neigbor: 10
     # does not supporting turning on
     n_encoding_channels: 0
     enable_cls_token: !!bool False

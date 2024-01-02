@@ -43,6 +43,9 @@ def missing_variable_testing(
             if variable_encoder is not None and token_expander is not None:
                 inp = token_expander(x, variable_encoder(
                     initial_mesh + data['d_grid_x'].cuda()[0], equation), static_features.cuda())
+            elif params.n_static_channels > 0:
+                inp = torch.cat(
+                    [x, static_features[:, :, :params.n_static_channels].cuda()], dim=-1)
             else:
                 inp = x
 
