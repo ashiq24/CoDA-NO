@@ -10,7 +10,7 @@ import itertools
 from utils import *
 from neuralop.datasets.tensor_dataset import TensorDataset
 from data_utils import get_mesh_displacement
-from torch.utils.data.distributed import DistributedSampler
+
 
 class IrregularMeshTensorDataset(TensorDataset):
     def __init__(self, x, y, transform_x=None, transform_y=None, equation=None, x1=0, x2=0, mu=0.1, mesh=None):
@@ -188,7 +188,6 @@ class NsElasticDataset():
 
         train_dataloader = DataLoader(
             train_dataset, batch_size=batch_size, **data_loader_kwargs)
-        #, shuffle=False, sampler=DistributedSampler(test_dataset)
         test_dataloader = DataLoader(
             test_dataset, batch_size=batch_size, **data_loader_kwargs)
 
