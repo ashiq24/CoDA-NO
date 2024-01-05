@@ -7,7 +7,7 @@ base_config: &BASE_CONFIG
     drop_type : 'zeros' # dropped values are replaced by zeros
     grid_type: 'uniform'
     max_block : 0.3         #Block size for dropping pixels during data augmentation
-    drop_pix: 0.4           #percentage of pixels dropped during data augmentation
+    drop_pix: 0.5          #percentage of pixels dropped during data augmentation
     channel_per: 0.5        # percentage of channels affected by data augmentation
     channel_drop_per: 0.5   # percentage of affected channels to be dropped completly
     validation_aug: !!bool False 
@@ -99,6 +99,7 @@ codano_gno: &CODANO_GNO
     dt: 2 #dt in markovian model
     mu_list: [1, 0.01]
     fixed_neighbour: !!bool True
+    n_neigbor: 10
     radius: 0.15
     gno_mlp_layers: [10]
     grid_size: [251, 42]
@@ -174,21 +175,28 @@ codano_test: &CODANO_TEST
     equation_dict: { "NS": 3 , "ES": 2}
     input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
     data_location: "../Data/TF_fsi2_results"
-    epochs: 5
+
+    n_modes_en:       [[80, 10], [80, 10], [80, 10]]
+    n_modes_dec:       [[80, 10]]
+    n_modes_pred:       [[80, 10], [80, 10]]
+
+    epochs: 200
     mu_list: [1.0]
-    lr: 0.01
+    lr: 0.005
     weight_decay: 0.0000
-    scheduler_step: 5
-    gradient_clip_value: 0.01
-    scheduler_gamma: 0.8
+    scheduler_type: 'step'
+    scheduler_step: 50
+    gradient_clip_value: 10.0
+    scheduler_gamma: 0.5
     channel_per_val: 0.5  # channel dropping percentage during validation
     ntrain: 1
-    radius: 0.05
-    ntest: 1
-    ssl_only: !!bool False
+    radius: 0.4
+    n_neigbor: 10
+    ntest: 5
+    ssl_only: !!bool True
     pretrain_ssl : !!bool True
-    kqv_non_linear: !!bool True
-    channel_per: 0.3
+    kqv_non_linear: !!bool False
+    channel_per: 0.5        
     channel_drop_per: 0.5
     per_channel_attention: !!bool True
     

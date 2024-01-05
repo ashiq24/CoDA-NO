@@ -25,6 +25,8 @@ class GnoPremEq(nn.Module):
         var_encoding_channels=1,
         n_layers=2,
         postional_em_dim=4,  # always even
+        end_projection=False,
+        end_projection_outdim=None,
     ):
         '''
         var_num: number of variables
@@ -55,6 +57,8 @@ class GnoPremEq(nn.Module):
         self.postional_em_dim = postional_em_dim
         self.var_encoding_channels = var_encoding_channels
         self.n_layers = n_layers
+        self.end_projection = end_projection
+        self.end_projection_outdim = end_projection_outdim
 
         # get varibale encoding
         if self.var_encoding:
@@ -85,6 +89,12 @@ class GnoPremEq(nn.Module):
                 mlp_layers=self.mlp_layers,
                 transform_type='nonlinear',
                 mlp_non_linearity=F.gelu))
+        
+        if self.end_projection:
+            self.end_projector = MLPLinear([self.out_dim,
+                                    projection_hidden_dim, self.end_projection_outdim],
+                                    non_linearity=F.gelu)
+        
 
     def update_grid(
         self,
@@ -126,9 +136,11 @@ class GnoPremEq(nn.Module):
             if i == self.n_layers - 1:
                 x = self.it[i](self.input_grid, self.neighbour_last,
                                self.output_grid, x)
+                if self.end_projection:
+                    x = self.end_projector(x)
             else:
                 x = self.it[i](self.input_grid, self.neighbour,
-                               self.input_grid, x)
+                               self.input_grid, x) + x
         return x
 
     def forward(self, inp):

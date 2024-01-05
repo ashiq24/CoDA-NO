@@ -11,7 +11,7 @@ from neuralop.layers.padding import DomainPadding
 import numpy as np
 import torch
 from layers.variable_encoding import VariableEncoding2d
-
+from .codano import Projection
 
 class CondnoGino(nn.Module):
     def __init__(self,
@@ -207,7 +207,7 @@ class CondnoGino(nn.Module):
             self.projection = GnoPremEq(
                 var_num=var_num,
                 in_dim=self.hidden_token_codim,
-                out_dim=out_token_codim,
+                out_dim=self.hidden_token_codim,
                 input_grid=self.output_grid,
                 output_grid=self.input_grid,
                 mlp_layers=self.gno_mlp_layers,
@@ -216,7 +216,11 @@ class CondnoGino(nn.Module):
                 fixed_neighbour=fixed_neighbour,
                 var_encoding=False,
                 projection_hidden_dim=lifting_token_codim,
-                var_encoding_channels=0)
+                var_encoding_channels=0,
+                end_projection=True,
+                end_projection_outdim=out_token_codim)
+            
+
 
         # Code for varibale encoding
 
