@@ -80,11 +80,39 @@ base_config: &BASE_CONFIG
 
     # Weights and biases
     wandb_log: True
-    wandb_name: 'codano'
+    wandb_name: "codano"
     wandb_group: 'neuraloperator'
     wandb_project: 'CoDA-NO'
-    wandb_entity: 'ashiq24'
+    wandb_entity: 'robert18'
     wandb_log_test_interval: 1
+
+    #Distributed computing
+    verbose: True
+    distributed:
+        use_distributed: True
+        wireup_info: 'mpi'
+        wireup_store: 'tcp'
+        model_parallel_size: 2
+        seed: 666
+    
+    # Patching
+    patching:
+        levels: 0
+        padding: 0
+        stitching: False
+
+    name: 'codano_test'
+    ntrain: 1
+
+    # Dataset related - fake
+    data:
+        batch_size: 8
+        n_train: 1000
+        train_resolution: 16
+        n_tests: [100, 50]
+        test_resolutions: [16, 32]
+        test_batch_sizes: [4, 2]
+        positional_encoding: True
 
 codano_gno: &CODANO_GNO
     <<: *BASE_CONFIG
@@ -183,6 +211,7 @@ codano_test: &CODANO_TEST
     epochs: 200
     mu_list: [1.0]
     lr: 0.005
+
     weight_decay: 0.0000
     scheduler_type: 'step'
     scheduler_step: 50

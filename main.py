@@ -10,6 +10,8 @@ from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
 from data_utils.data_utils import MaskerNonuniformMesh, batched_masker, MaskerUniform, get_meshes
 from models.codano import CodANO
+from configmypy import ConfigPipeline, YamlConfig, ArgparseConfig
+
 from layers.variable_encoding import *
 from models.get_models import *
 from train.trainer import nonuniform_mesh_trainer
@@ -17,30 +19,53 @@ from utils import *
 from models.model_helpers import count_parameters
 from test.evaluations import missing_variable_testing
 from torchsummary import summary
+from torch.nn.parallel import DistributedDataParallel as DDP
+import torch.multiprocessing as mp
+from torch.utils.data.distributed import DistributedSampler
+from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.distributed import init_process_group, destroy_process_group
+import os
+from neuralop.training import setup
+import neuralop.mpu.comm as comm
+
 import random
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--config", nargs="?", default="base_config", type=str)
-    parser.add_argument("--ntrain", nargs="?", default=None, type=int)
-    parsed_args = parser.parse_args()
+    #parser = argparse.ArgumentParser()
+    #parser.add_argument("--config", nargs="?", default="base_config", type=str)
+    #parser.add_argument("--ntrain", nargs="?", default=None, type=int)
+    #parsed_args = parser.parse_args()
 
-    config = parsed_args.config  # sys.argv[1]
-    print("Loading config", config)
-    params = YParams('./config/ssl_ns_elastic.yaml', config, print_params=True)
+    pipe = ConfigPipeline(
+        [
+            YamlConfig(
+                "./config/ssl_ns_elastic.yaml", config_name = "base_config"
+            ),
+            ArgparseConfig(infer_types=False, config_name=None, config_file=None),
+            YamlConfig(config_folder="../config"),
+        ]
+    )
+    config = pipe.read_conf()
+    param_name = config['name']
+    n_train = config['ntrain']
+    params = YParams('./config/ssl_ns_elastic.yaml', param_name, print_params=True)
+    device, is_logger = setup(config)
 
-    if parsed_args.ntrain is not None:
-        params.ntrain = parsed_args.ntrain
+    configs = param_name  # sys.argv[1]
+    print("Loading config", configs)
+
+    if n_train is not None:
+        params.ntrain = n_train
         print("Overriding ntrain to", params.ntrain)
 
     torch.manual_seed(params.random_seed)
     random.seed(params.random_seed)
     np.random.seed(params.random_seed)
-
+    
     params.config = config
     # Set up WandB logging
-    params.wandb_name = config
+    params.wandb_name = configs
     params.wandb_group = params.nettype
     if params.wandb_log:
         wandb.login(key=get_wandb_api_key())
@@ -75,8 +100,8 @@ if __name__ == "__main__":
                 print(k.shape)
                 token_expander = TokenExpansion(sum([params.equation_dict[i] for i in params.equation_dict.keys()]),
                                                 params.n_encoding_channels, params.n_static_channels)
-                variable_encoder.cuda()
-                token_expander.cuda()
+                variable_encoder.to(device)
+                token_expander.to(device)
 
         print("Parameters Encoder", count_parameters(encoder), "x10^6")
         print("Parameters Decoder", count_parameters(decoder), "x10^6")
@@ -100,7 +125,13 @@ if __name__ == "__main__":
         print("Parameters Model", count_parameters(model), "x10^6")
         input_mesh = None
 
-    model = model.cuda()
+
+    # Use distributed data parallel
+    if config.distributed.use_distributed:
+        model = DDP(
+            model, device_ids=[device.index], output_device=device.index, static_graph=True
+        ).to(device)
+        
     # non-uniform dataset
     print(list(params.equation_dict.keys()))
     dataset = NsElasticDataset(
@@ -109,7 +140,7 @@ if __name__ == "__main__":
         mesh_location=params.input_mesh_location)
     # train, test = dataset.get_onestep_dataloader(location=params.data_location, dt=params.dt, ntrain=params.get('ntrain'),
     #                                              ntest=params.get('ntest'))
-
+    
     train, test = dataset.get_dataloader(params.mu_list, params.dt, ntrain=params.get(
         'ntrain'), ntest=params.get('ntest'), sample_per_inlet=params.sample_per_inlet)
 
