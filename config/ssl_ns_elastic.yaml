@@ -119,11 +119,11 @@ codano_gno: &CODANO_GNO
     n_encoding_channels: 8
     
     n_layers_en: 3
-    n_heads_en:      [15,15,15]  
+    n_heads_en:      [10,10,10]  
     n_layers_dec: 2
-    n_heads_dec:      [15,15]
+    n_heads_dec:      [10,10]
     n_layers_pred: 2
-    n_heads_pred:    [15,15]
+    n_heads_pred:    [10,10]
 
     n_modes_en:       [[100, 15], [100, 15], [100, 15]]
     n_modes_dec:       [[100, 15],[100, 15]]
@@ -185,11 +185,11 @@ codano_test: &CODANO_TEST
     data_location: "../Data/TF_fsi2_results"
 
     n_layers_en: 3
-    n_heads_en:      [15,15,15]  
+    n_heads_en:      [10,10,10]  
     n_layers_dec: 2
-    n_heads_dec:      [15,15]
+    n_heads_dec:      [10,10]
     n_layers_pred: 2
-    n_heads_pred:    [15,15]
+    n_heads_pred:    [10,10]
 
     scalings_en:     [[1,1], [1,1], [1,1]]
     scalings_dec:     [[1,1],[1,1]]
@@ -199,9 +199,9 @@ codano_test: &CODANO_TEST
     n_modes_dec:       [[100, 15],[100, 15]]
     n_modes_pred:       [[100, 15], [100, 15]]
 
-    hidden_token_codim_en: 20
-    lifting_token_codim_en: 40
-    lifting_token_codim_pred: 40
+    hidden_token_codim_en: 40
+    lifting_token_codim_en: 80
+    lifting_token_codim_pred: 80
     masking: !!bool True
     epochs: 300
     mu_list: [1.0]

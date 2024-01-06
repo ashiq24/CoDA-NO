@@ -102,7 +102,7 @@ class TNOBlock(nn.Module):
             self.head_codimension = 1
 
         # this scale used for downsampling Q,K functions
-        scale = 4 if per_channel_attention else 2
+        scale = 2 if per_channel_attention else 1
         scale = min(self.n_head, scale)
 
         mixer_modes = [i // scale for i in n_modes]
