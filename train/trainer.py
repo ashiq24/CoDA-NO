@@ -8,8 +8,8 @@ import torch
 from models.get_models import *
 from torch import nn
 from torch.utils import data
-from torch.optim import Adam
-#from .new_adam import Adam
+#from torch.optim import Adam
+from .new_adam import Adam
 from torch.optim.lr_scheduler import StepLR, ReduceLROnPlateau
 
 from data_utils.hdf5_datasets import Equation

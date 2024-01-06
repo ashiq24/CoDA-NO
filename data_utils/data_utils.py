@@ -334,7 +334,7 @@ class MaskerNonuniformMesh(object):
         channel_aug_rate=0.7,
         channel_drop_rate=0.2,
         device='cpu',
-        max_block=20,
+        max_block=10,
         verbose=None
     ):
         """
@@ -370,14 +370,21 @@ class MaskerNonuniformMesh(object):
         augmented_channels = np.random.choice(
             C, math.ceil(C * self.channel_aug_rate))
         # print(augmented_channels)
-        drop_len = int(
-            self.channel_drop_rate *
-            math.ceil(
-                C *
-                self.channel_aug_rate))
-        mask[:, augmented_channels[:drop_len]] = 0.0
+        p = random.random()
+        # with 50% probability, drop all pixels in very few channels
+        # or doing masking to many channels
+        if p < 0.5:
+            drop_len = int(
+                self.channel_drop_rate *
+                math.ceil(
+                    C *
+                    self.channel_aug_rate))
+            mask[:, augmented_channels[:drop_len]] = 0.0
+            return None, mask
+        else:
+            drop_len = 0
+
         for i in augmented_channels[drop_len:]:
-            # print("Masking")
             n_drop_pix = self.drop_pix * L
 
             max_location = self.max_block
