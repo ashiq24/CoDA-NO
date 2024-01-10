@@ -70,68 +70,76 @@ def show_data_diff(
 def show_multi_physics_data_diffs(
     model: Union[CodANO, CoDANOTemporal],
     data_loader: data.DataLoader,
+    swe_index: int = 0,
+    diff_index: int = 10,
+    ns_index: int = 20,
     stage: Optional[StageEnum] = None,
     logger: Optional[logging.Logger] = None,
 ):
-    swe_loss, diff_loss, ns_loss = get_multi_physics_data_losses(
-        model,
-        data_loader,
-        # TODO add these indexes to config
-        ((0, 125), (125, 250), (250, 300)),
-        stage=stage,
-        logger=logger,
+    model.eval()
+    model.stage = stage
+    (depth_in, _), (depth_out, _) = data_loader.dataset[swe_index]
+    pred, *_ = model(
+        depth_in.unsqueeze(0).cuda(),
+        equations=torch.Tensor([Equation.SWE.value]).cuda(),
     )
 
     print("WATER DEPTH (SHALLOW WATER)")
-    (depth, _), _ = data_loader.dataset[swe_loss[0]]
     show_data_diff(
-        depth,
-        swe_loss[2],
+        depth_out,
+        pred.squeeze(0),
         channel=0,
         logger=logger,
     )
+    
+    (reaction_in, _), (reaction_out, _) = data_loader.dataset[diff_index]
+    pred, *_ = model(
+        reaction_in.unsqueeze(0).cuda(),
+        equations=torch.Tensor([Equation.DIFF.value]).cuda(),
+    )
 
     print("ACTIVATOR (DIFFUSION-REACTION)")
-    (activator, _), _ = data_loader.dataset[diff_loss[0]]
     show_data_diff(
-        activator,
-        diff_loss[2],
+        reaction_out,
+        pred.squeeze(0),
+        channel=0,
+        logger=logger,
+    )
+    
+    print("INHIBITOR (DIFFUSION-REACTION)")
+    show_data_diff(
+        reaction_out,
+        pred.squeeze(0),
         channel=1,
         logger=logger,
     )
-
-    print("INHIBITOR (DIFFUSION-REACTION)")
-    (inhibitor, _), _ = data_loader.dataset[diff_loss[0]]
-    show_data_diff(
-        inhibitor,
-        diff_loss[2],
-        channel=2,
-        logger=logger,
+    
+    (ns_in, _), (ns_out, _) = data_loader.dataset[ns_index]
+    pred, *_ = model(
+        ns_in.unsqueeze(0).cuda(),
+        equations=torch.Tensor([Equation.NS.value]).cuda(),
     )
 
     print("PARTICLE DENSITY (NAVIER-STOKES)")
-    (particles, _), _ = data_loader.dataset[ns_loss[0]]
     show_data_diff(
-        particles,
-        ns_loss[2],
-        channel=3,
+        ns_out,
+        pred.squeeze(0),
+        channel=0,
         logger=logger,
     )
-
+    
     print("X-VELOCITY (NAVIER-STOKES)")
-    (velocity_x, _), _ = data_loader.dataset[ns_loss[0]]
     show_data_diff(
-        velocity_x,
-        ns_loss[2],
-        channel=4,
+        ns_out,
+        pred.squeeze(0),
+        channel=1,
         logger=logger,
     )
-
+    
     print("Y-VELOCITY (NAVIER-STOKES)")
-    (velocity_y, _), _ = data_loader.dataset[ns_loss[0]]
     show_data_diff(
-        velocity_y,
-        ns_loss[2],
-        channel=5,
+        ns_out,
+        pred.squeeze(0),
+        channel=2,
         logger=logger,
     )
