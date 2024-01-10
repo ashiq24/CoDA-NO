@@ -238,12 +238,19 @@ def multi_physics_trainer(
     params,
     epochs=None,
     wandb_log=False,
+    gradient_threshold_step_interval=10,
+    logger=None,
     log_interval=1,
     script=True,
 ):
     if epochs is None:
         epochs = params.epochs
     # weight_path = params.weight_path
+    batch_size = train_loader.batch_size
+    gradient_threshold = params.gradient['threshold']
+    if logger is None:
+        logger = logging.getLogger()
+    
     optimizer = Adam(
         model.parameters(),
         lr=params.lr,
@@ -268,14 +275,14 @@ def multi_physics_trainer(
             leave=False,
             # ncols=100,
         )
-        for x, y in train_loader_tqdm:
+        for i, (x, y) in enumerate(train_loader_tqdm):
             equations = x[1]
             x = x[0].cuda()
             y = y[0].cuda()
             optimizer.zero_grad()
 
             out, *_ = model(x, equations=equations)
-            train_count += 1  # i think this should be `+= batch_size`
+            train_count += batch_size  # i think this should be `+= batch_size`
 
             losses = torch.tensor(0.0, dtype=torch.float).cuda()
             # Could this be made more efficient by collecting
@@ -294,15 +301,20 @@ def multi_physics_trainer(
             if params.gradient['clip']:
                 nn.utils.clip_grad_value_(
                     model.parameters(),
-                    params.gradient['threshold'],
+                    gradient_threshold,
                 )
 
             optimizer.step()
-            del x, y, out, losses
-            gc.collect()
+            del x, y, out, losses, equations
 
         torch.cuda.empty_cache()
+        gc.collect()
         scheduler.step()
+
+        # TODO could this be added to the scheduler?
+        if (ep + 1) % gradient_threshold_step_interval == 0:
+            gradient_threshold /= 10.0
+            logger.debug(f"{gradient_threshold=}")
 
         if ep % log_interval == 0:
             t2 = default_timer()
@@ -356,6 +368,7 @@ def multi_physics_trainer(
     test_l2 /= n_test
     t2 = default_timer()
     test_time = t2 - t1
+    # FIXME test_l2 is coming out as NaN
     print(f"Time: {test_time:.2f}s\n"
           f"Loss: {test_l2:.6f}")
 
