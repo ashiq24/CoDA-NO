@@ -22,12 +22,6 @@ base_config: &BASE_CONFIG
 
     # batch_size: 1
     # n_variables: 6
-    # TODO(mogab): Generalize to handle shared variables.
-    # XXX(mogab): This currently assumes no two equations share variables.
-    variables_per_equation:
-        0: 1  # SWE: depth
-        1: 2  # DIFF: activator, inhibitor 
-        2: 3  # NS: density, x-velocity, y-velocity
 
     per_channel_attention: False
 

@@ -73,8 +73,8 @@ class IrregularMeshTensorDataset(TensorDataset):
 
 class Normalizer():
     def __init__(self, mean, std, eps=1e-6, persample=False):
-        print("Means: ", mean)
-        print("stds ", std)
+        # print("Means: ", mean)
+        # print("stds ", std)
         self.persample = persample  # if true, instance norm type normalizer
         self.mean = mean
         self.std = std
