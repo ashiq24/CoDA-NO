@@ -1,4 +1,5 @@
 import gc
+import logging
 
 from timeit import default_timer
 import tqdm
@@ -13,13 +14,6 @@ from .new_adam import Adam
 from torch.optim.lr_scheduler import StepLR, ReduceLROnPlateau
 
 from data_utils.hdf5_datasets import Equation
-
-
-MAP_EQUATION_TO_CHANNELS = {
-    Equation.SWE: (0,),
-    Equation.DIFF: (1, 2),
-    Equation.NS: (3, 4, 5,),
-}
 
 
 def nonuniform_mesh_trainer(
@@ -235,35 +229,6 @@ def nonuniform_mesh_trainer(
 ############
 
 
-def multi_physics_loss(
-    ground_truth,
-    prediction,
-    loss_fn,
-    eq: Equation,
-):
-    slices = [
-        slice(None),
-        slice(None),
-        slice(None),
-    ]
-
-    # flat "projection" to attend to only the fields relevant
-    # to the equation under study.
-    if eq == Equation.SWE:
-        slices.insert(0, 0)
-    elif eq == Equation.DIFF:
-        slices.insert(0, slice(1, 3))
-    elif eq == Equation.NS:
-        slices.insert(0, slice(3, None))
-    else:
-        raise ValueError(f"Invalid equation: {eq}")
-
-    return loss_fn(
-        ground_truth[slices].reshape(1, -1),
-        prediction[slices].reshape(1, -1),
-    )
-
-
 # Could this be refactored with `simple_trainer` above?
 def multi_physics_trainer(
     model,
@@ -290,7 +255,6 @@ def multi_physics_trainer(
         step_size=params.scheduler_step,
         gamma=params.scheduler_gamma,
     )
-    # loss_fn = nn.MSELoss()
 
     for ep in range(epochs):
         model.train()
@@ -310,9 +274,6 @@ def multi_physics_trainer(
             y = y[0].cuda()
             optimizer.zero_grad()
 
-            model.next_channels = tuple([
-                MAP_EQUATION_TO_CHANNELS[Equation(eq.item())] for eq in equations
-            ])
             out, *_ = model(x, equations=equations)
             train_count += 1  # i think this should be `+= batch_size`
 
@@ -320,12 +281,6 @@ def multi_physics_trainer(
             # Could this be made more efficient by collecting
             # the same equations in one "mini-batch?"
             for k, eq in enumerate(equations):
-                # loss = multi_physics_loss(
-                #     y[k],
-                #     out[k],
-                #     loss_fn,
-                #     Equation(eq.item()),
-                # )
                 loss = loss_fn(
                     y[k].view(1, -1),
                     out[k].view(1, -1),
@@ -388,17 +343,12 @@ def multi_physics_trainer(
             x = x[0].cuda()
             y = y[0].cuda()
 
-            model.next_channels = tuple([
-                MAP_EQUATION_TO_CHANNELS[Equation(eq.item())] for eq in equations
-            ])
-            out, *_ = model(x)
+            out, *_ = model(x, equations=equations)
 
             for k, eq in enumerate(equations):
-                loss = multi_physics_loss(
-                    y[k],
-                    out[k],
-                    loss_fn,
-                    Equation(eq.item()),
+                loss = loss_fn(
+                    y[k].view(1, -1),
+                    out[k].view(1, -1),
                 )
                 test_l2 += loss.item()
                 n_test += 1
@@ -436,22 +386,19 @@ def test_single_physics(
             stop,
             desc=f'Testing [{start} : {stop}]',
             leave=False,
-            ncols=120,
+            # ncols=120,
         )
 
         for i in test_loader_trange:
             x, y = test_loader.dataset[i]
-            eq = x[1]
+            eq = torch.Tensor([x[1]])
             x = x[0].unsqueeze(0).cuda()
             y = y[0].unsqueeze(0).cuda()
 
-            model.next_channels = (MAP_EQUATION_TO_CHANNELS[Equation(eq)],)
-            out, *_ = model(x)
-            loss = multi_physics_loss(
-                y[0],
-                out[0],
-                loss_fn,
-                Equation(eq),
+            out, *_ = model(x, equations=eq)
+            loss = loss_fn(
+                y[0].reshape(-1),
+                out[0].reshape(-1),
             )
             test_l2 += loss.item()
             n_test += 1
