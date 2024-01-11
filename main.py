@@ -106,7 +106,8 @@ if __name__ == "__main__":
     dataset = NsElasticDataset(
         params.data_location,
         equation=list(params.equation_dict.keys()),
-        mesh_location=params.input_mesh_location)
+        mesh_location=params.input_mesh_location,
+        params=params)
     # train, test = dataset.get_onestep_dataloader(location=params.data_location, dt=params.dt, ntrain=params.get('ntrain'),
     #                                              ntest=params.get('ntest'))
 

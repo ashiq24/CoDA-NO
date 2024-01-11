@@ -96,11 +96,20 @@ class Normalizer():
 
 
 class NsElasticDataset():
-    def __init__(self, location, equation, mesh_location):
+    def __init__(self, location, equation, mesh_location, params):
         self.location = location
         self._x1 = [-4.0, -2.0, 0.0, 2.0, 4.0, 6.0]
         self._x2 = [-4.0, -2.0, 0, 2.0, 4.0, 6.0]
         self._mu = [0.1, 0.01, 0.5,5, 1, 10]
+        if params.data_partition == 'supervised':
+            self._x1 = params.supervised_inlets_x1
+            self._x2 = params.supervised_inlets_x2
+        elif params.data_partition == 'self-supervised':
+            self._x1 = list(set(self._x1) - set(params.supervised_inlets_x1))
+            self._x2 = list(set(self._x2) - set(params.supervised_inlets_x2))
+        else:
+            raise ValueError(f"Data partition {params.data_partition} not supported")
+
         self.equation = equation
 
         mesh = get_mesh(mesh_location)
