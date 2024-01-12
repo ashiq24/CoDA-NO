@@ -17,6 +17,10 @@ base_config: &BASE_CONFIG
     channel_drop_per_val: 1.0
     n_neigbor: 10
 
+    supervised_inlets_x1: [-2.0]
+    supervised_inlets_x2: [-2.0,0]
+    data_partition: "supervised"
+
     scheduler_type: 'step' # lr scheduler type
     batch_size: 4
     use_variable_encoding: !!bool True
@@ -93,9 +97,9 @@ codano_gno: &CODANO_GNO
     n_dim: 2
     equation_dict: { "NS": 3}
     ntest: None
-    sample_per_inlet: 500
-    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
-    data_location: "../../Data/TF_cfd_results"
+    sample_per_inlet: 700
+    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
+    data_location: "../Data/TF_cfd_results"
     dt: 2 #dt in markovian model
     mu_list: [1, 0.01]
     fixed_neighbour: !!bool True
@@ -150,6 +154,8 @@ codano_gno: &CODANO_GNO
     masking_radius: 0.09
     channel_per: 0.6        
     channel_drop_per: 0.5
+
+    data_partition: "self-supervised"
     
 
 codano_non_lin: &CODANO_NON_LIN
@@ -203,7 +209,7 @@ codano_test: &CODANO_TEST
     lifting_token_codim_en: 80
     lifting_token_codim_pred: 80
     masking: !!bool True
-    epochs: 2
+    epochs: 5
     mu_list: [1.0]
     lr: 0.001
     weight_decay: 0.0000
@@ -240,9 +246,9 @@ fno_gno: &FNO_GNO
     hidden_dim: 64
     lifting_dim: 128
     projection_dim: 128
-    n_modes:       [[180,30], [180,30],[180,30], [180,30]]
-    scalings:      [[1,1],[1,1],[1,1], [1,1]]
-    n_layers: 4
+    n_modes:       [[150,20], [150,20],[150,20], [150,20], [150,20]]
+    scalings:      [[1,1],[1,1],[1,1],[1,1],[1,1]]
+    n_layers: 5
     grid_size: [251, 42]
     pretrain_ssl : !!bool False
     freeze_encoder : !!bool False
@@ -250,12 +256,12 @@ fno_gno: &FNO_GNO
     # training hyper
     lr: 0.001
     epochs: 50
-    scheduler_type: 'rdp'
+    scheduler_type: 'step'
     weight_decay: 0.0000
-    scheduler_step: 3
+    scheduler_step: 10
     scheduler_gamma: 0.8
     clip_gradient: !!bool True
-    gradient_clip_value: 1.0
+    gradient_clip_value: 0.1
     fixed_neighbour: !!bool True
     n_neigbor: 10
     # does not supporting turning on
@@ -263,6 +269,7 @@ fno_gno: &FNO_GNO
     enable_cls_token: !!bool False
 
     ntest: 100
+    data_partition: "supervised"
 
 
 fno_NSES_.5: &FNO_NSES_.5
@@ -333,6 +340,8 @@ gnn: &GNN
     projection_dim: 256
     dt: 2
 
+    data_partition: "supervised"
+
 gnn_NSES_.5: &GNN_NSES_.5
     <<: *GNN
     equation_dict: { "NS": 3 , "ES": 2}
@@ -388,6 +397,7 @@ codano_finetune: &CODANO_FINETUNE
     freeze_encoder : !!bool True
     pretrain_ssl : !!bool False
     lr: 0.01
+    data_partition: "supervised"
     
     
 
@@ -454,3 +464,5 @@ codano_finetune_test:
     dt: 2
     ntrain: 1
     ntest: 5
+    NS_variable_encoder_path: "../weights/codano_test_variable_encoder__NS.pt"
+    ES_variable_encoder_path: None
