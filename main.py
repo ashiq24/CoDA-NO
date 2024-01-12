@@ -16,7 +16,7 @@ from train.trainer import nonuniform_mesh_trainer
 from utils import *
 from models.model_helpers import count_parameters
 from test.evaluations import missing_variable_testing
-from torchsummary import summary
+#from torchsummary import summary
 import random
 
 if __name__ == "__main__":

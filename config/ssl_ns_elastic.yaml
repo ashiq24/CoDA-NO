@@ -94,8 +94,8 @@ codano_gno: &CODANO_GNO
     equation_dict: { "NS": 3}
     ntest: None
     sample_per_inlet: 500
-    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
-    data_location: "../Data/TF_cfd_results"
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
     dt: 2 #dt in markovian model
     mu_list: [1, 0.01]
     fixed_neighbour: !!bool True
@@ -181,8 +181,8 @@ codano_gno_NS: &CODANO_GNO_NS
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
     equation_dict: { "NS": 3 , "ES": 2}
-    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../Data/TF_fsi2_results"
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
 
     n_layers_en: 3
     n_heads_en:      [10,10,10]  
@@ -203,7 +203,7 @@ codano_test: &CODANO_TEST
     lifting_token_codim_en: 80
     lifting_token_codim_pred: 80
     masking: !!bool True
-    epochs: 300
+    epochs: 2
     mu_list: [1.0]
     lr: 0.001
     weight_decay: 0.0000
