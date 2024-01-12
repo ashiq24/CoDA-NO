@@ -332,7 +332,8 @@ gnn: &GNN
     out_dim: 3
     epochs: 50
     nettype: 'gnn'
-    
+    gradient_clip_value: 0.005
+
     n_neigbor: 10
     gno_mlp_layers: [200, 200]
     hidden_dim: 128
