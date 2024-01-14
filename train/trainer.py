@@ -157,14 +157,15 @@ def nonuniform_mesh_trainer(
                   f"Loss: {avg_train_l2:.4f}")
 
             wandb.log(values_to_log, commit=True)
+        # saving weights
+        if ep % params.weight_saving_interval == 0 or ep == epochs - 1:
+            stage_string = 'ssl' if stage == StageEnum.RECONSTRUCTIVE else 'sl'
 
-    stage_string = 'ssl' if stage == StageEnum.RECONSTRUCTIVE else 'sl'
-
-    weight_path_model = weight_path + params.config + "_" + stage_string+'.pt'
-    torch.save(model.state_dict(), weight_path_model)
-    if variable_encoder is not None:
-        variable_path = weight_path + params.config + "_variable_encoder_"
-        variable_encoder.save_all_encoder(variable_path)
+            weight_path_model = weight_path + params.config + "_" + stage_string+'.pt'
+            torch.save(model.state_dict(), weight_path_model)
+            if variable_encoder is not None:
+                variable_path = weight_path + params.config + "_variable_encoder_"
+                variable_encoder.save_all_encoder(variable_path)
 
     model.eval()
     test_l2 = 0.0

@@ -81,6 +81,7 @@ base_config: &BASE_CONFIG
     gradient_clip_value: 0.1
     ssl_only: !!bool False  # if true, it will only train the model by SSL and will not be followed by SL
     weight_path: '../weights/'
+    weight_saving_interval: 5
 
     # Weights and biases
     wandb_log: True
