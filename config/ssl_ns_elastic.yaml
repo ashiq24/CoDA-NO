@@ -98,8 +98,8 @@ codano_gno: &CODANO_GNO
     equation_dict: { "NS": 3}
     ntest: None
     sample_per_inlet: 700
-    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
-    data_location: "../Data/TF_cfd_results"
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
     dt: 2 #dt in markovian model
     mu_list: [1, 0.01]
     fixed_neighbour: !!bool True
@@ -164,8 +164,8 @@ codano_non_lin: &CODANO_NON_LIN
 codano_gno_NS_ES: &CODANO_GNO_NS_ES
     <<: *CODANO_GNO
     equation_dict: { "NS": 3 , "ES": 2}
-    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../Data/TF_fsi2_results"
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
     mu_list: [1.0, 10.0]
     dt: 2
     radius: 0.05
@@ -175,8 +175,8 @@ codano_gno_NS_ES: &CODANO_GNO_NS_ES
 codano_gno_NS: &CODANO_GNO_NS
     <<: *CODANO_GNO
     equation_dict: { "NS": 3 }
-    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
-    data_location: "../Data/TF_cfd_results"
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
     mu_list: [1.0, 10.0]
     dt: 2
     radius: 0.05
@@ -187,8 +187,8 @@ codano_gno_NS: &CODANO_GNO_NS
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
     equation_dict: { "NS": 3 , "ES": 2}
-    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../Data/TF_fsi2_results"
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
 
     n_layers_en: 3
     n_heads_en:      [10,10,10]  
@@ -279,8 +279,8 @@ fno_NSES_.5: &FNO_NSES_.5
     in_dim: 5
     out_dim: 5
 
-    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../Data/TF_fsi2_results"
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
     mu_list: [0.5]
 
 
@@ -302,8 +302,8 @@ fno_NS_1: &FNO_NS_1
     n_variables: 3
     in_dim: 3
     out_dim: 3
-    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
-    data_location: "../Data/TF_cfd_results"
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
     mu_list: [1.0]
 fno_NS_5: &FNO_NS_5
     <<: *FNO_NS_1
@@ -350,8 +350,8 @@ gnn_NSES_.5: &GNN_NSES_.5
     in_dim: 5
     out_dim: 5
 
-    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../Data/TF_fsi2_results"
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
     mu_list: [0.5]
     
 gnn_NSES_1: &gnn_NSES_1
@@ -370,8 +370,8 @@ gnn_NS_1: &GNN_NS_1
     n_variables: 3
     in_dim: 3
     out_dim: 3
-    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
-    data_location: "../Data/TF_cfd_results"
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
     mu_list: [1.0]
 gnn_NS_5: &GNN_NS_5
     <<: *GNN_NS_1
@@ -413,8 +413,8 @@ ft_NSES_NSES_.5: &FT_NSES_NSES_.5
     NS_variable_encoder_path: "../weights/codano_gno_NS_ES_variable_encoder__NS.pt"
     ES_variable_encoder_path: "../weights/codano_gno_NS_ES_variable_encoder__ES.pt"
 
-    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../Data/TF_fsi2_results"
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
 
     mu_list: [0.5]
    
@@ -437,8 +437,8 @@ ft_NS_NSES_.5: &FT_NS_NSES_.5
     NS_variable_encoder_path: "../weights/codano_gno_NS_variable_encoder__NS.pt"
     ES_variable_encoder_path: None
 
-    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../Data/TF_fsi2_results"
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
 
     mu_list: [0.5]
    
@@ -458,8 +458,8 @@ codano_finetune_test:
     <<: *CODANO_FINETUNE
     epochs: 5
     equation_dict: { "NS": 3 }
-    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
-    data_location: "../Data/TF_cfd_results"
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
     pretrain_weight: "../weights/codano_test_ssl.pt"
     mu_list: [10.0]
     dt: 2

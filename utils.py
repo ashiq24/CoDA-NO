@@ -50,10 +50,13 @@ class TokenExpansion(nn.Module):
             self.variable_channels) + len(self.encoding_channels) + len(self.static_channels)), device=inp.device, dtype=inp.dtype)
         x[:, :, self.variable_channels] = inp
         if self.n_static_channels != 0:
+            print(x[:, :, self.static_channels].shape, static_channels.repeat(
+                x.shape[0], 1, 1).shape)
             x[:, :, self.static_channels] = static_channels.repeat(
                 x.shape[0], 1, 1)
         if self.n_encoding_channels != 0:
             x[:, :, self.encoding_channels] = variable_encodings.repeat(
+                
                 x.shape[0], 1, 1)
 
         return x
