@@ -335,7 +335,7 @@ gnn: &GNN
     gradient_clip_value: 0.005
 
     n_neigbor: 10
-    gno_mlp_layers: [200, 200]
+    gno_mlp_layers: [128]
     hidden_dim: 128
     lifting_dim: 256
     projection_dim: 256

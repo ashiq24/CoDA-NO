@@ -51,6 +51,8 @@ class GnnLayer(nn.Module):
 
         self.it = IntegralTransform(
             mlp_layers=self.mlp_layers, transform_type='nonlinear')
+        
+        self.normalize = nn.LayerNorm(out_dim)
 
     def update_grid(
         self,
@@ -91,5 +93,5 @@ class GnnLayer(nn.Module):
 
         if out.shape == x.shape:
             out = out + x
-
+        out = self.normalize(out)
         return out
