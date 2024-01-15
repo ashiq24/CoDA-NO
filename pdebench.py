@@ -42,13 +42,11 @@ logger.setLevel(logging.DEBUG)
 
 try:
     importlib.reload(data_utils.visualization)
-    get_multi_physics_data_losses = data_utils.visualization.get_multi_physics_data_losses
     show_data_diff = data_utils.visualization.show_data_diff
     show_multi_physics_data_diffs = data_utils.visualization.show_multi_physics_data_diffs
 except NameError as err:
     logging.warning(err)
     from data_utils.visualization import (
-        get_multi_physics_data_losses,
         show_data_diff,
         show_multi_physics_data_diffs,
     )
@@ -94,18 +92,20 @@ except NameError as err:
 
 
 try:
-    importlib.reload(train.trainer)
-    multi_physics_trainer= train.trainer.multi_physics_trainer
-    test_single_physics= train.trainer.test_single_physics
+    importlib.reload(train)
+    multi_physics_trainer= train.multi_physics_trainer
+    test_single_physics= train.test_single_physics
 except NameError as err:
     logging.warning(err)
     import train
-    multi_physics_trainer= train.trainer.multi_physics_trainer
-    test_single_physics= train.trainer.test_single_physics
+    multi_physics_trainer= train.multi_physics_trainer
+    test_single_physics= train.test_single_physics
 
 
-import inspect
-print(inspect.getsource(multi_physics_trainer))
+# +
+# import inspect
+# print(inspect.getsource(multi_physics_trainer))
+# -
 
 try:
     importlib.reload(utils)
@@ -256,56 +256,13 @@ multi_physics_trainer(
     test_reconstructive_loader,
     nn.MSELoss(),  # training loss_fn
     params,
-    epochs=1,  # XXX
+    epochs=10,  # XXX
     wandb_log=params.wandb['log'],
     # wandb_log=False,  # debug
     log_interval=params.wandb['log_interval'],
     # log_interval=1,
     script=True,
 )
-
-# +
-# Train/test for the reconstructive (i.e. SSL) task:
-model.train()
-model.stage = StageEnum.RECONSTRUCTIVE
-params['gradient']['threshold'] = 0.01
-
-# import pdb; pdb.set_trace()
-multi_physics_trainer(
-    model,
-    train_reconstructive_loader,
-    test_reconstructive_loader,
-    nn.MSELoss(),  # training loss_fn
-    params,
-    epochs=30,  # XXX
-    wandb_log=params.wandb['log'],
-    # wandb_log=False,  # debug
-    log_interval=params.wandb['log_interval'],
-    # log_interval=1,
-    script=True,
-)
-
-# +
-# Train/test for the reconstructive (i.e. SSL) task:
-model.train()
-model.stage = StageEnum.RECONSTRUCTIVE
-params['gradient']['threshold'] = 0.001
-
-# import pdb; pdb.set_trace()
-multi_physics_trainer(
-    model,
-    train_reconstructive_loader,
-    test_reconstructive_loader,
-    nn.MSELoss(),  # training loss_fn
-    params,
-    epochs=20,  # XXX
-    wandb_log=params.wandb['log'],
-    # wandb_log=False,  # debug
-    log_interval=params.wandb['log_interval'],
-    # log_interval=1,
-    script=True,
-)
-# -
 
 # *Investigate and visualize performance of encoder/decoder reconstruction.*
 
@@ -365,32 +322,9 @@ if params.pretrain_ssl:
         test_predictive_loader,
         nn.MSELoss(),  # training loss_fn
         params,
-        # epochs=1, # XXX
+        epochs=10, # XXX
         wandb_log=params.wandb['log'],
         log_interval=params.wandb['log_interval'],
-    )
-
-# +
-model.train()
-logger.setLevel(logging.DEBUG)
-params['gradient']['threshold'] = 0.01
-
-logger.info(f"{params.pretrain_ssl=}")
-if params.pretrain_ssl:
-    # Now train/test for the predictive (i.e. SL) task:
-    model.stage = StageEnum.PREDICTIVE
-    # import pdb; pdb.set_trace()
-    multi_physics_trainer(
-        model,
-        train_predictive_loader,
-        test_predictive_loader,
-        nn.MSELoss(),  # training loss_fn
-        params,
-        epochs=40, # XXX
-        wandb_log=params.wandb['log'],
-        log_interval=params.wandb['log_interval'],
-        logger=logger,
-        script=False,
     )
 # -
 
