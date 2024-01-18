@@ -92,11 +92,12 @@ class FourierVariableEncoding3D(nn.Module):
 
 class VariableEncodingIrregularMesh(nn.Module):
     def __init__(
-            self,
-            n_variables: int,
-            variable_encoding_size: int,
-            n_dim: int = 2,
-            positional_encoding_dim: int = 8) -> None:
+        self,
+        n_variables: int,
+        variable_encoding_size: int,
+        n_dim: int = 2,
+        positional_encoding_dim: int = 8
+    ) -> None:
         super().__init__()
         self.n_variables = n_variables
         self.variable_encoding_size = variable_encoding_size
@@ -158,8 +159,9 @@ class VariableEncodingWrapper(nn.Module):
 
 
 def get_variable_encoder(params):
-    varianle_encoder = VariableEncodingWrapper(params.equation_dict,
-                                               variable_encoding_size=params.n_encoding_channels,
-                                               n_dim=params.n_dim,
-                                               positional_encoding_dim=params.positional_encoding_dim)
-    return varianle_encoder
+    return VariableEncodingWrapper(
+        params.equation_dict,
+        variable_encoding_size=params.n_encoding_channels,
+        n_dim=params.n_dim,
+        positional_encoding_dim=params.positional_encoding_dim,
+    )

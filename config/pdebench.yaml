@@ -5,19 +5,27 @@ base_config: &BASE_CONFIG
     drop_type : 'zeros'
     grid_type: 'uniform'
     time_axis: True
-    max_block: 0.25 # the routine dropped pixel in rectangular block. this is max size of the one rectangular block.
-    drop_pix: 0.4 # percentage of pixels (per channel) to be dropped
-    channel_per: 0.4 # number of channels to be augmented
-    channel_drop_per: 0.0 # We are not dropping channels now
 
-    validation_aug: !!bool False
+    # The routine dropped pixel in rectangular block.
+    masking: True
+    # Maximum size of the one rectangular block (as a ratio of the full frame):
+    max_block: 0.25
+    drop_pix: 0.4 # Percentage of pixels (per channel) to be dropped
+    channel_per: 0.4 # Number of channels to be augmented
+    channel_drop_per: 0.0 # We are not dropping channels for now
+
+    validation_aug: False
     max_block_val : 0.2
     drop_pix_val: 0.15
     channel_per_val: 0.5
     channel_drop_per_val: 0.5
 
-    batch_size: 25
-    n_variables: 6
+    # XXX(mogab): This currently assumes no two equations share variables.
+    # TODO(mogab): Generalize to handle shared variables.
+    variables_per_equation:
+        0: 1  # SWE: depth
+        1: 2  # DIFF: activator, inhibitor 
+        2: 3  # NS: density, x-velocity, y-velocity
 
     per_channel_attention: False
 
@@ -26,10 +34,10 @@ base_config: &BASE_CONFIG
 
     use_variable_encodings: True
     ### TUNE P1 ###
-    n_encoding_channels: 3
-    encoding_modes_t: 8
-    encoding_modes_x: 16
-    encoding_modes_y: 16
+    n_encoding_channels: 5
+    encoding_modes_t: 10
+    encoding_modes_x: 20
+    encoding_modes_y: 20
     ### TUNE P1 ###
 
     reconstruction: True
@@ -41,51 +49,50 @@ base_config: &BASE_CONFIG
     # scheme where it learns an embedding of input fields to a latent space.
     pretrain_ssl: True
 
-    # If False, it will fine tune the encoder during SL.
+    # If False, it will tune the encoder during SL.
     # Otherwise, it will freeze the weight of the encoder trained by SSL.
     freeze_encoder: False
-    masking: True
 
     lr: 0.0001
     weight_decay: 0.00001
     scheduler_step: 20
     scheduler_gamma: 0.5
-    epochs: 50
-    weight_path: '../weights/ssl_weight.pt'
+    # epochs: 50
+    weight_path: '/home/mogab/code/dev/CoDA-NO/weights'
     gradient:
-      clip: !!bool True
+      clip: True
       threshold: 0.1
 
     # PDEBench datasets:
     shallow_water:
-        filepath: "../Data/2D_rdb_NA_NA.h5"
-        subsampling_rate: 2,  # 64 x 64 resolution
-        sample_size: 25,  # 25 samples * 5 a/u pairs per sample
+        filepath: "/mnt/mogab/data/pdebench/2D/shallow-water/2D_rdb_NA_NA.h5"
+        subsampling_rate: 1  # 128 x 128 resolution
+        sample_size: 10  # 10 samples * 5 a/u pairs per sample
         # The initial condition is not representative of the rest of the sample
         offset: 1
 
     diffusion_reaction:
-        filepath: "../Data/2D_diff-react_NA_NA.h5"
-        subsampling_rate: 2,  # 64 x 64 resolution
-        sample_size: 25,  # 25 samples * 5 a/u pairs per sample
+        filepath: "/mnt/mogab/data/pdebench/2D/diffusion-reaction/2D_diff-react_NA_NA.h5"
+        subsampling_rate: 1  # 128 x 128 resolution
+        sample_size: 10  # 10 samples * 5 a/u pairs per sample
         # The initial condition is not representative of the rest of the sample
         offset: 1
 
     navier_stokes:
         filepaths: [
-            "../Data/ns_incom_inhom_2d_512-90.h5",
-            # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-91.h5",
-            # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-92.h5",
-            # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-93.h5",
-            # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-94.h5",
-            # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-95.h5",
-            # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-96.h5",
-            # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-97.h5",
-            # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-98.h5",
-            # "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-99.h5",
+            "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-90.h5",
+            "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-91.h5",
+            "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-92.h5",
+            "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-93.h5",
+            "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-94.h5",
+            "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-95.h5",
+            "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-96.h5",
+            "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-97.h5",
+            "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-98.h5",
+            "/mnt/mogab/data/pdebench/2D/NS_incom/ns_incom_inhom_2d_512-99.h5",
         ]
-        subsampling_rate: 8,  # 64 x 64 resolution
-        sample_size: 1,  # 1 samples * 50 a/u pairs per sample
+        subsampling_rate: 4  # 128 x 128 resolution
+        sample_size: 4  # 4 samples * 50 a/u pairs per sample
 
     # Weights and biases
     wandb:
@@ -94,13 +101,13 @@ base_config: &BASE_CONFIG
         group: 'neuraloperator'
         project: 'codano-pdebench'
         entity: 'm4e7'
-        log_interval: 5
+        log_interval: 1
 
 
 codano_gino: &CODANO_GINO
     <<: *BASE_CONFIG
     epochs: 50
-    batch_size: 10
+    batch_size: 5  # If this is too big this will make CUDA keel over.
     # input_mesh_location: "../Data/MP_data/mesh.csv"
     radius: 0.08
     gno_mlp_layers: [6, 8]
@@ -115,36 +122,40 @@ codano_gino: &CODANO_GINO
     encoder:
         input_token_codimension: 1
         ### TUNE P1 ###
-        hidden_token_codimension: 6
-        lifting_token_codimension: 12
-        n_heads: [2, 2]
-        n_modes: [[8, 16, 16], [8, 16, 16]]
+        hidden_token_codimension: 8
+        lifting_token_codimension: 16
+        n_heads: [1, 1, 1]
+        n_modes: [[10, 20, 20], [10, 20, 20], [10, 20, 20]]
         ### TUNE P1 ###
-        n_layers: 2
-        scalings: [[1, 1], [1, 1]]
+        n_layers: 3
+        scalings: [[1, 1], [1, 1], [1, 1]]
 
     decoder:
         # Expected to be equal to encoder.hidden_token_codimension:
-        input_token_codimension: 6
+        input_token_codimension: 8
         output_token_codimension: 1
         ### TUNE P1 ###
-        hidden_token_codimension: 6
-        lifting_token_codimension: 12
-        n_heads: [2, 2]
-        n_modes: [[8, 16, 16], [8, 16, 16]]
+        hidden_token_codimension: 8
+        lifting_token_codimension: 16
+        n_heads: [1, 1, 1]
+        n_modes: [[10, 20, 20], [10, 20, 20], [10, 20, 20]]
         ### TUNE P1 ###
-        n_layers: 2
-        scalings: [[1, 1], [1, 1]]
+        n_layers: 3
+        scalings: [[1, 1], [1, 1], [1, 1]]
 
     predictor:
         # Expected to be equal to encoder.hidden_token_codimension:
-        input_token_codimension: 6
-        output_token_codimension:  6
+        input_token_codimension: 8
+        output_token_codimension: 8
         ### TUNE P1 ###
-        hidden_token_codimension: 6
-        lifting_token_codimension: 12
-        n_heads: [2, 2, 2]
-        n_modes: [[8, 16, 16], [8, 16, 16], [8, 16, 16]]
+        hidden_token_codimension: 8
+        lifting_token_codimension: 16
+        n_heads: [1, 1, 1]
+        n_modes: [
+            [10, 20, 20], 
+            [10, 20, 20], 
+            [10, 20, 20],
+        ]
         ### TUNE P1 ###
         n_layers: 3
         scalings: [[1, 1], [1, 1], [1, 1]]

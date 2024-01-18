@@ -25,8 +25,6 @@ from models.fno_gino import FnoGno
 from models.gnn import GNN
 
 # TODO merge methods get_ssl_models_coda*()
-
-
 def get_ssl_models_codaNo(
     params,
     module: Type[CodANO],
@@ -413,8 +411,8 @@ class SSLWrapper(nn.Module):
         decoder,
         contrastive,
         predictor,
-        variables_per_equations: Dict[Equation, int] = {},
-        n_encoding_channels: int = 0,
+        # variables_per_equations: Dict[Equation, int] = None,
+        # n_encoding_channels: int = 1,
         n_static_channels: int = 0,
         stage=StageEnum.PREDICTIVE,
         logger=Optional[logging.Logger],
@@ -445,10 +443,13 @@ class SSLWrapper(nn.Module):
         # non uniform == NS Elastc dataset or archtectures with GNO layers
 
         if self.grid_type == 'uniform':  # TODO add a different option for this
+            variables_per_equation = params.variables_per_equation
+            if params.variables_per_equation is None:
+                variables_per_equation = {}
+            equation_to_encoders = {eq: [] for eq in variables_per_equation}
 
-            equation_to_encoders = {eq: [] for eq in variables_per_equations}
             v = 0
-            for eq, size in variables_per_equations.items():
+            for eq, size in variables_per_equation.items():
                 for _ in range(size):
                     equation_to_encoders[eq] = equation_to_encoders[eq] + [v]
                     v += 1
@@ -456,7 +457,7 @@ class SSLWrapper(nn.Module):
                 {k: tuple(v) for k, v in equation_to_encoders.items()}
 
             # TODO support multiple encoders (?)
-            self.n_encoding_channels = n_encoding_channels
+            self.n_encoding_channels = params.n_encoding_channels
             self.variable_encoders = [
                 FourierVariableEncoding3D(
                     self.n_encoding_channels,
@@ -467,8 +468,6 @@ class SSLWrapper(nn.Module):
                     ),
                 ) for _ in range(v)
             ]
-
-            self.n_encoding_channels = n_encoding_channels
             self.n_static_channels = n_static_channels
 
         if params.grid_type == 'uniform':
@@ -616,18 +615,27 @@ class SSLWrapper(nn.Module):
             equation: Equation = Equation(_equations.pop())
             # TODO add support for arbitrary sets of variables.
             # This would be especially useful for mixed-physics scenarios.
-            encoders_idxs = self.equation_to_encoders[equation]
+            encoders_idxs = self.equation_to_encoders[equation.value]
             encoders = [self.variable_encoders[idx] for idx in encoders_idxs]
             x_embedded = self.encode_variables(x, encoders)
         else:
             x_embedded = x
 
         if self.stage == StageEnum.RECONSTRUCTIVE:
-            return self.forward_reconstructive(x_embedded, in_grid_displacement, out_grid_displacement)
+            return self.forward_reconstructive(
+                x_embedded,
+                in_grid_displacement,
+                out_grid_displacement,
+            )
 
         if self.stage == StageEnum.PREDICTIVE:
-            # print(in_grid_displacement, out_grid_displacement)
-            return self.forward_predictive(x_embedded, in_grid_displacement, out_grid_displacement)
+            #print(in_grid_displacement, out_grid_displacement)
+            return self.forward_predictive(
+                x_embedded,
+                in_grid_displacement,
+                out_grid_displacement,
+            )
+
 
         raise ValueError(f'Expected stage to be one of {list(StageEnum)};\n'
                          f'Got {self.stage=}')
@@ -649,7 +657,12 @@ class SSLWrapper(nn.Module):
         return x_masked
 
     # Assumes `x` is already embedded in its higher-dimensional repr:
-    def forward_reconstructive(self, x, in_grid_displacement=None, out_grid_displacement=None):
+    def forward_reconstructive(
+        self,
+        x,
+        in_grid_displacement=None,
+        out_grid_displacement=None,
+    ):
         # adjusting for chnage of mesh
         if self.grid_type != "uniform":
             with torch.no_grad():
@@ -698,7 +711,6 @@ class SSLWrapper(nn.Module):
         return reconstructed, clean_contra, aug_contra, neg_contra
 
     def encode_input(self, x):
-        # TODO wrap this in pretty method
         if self.freeze_encoder:
             with torch.no_grad():
                 return self.encoder(x)
@@ -706,7 +718,6 @@ class SSLWrapper(nn.Module):
             return self.encoder(x)
 
     def decode_output(self, x):
-        # TODO wrap this in pretty method
         if self.freeze_encoder:
             with torch.no_grad():
                 return self.decoder(x)
@@ -714,8 +725,13 @@ class SSLWrapper(nn.Module):
             return self.decoder(x)
 
     # Assumes `x` is already embedded in its higher-dimensional repr:
-    def forward_predictive(self, x, in_grid_displacement=None, out_grid_displacement=None):
-        if self.grid_type != 'unifrom':
+    def forward_predictive(
+        self,
+        x: torch.Tensor,
+        in_grid_displacement=None,
+        out_grid_displacement=None,
+    ):
+        if self.grid_type != 'uniform':
             with torch.no_grad():
                 # updating neigbors of GNO layers for the new mesh at each time step
                 self.encoder.lifting.update_grid(
@@ -730,11 +746,9 @@ class SSLWrapper(nn.Module):
             out = self.decode_output(out)
 
         cls_offset = 1 if self.enable_cls_token else 0
-
         # discarding CLS token and additional static channels if added.
         # channel dimention is different for uniform and non uniform grids
         # i.e. channel first/last data format
-
         if self.grid_type == 'uniform':
             _slice = [
                 slice(None),  # :

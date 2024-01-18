@@ -1,33 +1,137 @@
 # +
+import gc
+import importlib
+import logging
+import pathlib
+import pprint
 import sys
 
+import matplotlib.pyplot as plt
 import wandb
-# -
 
-from data_utils.hdf5_datasets import *
-from data_utils.visualization import show_multi_physics_data_diffs
-from layers.attention import TNOBlock3D
-from models.codano import CoDANOTemporal
-from models.get_models import *
-from train.trainer import (
-    multi_physics_trainer,
-    test_single_physics,
-)
-from utils import get_wandb_api_key
-from YParams import YParams
-
-
-# +
-# SSL model
-# params = YParams('./config/ssl.yaml', 'codano_gino', print_params=True)
-# params = YParams('./config/test.yaml', 'codano_gino', print_params=True)
-params = YParams('./config/pdebench_overfit.yaml',
-                 'codano_gino', print_params=False)
-verbose = True
+import numpy as np
+import torch
+from torch import nn
+from torch.utils import data
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout, force=True)
 logger = logging.getLogger()  # get the root logger
 # -
+
+# While in development, don't use the `from ... import` syntax. Instead, import the modlue directly so that `importlib` can properly `reload()` it. This way, changes in the source file can propagate directly into this notebook without having to lose the _state_ of this notebook (chiefly, its trained model).
+
+# +
+logger.setLevel(logging.INFO)  # importing from h5py is noisy
+
+try:
+    importlib.reload(data_utils)
+    Equation = data_utils.Equation
+    MultiPhysicsDataset = data_utils.MultiPhysicsDataset
+    NSIncompressibleDataset = data_utils.NSIncompressibleDataset
+except NameError as err:
+    logging.warning(err)
+    # We haven't imported `data_utils.hdf5_datasets` yet.
+    import data_utils
+    Equation = data_utils.Equation
+    MultiPhysicsDataset = data_utils.MultiPhysicsDataset
+    NSIncompressibleDataset = data_utils.NSIncompressibleDataset
+
+logger.setLevel(logging.DEBUG)
+# -
+
+
+try:
+    importlib.reload(data_utils.visualization)
+    show_data_diff = data_utils.visualization.show_data_diff
+    show_multi_physics_data_diffs = data_utils.visualization.show_multi_physics_data_diffs
+except NameError as err:
+    logging.warning(err)
+    from data_utils.visualization import (
+        show_data_diff,
+        show_multi_physics_data_diffs,
+    )
+
+
+try:
+    importlib.reload(layers.attention)
+    TNOBlock3D = layers.attention.TNOBlock3D
+except NameError as err:
+    logging.warning(err)
+    from layers.attention import TNOBlock3D
+
+
+try:
+    importlib.reload(layers.fino)
+    SpectralConvKernel2d = layers.fino.SpectralConvKernel2d
+    SpectralConvolutionKernel3D = layers.fino.SpectralConvolutionKernel3D
+except NameError as err:
+    logging.warning(err)
+    from layers.fino import SpectralConvKernel2d, SpectralConvolutionKernel3D
+
+
+try:
+    importlib.reload(models)
+    CoDANOTemporal = models.codano.CoDANOTemporal
+except NameError as err:
+    logger.warning(err)
+    import models
+    CoDANOTemporal = models.codano.CoDANOTemporal
+
+
+try:
+    importlib.reload(models.get_models)
+    get_ssl_models_codaNo = models.get_models.get_ssl_models_codaNo
+    SSLWrapper = models.get_models.SSLWrapper
+    StageEnum = models.get_models.StageEnum
+except NameError as err:
+    logging.warning(err)
+    import models.get_models
+    get_ssl_models_codaNo = models.get_models.get_ssl_models_codaNo
+    SSLWrapper = models.get_models.SSLWrapper
+    StageEnum = models.get_models.StageEnum
+
+
+try:
+    importlib.reload(train)
+    multi_physics_trainer= train.multi_physics_trainer
+    test_single_physics= train.test_single_physics
+except NameError as err:
+    logging.warning(err)
+    import train
+    multi_physics_trainer= train.multi_physics_trainer
+    test_single_physics= train.test_single_physics
+
+
+# +
+# import inspect
+# print(inspect.getsource(multi_physics_trainer))
+# -
+
+try:
+    importlib.reload(utils)
+    get_wandb_api_key = utils.get_wandb_api_key
+    save_model = utils.save_model
+except NameError as err:
+    logging.warning(err)
+    from utils import get_wandb_api_key, save_model
+
+
+try:
+    importlib.reload(YParams)
+except (ImportError, NameError) as err:
+    logging.warning(err)
+    import YParams
+
+
+# SSL model
+# params = YParams('./config/ssl.yaml', 'codano_gino', print_params=True)
+# params = YParams('./config/test.yaml', 'codano_gino', print_params=True)
+params = YParams.YParams(
+    './config/pdebench.yaml',
+    'codano_gino',
+    print_params=False,
+)
+verbose = True
 
 # Set up WandB logging
 if params.wandb['log']:
@@ -43,6 +147,7 @@ if params.wandb['log']:
 # +
 if verbose:
     logger.debug(f"{params.nettype=}")
+# import pdb; pdb.set_trace()
 if params.nettype == 'transformer':
     if verbose:
         logger.info(f"{params.grid_type=}")
@@ -66,7 +171,6 @@ if params.nettype == 'transformer':
         decoder,
         contrastive,
         predictor,
-        # variables_per_equation,
         stage=('ssl' if params.pretrain_ssl else 'sl'),
     )
 
@@ -140,10 +244,6 @@ test_predictive_loader = data.DataLoader(
     batch_size=params.batch_size,
     shuffle=False,
 )
-
-# +
-# import pdb; pdb.set_trace()
-# x, y = train_reconstructive_loader.dataset[150]
 # -
 
 # Train/test for the reconstructive (i.e. SSL) task:
@@ -156,7 +256,7 @@ multi_physics_trainer(
     test_reconstructive_loader,
     nn.MSELoss(),  # training loss_fn
     params,
-    # epochs=params.epochs // 10,
+    epochs=10,  # XXX
     wandb_log=params.wandb['log'],
     # wandb_log=False,  # debug
     log_interval=params.wandb['log_interval'],
@@ -164,74 +264,53 @@ multi_physics_trainer(
     script=True,
 )
 
-# +
-model.stage = StageEnum.RECONSTRUCTIVE
-# "midpoint" 1 - end SWE; begin diffusion-reaction:
-m1 = len(test_predictive.swe_dataset)
-# "midpoint" 2 - end diffusion-reaction; begin Navier-Stokes:
-m2 = m1 + len(test_predictive.diff_dataset)
-n = len(test_predictive_loader.dataset)
-# Can't use `len(test_predictive_loader)`
-# because this returns the length in units of batches.
-
-print("Test on the Shallow Water Equation dataset:")
-test_single_physics(
-    model,
-    test_reconstructive_loader,
-    nn.MSELoss(),
-    start=0,
-    stop=m1,
-    script=False,
-)
-
-print("Test on the Diffusion-Reaction dataset:")
-test_single_physics(
-    model,
-    test_reconstructive_loader,
-    nn.MSELoss(),
-    start=m1,
-    stop=m2,
-    script=False,
-)
-
-print("Test on the Navier-Stokes dataset:")
-test_single_physics(
-    model,
-    test_reconstructive_loader,
-    nn.MSELoss(),
-    start=m2,
-    stop=n,
-    script=False,
-)
-# print("Test on the mixed dataset:")
-# test_single_physics(0, 4400)
-
-# What is the loss for each channel?
-# -
-
 # *Investigate and visualize performance of encoder/decoder reconstruction.*
 
 
+gc.collect()
+torch.cuda.empty_cache()
+
+# TODO add vis indexes to config file
+# import pdb; pdb.set_trace()
 show_multi_physics_data_diffs(
     model,
     train_reconstructive_loader,
-    StageEnum.RECONSTRUCTIVE,
+    swe_index=0,
+    diff_index=50,
+    ns_index=100,
+    stage=StageEnum.RECONSTRUCTIVE,
     logger=logger,
 )
 
 show_multi_physics_data_diffs(
     model,
     test_reconstructive_loader,
-    StageEnum.RECONSTRUCTIVE,
+    swe_index=0,
+    diff_index=50,
+    ns_index=100,
+    stage=StageEnum.RECONSTRUCTIVE,
     logger=logger,
 )
 
-# TODO make a small helper to (uniquely) name models
-#
-# `torch.save(model, 'weights/model_4_ssl.pth')`
+save_model(
+    model,
+    directory=pathlib.Path('/home/mogab/code/dev/CoDA-NO/weights'),
+    stage=StageEnum.RECONSTRUCTIVE,
+)
 
+# +
+# torch.cuda.empty_cache()
+# gc.collect()
+
+# +
+# pids = extract_pids(msq)
+# signal_my_processes("mogab", pids) # , logger=logger)
+
+# +
 model.train()
 logger.setLevel(logging.DEBUG)
+params['gradient']['threshold'] = 0.1
+
 print(f"{params.pretrain_ssl=}")
 if params.pretrain_ssl:
     # Now train/test for the predictive (i.e. SL) task:
@@ -243,68 +322,47 @@ if params.pretrain_ssl:
         test_predictive_loader,
         nn.MSELoss(),  # training loss_fn
         params,
-        # epochs=1, # use default epochs from params
+        epochs=10, # XXX
         wandb_log=params.wandb['log'],
         log_interval=params.wandb['log_interval'],
     )
-
-# +
-# "midpoint" 1 - end SWE; begin diffusion-reaction:
-m1 = len(test_predictive.swe_dataset)
-# "midpoint" 2 - end diffusion-reaction; begin Navier-Stokes:
-m2 = m1 + len(test_predictive.diff_dataset)
-n = len(test_predictive_loader.dataset)
-
-print("Test on the Shallow Water Equation dataset:")
-test_single_physics(
-    model,
-    test_predictive_loader,
-    nn.MSELoss(),
-    start=0,
-    stop=m1,
-    script=False,
-)
-
-print("Test on the Diffusion-Reaction dataset:")
-test_single_physics(
-    model,
-    test_predictive_loader,
-    nn.MSELoss(),
-    start=m1,
-    stop=m2,
-    script=False,
-)
-
-print("Test on the Navier-Stokes dataset:")
-test_single_physics(
-    model,
-    test_predictive_loader,
-    nn.MSELoss(),
-    start=m2,
-    stop=n,
-    script=False,
-)
-# print("Test on the mixed dataset:")
-# test_single_physics(0, 4400)
 # -
+
+# import pdb; pdb.set_trace()
+test_single_physics(
+    model,
+    test_predictive_loader,
+    nn.MSELoss(),
+    start=200,
+    stop=2_000,
+    script=False,
+)
 
 show_multi_physics_data_diffs(
     model,
     train_predictive_loader,
-    StageEnum.PREDICTIVE,
+    swe_index=0,
+    diff_index=50,
+    ns_index=100,
+    stage=StageEnum.PREDICTIVE,
     logger=logger,
 )
 
-# +
-# show_multi_physics_data_diffs(
-#     model,
-#     test_predictive_loader,
-#     StageEnum.PREDICTIVE,
-#     logger=logger,
-# )
-# -
+show_multi_physics_data_diffs(
+    model,
+    test_predictive_loader,
+    swe_index=0,
+    diff_index=50,
+    ns_index=100,
+    stage=StageEnum.PREDICTIVE,
+    logger=logger,
+)
 
-# torch.save(model, 'weights/model_4_sl.pth')
+save_model(
+    model,
+    directory=pathlib.Path('/home/mogab/code/dev/CoDA-NO/weights'),
+    stage=StageEnum.PREDICTIVE,
+)
 
 if params.wandb['log']:
     wandb.finish()
