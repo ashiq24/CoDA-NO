@@ -9,13 +9,13 @@ import signal
 from typing import List
 
 import h5py
-import haikunator
+#import haikunator
 import numpy as np
 import psutil
 import torch
 import torch.nn as nn
 
-HAIKU = haikunator.Haikunator()
+#HAIKU = haikunator.Haikunator()
 
 def get_wandb_api_key(api_key_file="config/wandb_api_key.txt"):
     try:
@@ -62,8 +62,8 @@ class TokenExpansion(nn.Module):
             self.variable_channels) + len(self.encoding_channels) + len(self.static_channels)), device=inp.device, dtype=inp.dtype)
         x[:, :, self.variable_channels] = inp
         if self.n_static_channels != 0:
-            print(x[:, :, self.static_channels].shape, static_channels.repeat(
-                x.shape[0], 1, 1).shape)
+            # print(x[:, :, self.static_channels].shape, static_channels.repeat(
+            #     x.shape[0], 1, 1).shape)
             x[:, :, self.static_channels] = static_channels.repeat(
                 x.shape[0], 1, 1)
         if self.n_encoding_channels != 0:

@@ -438,8 +438,8 @@ ft_NS_NSES_.5: &FT_NS_NSES_.5
     NS_variable_encoder_path: "../weights/codano_gno_NS_variable_encoder__NS.pt"
     ES_variable_encoder_path: None
 
-    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../../Data/TF_fsi2_results"
+    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../Data/TF_fsi2_results"
 
     mu_list: [0.5]
    
@@ -454,17 +454,67 @@ ft_NS_NSES_10: &FINETUNE_NS_10
     <<: *FT_NS_NSES_.5
     mu_list: [10.0]
 
+#
+# Fine tuning on NS only dataset
+#
+ft_NSES_NS_.5: &FT_NSES_NS_.5
+    <<: *CODANO_FINETUNE
+
+    equation_dict: { "NS": 3}
+    pretrain_weight: "../weights/codano_gno_NS_ES_ssl.pt"
+    NS_variable_encoder_path: "../weights/codano_gno_NS_ES_variable_encoder__NS.pt"
+    ES_variable_encoder_path: "../weights/codano_gno_NS_ES_variable_encoder__ES.pt"
+
+    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
+    data_location: "../Data/TF_cfd_results"
+
+    mu_list: [0.5]
+   
+ft_NSES_NS_1: 
+    <<: *FT_NSES_NS_.5
+    mu_list: [1.0]
+ft_NSES_NS_5: 
+    <<: *FT_NSES_NS_.5
+    mu_list: [5]
+ft_NSES_NS_10: 
+    <<: *FT_NSES_NS_.5
+    mu_list: [10.0]
+
+
+ft_NS_NS_.5: &FT_NS_NS_.5
+    <<: *CODANO_FINETUNE
+    equation_dict: { "NS": 3}
+    pretrain_weight: "../weights/codano_gno_NS_ssl.pt"
+    NS_variable_encoder_path: "../weights/codano_gno_NS_variable_encoder__NS.pt"
+    ES_variable_encoder_path: None
+
+    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
+    data_location: "../Data/TF_cfd_results"
+
+    mu_list: [0.5]
+   
+   
+ft_NS_NS_1: 
+    <<: *FT_NS_NS_.5
+    mu_list: [1.0]
+ft_NS_NS_5: 
+    <<: *FT_NS_NS_.5
+    mu_list: [5]
+ft_NS_NS_10: 
+    <<: *FT_NS_NS_.5
+    mu_list: [10.0]
+
 
 codano_finetune_test:
-    <<: *CODANO_FINETUNE
+    <<: *FT_NS_NS_.5
     epochs: 5
-    equation_dict: { "NS": 3 }
-    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
-    data_location: "../../Data/TF_cfd_results"
-    pretrain_weight: "../weights/codano_test_ssl.pt"
+    # equation_dict: { "NS": 3 }
+    # input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    # data_location: "../../Data/TF_cfd_results"
+    # pretrain_weight: "../weights/codano_test_ssl.pt"
     mu_list: [10.0]
-    dt: 2
-    ntrain: 1
-    ntest: 5
-    NS_variable_encoder_path: "../weights/codano_test_variable_encoder__NS.pt"
-    ES_variable_encoder_path: None
+    # dt: 2
+    # ntrain: 1
+    # ntest: 5
+    # NS_variable_encoder_path: "../weights/codano_test_variable_encoder__NS.pt"
+    # ES_variable_encoder_path: None
