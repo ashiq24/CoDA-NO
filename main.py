@@ -75,8 +75,8 @@ if __name__ == "__main__":
                 print(k.shape)
                 token_expander = TokenExpansion(sum([params.equation_dict[i] for i in params.equation_dict.keys()]),
                                                 params.n_encoding_channels, params.n_static_channels)
-                variable_encoder.cuda()
-                token_expander.cuda()
+                # variable_encoder.cuda()
+                # token_expander.cuda()
 
         print("Parameters Encoder", count_parameters(encoder), "x10^6")
         print("Parameters Decoder", count_parameters(decoder), "x10^6")
@@ -100,7 +100,7 @@ if __name__ == "__main__":
         print("Parameters Model", count_parameters(model), "x10^6")
         input_mesh = None
 
-    model = model.cuda()
+    # model = model.cuda()
     # non-uniform dataset
     print(list(params.equation_dict.keys()))
     dataset = NsElasticDataset(
@@ -121,7 +121,7 @@ if __name__ == "__main__":
     # train, test = get_dummy_dataloaders()
     if params.training_stage == 'fine_tune':
         print(f"Loading Pretrained weights from {params.pretrain_weight}")
-        model.load_state_dict(torch.load(params.pretrain_weight), strict=False)
+        model.load_state_dict(torch.load(params.pretrain_weight,map_location=torch.device('cpu')), strict=False)
         if params.use_variable_encoding:
             print(
                 f"Loading Pretrained weights from {params.NS_variable_encoder_path}")
@@ -133,7 +133,11 @@ if __name__ == "__main__":
                 print("Loading ES variable encoder")
                 variable_encoder.load_encoder(
                     "ES", params.ES_variable_encoder_path)
-
+    model = model.cuda()
+    if variable_encoder is not None:
+        variable_encoder.cuda()
+    if token_expander is not None:
+        token_expander.cuda()
     nonuniform_mesh_trainer(
         model,
         train,

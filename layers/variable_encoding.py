@@ -140,7 +140,7 @@ class VariableEncodingWrapper(nn.Module):
             )
 
     def load_encoder(self, equation: str, path: str):
-        self.model_dict[equation].load_state_dict(torch.load(path))
+        self.model_dict[equation].load_state_dict(torch.load(path, map_location=torch.device('cpu')))
 
     def save_encoder(self, equation: str, path: str):
         torch.save(self.model_dict[equation].state_dict(), path)
