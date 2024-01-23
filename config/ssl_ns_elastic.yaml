@@ -430,8 +430,8 @@ ft_NSES_NSES_.5: &FT_NSES_NSES_.5
     NS_variable_encoder_path: "../weights/codano_gno_NS_ES_variable_encoder__NS.pt"
     ES_variable_encoder_path: "../weights/codano_gno_NS_ES_variable_encoder__ES.pt"
 
-    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../../Data/TF_fsi2_results"
+    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../Data/TF_fsi2_results"
 
     mu_list: [0.5]
    
@@ -454,8 +454,8 @@ ft_NS_NSES_.5: &FT_NS_NSES_.5
     NS_variable_encoder_path: "../weights/codano_gno_NS_variable_encoder__NS.pt"
     ES_variable_encoder_path: None
 
-    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../../Data/TF_fsi2_results"
+    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../Data/TF_fsi2_results"
 
     mu_list: [0.5]
    
