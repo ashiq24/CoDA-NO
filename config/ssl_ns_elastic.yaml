@@ -397,8 +397,46 @@ deeponet: &DEEPONET
     branch_layers: [32,128]
     trunk_layers: [128,128]
     lr: 0.001
+    epochs: 75
     input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
     data_location: "../../Data/TF_fsi2_results"
+
+deeponet_NSES_.5: &DEEPONET_NSES_.5
+    <<: *DEEPONET
+    equation_dict: { "NS": 3 , "ES": 2}
+    n_variables: 5
+    in_dim: 5
+    out_dim: 5
+
+    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../Data/TF_fsi2_results"
+    mu_list: [0.5]
+    
+deeponet_NSES_1: &DEEPONET_NSES_1
+    <<: *DEEPONET_NSES_.5
+    mu_list: [1.0]
+deeponet_NSES_5: &DEEPONET_NSES_5
+    <<: *DEEPONET_NSES_.5
+    mu_list: [5]
+deeponet_NSES_10: &DEEPONET_NSES_10
+    <<: *DEEPONET_NSES_.5
+    mu_list: [10.0]
+
+deeponet_NS_1: &DEEPONET_NS_1
+    <<: *DEEPONET
+    equation_dict: { "NS": 3}
+    n_variables: 3
+    in_dim: 3
+    out_dim: 3
+    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
+    data_location: "../Data/TF_cfd_results"
+    mu_list: [1.0]
+deeponet_NS_5: &DEEPONET_NS_5
+    <<: *DEEPONET_NS_1
+    mu_list: [5]
+deeponet_NS_10: &DEEPONET_NS_10
+    <<: *DEEPONET_NS_1
+    mu_list: [10.0]
 
 deeponet_test:
     <<: *DEEPONET
