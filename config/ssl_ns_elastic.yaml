@@ -384,12 +384,27 @@ gnn_test:
     <<: *GNN
     ntrain: 1
     ntest: 5
+    epochs: 300
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
 
-fno: &FNO
-    <<: *FNO_GNO
-    wandb_name: 'fno'
-    n_modes:       [180,30]
-    grid_type: 'uniform'
+## DeepONet
+
+deeponet: &DEEPONET
+    <<: *GNN
+    nettype: 'deeponet'
+    # data config
+    branch_layers: [128,128]
+    trunk_layers: [128,128]
+    lr: 0.0003
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
+
+deeponet_test:
+    <<: *DEEPONET
+    ntrain: 1
+    ntest: 5
+    epochs: 1000
 
 
 codano_finetune: &CODANO_FINETUNE
@@ -415,8 +430,8 @@ ft_NSES_NSES_.5: &FT_NSES_NSES_.5
     NS_variable_encoder_path: "../weights/codano_gno_NS_ES_variable_encoder__NS.pt"
     ES_variable_encoder_path: "../weights/codano_gno_NS_ES_variable_encoder__ES.pt"
 
-    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../Data/TF_fsi2_results"
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
 
     mu_list: [0.5]
    
@@ -439,8 +454,8 @@ ft_NS_NSES_.5: &FT_NS_NSES_.5
     NS_variable_encoder_path: "../weights/codano_gno_NS_variable_encoder__NS.pt"
     ES_variable_encoder_path: None
 
-    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../Data/TF_fsi2_results"
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
 
     mu_list: [0.5]
    
@@ -466,8 +481,8 @@ ft_NSES_NS_.5: &FT_NSES_NS_.5
     NS_variable_encoder_path: "../weights/codano_gno_NS_ES_variable_encoder__NS.pt"
     ES_variable_encoder_path: "../weights/codano_gno_NS_ES_variable_encoder__ES.pt"
 
-    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
-    data_location: "../Data/TF_cfd_results"
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
 
     mu_list: [0.5]
    
@@ -489,8 +504,8 @@ ft_NS_NS_.5: &FT_NS_NS_.5
     NS_variable_encoder_path: "../weights/codano_gno_NS_variable_encoder__NS.pt"
     ES_variable_encoder_path: None
 
-    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
-    data_location: "../Data/TF_cfd_results"
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
 
     mu_list: [0.5]
    

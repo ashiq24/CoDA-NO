@@ -23,6 +23,7 @@ from models.codano import CodANO, VariableEncodingArgs
 from models.codano_gino import CondnoGino
 from models.fno_gino import FnoGno
 from models.gnn import GNN
+from models.deeponet import DeepONet
 
 # TODO merge methods get_ssl_models_coda*()
 def get_ssl_models_codaNo(
@@ -366,6 +367,16 @@ def get_model_fno(params):
                 n_layers=params.n_layers,
                 lifting=True,
                 projection=True,
+            )
+        elif params.nettype == 'deeponet':
+            model = DeepONet(
+                in_dim,
+                params.out_dim,
+                input_grid=input_mesh,
+                output_grid=output_mesh,
+                branch_layers=params.branch_layers,
+                trunk_layers=params.trunk_layers,
+                initial_mesh=input_mesh,
             )
         else:
             model = FnoGno(

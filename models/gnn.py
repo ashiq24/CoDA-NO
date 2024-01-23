@@ -40,6 +40,7 @@ class GNN(nn.Module):
         self.n_dim = input_grid.shape[-1]
 
         self.in_dim = in_dim
+        
         if hidden_dim is None:
             hidden_dim = in_dim
         if lifting_dim is None:

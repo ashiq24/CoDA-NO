@@ -95,7 +95,7 @@ if __name__ == "__main__":
             input_mesh = torch.from_numpy(mesh).type(torch.float).cuda()
             model.set_initial_mesh(input_mesh)
 
-    elif params.nettype in ['simple', 'gnn']:
+    elif params.nettype in ['simple', 'gnn', 'deeponet']:
         model = get_model_fno(params)
         print("Parameters Model", count_parameters(model), "x10^6")
         input_mesh = None
