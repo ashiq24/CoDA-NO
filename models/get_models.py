@@ -377,6 +377,8 @@ def get_model_fno(params):
                 branch_layers=params.branch_layers,
                 trunk_layers=params.trunk_layers,
                 initial_mesh=input_mesh,
+                n_neigbor=params.n_neigbor,
+                gno_mlp_layers=params.gno_mlp_layers,
             )
         else:
             model = FnoGno(

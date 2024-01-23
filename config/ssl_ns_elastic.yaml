@@ -394,9 +394,9 @@ deeponet: &DEEPONET
     <<: *GNN
     nettype: 'deeponet'
     # data config
-    branch_layers: [128,128]
+    branch_layers: [32,128]
     trunk_layers: [128,128]
-    lr: 0.0003
+    lr: 0.001
     input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
     data_location: "../../Data/TF_fsi2_results"
 
@@ -406,7 +406,9 @@ deeponet_test:
     ntest: 5
     epochs: 1000
 
-
+###########
+# Fine tuning
+###########
 codano_finetune: &CODANO_FINETUNE
     <<: *CODANO_GNO
     epochs: 30
@@ -415,6 +417,8 @@ codano_finetune: &CODANO_FINETUNE
     pretrain_ssl : !!bool False
     lr: 0.01
     scheduler_gamma: 0.5
+    scheduler_type: 'step'
+    scheduler_step: 5
     data_partition: "supervised"
     
     
