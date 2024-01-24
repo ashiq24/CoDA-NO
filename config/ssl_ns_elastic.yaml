@@ -451,7 +451,7 @@ codano_finetune: &CODANO_FINETUNE
     <<: *CODANO_GNO
     epochs: 30
     training_stage: 'fine_tune'
-    freeze_encoder : !!bool True
+    freeze_encoder : !!bool false
     pretrain_ssl : !!bool False
     lr: 0.01
     scheduler_gamma: 0.5
