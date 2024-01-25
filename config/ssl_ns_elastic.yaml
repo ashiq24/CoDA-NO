@@ -280,8 +280,8 @@ fno_NSES_.5: &FNO_NSES_.5
     in_dim: 5
     out_dim: 5
 
-    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../Data/TF_fsi2_results"
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
     mu_list: [0.5]
 
 
@@ -351,8 +351,8 @@ gnn_NSES_.5: &GNN_NSES_.5
     in_dim: 5
     out_dim: 5
 
-    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../Data/TF_fsi2_results"
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
     mu_list: [0.5]
     
 gnn_NSES_1: &gnn_NSES_1
@@ -371,8 +371,8 @@ gnn_NS_1: &GNN_NS_1
     n_variables: 3
     in_dim: 3
     out_dim: 3
-    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
-    data_location: "../Data/TF_cfd_results"
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
     mu_list: [1.0]
 gnn_NS_5: &GNN_NS_5
     <<: *GNN_NS_1
@@ -443,15 +443,24 @@ deeponet_NS_10: &DEEPONET_NS_10
 ###########
 codano_finetune: &CODANO_FINETUNE
     <<: *CODANO_GNO
-    epochs: 30
+    epochs: 50
     training_stage: 'fine_tune'
-    freeze_encoder : !!bool True
+    freeze_encoder : !!bool False
     pretrain_ssl : !!bool False
-    lr: 0.01
+    lr: 0.0005
+    scheduler_step: 10
     scheduler_gamma: 0.5
     scheduler_type: 'step'
-    scheduler_step: 5
+    weight_decay: 0.0000
     data_partition: "supervised"
+
+    #architecture
+
+    n_layers_pred: 1
+    n_heads_pred:    [10]
+
+    n_modes_pred:       [[80, 15]]
+    scalings_pred:     [[1,1]]
     
     
 
