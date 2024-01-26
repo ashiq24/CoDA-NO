@@ -5,17 +5,17 @@
 # Finetuning on NS+ES dataset
 ####
 
-python main.py --config ft_NSES_NSES_1 --ntrain 100
-python main.py --config ft_NSES_NSES_5 --ntrain 100
-python main.py --config ft_NSES_NSES_10 --ntrain 100
+python main.py --config ft_NSES_NSES_1 --ntrain 10
+python main.py --config ft_NSES_NSES_5 --ntrain 10
+python main.py --config ft_NSES_NSES_10 --ntrain 10
 
-python main.py --config ft_NSES_NSES_1 --ntrain 250
-python main.py --config ft_NSES_NSES_5 --ntrain 250
-python main.py --config ft_NSES_NSES_10 --ntrain 250
+python main.py --config ft_NSES_NSES_1 --ntrain 25
+python main.py --config ft_NSES_NSES_5 --ntrain 25
+python main.py --config ft_NSES_NSES_10 --ntrain 25
 
-python main.py --config ft_NSES_NSES_1 --ntrain 500
-python main.py --config ft_NSES_NSES_5 --ntrain 500
-python main.py --config ft_NSES_NSES_10 --ntrain 500
+python main.py --config ft_NSES_NSES_1 --ntrain 50
+python main.py --config ft_NSES_NSES_5 --ntrain 50
+python main.py --config ft_NSES_NSES_10 --ntrain 50
 
 
 

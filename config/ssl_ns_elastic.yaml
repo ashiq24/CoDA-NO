@@ -585,3 +585,61 @@ codano_finetune_test:
     # ntest: 5
     # NS_variable_encoder_path: "../weights/codano_test_variable_encoder__NS.pt"
     # ES_variable_encoder_path: None
+
+
+######
+# CodA-NO without Finetuning
+#####
+scratch_codano: &SCRATCH_CODANO
+    <<: *CODANO_FINETUNE
+    epochs: 50
+    training_stage: 'regular'
+    freeze_encoder : !!bool False
+    pretrain_ssl : !!bool False
+    lr: 0.001
+    scheduler_step: 10
+    scheduler_gamma: 0.5
+    scheduler_type: 'step'
+    weight_decay: 0.0000
+    data_partition: "supervised"
+    
+    # predictor architecture
+    n_layers_pred: 1
+    n_heads_pred:    [10]
+
+    n_modes_pred:       [[80, 15]]
+    scalings_pred:     [[1,1]]
+
+
+codano_NSES_.5: &CODANO_NSES_.5
+    <<: *SCRATCH_CODANO
+    equation_dict: { "NS": 3 , "ES": 2}
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
+    mu_list: [0.5]
+codano_NSES_1: &codano_NSES_1
+    <<: *CODANO_NSES_.5
+    mu_list: [1.0]
+codano_NSES_5: &codano_NSES_5
+    <<: *CODANO_NSES_.5
+    mu_list: [5]
+codano_NSES_10: &codano_NSES_10
+    <<: *CODANO_NSES_.5
+    mu_list: [10.0]
+
+codano_NS_.5: &codano_NS_.5
+    <<: *SCRATCH_CODANO
+    equation_dict: { "NS": 3}
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
+    mu_list: [0.5]
+
+codano_NS_1: 
+    <<: *codano_NS_.5
+    mu_list: [1.0]
+codano_NS_5: 
+    <<: *codano_NS_.5
+    mu_list: [5]
+codano_NS_10: 
+    <<: *codano_NS_.5
+    mu_list: [10.0]
