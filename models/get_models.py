@@ -25,7 +25,7 @@ from models.fno_gino import FnoGno
 from models.gnn import GNN
 from models.deeponet import DeepONet
 from models.vit import VitGno
-
+from models.unet import UnetGno
 # TODO merge methods get_ssl_models_coda*()
 def get_ssl_models_codaNo(
     params,
@@ -395,6 +395,24 @@ def get_model_fno(params):
                 grid_size = tuple(params.grid_size),
                 patch_size = tuple(params.patch_size),
                 heads = params.heads,
+                initial_mesh=input_mesh,
+                lifting=True,
+                projection=True,
+                re_grid_input=False,
+            )
+        elif params.nettype == 'unet':
+             model = UnetGno(
+                in_dim,
+                params.out_dim,
+                input_grid=input_mesh,
+                output_grid=output_mesh,
+                grid_size = tuple(params.grid_size),
+                radius=params.radius,
+                gno_mlp_layers=params.gno_mlp_layers,
+                hidden_dim=params.hidden_dim,
+                lifting_dim=params.lifting_dim,
+                n_layers=params.n_layers,
+                pad_to_size = params.pad_to_size,
                 initial_mesh=input_mesh,
                 lifting=True,
                 projection=True,

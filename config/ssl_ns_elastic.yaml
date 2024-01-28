@@ -503,6 +503,68 @@ vit_testing: &VIT_TESTING
     data_location: "../../Data/TF_fsi2_results"
 
 
+#########
+# unet baseline
+#########
+
+unet: &UNET
+    <<: *GNN
+    nettype: 'unet'
+    grid_size: [251, 42]
+    pad_to_size: [256, 64]
+    hidden_dim: 200
+
+    scheduler_type: 'step'
+    weight_decay: 0.0000
+    scheduler_step: 10
+    scheduler_gamma: 0.5
+
+unet_NSES_.5: &UNET_NSES_.5
+    <<: *UNET
+    equation_dict: { "NS": 3 , "ES": 2}
+    n_variables: 5
+    in_dim: 5
+    out_dim: 5
+
+    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../Data/TF_fsi2_results"
+    mu_list: [0.5]
+    
+unet_NSES_1: &UNET_NSES_1
+    <<: *UNET_NSES_.5
+    mu_list: [1.0]
+unet_NSES_5: &UNET_NSES_5
+    <<: *UNET_NSES_.5
+    mu_list: [5]
+unet_NSES_10: &UNET_NSES_10
+    <<: *UNET_NSES_.5
+    mu_list: [10.0]
+
+unet_NS_1: &UNET_NS_1
+    <<: *UNET
+    equation_dict: { "NS": 3}
+    n_variables: 3
+    in_dim: 3
+    out_dim: 3
+    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
+    data_location: "../Data/TF_cfd_results"
+    mu_list: [1.0]
+unet_NS_5: &UNET_NS_5
+    <<: *UNET_NS_1
+    mu_list: [5]
+unet_NS_10: &UNET_NS_10
+    <<: *UNET_NS_1
+    mu_list: [10.0]
+
+unet_test: &UNET_TEST
+    <<: *UNET
+    ntrain: 1
+    ntest: 5
+    epochs: 500
+    scheduler_step: 30
+    gradient_clip_value: 0.001
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
 
 ###########
 # Fine tuning
