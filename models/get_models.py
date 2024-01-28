@@ -24,6 +24,7 @@ from models.codano_gino import CondnoGino
 from models.fno_gino import FnoGno
 from models.gnn import GNN
 from models.deeponet import DeepONet
+from models.vit import VitGno
 
 # TODO merge methods get_ssl_models_coda*()
 def get_ssl_models_codaNo(
@@ -379,6 +380,25 @@ def get_model_fno(params):
                 initial_mesh=input_mesh,
                 n_neigbor=params.n_neigbor,
                 gno_mlp_layers=params.gno_mlp_layers,
+            )
+        elif params.nettype == 'vit':
+            model = VitGno(
+                in_dim,
+                params.out_dim,
+                input_grid=input_mesh,
+                output_grid=output_mesh,
+                radius=params.radius,
+                gno_mlp_layers=params.gno_mlp_layers,
+                hidden_dim=params.hidden_dim,
+                lifting_dim=params.lifting_dim,
+                n_layers=params.n_layers,
+                grid_size = tuple(params.grid_size),
+                patch_size = tuple(params.patch_size),
+                heads = params.heads,
+                initial_mesh=input_mesh,
+                lifting=True,
+                projection=True,
+                re_grid_input=False,
             )
         else:
             model = FnoGno(

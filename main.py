@@ -95,7 +95,7 @@ if __name__ == "__main__":
             input_mesh = torch.from_numpy(mesh).type(torch.float).cuda()
             model.set_initial_mesh(input_mesh)
 
-    elif params.nettype in ['simple', 'gnn', 'deeponet']:
+    elif params.nettype in ['simple', 'gnn', 'deeponet', 'vit']:
         model = get_model_fno(params)
         print("Parameters Model", count_parameters(model), "x10^6")
         input_mesh = None
@@ -122,6 +122,14 @@ if __name__ == "__main__":
     if params.training_stage == 'fine_tune':
         print(f"Loading Pretrained weights from {params.pretrain_weight}")
         model.load_state_dict(torch.load(params.pretrain_weight,map_location=torch.device('cpu')), strict=False)
+        # if not params.freeze_encoder:
+        #     print("Doing partial Frezzing")
+        #     for p in model.encoder.parameters():
+        #         p.requires_grad = True
+        #     for p in model.encoder.lifting.parameters():
+        #         p.requires_grad = False
+        #     #pass
+                
         if params.use_variable_encoding:
             print(
                 f"Loading Pretrained weights from {params.NS_variable_encoder_path}")
@@ -129,10 +137,15 @@ if __name__ == "__main__":
                 print("Loading NS variable encoder")
                 variable_encoder.load_encoder(
                     "NS", params.NS_variable_encoder_path)
+                # if params.freeze_encoder:
+                #     variable_encoder.freeze("NS")
+
             if "ES" in params.equation_dict.keys() and params.ES_variable_encoder_path is not None:
                 print("Loading ES variable encoder")
                 variable_encoder.load_encoder(
                     "ES", params.ES_variable_encoder_path)
+                # if params.freeze_encoder:
+                #     variable_encoder.freeze("ES")
     model = model.cuda()
     if variable_encoder is not None:
         variable_encoder.cuda()
