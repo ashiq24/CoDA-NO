@@ -13,9 +13,9 @@
 python main.py --config ft_NSES_NSES_5 --ntrain 250
 python main.py --config ft_NSES_NSES_10 --ntrain 250
 
-python main.py --config ft_NSES_NSES_1 --ntrain 500
-python main.py --config ft_NSES_NSES_5 --ntrain 500
-python main.py --config ft_NSES_NSES_10 --ntrain 500
+python main.py --config ft_NSES_NSES_1 --ntrain 50
+python main.py --config ft_NSES_NSES_5 --ntrain 50
+python main.py --config ft_NSES_NSES_10 --ntrain 50
 
 
 

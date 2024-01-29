@@ -364,12 +364,12 @@ class MaskerNonuniformMesh(object):
 
         L, C = size
         mask = torch.ones(size, device=self.device)
-
         drop_t = self.drop_type  # no effect now
 
         augmented_channels = np.random.choice(
             C, math.ceil(C * self.channel_aug_rate))
-        # print(augmented_channels)
+        #print('\n')
+        #print(augmented_channels)
         p = random.random()
         # with 50% probability, drop all pixels in very few channels
         # or doing masking to many channels
@@ -383,10 +383,9 @@ class MaskerNonuniformMesh(object):
             return None, mask
         else:
             drop_len = 0
-
+        #print('masking', augmented_channels[drop_len:])
         for i in augmented_channels[drop_len:]:
             n_drop_pix = self.drop_pix * L
-
             max_location = self.max_block
             while n_drop_pix > 0:
                 # python random is inclusive of low and high

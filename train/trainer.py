@@ -71,6 +71,11 @@ def nonuniform_mesh_trainer(
             static_features = data['static_features']
             equation = [i[0] for i in data['equation']]
             x, y = x.cuda(), y.cuda()
+            if stage == StageEnum.RECONSTRUCTIVE:
+
+                if params.masking:
+                    x = model.do_mask(x)
+
             if variable_encoder is not None and token_expander is not None:
                 inp = token_expander(x, variable_encoder(
                     initial_mesh + data['d_grid_x'].cuda()[0], equation), static_features.cuda())
@@ -103,6 +108,7 @@ def nonuniform_mesh_trainer(
             else:
                 out_grid_displacement = None
                 in_grid_displacement = None
+            
 
             out = model(
                 inp,
@@ -117,6 +123,7 @@ def nonuniform_mesh_trainer(
 
             if stage == StageEnum.RECONSTRUCTIVE:
                 target = x.clone()
+                
             else:
                 target = y.clone()
 
@@ -155,10 +162,10 @@ def nonuniform_mesh_trainer(
         if ep % params.weight_saving_interval == 0 or ep == epochs - 1:
             stage_string = 'ssl' if stage == StageEnum.RECONSTRUCTIVE else 'sl'
 
-            weight_path_model = weight_path + params.config + "_" + stage_string+'.pt'
+            weight_path_model = weight_path + params.config + "_" + stage_string+'_'+str(ep)+'.pt'
             torch.save(model.state_dict(), weight_path_model)
             if variable_encoder is not None:
-                variable_path = weight_path + params.config + "_variable_encoder_"
+                variable_path = weight_path + params.config + "_variable_encoder_"+str(ep)
                 variable_encoder.save_all_encoder(variable_path)
 
     model.eval()

@@ -24,7 +24,8 @@ from models.codano_gino import CondnoGino
 from models.fno_gino import FnoGno
 from models.gnn import GNN
 from models.deeponet import DeepONet
-
+from models.vit import VitGno
+from models.unet import UnetGno
 # TODO merge methods get_ssl_models_coda*()
 def get_ssl_models_codaNo(
     params,
@@ -380,6 +381,43 @@ def get_model_fno(params):
                 n_neigbor=params.n_neigbor,
                 gno_mlp_layers=params.gno_mlp_layers,
             )
+        elif params.nettype == 'vit':
+            model = VitGno(
+                in_dim,
+                params.out_dim,
+                input_grid=input_mesh,
+                output_grid=output_mesh,
+                radius=params.radius,
+                gno_mlp_layers=params.gno_mlp_layers,
+                hidden_dim=params.hidden_dim,
+                lifting_dim=params.lifting_dim,
+                n_layers=params.n_layers,
+                grid_size = tuple(params.grid_size),
+                patch_size = tuple(params.patch_size),
+                heads = params.heads,
+                initial_mesh=input_mesh,
+                lifting=True,
+                projection=True,
+                re_grid_input=False,
+            )
+        elif params.nettype == 'unet':
+             model = UnetGno(
+                in_dim,
+                params.out_dim,
+                input_grid=input_mesh,
+                output_grid=output_mesh,
+                grid_size = tuple(params.grid_size),
+                radius=params.radius,
+                gno_mlp_layers=params.gno_mlp_layers,
+                hidden_dim=params.hidden_dim,
+                lifting_dim=params.lifting_dim,
+                n_layers=params.n_layers,
+                pad_to_size = params.pad_to_size,
+                initial_mesh=input_mesh,
+                lifting=True,
+                projection=True,
+                re_grid_input=False,
+            )
         else:
             model = FnoGno(
                 in_dim,
@@ -685,8 +723,7 @@ class SSLWrapper(nn.Module):
                 self.decoder.projection.update_grid(
                     None, self.initial_mesh + out_grid_displacement)
 
-        x_masked = self.do_mask(x)
-        x_encoded = self.encoder(x_masked)
+        x_encoded = self.encoder(x)
         # print("Feature Shape", x_encoded.shape)
 
         cls_offset = 1 if self.enable_cls_token else 0

@@ -149,6 +149,10 @@ class VariableEncodingWrapper(nn.Module):
         for i in self.equation_dict.keys():
             torch.save(self.model_dict[i].state_dict(), path + f"_{i}"+".pt")
 
+    def freeze(self, equation: str):
+        for param in self.model_dict[equation].parameters():
+            param.requires_grad = False
+            
     def forward(self, grid_poits, equation: str = None):
         encoding_list = []
         if equation is None:
