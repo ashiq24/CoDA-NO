@@ -12,7 +12,7 @@ base_config: &BASE_CONFIG
     channel_drop_per: 0.5   # percentage of affected channels to be dropped completly
     validation_aug: !!bool False 
     max_block_val : 0.3
-    drop_pix_val: 0.4
+    drop_pix_val: 0.5
     channel_per_val: 0.2
     channel_drop_per_val: 1.0
     n_neigbor: 10
@@ -124,18 +124,23 @@ codano_gno: &CODANO_GNO
     n_encoding_channels: 8
     
     n_layers_en: 3
-    n_heads_en:      [10,10,10]  
-    n_layers_dec: 2
-    n_heads_dec:      [10,10]
+    n_heads_en:      [15,15,15]  
+    n_layers_dec: 3
+    n_heads_dec:      [15,15,15]
     n_layers_pred: 2
     n_heads_pred:    [10,10]
 
-    n_modes_en:       [[100, 15], [100, 15], [100, 15]]
-    n_modes_dec:       [[100, 15],[100, 15]]
-    n_modes_pred:       [[100, 15], [100, 15]]
     scalings_en:     [[1,1], [1,1], [1,1]]
-    scalings_dec:     [[1,1],[1,1]]
+    scalings_dec:     [[1,1],[1,1],[1,1]]
     scalings_pred:     [[1,1], [1,1]]
+
+    n_modes_en:       [[100, 15], [100, 15], [100, 15]]
+    n_modes_dec:       [[100, 15],[100, 15],[100, 15]]
+    n_modes_pred:       [[100, 15], [100, 15]]
+
+    hidden_token_codim_en: 64
+    lifting_token_codim_en: 100
+    lifting_token_codim_pred: 80
     
     
     n_static_channels: 4
@@ -210,7 +215,7 @@ codano_test: &CODANO_TEST
     lifting_token_codim_en: 100
     lifting_token_codim_pred: 80
     masking: !!bool True
-    epochs: 5
+    epochs: 100
     mu_list: [1.0]
     lr: 0.001
     weight_decay: 0.0000
