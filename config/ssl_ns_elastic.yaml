@@ -438,6 +438,12 @@ deeponet_NS_10: &DEEPONET_NS_10
     <<: *DEEPONET_NS_1
     mu_list: [10.0]
 
+deeponet_NS_10_10: &DEEPONET_NS_10
+    <<: *DEEPONET_NS_1
+    lr: 0.0007
+    epochs: 150
+    mu_list: [10.0]
+
 ###########
 # Fine tuning
 ###########
