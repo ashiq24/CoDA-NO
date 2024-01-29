@@ -136,18 +136,13 @@ codano_gno: &CODANO_GNO
 
     n_modes_en:       [[100, 15], [100, 15], [100, 15]]
     n_modes_dec:       [[100, 15],[100, 15],[100, 15]]
-    n_modes_pred:       [[100, 15], [100, 15]]
-
-    hidden_token_codim_en: 64
-    lifting_token_codim_en: 100
-    lifting_token_codim_pred: 80
-    
+    n_modes_pred:       [[100, 15], [100, 15]]    
     
     n_static_channels: 4
     in_token_codim_en: 1
-    hidden_token_codim_en: 40
-    lifting_token_codim_en: 80
-    lifting_token_codim_pred: 80
+    hidden_token_codim_en: 64
+    lifting_token_codim_en: 100
+    lifting_token_codim_pred: 100
     out_token_codim_pred:  1
     
     
