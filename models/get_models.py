@@ -723,8 +723,7 @@ class SSLWrapper(nn.Module):
                 self.decoder.projection.update_grid(
                     None, self.initial_mesh + out_grid_displacement)
 
-        x_masked = self.do_mask(x)
-        x_encoded = self.encoder(x_masked)
+        x_encoded = self.encoder(x)
         # print("Feature Shape", x_encoded.shape)
 
         cls_offset = 1 if self.enable_cls_token else 0

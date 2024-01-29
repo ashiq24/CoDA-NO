@@ -219,7 +219,7 @@ codano_test: &CODANO_TEST
     gradient_clip_value: 0.01
     scheduler_gamma: 0.8
     channel_per_val: 0.5  # channel dropping percentage during validation
-    ntrain: 5
+    ntrain: 1
     radius: 1.0
     n_neigbor: 20
     ntest: 5
