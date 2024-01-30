@@ -121,7 +121,7 @@ if __name__ == "__main__":
     # train, test = get_dummy_dataloaders()
     if params.training_stage == 'fine_tune':
         print(f"Loading Pretrained weights from {params.pretrain_weight}")
-        model.load_state_dict(torch.load(params.pretrain_weight,map_location=torch.device('cpu')), strict=False)
+        model.encoder.load_state_dict(torch.load(params.pretrain_weight), strict=True)
         # if not params.freeze_encoder:
         #     print("Doing partial Frezzing")
         #     for p in model.encoder.parameters():
@@ -137,15 +137,15 @@ if __name__ == "__main__":
                 print("Loading NS variable encoder")
                 variable_encoder.load_encoder(
                     "NS", params.NS_variable_encoder_path)
-                # if params.freeze_encoder:
-                #     variable_encoder.freeze("NS")
+                if params.freeze_encoder:
+                    variable_encoder.freeze("NS")
 
             if "ES" in params.equation_dict.keys() and params.ES_variable_encoder_path is not None:
                 print("Loading ES variable encoder")
                 variable_encoder.load_encoder(
                     "ES", params.ES_variable_encoder_path)
-                # if params.freeze_encoder:
-                #     variable_encoder.freeze("ES")
+                if params.freeze_encoder:
+                    variable_encoder.freeze("ES")
     model = model.cuda()
     if variable_encoder is not None:
         variable_encoder.cuda()
