@@ -113,7 +113,7 @@ codano_gno: &CODANO_GNO
     # training. hypers
     epochs: 15
     batch_size: 1
-    lr: 0.001
+    lr: 0.0005
     weight_decay: 0.0000
     scheduler_type: 'rdp'
     scheduler_step: 3
@@ -136,13 +136,15 @@ codano_gno: &CODANO_GNO
 
     n_modes_en:       [[100, 15], [100, 15], [100, 15]]
     n_modes_dec:       [[100, 15],[100, 15],[100, 15]]
-    n_modes_pred:       [[100, 15], [100, 15]]    
+    n_modes_pred:       [[100, 15], [100, 15]]
+
+    hidden_token_codim_en: 64
+    lifting_token_codim_en: 100
+    lifting_token_codim_pred: 80
+    
     
     n_static_channels: 4
     in_token_codim_en: 1
-    hidden_token_codim_en: 64
-    lifting_token_codim_en: 100
-    lifting_token_codim_pred: 100
     out_token_codim_pred:  1
     
     
@@ -165,8 +167,8 @@ codano_non_lin: &CODANO_NON_LIN
 codano_gno_NS_ES: &CODANO_GNO_NS_ES
     <<: *CODANO_GNO
     equation_dict: { "NS": 3 , "ES": 2}
-    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../Data/TF_fsi2_results"
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
     mu_list: [1.0, 10.0]
     dt: 2
     radius: 0.05
@@ -176,8 +178,8 @@ codano_gno_NS_ES: &CODANO_GNO_NS_ES
 codano_gno_NS: &CODANO_GNO_NS
     <<: *CODANO_GNO
     equation_dict: { "NS": 3 }
-    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
-    data_location: "../Data/TF_cfd_results"
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
     mu_list: [1.0, 10.0]
     dt: 2
     radius: 0.05
@@ -188,8 +190,8 @@ codano_gno_NS: &CODANO_GNO_NS
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
     equation_dict: { "NS": 3 , "ES": 2}
-    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../../Data/TF_fsi2_results"
+    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../Data/TF_fsi2_results"
 
     n_layers_en: 3
     n_heads_en:      [15,15,15]  
@@ -398,8 +400,8 @@ deeponet: &DEEPONET
     trunk_layers: [128,128]
     lr: 0.001
     epochs: 75
-    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../../Data/TF_fsi2_results"
+    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../Data/TF_fsi2_results"
 
 deeponet_NSES_.5: &DEEPONET_NSES_.5
     <<: *DEEPONET
@@ -438,11 +440,11 @@ deeponet_NS_10: &DEEPONET_NS_10
     <<: *DEEPONET_NS_1
     mu_list: [10.0]
 
-deeponet_test:
-    <<: *DEEPONET
-    ntrain: 1
-    ntest: 5
-    epochs: 1000
+deeponet_NS_10_10: &DEEPONET_NS_10
+    <<: *DEEPONET_NS_1
+    lr: 0.0007
+    epochs: 150
+    mu_list: [10.0]
 
 
 ##########
@@ -604,8 +606,8 @@ ft_NSES_NSES_.5: &FT_NSES_NSES_.5
     NS_variable_encoder_path: "../weights/codano_gno_NS_ES_variable_encoder__NS.pt"
     ES_variable_encoder_path: "../weights/codano_gno_NS_ES_variable_encoder__ES.pt"
 
-    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../../Data/TF_fsi2_results"
+    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../Data/TF_fsi2_results"
 
     mu_list: [0.5]
    
@@ -645,8 +647,8 @@ ft_NS_NSES_.5: &FT_NS_NSES_.5
     NS_variable_encoder_path: "../weights/codano_gno_NS_variable_encoder__NS.pt"
     ES_variable_encoder_path: None
 
-    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
-    data_location: "../../Data/TF_fsi2_results"
+    input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../Data/TF_fsi2_results"
 
     mu_list: [0.5]
    

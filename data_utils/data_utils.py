@@ -334,7 +334,7 @@ class MaskerNonuniformMesh(object):
         channel_aug_rate=0.7,
         channel_drop_rate=0.2,
         device='cpu',
-        max_block=13,
+        max_block=10,
         verbose=None
     ):
         """

@@ -162,10 +162,10 @@ def nonuniform_mesh_trainer(
         if ep % params.weight_saving_interval == 0 or ep == epochs - 1:
             stage_string = 'ssl' if stage == StageEnum.RECONSTRUCTIVE else 'sl'
 
-            weight_path_model = weight_path + params.config + "_" + stage_string+'.pt'
+            weight_path_model = weight_path + params.config + "_" + stage_string+'_'+str(ep)+'.pt'
             torch.save(model.state_dict(), weight_path_model)
             if variable_encoder is not None:
-                variable_path = weight_path + params.config + "_variable_encoder_"
+                variable_path = weight_path + params.config + "_variable_encoder_"+str(ep)
                 variable_encoder.save_all_encoder(variable_path)
 
     model.eval()
