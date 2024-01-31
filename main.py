@@ -121,7 +121,7 @@ if __name__ == "__main__":
     # train, test = get_dummy_dataloaders()
     if params.training_stage == 'fine_tune':
         print(f"Loading Pretrained weights from {params.pretrain_weight}")
-        model.load_state_dict(torch.load(params.pretrain_weight,map_location=torch.device('cpu')), strict=False)
+        model.encoder.load_state_dict(torch.load(params.pretrain_weight), strict=True)
         # if not params.freeze_encoder:
         #     print("Doing partial Frezzing")
         #     for p in model.encoder.parameters():

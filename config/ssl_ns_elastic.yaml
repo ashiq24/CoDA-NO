@@ -574,13 +574,33 @@ unet_test: &UNET_TEST
 ###########
 codano_finetune: &CODANO_FINETUNE
     <<: *CODANO_GNO
-    epochs: 50
+    # epochs: 50
+    # training_stage: 'fine_tune'
+    # freeze_encoder : !!bool False
+    # pretrain_ssl : !!bool False
+    # lr: 0.0005
+    # scheduler_step: 10
+    # scheduler_gamma: 0.5
+    # scheduler_type: 'step'
+    # weight_decay: 0.0000
+    # data_partition: "supervised"
+
+    # #architecture
+
+    # n_layers_pred: 1
+    # n_heads_pred:    [10]
+
+    # n_modes_pred:       [[80, 15]]
+    # scalings_pred:     [[1,1]]
+
+
+    #big model config
+    epochs: 30
     training_stage: 'fine_tune'
-    freeze_encoder : !!bool False
+    freeze_encoder : !!bool True
     pretrain_ssl : !!bool False
     lr: 0.0005
-    scheduler_step: 10
-    scheduler_gamma: 0.5
+    scheduler_step: 5
     scheduler_type: 'step'
     weight_decay: 0.0000
     data_partition: "supervised"
@@ -588,10 +608,12 @@ codano_finetune: &CODANO_FINETUNE
     #architecture
 
     n_layers_pred: 1
-    n_heads_pred:    [10]
+    n_heads_pred:    [1]
 
-    n_modes_pred:       [[80, 15]]
+    n_modes_pred:       [[100, 15]]
     scalings_pred:     [[1,1]]
+
+
     
     
 
@@ -602,39 +624,24 @@ ft_NSES_NSES_.5: &FT_NSES_NSES_.5
     <<: *CODANO_FINETUNE
 
     equation_dict: { "NS": 3 , "ES": 2}
-    pretrain_weight: "../weights/codano_gno_NS_ES_ssl.pt"
-    NS_variable_encoder_path: "../weights/codano_gno_NS_ES_variable_encoder__NS.pt"
-    ES_variable_encoder_path: "../weights/codano_gno_NS_ES_variable_encoder__ES.pt"
+    pretrain_weight: "../weights_/codano_gno_NS_ES_encoder_ssl_5.pt"
+    NS_variable_encoder_path: "../weights_/codano_gno_NS_ES_variable_encoder_5_NS.pt"
+    ES_variable_encoder_path: "../weights_/codano_gno_NS_ES_variable_encoder_5_ES.pt"
 
     input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
     data_location: "../Data/TF_fsi2_results"
 
     mu_list: [0.5]
    
-ft_NSES_NSES_1: &FINETUNE_NSES_1
+ft_NSES_NSES_1_test: &FINETUNE_NSES_1
     <<: *FT_NSES_NSES_.5
     mu_list: [1.0]
-ft_NSES_NSES_5: &FINETUNE_NSES_5
+
+ft_NSES_NSES_5_test: &FINETUNE_NSES_5
     <<: *FT_NSES_NSES_.5
     mu_list: [5]
 ft_NSES_NSES_10: &FINETUNE_NSES_10
     <<: *FT_NSES_NSES_.5
-
-    # training_stage: 'fine_tune'
-    # freeze_encoder : !!bool False
-    # pretrain_ssl : !!bool False
-    # lr: 0.00005
-    # scheduler_step: 5
-    # scheduler_gamma: 0.5
-    # scheduler_type: 'step'
-    # weight_decay: 0.0000000
-
-    # n_layers_pred: 1
-    # n_heads_pred:    [10]
-
-    # n_modes_pred:       [[80, 15]]
-    # scalings_pred:     [[1,1]]
-    # epochs: 50
 
     mu_list: [10.0]
 
@@ -643,8 +650,8 @@ ft_NS_NSES_.5: &FT_NS_NSES_.5
     <<: *CODANO_FINETUNE
 
     equation_dict: { "NS": 3 , "ES": 2}
-    pretrain_weight: "../weights/codano_gno_NS_ssl.pt"
-    NS_variable_encoder_path: "../weights/codano_gno_NS_variable_encoder__NS.pt"
+    pretrain_weight: "../weights_/codano_gno_NS_encoder_ssl_5.pt"
+    NS_variable_encoder_path: "../weights_/codano_gno_NS_variable_encoder_5_NS.pt"
     ES_variable_encoder_path: None
 
     input_mesh_location: "../Data/TF_fsi2_results/mesh.h5"
@@ -653,7 +660,7 @@ ft_NS_NSES_.5: &FT_NS_NSES_.5
     mu_list: [0.5]
    
    
-ft_NS_NSES_1: &FINETUNE_NS_1
+ft_NS_NSES_1_test: &FINETUNE_NS_1
     <<: *FT_NS_NSES_.5
     mu_list: [1.0]
 ft_NS_NSES_5: &FINETUNE_NS_5
@@ -670,9 +677,9 @@ ft_NSES_NS_.5: &FT_NSES_NS_.5
     <<: *CODANO_FINETUNE
 
     equation_dict: { "NS": 3}
-    pretrain_weight: "../weights/codano_gno_NS_ES_ssl.pt"
-    NS_variable_encoder_path: "../weights/codano_gno_NS_ES_variable_encoder__NS.pt"
-    ES_variable_encoder_path: "../weights/codano_gno_NS_ES_variable_encoder__ES.pt"
+    pretrain_weight: "../weights_/codano_gno_NS_ES_encoder_ssl_5.pt"
+    NS_variable_encoder_path: "../weights_/codano_gno_NS_ES_variable_encoder_5_NS.pt"
+    ES_variable_encoder_path: "../weights_/codano_gno_NS_ES_variable_encoder_5_ES.pt"
 
     input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
     data_location: "../../Data/TF_cfd_results"
@@ -693,8 +700,8 @@ ft_NSES_NS_10:
 ft_NS_NS_.5: &FT_NS_NS_.5
     <<: *CODANO_FINETUNE
     equation_dict: { "NS": 3}
-    pretrain_weight: "../weights/codano_gno_NS_ssl.pt"
-    NS_variable_encoder_path: "../weights/codano_gno_NS_variable_encoder__NS.pt"
+    pretrain_weight: "../weights_/codano_gno_NS_encoder_ssl_5.pt"
+    NS_variable_encoder_path: "../weights_/codano_gno_NS_variable_encoder_5_NS.pt"
     ES_variable_encoder_path: None
 
     input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
