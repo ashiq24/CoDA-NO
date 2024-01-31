@@ -440,7 +440,7 @@ deeponet_NS_10: &DEEPONET_NS_10
     <<: *DEEPONET_NS_1
     mu_list: [10.0]
 
-deeponet_NS_10_10: &DEEPONET_NS_10
+deeponet_NS_10_10: &DEEPONET_NS_10_10
     <<: *DEEPONET_NS_1
     lr: 0.0007
     epochs: 150
@@ -633,11 +633,11 @@ ft_NSES_NSES_.5: &FT_NSES_NSES_.5
 
     mu_list: [0.5]
    
-ft_NSES_NSES_1_test: &FINETUNE_NSES_1
+ft_NSES_NSES_1: &FINETUNE_NSES_1
     <<: *FT_NSES_NSES_.5
     mu_list: [1.0]
 
-ft_NSES_NSES_5_test: &FINETUNE_NSES_5
+ft_NSES_NSES_5: &FINETUNE_NSES_5
     <<: *FT_NSES_NSES_.5
     mu_list: [5]
 ft_NSES_NSES_10: &FINETUNE_NSES_10
@@ -660,7 +660,7 @@ ft_NS_NSES_.5: &FT_NS_NSES_.5
     mu_list: [0.5]
    
    
-ft_NS_NSES_1_test: &FINETUNE_NS_1
+ft_NS_NSES_1: &FINETUNE_NS_1
     <<: *FT_NS_NSES_.5
     mu_list: [1.0]
 ft_NS_NSES_5: &FINETUNE_NS_5
@@ -681,8 +681,8 @@ ft_NSES_NS_.5: &FT_NSES_NS_.5
     NS_variable_encoder_path: "../weights_/codano_gno_NS_ES_variable_encoder_5_NS.pt"
     ES_variable_encoder_path: "../weights_/codano_gno_NS_ES_variable_encoder_5_ES.pt"
 
-    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
-    data_location: "../../Data/TF_cfd_results"
+    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
+    data_location: "../Data/TF_cfd_results"
 
     mu_list: [0.5]
    
@@ -704,8 +704,8 @@ ft_NS_NS_.5: &FT_NS_NS_.5
     NS_variable_encoder_path: "../weights_/codano_gno_NS_variable_encoder_5_NS.pt"
     ES_variable_encoder_path: None
 
-    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
-    data_location: "../../Data/TF_cfd_results"
+    input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
+    data_location: "../Data/TF_cfd_results"
 
     mu_list: [0.5]
    
