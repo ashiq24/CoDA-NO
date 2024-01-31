@@ -608,7 +608,7 @@ codano_finetune: &CODANO_FINETUNE
     #architecture
 
     n_layers_pred: 1
-    n_heads_pred:    [15]
+    n_heads_pred:    [1]
 
     n_modes_pred:       [[100, 15]]
     scalings_pred:     [[1,1]]
@@ -637,7 +637,7 @@ ft_NSES_NSES_1_test: &FINETUNE_NSES_1
     <<: *FT_NSES_NSES_.5
     mu_list: [1.0]
 
-ft_NSES_NSES_5: &FINETUNE_NSES_5
+ft_NSES_NSES_5_test: &FINETUNE_NSES_5
     <<: *FT_NSES_NSES_.5
     mu_list: [5]
 ft_NSES_NSES_10: &FINETUNE_NSES_10
