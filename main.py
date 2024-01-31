@@ -137,15 +137,15 @@ if __name__ == "__main__":
                 print("Loading NS variable encoder")
                 variable_encoder.load_encoder(
                     "NS", params.NS_variable_encoder_path)
-                # if params.freeze_encoder:
-                #     variable_encoder.freeze("NS")
+                if params.freeze_encoder:
+                    variable_encoder.freeze("NS")
 
             if "ES" in params.equation_dict.keys() and params.ES_variable_encoder_path is not None:
                 print("Loading ES variable encoder")
                 variable_encoder.load_encoder(
                     "ES", params.ES_variable_encoder_path)
-                # if params.freeze_encoder:
-                #     variable_encoder.freeze("ES")
+                if params.freeze_encoder:
+                    variable_encoder.freeze("ES")
     model = model.cuda()
     if variable_encoder is not None:
         variable_encoder.cuda()
