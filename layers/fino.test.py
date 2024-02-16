@@ -16,10 +16,8 @@ class SpectralConvKernel2DTest(unittest.TestCase):
 
         # TODO convolution.half_n_modes is immutable and should be a tuple
         self.assertEqual(tuple(convolution.half_n_modes), (8, 8))
-        self.assertEqual(tuple(convolution.W1r.shape), (8, 8, 8, 8))
-        self.assertEqual(tuple(convolution.W1i.shape), (8, 8, 8, 8))
-        self.assertEqual(tuple(convolution.W2r.shape), (8, 8, 8, 8))
-        self.assertEqual(tuple(convolution.W2i.shape), (8, 8, 8, 8))
+        self.assertEqual(tuple(convolution.W1.shape), (8, 8, 8, 8))
+        self.assertEqual(tuple(convolution.W2.shape), (8, 8, 8, 8))
         self.assertIsNone(convolution.forward_sht)
         self.assertIsNone(convolution.inverse_sht)
 
@@ -94,10 +92,11 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         )
 
         # This size doesn't need to be equal to that of `modes` above:
-        x = torch.randn((1, 16, 16))
+        x = torch.randn((1, 16, 16), dtype=torch.float64)
         y = convolution.forward_transform(x)
         # FFT takes the real frequency modes (i.e. the upper x.size(-1)//2 + 1 modes)
         self.assertEqual(tuple(y.shape), (1, 16, 9))
+        self.assertEqual(y.dtype, torch.complex64)
 
     def test_forward_transform_invalid_transform(self):
         convolution = SpectralConvKernel2d(
@@ -130,7 +129,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         )
         sht1 = convolution.forward_sht
 
-        x = torch.randn((1, sht_nlat, sht_nlon))
+        x = torch.randn((1, sht_nlat, sht_nlon), dtype=torch.float32)
         y = convolution.forward_transform(x)
         sht2 = convolution.forward_sht
 
@@ -139,6 +138,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         # This seems to be treating lat/long like half modes.
         # TODO(ashiq) Is this expected behavior?
         self.assertEqual(tuple(y.shape), (1, sht_nlat, sht_nlon))
+        self.assertEqual(y.dtype, torch.complex64)
 
     def test_forward_transform_sht_uses_new_transform(self):
         sht_nlat = 180
@@ -154,7 +154,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         )
         sht1 = convolution.forward_sht
 
-        x = torch.randn((1, sht_nlat, sht_nlon))
+        x = torch.randn((1, sht_nlat, sht_nlon), dtype=torch.float32)
         y = convolution.forward_transform(x)
         sht2 = convolution.forward_sht
 
@@ -163,6 +163,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         # This seems to be treating lat/long like half modes.
         # TODO(ashiq) Is this expected behavior?
         self.assertEqual(tuple(y.shape), (1, sht_nlat, sht_nlon))
+        self.assertEqual(y.dtype, torch.complex64)
 
     def test_inverse_transform_fft(self):
         frequency_modes = 16
@@ -175,7 +176,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         )
 
         # This size DOES need to be equal to that of `modes` above:
-        x = torch.randn((1, frequency_modes, frequency_modes))
+        x = torch.randn((1, frequency_modes, frequency_modes), dtype=torch.complex64)
         y = convolution.inverse_transform(
             x,
             target_height=physical_resolution,
@@ -185,6 +186,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
             tuple(y.shape),
             (1, physical_resolution, physical_resolution)
         )
+        self.assertEqual(y.dtype, torch.float32)
 
     def test_inverse_transform_invalid_transform(self):
         frequency_modes = 16
@@ -220,12 +222,13 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         )
         isht1 = convolution.inverse_sht
 
-        x = torch.randn((1, sht_nlat, sht_nlon // 2 + 1))
+        x = torch.randn((1, sht_nlat, sht_nlon // 2 + 1), dtype=torch.complex64)
         y = convolution.inverse_transform(x, sht_nlat, sht_nlon)
         isht2 = convolution.inverse_sht
 
         self.assertEqual(id(isht1), id(isht2))
         self.assertEqual(tuple(y.shape), (1, sht_nlat, sht_nlon))
+        self.assertEqual(y.dtype, torch.float32)
 
     def test_inverse_transform_sht_uses_new_transform_mismatched_source(self):
         sht_nlat = 180
@@ -242,12 +245,13 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         isht1 = convolution.inverse_sht
 
         # Mismatch on input tensor shape will instantiate a new SHT transform:
-        x = torch.randn((1, 18, 36))
+        x = torch.randn((1, 18, 36), dtype=torch.complex64)
         y = convolution.inverse_transform(x, sht_nlat, sht_nlon)
         isht2 = convolution.inverse_sht
 
         self.assertNotEqual(id(isht1), id(isht2))
         self.assertEqual(tuple(y.shape), (1, sht_nlat, sht_nlon))
+        self.assertEqual(y.dtype, torch.float32)
 
     def test_inverse_transform_sht_uses_new_transform_mismatched_target(self):
         sht_nlat = 180
@@ -263,7 +267,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         )
         isht1 = convolution.inverse_sht
 
-        x = torch.randn((1, sht_nlat, sht_nlon))
+        x = torch.randn((1, sht_nlat, sht_nlon), dtype=torch.complex64)
         # Mismatch on requested output tensor shape
         # will instantiate a new SHT transform:
         target_height = 18
@@ -273,6 +277,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
 
         self.assertNotEqual(id(isht1), id(isht2))
         self.assertEqual(tuple(y.shape), (1, target_height, target_width))
+        self.assertEqual(y.dtype, torch.float32)
 
     def test_forward_propagation(self):
         convolution = SpectralConvKernel2d(
@@ -282,12 +287,14 @@ class SpectralConvKernel2DTest(unittest.TestCase):
             transform_type="fft",
         )
 
-        x = torch.randn((1, 4, 64, 64))
+        x = torch.randn((1, 4, 64, 64), dtype=torch.float32)
         y1 = convolution(x)
         self.assertEqual(tuple(y1.shape), (1, 8, 64, 64))
+        self.assertEqual(y1.dtype, torch.float32)
 
         y2 = convolution(x, output_shape=(128, 128))
         self.assertEqual(tuple(y2.shape), (1, 8, 128, 128))
+        self.assertEqual(y2.dtype, torch.float32)
 
     def test_forward_propagation_with_output_scaling(self):
         convolution = SpectralConvKernel2d(
@@ -299,34 +306,18 @@ class SpectralConvKernel2DTest(unittest.TestCase):
             frequency_mixer=True,
         )
 
-        x = torch.randn((1, 4, 64, 64))
+        x = torch.randn((1, 4, 64, 64), dtype=torch.float32)
         y1 = convolution(x)
         self.assertEqual(tuple(y1.shape), (1, 8, 256, 256))
+        self.assertEqual(y1.dtype, torch.float32)
 
         # Explicitly passing in ``output_shape`` overrides ``scaling_factor`` state:
         y2 = convolution(x, output_shape=(128, 128))
         self.assertEqual(tuple(y2.shape), (1, 8, 128, 128))
+        self.assertEqual(y2.dtype, torch.float32)
 
 
 class SpectralConvKernel3DTest(unittest.TestCase):
-    """
-    TODO:
-    * half_n_modes: init and usage [ in fwd() ]
-    * upper/lower modes /W[ri]/ parameters and shape.
-    ---
-    * forward_transform
-    ** does "fft"
-    ** throws otherwise
-    ---
-    * forward_transform
-    ** does "fft"
-    ** throws otherwise
-    ---
-    * forward
-    ** check shape with scaling, output shape, and by default
-    ** does it fill all the output channels?
-    ** bias term biases (!)
-    """
     def test_initialization(self):
         convolution = SpectralConvolutionKernel3D(
             in_channels=4,
@@ -341,12 +332,8 @@ class SpectralConvKernel3DTest(unittest.TestCase):
         # TODO convolution.half_n_modes is immutable and should be a tuple
         self.assertEqual(tuple(convolution.half_n_modes), expected_modes)
         self.assertEqual(
-            [tuple(w.shape) for w in convolution.weights_re],
-            [expected_shape for _ in convolution.weights_re],
-        )
-        self.assertEqual(
-            [tuple(w.shape) for w in convolution.weights_im],
-            [expected_shape for _ in convolution.weights_im],
+            [tuple(w.shape) for w in convolution.weights],
+            [expected_shape for _ in convolution.weights],
         )
 
     def test_forward_transform_fft(self):
@@ -358,10 +345,11 @@ class SpectralConvKernel3DTest(unittest.TestCase):
         )
 
         # This size doesn't need to be equal to that of `modes` above:
-        x = torch.randn((1, 16, 16, 16))
+        x = torch.randn((1, 16, 16, 16), dtype=torch.float64)
         y = convolution.forward_transform(x)
         # FFT takes the real frequency modes (i.e. the upper x.size(-1)//2 + 1 modes)
         self.assertEqual(tuple(y.shape), (1, 16, 16, 9))
+        self.assertEqual(y.dtype, torch.complex64)
 
     def test_forward_transform_invalid_transform(self):
         convolution = SpectralConvolutionKernel3D(
@@ -391,7 +379,10 @@ class SpectralConvKernel3DTest(unittest.TestCase):
         )
 
         # This size DOES need to be equal to that of `modes` above:
-        x = torch.randn((1, frequency_modes, frequency_modes, frequency_modes))
+        x = torch.randn(
+            (1, frequency_modes, frequency_modes, frequency_modes),
+            dtype=torch.complex64,
+        )
         y = convolution.inverse_transform(
             x,
             duration=physical_resolution,
@@ -402,6 +393,7 @@ class SpectralConvKernel3DTest(unittest.TestCase):
             tuple(y.shape),
             (1, physical_resolution, physical_resolution, physical_resolution)
         )
+        self.assertEqual(y.dtype, torch.float32)
 
     def test_inverse_transform_invalid_transform(self):
         frequency_modes = 16
@@ -432,12 +424,14 @@ class SpectralConvKernel3DTest(unittest.TestCase):
             transform_type="fft",
         )
 
-        x = torch.randn((1, 4, 32, 32, 32))
+        x = torch.randn((1, 4, 32, 32, 32), dtype=torch.float32)
         y1 = convolution(x)
         self.assertEqual(tuple(y1.shape), (1, 8, 32, 32, 32))
+        self.assertEqual(y1.dtype, torch.float32)
 
         y2 = convolution(x, output_shape=(48, 48, 48))
         self.assertEqual(tuple(y2.shape), (1, 8, 48, 48, 48))
+        self.assertEqual(y2.dtype, torch.float32)
 
     def test_forward_propagation_with_output_scaling(self):
         convolution = SpectralConvolutionKernel3D(
@@ -449,13 +443,15 @@ class SpectralConvKernel3DTest(unittest.TestCase):
             frequency_mixer=True,
         )
 
-        x = torch.randn((1, 4, 16, 16, 16))
+        x = torch.randn((1, 4, 16, 16, 16), dtype=torch.float32)
         y1 = convolution(x)
         self.assertEqual(tuple(y1.shape), (1, 8, 32, 32, 32))
+        self.assertEqual(y1.dtype, torch.float32)
 
         # Explicitly passing in ``output_shape`` overrides ``scaling_factor`` state:
         y2 = convolution(x, output_shape=(24, 24, 24))
         self.assertEqual(tuple(y2.shape), (1, 8, 24, 24, 24))
+        self.assertEqual(y2.dtype, torch.float32)
 
 
 if __name__ == '__main__':

@@ -89,44 +89,17 @@ class SpectralConvKernel2d(SpectralConv):
         # weights for frequency mixers
 
         hm1, hm2 = self.half_n_modes[0], self.half_n_modes[1]
-        # TODO(mogab) use logger
-        # print("Using Half modes", self.half_n_modes[0], self.half_n_modes[1])
+        # self.logger.debug(f"{self.half_n_modes=}")
         if frequency_mixer:
             # if frequency mixer is true
             # then initializing weights for frequency mixing
             # otherwise it is just a regular FNO or SFNO layer
-            # TODO(mogab) use logger
-            # print("using Mixer")
-            # shape = (hm1, hm2, hm1, hm2)
-            self.W1r = nn.Parameter(
-                torch.empty(
-                    hm1,
-                    hm2,
-                    hm1,
-                    hm2,
-                    dtype=torch.float))
-            self.W2r = nn.Parameter(
-                torch.empty(
-                    hm1,
-                    hm2,
-                    hm1,
-                    hm2,
-                    dtype=torch.float))
-            self.W1i = nn.Parameter(
-                torch.empty(
-                    hm1,
-                    hm2,
-                    hm1,
-                    hm2,
-                    dtype=torch.float))
-            self.W2i = nn.Parameter(
-                torch.empty(
-                    hm1,
-                    hm2,
-                    hm1,
-                    hm2,
-                    dtype=torch.float))
+            shape = (hm1, hm2, hm1, hm2)
+            self.W1 = nn.Parameter(torch.empty(shape, dtype=torch.cfloat))
+            self.W2 = nn.Parameter(torch.empty(shape, dtype=torch.cfloat))
             self.reset_parameter()
+            # self.logger.debug(f"Frequency mixer {self.W1.shape=}")
+            # self.logger.debug(f"Frequency mixer {self.W2.shape=}")
 
         self.sht_grid = sht_grid
         self.isht_grid = isht_grid
@@ -166,10 +139,8 @@ class SpectralConvKernel2d(SpectralConv):
         # Initial model parameters.
         scaling_factor = ((1 / self.in_channels)**0.5) / \
             (self.half_n_modes[0] * self.half_n_modes[1])
-        torch.nn.init.normal_(self.W1r, mean=0.0, std=scaling_factor)
-        torch.nn.init.normal_(self.W2r, mean=0.0, std=scaling_factor)
-        torch.nn.init.normal_(self.W1i, mean=0.0, std=scaling_factor)
-        torch.nn.init.normal_(self.W2i, mean=0.0, std=scaling_factor)
+        torch.nn.init.normal_(self.W1, mean=0.0, std=scaling_factor)
+        torch.nn.init.normal_(self.W2, mean=0.0, std=scaling_factor)
 
     # TODO This could be consolidated with a helper from ``neuralop``
     # cf. neuralop::SpectralConv._contract
@@ -283,11 +254,8 @@ class SpectralConvKernel2d(SpectralConv):
         # mode mixer
         # uses separate MLP to mix mode along each co-dim/channels
         if self.frequency_mixer:
-            W1 = self.W1r + 1.0j * self.W1i
-            W2 = self.W2r + 1.0j * self.W2i
-
-            x[upper_modes] = self.mode_mixer(x[upper_modes].clone(), W1)
-            x[lower_modes] = self.mode_mixer(x[lower_modes].clone(), W2)
+            x[upper_modes] = self.mode_mixer(x[upper_modes].clone(), self.W1)
+            x[lower_modes] = self.mode_mixer(x[lower_modes].clone(), self.W2)
 
         # spectral conv / channel mixer
 
@@ -409,23 +377,13 @@ class SpectralConvolutionKernel3D(SpectralConv):
 
             s = np.sqrt(self.in_channels) * reduce(lambda x, y: x * y, modes)
             scaling_factor = 1 / s
-            # XXX why are we not using `dtype=cfloat`
             weights_shape = modes * 2
-            self.weights_re = nn.ParameterList([
+            self.weights = nn.ParameterList([
                 nn.Parameter(torch.normal(
                     mean=0.0,
                     std=scaling_factor,
                     size=weights_shape,
-                    dtype=torch.float,
-                ))
-                for _ in range(4)
-            ])
-            self.weights_im = nn.ParameterList([
-                nn.Parameter(torch.normal(
-                    mean=0.0,
-                    std=scaling_factor,
-                    size=weights_shape,
-                    dtype=torch.float,
+                    dtype=torch.cfloat,
                 ))
                 for _ in range(4)
             ])
@@ -504,12 +462,11 @@ class SpectralConvolutionKernel3D(SpectralConv):
         # mode mixer
         # uses separate MLP to mix mode along each co-dim/augmented_channels
         if self.frequency_mixer:
-            for w_re, w_im, _slice in zip(
-                self.weights_re, self.weights_im, slices
+            for weights, _slice in zip(
+                self.weights, slices
             ):
                 # if self.verbose:
                 #     self.logger.debug(f"{_slice=}")
-                weights = w_re + 1.0j * w_im
                 x[_slice] = self.mode_mixer(x[_slice].clone(), weights)
                 # if self.verbose:
                 #     self.logger.debug(f"{x[_slice].shape=}")
