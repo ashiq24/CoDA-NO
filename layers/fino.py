@@ -1,10 +1,12 @@
 from functools import reduce
 import logging
+from typing import Optional
 
 import numpy as np
 import torch
 from torch import nn
 import torch_harmonics as th
+
 from neuralop.layers.spectral_convolution import SpectralConv
 
 
@@ -88,13 +90,14 @@ class SpectralConvKernel2d(SpectralConv):
 
         hm1, hm2 = self.half_n_modes[0], self.half_n_modes[1]
         # TODO(mogab) use logger
-        print("Using Half modes", self.half_n_modes[0], self.half_n_modes[1])
+        # print("Using Half modes", self.half_n_modes[0], self.half_n_modes[1])
         if frequency_mixer:
             # if frequency mixer is true
-            # then initializing weights for frequncy mixing
+            # then initializing weights for frequency mixing
             # otherwise it is just a regular FNO or SFNO layer
             # TODO(mogab) use logger
-            print("using Mixer")
+            # print("using Mixer")
+            # shape = (hm1, hm2, hm1, hm2)
             self.W1r = nn.Parameter(
                 torch.empty(
                     hm1,
@@ -155,6 +158,9 @@ class SpectralConvKernel2d(SpectralConv):
                 grid=self.isht_grid,
                 norm=self.sht_norm,
             )
+        else:
+            self.forward_sht = None
+            self.inverse_sht = None
 
     def reset_parameter(self):
         # Initial model parameters.
@@ -165,6 +171,8 @@ class SpectralConvKernel2d(SpectralConv):
         torch.nn.init.normal_(self.W1i, mean=0.0, std=scaling_factor)
         torch.nn.init.normal_(self.W2i, mean=0.0, std=scaling_factor)
 
+    # TODO This could be consolidated with a helper from ``neuralop``
+    # cf. neuralop::SpectralConv._contract
     @staticmethod
     def mode_mixer(x, weights):
         return torch.einsum("bimn,mnop->biop", x, weights)
@@ -198,18 +206,17 @@ class SpectralConvKernel2d(SpectralConv):
             f'Got {self.transform_type=}'
         )
 
-    # Although a previous implementation kept an initialized
-    # ``th.InverseRealSHT`` in its state, it always checked if its lat/lon grid
-    # size matched the input's
-    # resolution. Thus, it never really mattered that an object was in state.
     def inverse_transform(
         self,
         x: torch.Tensor,
         target_height: int,
         target_width: int,
-        device,
+        device: Optional[torch.device] = None,
     ):
         source_height, source_width = x.shape[-2:]
+        if device is None:
+            device = x.device
+
         if self.transform_type == "fft":
             return torch.fft.irfft2(
                 x,

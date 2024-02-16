@@ -26,6 +26,7 @@ from models.gnn import GNN
 from models.deeponet import DeepONet
 from models.vit import VitGno
 from models.unet import UnetGno
+
 # TODO merge methods get_ssl_models_coda*()
 def get_ssl_models_codaNo(
     params,
