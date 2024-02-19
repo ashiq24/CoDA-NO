@@ -54,10 +54,8 @@ class SpectralConvKernel2DTest(unittest.TestCase):
             frequency_mixer=True,
         )
 
-        # TODO convolution.half_n_modes is immutable and should be a tuple
-        self.assertEqual(tuple(convolution.half_n_modes), (8, 8))
-        self.assertEqual(tuple(convolution.W1.shape), (8, 8, 8, 8))
-        self.assertEqual(tuple(convolution.W2.shape), (8, 8, 8, 8))
+        self.assertEqual(tuple(convolution.W1.shape), (8, 9, 8, 9))
+        self.assertEqual(tuple(convolution.W2.shape), (8, 9, 8, 9))
         self.assertIsNone(convolution.forward_sht)
         self.assertIsNone(convolution.inverse_sht)
 
@@ -453,13 +451,11 @@ class SpectralConvKernel3DTest(unittest.TestCase):
             frequency_mixer=True,
         )
 
-        expected_modes = (8, 8, 8)
+        expected_modes = (8, 8, 9)
         expected_shape = expected_modes * 2
-        # TODO convolution.half_n_modes is immutable and should be a tuple
-        self.assertEqual(tuple(convolution.half_n_modes), expected_modes)
         self.assertEqual(
-            [tuple(w.shape) for w in convolution.weights],
-            [expected_shape for _ in convolution.weights],
+            [tuple(w.shape) for w in convolution.mixing_weights],
+            [expected_shape for _ in convolution.mixing_weights],
         )
 
     @torch.no_grad()
@@ -578,12 +574,12 @@ class SpectralConvKernel3DTest(unittest.TestCase):
         )
 
         x = torch.randn((1, 4, 16, 16, 16), dtype=torch.float32)
-        y1 = convolution(x)
+        y1 = convolution.forward(x)
         self.assertEqual(tuple(y1.shape), (1, 8, 32, 32, 32))
         self.assertEqual(y1.dtype, torch.float32)
 
         # Explicitly passing in ``output_shape`` overrides ``scaling_factor`` state:
-        y2 = convolution(x, output_shape=(24, 24, 24))
+        y2 = convolution.forward(x, output_shape=(24, 24, 24))
         self.assertEqual(tuple(y2.shape), (1, 8, 24, 24, 24))
         self.assertEqual(y2.dtype, torch.float32)
 
