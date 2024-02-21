@@ -1,8 +1,48 @@
 import unittest
+from typing import Optional
 
+import numpy as np
 import torch
 
 from fino import SpectralConvKernel2d, SpectralConvolutionKernel3D
+
+DEVICE: torch.device = "cuda" if torch.cuda.is_available() else "cpu"
+
+class SpectralConvKernel2DWrapper(torch.nn.Module):
+    """A simple wrapper to access Parameters during testing."""
+    def __init__(self, convolution: SpectralConvKernel2d):
+        super().__init__()
+        self.convolution = convolution
+
+    def forward(
+        self,
+        x: torch.Tensor,
+        indices: int = 0,
+        output_shape: Optional[torch.Size] = None,
+    ):
+        return self.convolution.forward(
+            x,
+            indices=indices,
+            output_shape=output_shape
+        )
+
+class SpectralConvKernel3DWrapper(torch.nn.Module):
+    """A simple wrapper to access Parameters during testing."""
+    def __init__(self, convolution: SpectralConvolutionKernel3D):
+        super().__init__()
+        self.convolution = convolution
+
+    def forward(
+        self,
+        x: torch.Tensor,
+        indices: int = 0,
+        output_shape: Optional[torch.Size] = None,
+    ):
+        return self.convolution.forward(
+            x,
+            indices=indices,
+            output_shape=output_shape
+        )
 
 class SpectralConvKernel2DTest(unittest.TestCase):
     def test_initialization(self):
@@ -54,7 +94,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
     def test_init_sht_with_scaling(self):
         sht_nlat = 18
         sht_nlon = 18
-        scaling = (10, 20)
+        scaling = [10, 20]
         sht_grid = "equiangular"
         isht_grid = "equiangular"
         sht_norm = "schmidt"
@@ -302,7 +342,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
             out_channels=8,
             n_modes=(16, 16),
             transform_type="fft",
-            output_scaling_factor=(4, 4),
+            output_scaling_factor=[4, 4],
             frequency_mixer=True,
         )
 
@@ -316,6 +356,79 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         self.assertEqual(tuple(y2.shape), (1, 8, 128, 128))
         self.assertEqual(y2.dtype, torch.float32)
 
+    def test_backwards_propagation(self):
+        convolution = SpectralConvKernel2d(
+            in_channels=2,
+            out_channels=2,
+            n_modes=(16, 16),
+            transform_type="fft",
+            n_layers=4,
+            frequency_mixer=True,
+        )
+        convolution_w = SpectralConvKernel2DWrapper(convolution)
+
+        resolution = 0.01
+        x = np.arange(-5, 5, resolution)
+        y = np.arange(-5, 5, resolution)
+        xx, yy = np.meshgrid(x, y, sparse=True)
+
+        # Learn to advance the plane wave one quarter phase forward:
+        phase = np.pi / 4.0
+        displacement_in = torch.tensor(
+            np.sin(xx * np.sqrt(2.0)) + np.sin(yy * np.sqrt(3.0)),
+            device=DEVICE,
+        )
+        velocity_in = torch.tensor(
+            np.sqrt(2.0) * np.cos(xx * np.sqrt(2.0)) +
+            np.sqrt(3.0) * np.cos(yy * np.sqrt(3.0)),
+            device=DEVICE,
+        )
+        displacement_out = torch.tensor(
+            np.sin(xx * np.sqrt(2.0) + phase) + np.sin(yy * np.sqrt(3.0) + phase),
+            device=DEVICE,
+        )
+        velocity_out = torch.tensor(
+            np.sqrt(2.0) * np.cos(xx * np.sqrt(2.0) + phase) +
+            np.sqrt(3.0) * np.cos(yy * np.sqrt(3.0) + phase),
+            device=DEVICE,
+        )
+
+        loss_fn = torch.nn.MSELoss()
+        optimizer = torch.optim.Adam(
+            convolution_w.parameters(),
+            # XXX: At 0.05, loss below is no longer monotonic(-ally decreasing).
+            lr=0.04,
+            # XXX: At 0.005, loss below is no longer monotonic(-ally decreasing).
+            weight_decay=0.004,
+        )
+
+        losses = []
+        for _ in range(10):
+            optimizer.zero_grad()
+
+            [[position_pred, velocity_pred]] = convolution_w.forward(
+                torch.concatenate([
+                    displacement_in.unsqueeze(0),
+                    velocity_in.unsqueeze(0),
+                ]).unsqueeze(0)
+            )
+
+            loss = loss_fn(
+                displacement_out.float().view(1, -1),
+                position_pred.float().view(1, -1)
+            ) + loss_fn(
+                velocity_out.float().view(1, -1),
+                velocity_pred.float().view(1, -1)
+            )
+            print(loss)
+            loss.backward()
+            losses.append(loss.item())
+            optimizer.step()
+
+        # The loss must be monotonically decreasing:
+        self.assertTrue(all(
+            _next < _prev for _next, _prev in zip(losses[1:], losses[:-1])
+        ))
 
 class SpectralConvKernel3DTest(unittest.TestCase):
     def test_initialization(self):
@@ -434,12 +547,14 @@ class SpectralConvKernel3DTest(unittest.TestCase):
         self.assertEqual(y2.dtype, torch.float32)
 
     def test_forward_propagation_with_output_scaling(self):
+        # TODO(mogab) ``SpectralConv`` doesn't accept ``tuple``s
+        # for ``scaling_factor`` - FIXME
         convolution = SpectralConvolutionKernel3D(
             in_channels=4,
             out_channels=8,
             n_modes=(8, 8, 8),
             transform_type="fft",
-            output_scaling_factor=(2, 2),
+            output_scaling_factor=[2, 2, 2],
             frequency_mixer=True,
         )
 
@@ -452,6 +567,79 @@ class SpectralConvKernel3DTest(unittest.TestCase):
         y2 = convolution(x, output_shape=(24, 24, 24))
         self.assertEqual(tuple(y2.shape), (1, 8, 24, 24, 24))
         self.assertEqual(y2.dtype, torch.float32)
+
+    def test_backwards_propagation(self):
+        convolution = SpectralConvolutionKernel3D(
+            in_channels=2,
+            out_channels=2,
+            n_modes=(16, 16, 16),
+            transform_type="fft",
+            n_layers=4,
+            frequency_mixer=True,
+        )
+        convolution_w = SpectralConvKernel3DWrapper(convolution)
+
+        resolution = 0.02
+        x = np.arange(-5.0, 5.0, resolution)
+        y = np.arange(-5.0, 5.0, resolution)
+        t = np.arange(0.0, 5.0, resolution)
+        tt, xx, yy = np.meshgrid(t, x, y, indexing='ij', sparse=True)
+
+        # Learn to advance the plane wave one quarter phase forward:
+        displacement = torch.tensor(
+            np.sin(xx * np.sqrt(2.0) + tt * np.sqrt(5.0)) +
+            np.sin(yy * np.sqrt(3.0) + tt * np.sqrt(7.0)),
+            device=DEVICE,
+        )
+        velocity = torch.tensor(
+            np.sqrt(5.0) * np.cos(xx * np.sqrt(2.0) * tt * np.sqrt(5.0)) +
+            np.sqrt(7.0) * np.cos(yy * np.sqrt(3.0) * tt * np.sqrt(7.0)),
+            device=DEVICE,
+        )
+
+        loss_fn = torch.nn.MSELoss()
+        # XXX: These training parameters nominally work, but the
+        # loss stays high (>7.0). I'd like to be able to test in a
+        # scenario when it gets low, so as a
+        # TODO(mogab) Tune LR/weight decay below, or find a better assertion
+        # than "Is the loss monotonically decreasing?"
+        optimizer = torch.optim.Adam(
+            convolution_w.parameters(),
+            # XXX: At 1.0e-3, loss below is no longer monotonic(-ally decreasing).
+            lr=1.0e-4,
+            # XXX: At 1.0e-4, loss below is no longer monotonic(-ally decreasing).
+            weight_decay=1.0e-5,
+        )
+
+        losses = []
+        for _ in range(10):
+            optimizer.zero_grad()
+            displacement_in = displacement[:100].unsqueeze(0)
+            velocity_in = velocity[:100].unsqueeze(0)
+
+            # Take the first 2.0 seconds as input ...
+            [[position_pred, velocity_pred]] = convolution_w.forward(
+                torch.concatenate([displacement_in, velocity_in]).unsqueeze(0)
+            )
+
+            # ... and learn the next 2.0 seconds as output:
+            # (i.e. 2.0 <= t < 4.0)
+            loss = loss_fn(
+                displacement[100:200].float().view(1, -1),
+                position_pred.float().view(1, -1)
+            ) + loss_fn(
+                velocity[100:200].float().view(1, -1),
+                velocity_pred.float().view(1, -1)
+            )
+            print(loss)
+            loss.backward()
+            losses.append(loss.item())
+            optimizer.step()
+
+        # The loss must be monotonically decreasing:
+        self.assertTrue(all(
+            _next < _prev for _next, _prev in zip(losses[1:], losses[:-1])
+        ))
 
 
 if __name__ == '__main__':
