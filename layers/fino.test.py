@@ -123,6 +123,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         self.assertEqual(convolution.inverse_sht.grid, isht_grid)
         self.assertEqual(convolution.inverse_sht.norm, sht_norm)
 
+    @torch.no_grad()
     def test_forward_transform_fft(self):
         convolution = SpectralConvKernel2d(
             in_channels=4,
@@ -138,6 +139,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         self.assertEqual(tuple(y.shape), (1, 16, 9))
         self.assertEqual(y.dtype, torch.complex64)
 
+    @torch.no_grad()
     def test_forward_transform_invalid_transform(self):
         convolution = SpectralConvKernel2d(
             in_channels=4,
@@ -155,6 +157,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
             x,  # positional arg to be passed above
         )
 
+    @torch.no_grad()
     def test_forward_transform_sht_uses_old_transform(self):
         sht_nlat = 180
         sht_nlon = 360
@@ -180,6 +183,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         self.assertEqual(tuple(y.shape), (1, sht_nlat, sht_nlon))
         self.assertEqual(y.dtype, torch.complex64)
 
+    @torch.no_grad()
     def test_forward_transform_sht_uses_new_transform(self):
         sht_nlat = 180
         sht_nlon = 360
@@ -205,6 +209,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         self.assertEqual(tuple(y.shape), (1, sht_nlat, sht_nlon))
         self.assertEqual(y.dtype, torch.complex64)
 
+    @torch.no_grad()
     def test_inverse_transform_fft(self):
         frequency_modes = 16
         physical_resolution = 64
@@ -228,6 +233,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         )
         self.assertEqual(y.dtype, torch.float32)
 
+    @torch.no_grad()
     def test_inverse_transform_invalid_transform(self):
         frequency_modes = 16
         convolution = SpectralConvKernel2d(
@@ -248,6 +254,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
             360,  # target_width
         )
 
+    @torch.no_grad()
     def test_inverse_transform_sht_uses_old_transform(self):
         sht_nlat = 180
         sht_nlon = 360
@@ -270,6 +277,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         self.assertEqual(tuple(y.shape), (1, sht_nlat, sht_nlon))
         self.assertEqual(y.dtype, torch.float32)
 
+    @torch.no_grad()
     def test_inverse_transform_sht_uses_new_transform_mismatched_source(self):
         sht_nlat = 180
         sht_nlon = 360
@@ -293,6 +301,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         self.assertEqual(tuple(y.shape), (1, sht_nlat, sht_nlon))
         self.assertEqual(y.dtype, torch.float32)
 
+    @torch.no_grad()
     def test_inverse_transform_sht_uses_new_transform_mismatched_target(self):
         sht_nlat = 180
         sht_nlon = 360
@@ -319,6 +328,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         self.assertEqual(tuple(y.shape), (1, target_height, target_width))
         self.assertEqual(y.dtype, torch.float32)
 
+    @torch.no_grad()
     def test_forward_propagation(self):
         convolution = SpectralConvKernel2d(
             in_channels=4,
@@ -336,6 +346,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         self.assertEqual(tuple(y2.shape), (1, 8, 128, 128))
         self.assertEqual(y2.dtype, torch.float32)
 
+    @torch.no_grad()
     def test_forward_propagation_with_output_scaling(self):
         convolution = SpectralConvKernel2d(
             in_channels=4,
@@ -420,17 +431,19 @@ class SpectralConvKernel2DTest(unittest.TestCase):
                 velocity_out.float().view(1, -1),
                 velocity_pred.float().view(1, -1)
             )
-            print(loss)
             loss.backward()
             losses.append(loss.item())
             optimizer.step()
 
-        # The loss must be monotonically decreasing:
-        self.assertTrue(all(
-            _next < _prev for _next, _prev in zip(losses[1:], losses[:-1])
-        ))
+        self.assertTrue(
+            all(_next < _prev for _next, _prev in zip(losses[1:], losses[:-1])),
+            "Expected losses to be monotonically decreasing:\n"
+            f"[{', '.join('{:.3f}'.format(loss) for loss in losses)}]"
+        )
 
 class SpectralConvKernel3DTest(unittest.TestCase):
+
+    @torch.no_grad()
     def test_initialization(self):
         convolution = SpectralConvolutionKernel3D(
             in_channels=4,
@@ -449,6 +462,7 @@ class SpectralConvKernel3DTest(unittest.TestCase):
             [expected_shape for _ in convolution.weights],
         )
 
+    @torch.no_grad()
     def test_forward_transform_fft(self):
         convolution = SpectralConvolutionKernel3D(
             in_channels=4,
@@ -464,6 +478,7 @@ class SpectralConvKernel3DTest(unittest.TestCase):
         self.assertEqual(tuple(y.shape), (1, 16, 16, 9))
         self.assertEqual(y.dtype, torch.complex64)
 
+    @torch.no_grad()
     def test_forward_transform_invalid_transform(self):
         convolution = SpectralConvolutionKernel3D(
             in_channels=4,
@@ -481,6 +496,7 @@ class SpectralConvKernel3DTest(unittest.TestCase):
             x,  # positional arg to be passed above
         )
 
+    @torch.no_grad()
     def test_inverse_transform_fft(self):
         frequency_modes = 8
         physical_resolution = 32
@@ -508,6 +524,7 @@ class SpectralConvKernel3DTest(unittest.TestCase):
         )
         self.assertEqual(y.dtype, torch.float32)
 
+    @torch.no_grad()
     def test_inverse_transform_invalid_transform(self):
         frequency_modes = 16
         convolution = SpectralConvolutionKernel3D(
@@ -529,6 +546,7 @@ class SpectralConvKernel3DTest(unittest.TestCase):
             frequency_modes,  # width
         )
 
+    @torch.no_grad()
     def test_forward_propagation(self):
         convolution = SpectralConvolutionKernel3D(
             in_channels=4,
@@ -546,6 +564,7 @@ class SpectralConvKernel3DTest(unittest.TestCase):
         self.assertEqual(tuple(y2.shape), (1, 8, 48, 48, 48))
         self.assertEqual(y2.dtype, torch.float32)
 
+    @torch.no_grad()
     def test_forward_propagation_with_output_scaling(self):
         # TODO(mogab) ``SpectralConv`` doesn't accept ``tuple``s
         # for ``scaling_factor`` - FIXME
@@ -585,7 +604,6 @@ class SpectralConvKernel3DTest(unittest.TestCase):
         t = np.arange(0.0, 5.0, resolution)
         tt, xx, yy = np.meshgrid(t, x, y, indexing='ij', sparse=True)
 
-        # Learn to advance the plane wave one quarter phase forward:
         displacement = torch.tensor(
             np.sin(xx * np.sqrt(2.0) + tt * np.sqrt(5.0)) +
             np.sin(yy * np.sqrt(3.0) + tt * np.sqrt(7.0)),
@@ -631,15 +649,15 @@ class SpectralConvKernel3DTest(unittest.TestCase):
                 velocity[100:200].float().view(1, -1),
                 velocity_pred.float().view(1, -1)
             )
-            print(loss)
             loss.backward()
             losses.append(loss.item())
             optimizer.step()
 
-        # The loss must be monotonically decreasing:
-        self.assertTrue(all(
-            _next < _prev for _next, _prev in zip(losses[1:], losses[:-1])
-        ))
+        self.assertTrue(
+            all(_next < _prev for _next, _prev in zip(losses[1:], losses[:-1])),
+            "Expected losses to be monotonically decreasing:\n"
+            f"[{', '.join('{:.3f}'.format(loss) for loss in losses)}]"
+        )
 
 
 if __name__ == '__main__':

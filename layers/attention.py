@@ -8,10 +8,9 @@ from torch import nn
 import torch.nn.functional as F
 
 from neuralop.layers.fno_block import FNOBlocks
-from .fino import SpectralConvKernel2d, SpectralConvolutionKernel3D
+from fino import SpectralConvKernel2d, SpectralConvolutionKernel3D
 
-# Address the following:
-# ``AttributeError: Can't pickle local object '.<locals>.<lambda>'``
+# FIXME ``AttributeError: Can't pickle local object '.<locals>.<lambda>'``
 
 
 def NO_OP(x, *_args, **_kwargs):
@@ -22,6 +21,8 @@ AffineNormalizer2D = partial(nn.InstanceNorm2d, affine=True)
 AffineNormalizer3D = partial(nn.InstanceNorm3d, affine=True)
 
 
+# If ``permutation_eq=False``
+# FIXME ``codimension_size=None`` should not be allowed
 class TNOBlock(nn.Module):
     def __init__(
         self,
@@ -56,6 +57,9 @@ class TNOBlock(nn.Module):
         logger=None,
         **_kwargs,
     ):
+        # TODO Document under what conditions we expect to assign `n_heads=None`
+        # We call `min()` on n_heads, so do we never expect `n_heads=None` ?
+        # This renders kwarg head_codimension useless.
         super().__init__()
 
         # Co-dimension of each variable/token. The token embedding space is
@@ -105,14 +109,14 @@ class TNOBlock(nn.Module):
         scale = 2 if per_channel_attention else 1
         scale = min(self.n_head, scale)
 
-        mixer_modes = [i // scale for i in n_modes]
+        kqv_modes = [i // scale for i in n_modes]
 
         self.logger.debug(
             f"\n {rank=}"
             f"\n {factorization=}"
             f"\n {self.head_codimension=}"
             f"\n {scale=}"
-            f"\n {mixer_modes=}"
+            f"\n {kqv_modes=}"
         )
 
         if not per_channel_attention:
@@ -145,9 +149,9 @@ class TNOBlock(nn.Module):
         kqv_args = dict(
             in_channels=self.token_codimension,
             out_channels=self.n_head * self.head_codimension,
-            n_modes=mixer_modes,
+            n_modes=kqv_modes,
             # args below are shared with Projection block
-            non_linearity=NO_OP,
+            non_linearity=kqv_activation,
             fno_skip='linear',
             norm=None,
             apply_skip=True,
@@ -195,7 +199,7 @@ class TNOBlock(nn.Module):
                 output_scaling_factor=1,
                 # args below are shared with KQV blocks
                 apply_skip=True,
-                non_linearity=NO_OP,
+                non_linearity=kqv_activation,
                 fno_skip='linear',
                 norm=None,
                 SpectralConv=partial(
@@ -210,6 +214,10 @@ class TNOBlock(nn.Module):
             self.proj = None
 
         self.attention_normalizer = Normalizer(self.token_codimension)
+        """
+        NOTE: by default, ``self.attention_normalizer`` has parameters of 
+        ``dtype=float32`` and thus expects inputs to be of the same type.
+        """
 
         mixer_args = dict(
             n_modes=n_modes,
@@ -242,9 +250,20 @@ class TNOBlock(nn.Module):
                 **common_args,
             )
             self.norm1 = Normalizer(self.token_codimension)
+            """
+            NOTE: by default, ``self.norm1`` has parameters of ``dtype=float32``
+            and thus expects inputs to be of the same type.
+            """
             self.norm2 = Normalizer(self.mixer_token_codimension)
-            self.mixer_out_normalizer = Normalizer(
-                self.mixer_token_codimension)
+            """
+            NOTE: by default, ``self.norm2`` has parameters of ``dtype=float32``
+            and thus expects inputs to be of the same type. 
+            """
+            self.mixer_out_normalizer = Normalizer(self.mixer_token_codimension)
+            """
+            NOTE: by default, ``self.mixer_token_codimension`` has parameters of 
+            ``dtype=float32`` and thus expects inputs to be of the same type.
+            """
 
         else:
             self.mixer = FNOBlocks(
@@ -283,6 +302,9 @@ class TnoBlock2d(TNOBlock):
 
         Assumes input ``xa`` has been normalized.
         """
+        # `xa` was rearranged like:
+        # >>> xa = rearrange(x, 'b (t d) h w -> (b t) d h w',
+        # >>>                d=self.token_codimension)
         k = self.K(xa)
         q = self.Q(xa)
         v = self.V(xa)
