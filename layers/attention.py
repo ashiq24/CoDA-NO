@@ -8,7 +8,7 @@ from torch import nn
 import torch.nn.functional as F
 
 from neuralop.layers.fno_block import FNOBlocks
-from fino import SpectralConvKernel2d, SpectralConvolutionKernel3D
+from .fino import SpectralConvKernel2d, SpectralConvolutionKernel3D
 
 # FIXME ``AttributeError: Can't pickle local object '.<locals>.<lambda>'``
 

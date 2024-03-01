@@ -24,8 +24,8 @@ from models.codano_gino import CondnoGino
 from models.fno_gino import FnoGno
 from models.gnn import GNN
 from models.deeponet import DeepONet
-from models.vit import VitGno
-from models.unet import UnetGno
+# from models.vit import VitGno
+# from models.unet import UnetGno
 
 # TODO merge methods get_ssl_models_coda*()
 def get_ssl_models_codaNo(

@@ -86,5 +86,7 @@ def missing_variable_testing(
     test_l2 /= ntest
     t2 = default_timer()
 
-    wandb.log({'Augmented test_error_' + stage: test_l2}, commit=True)
+    # XXX Consolidat all W&B logs in one file.
+    if wandb_log:
+        wandb.log({'Augmented test_error_' + stage: test_l2}, commit=True)
     print(f"Augmented Test Error  {stage}: ", test_l2)

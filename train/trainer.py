@@ -157,7 +157,8 @@ def nonuniform_mesh_trainer(
                   f"Time: {epoch_train_time:.2f}s, "
                   f"Loss: {avg_train_l2:.4f}")
 
-            wandb.log(values_to_log, commit=True)
+            if params.wandb_log:
+                wandb.log(values_to_log, commit=True)
         # saving weights
         if ep % params.weight_saving_interval == 0 or ep == epochs - 1:
             stage_string = 'ssl' if stage == StageEnum.RECONSTRUCTIVE else 'sl'
