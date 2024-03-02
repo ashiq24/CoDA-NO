@@ -175,9 +175,6 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         sht2 = convolution.forward_sht
 
         self.assertEqual(id(sht1), id(sht2))
-        # AssertionError: Tuples differ: (1, 180, 181) != (1, 180, 360)
-        # This seems to be treating lat/long like half modes.
-        # TODO(ashiq) Is this expected behavior?
         self.assertEqual(tuple(y.shape), (1, sht_nlat, sht_nlon))
         self.assertEqual(y.dtype, torch.complex64)
 
@@ -201,9 +198,6 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         sht2 = convolution.forward_sht
 
         self.assertNotEqual(id(sht1), id(sht2))
-        # AssertionError: Tuples differ: (1, 180, 181) != (1, 180, 360)
-        # This seems to be treating lat/long like half modes.
-        # TODO(ashiq) Is this expected behavior?
         self.assertEqual(tuple(y.shape), (1, sht_nlat, sht_nlon))
         self.assertEqual(y.dtype, torch.complex64)
 

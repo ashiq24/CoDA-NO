@@ -78,6 +78,7 @@ class AbstractTNOBlockTest(ConvolutionTestCase):
     def setUp(self):
         raise NotImplementedError
 
+    @torch.no_grad()
     def _check_initialization(self, n_heads: int, kqv_non_linear: bool):
         self.assertEqual(self.tno_block.variable_codimension, self.token_codimension)
         self.assertEqual(self.tno_block.token_codimension, self.token_codimension)
@@ -128,8 +129,8 @@ class AbstractTNOBlockTest(ConvolutionTestCase):
             self.tno_block.mixer,
         )
 
-        # Default ``nn.InsanceNorm_nD`` with attributes ``n_features``
-        # and ``affine`` below:
+        # Default ``nn.InsanceNorm_nD`` with attributes ``norm.n_features``
+        # and ``norm.affine`` below:
         for norm in (
             self.tno_block.attention_normalizer,
             self.tno_block.norm1,
@@ -170,6 +171,7 @@ class TNOBlock2DTest(AbstractTNOBlockTest):
             n_head=2,
         )
 
+    @torch.no_grad()
     def test_initialization(self):
         self.token_codimension = 8
         for n_heads, non_linear in itertools.product(
@@ -191,6 +193,7 @@ class TNOBlock2DTest(AbstractTNOBlockTest):
     #    * gate intermediate shape logging behind ``verbose``
     #    * capture logs to peek intermediate shape states
     # This would also exercise that logging is working as expected.
+    @torch.no_grad()
     def test_compute_attention(self):
         batch_size = 2
         length = 32
@@ -211,6 +214,7 @@ class TNOBlock2DTest(AbstractTNOBlockTest):
     #    * gate intermediate shape logging behind ``verbose``
     #    * capture logs to peek intermediate shape states
     # This would also exercise that logging is working as expected.
+    @torch.no_grad()
     def test_forward_propagation(self):
         batch_size = 2
         length = 32
@@ -352,6 +356,7 @@ class TNOBlock3DTest(AbstractTNOBlockTest):
             per_channel_attention=False,
         )
 
+    @torch.no_grad()
     def test_initialization(self):
         self.token_codimension = 4
         for n_heads, non_linear in itertools.product(
@@ -373,6 +378,7 @@ class TNOBlock3DTest(AbstractTNOBlockTest):
     #    * gate intermediate shape logging behind ``verbose``
     #    * capture logs to peek intermediate shape states
     # This would also exercise that logging is working as expected.
+    @torch.no_grad()
     def test_compute_attention(self):
         batch_size = 2
         length = 32
@@ -400,6 +406,7 @@ class TNOBlock3DTest(AbstractTNOBlockTest):
     #    * gate intermediate shape logging behind ``verbose``
     #    * capture logs to peek intermediate shape states
     # This would also exercise that logging is working as expected.
+    @torch.no_grad()
     def test_forward_propagation(self):
         batch_size = 2
         length = 32
