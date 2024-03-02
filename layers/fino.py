@@ -1,10 +1,13 @@
 from functools import reduce
 import logging
+import operator
+from typing import Optional, Tuple
 
 import numpy as np
 import torch
 from torch import nn
 import torch_harmonics as th
+
 from neuralop.layers.spectral_convolution import SpectralConv
 
 
@@ -22,7 +25,7 @@ class SpectralConvKernel2d(SpectralConv):
         in_channels,
         out_channels,
         n_modes,
-        incremental_n_modes=None,
+        max_n_modes=None,
         bias=True,
         n_layers=1,
         separable=False,
@@ -57,7 +60,7 @@ class SpectralConvKernel2d(SpectralConv):
             in_channels,
             out_channels,
             n_modes,
-            incremental_n_modes,
+            max_n_modes,
             bias=bias,
             n_layers=n_layers,
             separable=separable,
@@ -84,46 +87,17 @@ class SpectralConvKernel2d(SpectralConv):
         for w in self.weight:
             w.normal_(0, init_std)
 
-        # weights for frequency mixers
-
-        hm1, hm2 = self.half_n_modes[0], self.half_n_modes[1]
-        # TODO(mogab) use logger
-        print("Using Half modes", self.half_n_modes[0], self.half_n_modes[1])
+        # self.logger.debug(f"{self.n_modes=}")
         if frequency_mixer:
-            # if frequency mixer is true
-            # then initializing weights for frequncy mixing
-            # otherwise it is just a regular FNO or SFNO layer
-            # TODO(mogab) use logger
-            print("using Mixer")
-            self.W1r = nn.Parameter(
-                torch.empty(
-                    hm1,
-                    hm2,
-                    hm1,
-                    hm2,
-                    dtype=torch.float))
-            self.W2r = nn.Parameter(
-                torch.empty(
-                    hm1,
-                    hm2,
-                    hm1,
-                    hm2,
-                    dtype=torch.float))
-            self.W1i = nn.Parameter(
-                torch.empty(
-                    hm1,
-                    hm2,
-                    hm1,
-                    hm2,
-                    dtype=torch.float))
-            self.W2i = nn.Parameter(
-                torch.empty(
-                    hm1,
-                    hm2,
-                    hm1,
-                    hm2,
-                    dtype=torch.float))
+            # Initializing weights for frequency mixing:
+            upper_modes = self.mk_slices()[0]
+            modes = tuple([s.stop for s in upper_modes[-2:]])
+            weights_shape = modes + modes  # concat
+            self.W1 = nn.Parameter(torch.empty(weights_shape, dtype=torch.cfloat))
+            self.W2 = nn.Parameter(torch.empty(weights_shape, dtype=torch.cfloat))
             self.reset_parameter()
+            # self.logger.debug(f"Frequency mixer {self.W1.shape=}")
+            # self.logger.debug(f"Frequency mixer {self.W2.shape=}")
 
         self.sht_grid = sht_grid
         self.isht_grid = isht_grid
@@ -155,16 +129,48 @@ class SpectralConvKernel2d(SpectralConv):
                 grid=self.isht_grid,
                 norm=self.sht_norm,
             )
+        else:
+            self.forward_sht = None
+            self.inverse_sht = None
 
     def reset_parameter(self):
         # Initial model parameters.
-        scaling_factor = ((1 / self.in_channels)**0.5) / \
-            (self.half_n_modes[0] * self.half_n_modes[1])
-        torch.nn.init.normal_(self.W1r, mean=0.0, std=scaling_factor)
-        torch.nn.init.normal_(self.W2r, mean=0.0, std=scaling_factor)
-        torch.nn.init.normal_(self.W1i, mean=0.0, std=scaling_factor)
-        torch.nn.init.normal_(self.W2i, mean=0.0, std=scaling_factor)
+        scaling_factor = 2 / (
+            np.sqrt(self.in_channels) * self.n_modes[0] * self.n_modes[1])
+        torch.nn.init.normal_(self.W1, mean=0.0, std=scaling_factor)
+        torch.nn.init.normal_(self.W2, mean=0.0, std=scaling_factor)
 
+    def mk_slices(self) -> Tuple[Tuple[slice, ...], ...]:
+        """Returns slices for upper and lower frequency modes."""
+
+        m1, m2 = self.n_modes[:2]
+        m1 = m1 // 2
+        upper_modes = tuple([
+            slice(None),
+            slice(None),
+            slice(None, m1),
+            slice(None, m2),
+        ])
+        """Slice for upper frequency modes.
+
+        Equivalent to: ``x[:, :, :self.n_modes[0], :self.n_modes[1]//2]``
+        """
+
+        lower_modes = tuple([
+            slice(None),
+            slice(None),
+            slice(-m1, None),
+            slice(None, m2),
+        ])
+        """Slice for lower frequency modes.
+
+        Equivalent to: ``x[:, :, -self.n_modes[0]//2:, :self.n_modes[1]]``
+        """
+
+        return upper_modes, lower_modes
+
+    # TODO This could be consolidated with a helper from ``neuralop``
+    # cf. neuralop::SpectralConv._contract
     @staticmethod
     def mode_mixer(x, weights):
         return torch.einsum("bimn,mnop->biop", x, weights)
@@ -198,18 +204,17 @@ class SpectralConvKernel2d(SpectralConv):
             f'Got {self.transform_type=}'
         )
 
-    # Although a previous implementation kept an initialized
-    # ``th.InverseRealSHT`` in its state, it always checked if its lat/lon grid
-    # size matched the input's
-    # resolution. Thus, it never really mattered that an object was in state.
     def inverse_transform(
         self,
         x: torch.Tensor,
         target_height: int,
         target_width: int,
-        device,
+        device: Optional[torch.device] = None,
     ):
         source_height, source_width = x.shape[-2:]
+        if device is None:
+            device = x.device
+
         if self.transform_type == "fft":
             return torch.fft.irfft2(
                 x,
@@ -251,36 +256,12 @@ class SpectralConvKernel2d(SpectralConv):
 
         x = self.forward_transform(x)
 
-        upper_modes = [
-            slice(None),
-            slice(None),
-            slice(None, self.half_n_modes[0]),
-            slice(None, self.half_n_modes[1]),
-        ]
-        """Slice for upper frequency modes.
+        upper_modes , lower_modes = self.mk_slices()
 
-        Equivalent to: ``x[:, :, :self.half_n_modes[0], :self.half_n_modes[1]]``
-        """
-
-        lower_modes = [
-            slice(None),
-            slice(None),
-            slice(-self.half_n_modes[0], None),
-            slice(None, self.half_n_modes[1]),
-        ]
-        """Slice for lower frequency modes.
-
-        Equivalent to: ``x[:, :, -self.half_n_modes[0]:, :self.half_n_modes[1]]``
-        """
-
-        # mode mixer
-        # uses separate MLP to mix mode along each co-dim/channels
+        # Frequency mixing uses separate MLPs to mix modes along each co-dim/channels:
         if self.frequency_mixer:
-            W1 = self.W1r + 1.0j * self.W1i
-            W2 = self.W2r + 1.0j * self.W2i
-
-            x[upper_modes] = self.mode_mixer(x[upper_modes].clone(), W1)
-            x[lower_modes] = self.mode_mixer(x[lower_modes].clone(), W2)
+            x[upper_modes] = self.mode_mixer(x[upper_modes].clone(), self.W1)
+            x[lower_modes] = self.mode_mixer(x[lower_modes].clone(), self.W2)
 
         # spectral conv / channel mixer
 
@@ -295,13 +276,13 @@ class SpectralConvKernel2d(SpectralConv):
         # Upper block (truncate high frequencies):
         out_fft[upper_modes] = self._contract(
             x[upper_modes],
-            self._get_weight(2 * indices),
+            self._get_weight(indices)[upper_modes],
             separable=self.separable,
         )
         # Lower block (truncate low frequencies):
         out_fft[lower_modes] = self._contract(
             x[lower_modes],
-            self._get_weight(2 * indices + 1),
+            self._get_weight(indices)[lower_modes],
             separable=self.separable,
         )
 
@@ -335,7 +316,7 @@ class SpectralConvolutionKernel3D(SpectralConv):
         in_channels,
         out_channels,
         n_modes,
-        incremental_n_modes=None,
+        max_n_modes=None,
         bias=True,
         n_layers=1,
         separable=False,
@@ -351,7 +332,7 @@ class SpectralConvolutionKernel3D(SpectralConv):
         fft_norm="forward",
         transform_type="fft",
         frequency_mixer=False,
-        verbose=True,
+        verbose=False,
         logger=None
     ):
         if logger is None:
@@ -365,7 +346,7 @@ class SpectralConvolutionKernel3D(SpectralConv):
             in_channels,
             out_channels,
             n_modes,
-            incremental_n_modes,
+            max_n_modes,
             bias=bias,
             n_layers=n_layers,
             separable=separable,
@@ -382,43 +363,26 @@ class SpectralConvolutionKernel3D(SpectralConv):
         )
         if self.verbose:
             self.logger.debug(f"{out_channels=}")
-        # self.shared = shared
 
-        # readjusting initialization
-        if init_std == "auto":
-            init_std = 1 / np.sqrt(in_channels * n_modes[-1] * n_modes[-2])
-
-        for w in self.weight:
-            w.normal_(0, init_std)
-
-        # weights for frequency mixers
-        modes = tuple(self.half_n_modes[:3])
-        if self.verbose:
-            self.logger.debug(f"{self.half_n_modes[:3]=}")
+        # Note that superclass ``SpectralConv`` defines a Parameter attribute
+        # ``SpectralConv.weight`` which is distinct from the Parameters
+        # ``SpectralConvolutionKernel3D.mixing_weights`` below.
         if frequency_mixer:
             # Initializing weights for frequency mixing:
+            first_slice = self.mk_slices()[0]
+            modes = tuple([s.stop for s in first_slice[-3:]])
             if self.verbose:
-                self.logger.debug(f"{frequency_mixer=}")
+                self.logger.debug(f"{frequency_mixer=}\n{modes=}")
 
-            s = np.sqrt(self.in_channels) * reduce(lambda x, y: x * y, modes)
+            s = np.sqrt(self.in_channels) * reduce(operator.mul, modes)
             scaling_factor = 1 / s
-            # XXX why are we not using `dtype=cfloat`
-            weights_shape = modes * 2
-            self.weights_re = nn.ParameterList([
+            weights_shape = modes + modes  # concat
+            self.mixing_weights = nn.ParameterList([
                 nn.Parameter(torch.normal(
                     mean=0.0,
                     std=scaling_factor,
                     size=weights_shape,
-                    dtype=torch.float,
-                ))
-                for _ in range(4)
-            ])
-            self.weights_im = nn.ParameterList([
-                nn.Parameter(torch.normal(
-                    mean=0.0,
-                    std=scaling_factor,
-                    size=weights_shape,
-                    dtype=torch.float,
+                    dtype=torch.cfloat,
                 ))
                 for _ in range(4)
             ])
@@ -426,10 +390,47 @@ class SpectralConvolutionKernel3D(SpectralConv):
         self.transform_type = transform_type
         self.frequency_mixer = frequency_mixer
 
+    def mk_slices(self) -> Tuple[Tuple[slice, ...], ...]:
+        """
+        Returns ``slice`` indexes to encompass each lo/hi frequency combination.
+
+        For an N-dimensional Fourier transform (here N=3), we are interested in
+        ``m`` modes the first N-1 transformed dimensions and only the real (i.e.
+        first) ``m/2`` modes in the last dimension. Therefore, we generate
+        the Cartesian product of slice indices:
+
+        {`0:m1`, `-m1:`} x {`0:m2`, `-m2:`}
+
+        Recall that only the last N dimensions of the input tensor have been
+        transformed. We thus take all of the first `D-N` dimensions, as noted by
+        `slice(None)`. In this case, we expect the first 2 dimensions to
+        correspond to batches and augmented_channels, respectively.
+
+        As an example, the last element of ``slices`` would be used equivalently:
+        ```python
+        x[((slice(None), slice(None), slice(-m1, None), slice(-m2, None), slice(m3))]
+            ==
+        x[:, :, -m1:, -m2:, m3:]
+        ```
+        """
+        # Slice using half modes. Note that the last dimension (i.e. m3)
+        # has already been truncated by the superclass.
+        m1, m2, m3 = self.n_modes[:3]
+        m1 = m1 // 2
+        m2 = m2 // 2
+        return tuple([
+            (slice(None), slice(None), s1, s2, slice(None, m3))
+            for s1 in [slice(None, m1), slice(-m1, None)]
+            for s2 in [slice(None, m2), slice(-m2, None)]
+        ])
+
     @staticmethod
     def mode_mixer(x, weights):
         return torch.einsum("bimno,mnopqr->bipqr", x, weights)
 
+    # TODO(mogab) Could we truncate the results in frequency space before returning?
+    # This would be exactly accomplished by kwarg ``fft.rfftn(s: Tuple[int])``
+    # We have the outer bounds given by ``self.n_modes``
     def forward_transform(self, x):
         if self.transform_type == "fft":
             return torch.fft.rfftn(x.float(), norm=self.fft_norm, dim=(-3, -2, -1))
@@ -465,47 +466,18 @@ class SpectralConvolutionKernel3D(SpectralConv):
 
         x = self.forward_transform(x)
 
-        m1, m2, m3 = self.half_n_modes[:3]
-        slices = [
-            (slice(None), slice(None), s1, s2, slice(None, m3))
-            for s1 in [slice(None, m1), slice(-m1, None)]
-            for s2 in [slice(None, m2), slice(-m2, None)]
-        ]
-        """
-        These ``slices`` encompass each relevant lo/hi frequency combination.
-        
-        For an N-dimensional Fourier transform (here N=3), we are interested in
-        `m` modes the first N-1 transformed dimensions and only the first (i.e. 
-        low-frequency) `m/2` modes in the last dimension. Therefore, we generate
-        the Cartesian product of slice indices:
-         
-        {`0:m1`, `-m1:`} x {`0:m2`, `-m2:`}
-        
-        Recall that only the last N dimensions of the input tensor have been
-        transformed. We thus take all of the first `D-N` dimensions, as noted by
-        `slice(None)`. In this case, we expect the first 2 dimensions to
-        correspond to batches and augmented_channels, respectively.
-        
-        As an example, the last element of ``slices`` would be used equivalently:
-        ```python
-        x[((slice(None), slice(None), slice(-m1, None), slice(-m2, None), slice(m3))]
-            ==
-        x[:, :, -m1:, -m2:, m3:]
-        ```
-        """
+        # Slice using half modes:
+        slices = self.mk_slices()
 
-        # mode mixer
-        # uses separate MLP to mix mode along each co-dim/augmented_channels
+        # Frequency mixing uses separate MLPs to mix modes
+        # along each co-dim/augmented_channel(s):
         if self.frequency_mixer:
-            for w_re, w_im, _slice in zip(
-                self.weights_re, self.weights_im, slices
-            ):
-                # if self.verbose:
-                #     self.logger.debug(f"{_slice=}")
-                weights = w_re + 1.0j * w_im
+            for weights, _slice in zip(self.mixing_weights, slices):
+                if self.verbose:
+                    self.logger.debug(f"{_slice=}")
                 x[_slice] = self.mode_mixer(x[_slice].clone(), weights)
-                # if self.verbose:
-                #     self.logger.debug(f"{x[_slice].shape=}")
+                if self.verbose:
+                    self.logger.debug(f"{x[_slice].shape=}")
 
         # Spectral conv / channel mixer
         # The output will be of size:
@@ -520,7 +492,7 @@ class SpectralConvolutionKernel3D(SpectralConv):
         for i, _slice in enumerate(slices):
             out_fft[_slice] = self._contract(
                 x[_slice],
-                self._get_weight(4 * indices + i),
+                self._get_weight(indices)[_slice],
                 separable=self.separable
             )
 
