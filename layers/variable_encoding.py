@@ -1,5 +1,5 @@
 from functools import reduce
-from typing import Tuple
+from typing import Tuple, Literal
 from neuralop.layers.mlp import MLPLinear
 import numpy as np
 import torch
@@ -9,7 +9,12 @@ from neuralop.layers.embeddings import PositionalEmbedding
 
 
 class VariableEncoding2d(nn.Module):
-    def __init__(self, channel, modes: Tuple[int, ...], basis='fft') -> None:
+    def __init__(
+        self,
+        channel: int,
+        modes: Tuple[int, ...],
+        basis: Literal["fft", "sht"] = 'fft',
+    ):
         super().__init__()
         self.modes = modes
         self.coefficients_r = nn.Parameter(
@@ -22,7 +27,7 @@ class VariableEncoding2d(nn.Module):
             self.transform = torch.fft.ifft2
         elif basis == 'sht':
             self.transform = th.InverseRealSHT(
-                *modes,
+                *modes,  # assuming len(modes)==2, unpacks like nlat, nlon = modes
                 lmax=modes[-2],
                 mmax=modes[-1],
                 grid="legendre-gauss",
@@ -34,12 +39,13 @@ class VariableEncoding2d(nn.Module):
         torch.nn.init.normal_(self.coefficients_r, mean=0.0, std=std)
         torch.nn.init.normal_(self.coefficients_i, mean=0.0, std=std)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Take a resolution and outputs the positional encodings"""
         size_x, size_y = x.shape[-2], x.shape[-1]
+        coeff = self.coefficients_r + 1.0j * self.coefficients_i
         if self.basis == 'sht':
             if self.transform.nlat == size_x and self.transform.nlon == size_y:
-                return self.transform(self.coefficients_r + 1.0j * self.coefficients_i)
+                return self.transform(coeff)
 
             self.transform = th.InverseRealSHT(
                 size_x,
@@ -52,13 +58,12 @@ class VariableEncoding2d(nn.Module):
                 device=self.coefficients_i.device,
                 dtype=self.coefficients_i.dtype
             )
-            return self.transform
+            return self.transform(coeff)
 
         else:
-            return self.transform(
-                self.coefficients_r + 1.0j * self.coefficients_i,
-                s=(size_x, size_y)
-            ).real
+            # Assumes ``self.basis='fft'`` so transforms according to "stored"
+            # ``torch.fft.ifft2``
+            return self.transform(coeff, s=(size_x, size_y)).real
 
 
 # SHT doesn't make sense for 3 variables
@@ -80,7 +85,7 @@ class FourierVariableEncoding3D(nn.Module):
         torch.nn.init.normal_(self.weights_re, mean=0.0, std=std)
         torch.nn.init.normal_(self.weights_im, mean=0.0, std=std)
 
-    def forward(self, x_shape):
+    def forward(self, x_shape: torch.Size):
         """Take a resolution and outputs the positional encodings"""
         *_, size_t, size_x, size_y = x_shape
         return torch.fft.ifftn(
