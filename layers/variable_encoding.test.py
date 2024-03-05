@@ -2,7 +2,7 @@ import unittest
 
 import torch
 
-from variable_encoding import VariableEncoding2d, FourierVariableEncoding3D
+from variable_encoding import VariableEncoding2D, FourierVariableEncoding3D
 
 class VariableEncoding2DTest(unittest.TestCase):
     def setUp(self) -> None:
@@ -12,7 +12,7 @@ class VariableEncoding2DTest(unittest.TestCase):
     @torch.no_grad()
     def test_forward_sht(self):
         """Uses the old, stored transformation or a new one."""
-        self.variable_encoding = VariableEncoding2d(
+        self.variable_encoding = VariableEncoding2D(
             self.n_channels,
             self.modes,
             basis='sht',
@@ -31,7 +31,7 @@ class VariableEncoding2DTest(unittest.TestCase):
 
     @torch.no_grad()
     def test_forward_fft(self):
-        self.variable_encoding = VariableEncoding2d(
+        self.variable_encoding = VariableEncoding2D(
             self.n_channels,
             self.modes,
             basis='fft',

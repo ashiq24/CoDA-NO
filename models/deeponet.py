@@ -13,7 +13,7 @@ from neuralop.layers.mlp import MLPLinear
 import numpy as np
 import torch
 from layers.gnn_layer import GnnLayer
-from layers.variable_encoding import VariableEncoding2d
+from layers.variable_encoding import VariableEncoding2D
 from neuralop.layers.embeddings import PositionalEmbedding
 
 

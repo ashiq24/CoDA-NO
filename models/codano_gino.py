@@ -10,7 +10,7 @@ from layers.regrider import Regird
 from neuralop.layers.padding import DomainPadding
 import numpy as np
 import torch
-from layers.variable_encoding import VariableEncoding2d
+from layers.variable_encoding import VariableEncoding2D
 from .codano import Projection
 
 class CondnoGino(nn.Module):
@@ -227,7 +227,7 @@ class CondnoGino(nn.Module):
         self.enable_cls_token = enable_cls_token
         if enable_cls_token:
             print("intializing CLS token")
-            self.cls_token = VariableEncoding2d(
+            self.cls_token = VariableEncoding2D(
                 hidden_token_codim, (var_enco_mode_x, var_enco_mode_y), basis=var_enco_basis)
 
     def get_output_scaling_factor(self, initial_scale, scalings_per_layer):

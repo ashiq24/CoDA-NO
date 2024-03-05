@@ -11,7 +11,7 @@ import torch.nn.functional as F
 from neuralop.layers.padding import DomainPadding
 from layers.attention import TnoBlock2d
 from layers.fino import SpectralConvKernel2d
-from layers.variable_encoding import VariableEncoding2d, FourierVariableEncoding3D
+from layers.variable_encoding import VariableEncoding2D, FourierVariableEncoding3D
 
 
 # TODO replace with nerualop.MLP module
@@ -374,7 +374,7 @@ class CodANO(nn.Module):
         ))
 
     def _mk_variable_encoder(self, ve_args):
-        return VariableEncoding2d(
+        return VariableEncoding2D(
             channel=ve_args.n_channels,
             mode_x=ve_args.modes_x,
             mode_y=ve_args.modes_y,

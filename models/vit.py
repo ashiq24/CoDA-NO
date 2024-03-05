@@ -11,7 +11,7 @@ from neuralop.layers.padding import DomainPadding
 from neuralop.layers.fno_block import FNOBlocks
 import numpy as np
 import torch
-from layers.variable_encoding import VariableEncoding2d
+from layers.variable_encoding import VariableEncoding2D
 from layers.regular_transformer import vision_transformer
 
 class VitGno(nn.Module):

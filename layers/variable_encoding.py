@@ -10,7 +10,7 @@ from neuralop.layers.mlp import MLPLinear
 from neuralop.layers.embeddings import PositionalEmbedding
 
 
-class VariableEncoding2d(nn.Module):
+class VariableEncoding2D(nn.Module):
     def __init__(
         self,
         channel: int,

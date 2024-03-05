@@ -12,7 +12,7 @@ from neuralop.layers.fno_block import FNOBlocks
 from neuralop.layers.mlp import MLPLinear
 import numpy as np
 import torch
-from layers.variable_encoding import VariableEncoding2d
+from layers.variable_encoding import VariableEncoding2D
 
 
 class GNN(nn.Module):
