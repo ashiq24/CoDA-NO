@@ -1,9 +1,8 @@
 import unittest
 
 import torch
-import torch_harmonics as th
 
-from variable_encoding import VariableEncoding2d
+from variable_encoding import VariableEncoding2d, FourierVariableEncoding3D
 
 class VariableEncoding2DTest(unittest.TestCase):
     def setUp(self) -> None:
@@ -46,6 +45,27 @@ class VariableEncoding2DTest(unittest.TestCase):
         u = torch.randn(big_modes, dtype=torch.float32)
         v = self.variable_encoding.forward(u)
         self.assertEqual(torch.Size([self.n_channels, *big_modes]), v.shape)
+
+class VariableEncoding3DTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.n_features = 4
+        self.modes = (8, 16, 16)
+
+    @torch.no_grad()
+    def test_forward_fft(self):
+        self.variable_encoding = FourierVariableEncoding3D(
+            self.n_features,
+            self.modes,
+        )
+
+        u = torch.randn(self.modes, dtype=torch.float32)
+        v = self.variable_encoding.forward(u.shape)
+        self.assertEqual(torch.Size([self.n_features, *self.modes]), v.shape)
+
+        big_modes = tuple([2 * m for m in self.modes])
+        u = torch.randn(big_modes, dtype=torch.float32)
+        v = self.variable_encoding.forward(u.shape)
+        self.assertEqual(torch.Size([self.n_features, *big_modes]), v.shape)
 
 
 if __name__ == '__main__':

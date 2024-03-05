@@ -33,6 +33,8 @@ class VariableEncoding2d(nn.Module):
                 grid="legendre-gauss",
                 norm="backward",
             )
+        else:
+            raise ValueError(f'Expected one of "fft" or "sht". Got {basis=}')
 
     def reset_parameters(self):
         std = (1 / (self.modes[-1] * self.modes[-2]))**0.5
@@ -112,10 +114,10 @@ class VariableEncodingIrregularMesh(nn.Module):
             [n_dim + self.n_dim * positional_encoding_dim, self.variable_encoding_size * n_variables])
         self.PE = PositionalEmbedding(positional_encoding_dim)
 
-    def forward(self, grid_poits):
-        pe = self.PE(grid_poits.reshape(-1))
-        pe = pe.reshape(grid_poits.shape[0], -1)
-        grid_pe = torch.cat([grid_poits, pe], axis=1)
+    def forward(self, grid_points):
+        pe = self.PE(grid_points.reshape(-1))
+        pe = pe.reshape(grid_points.shape[0], -1)
+        grid_pe = torch.cat([grid_points, pe], axis=1)
         var_encoding = self.var_encoder(grid_pe)
         return var_encoding
 
