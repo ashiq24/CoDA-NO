@@ -11,7 +11,7 @@ class VariableEncoding2DTest(unittest.TestCase):
 
     @torch.no_grad()
     def test_forward_sht(self):
-        """Uses the old, stored transformation or a new one."""
+        """Uses the old, stored transformation, or a new one."""
         self.variable_encoding = VariableEncoding2D(
             self.n_channels,
             self.modes,
@@ -20,13 +20,13 @@ class VariableEncoding2DTest(unittest.TestCase):
 
         # Uses the old transform:
         u = torch.randn(self.modes, dtype=torch.float32)
-        v = self.variable_encoding.forward(u)
+        v = self.variable_encoding.forward(u.shape)
         self.assertEqual(torch.Size([self.n_channels, *self.modes]), v.shape)
 
         # Uses the new transform with the new size:
         big_modes = tuple([2 * m for m in self.modes])
         u = torch.randn(big_modes, dtype=torch.float32)
-        v = self.variable_encoding.forward(u)
+        v = self.variable_encoding.forward(u.shape)
         self.assertEqual(torch.Size([self.n_channels, *big_modes]), v.shape)
 
     @torch.no_grad()
@@ -38,12 +38,12 @@ class VariableEncoding2DTest(unittest.TestCase):
         )
 
         u = torch.randn(self.modes, dtype=torch.float32)
-        v = self.variable_encoding.forward(u)
+        v = self.variable_encoding.forward(u.shape)
         self.assertEqual(torch.Size([self.n_channels, *self.modes]), v.shape)
 
         big_modes = tuple([2 * m for m in self.modes])
         u = torch.randn(big_modes, dtype=torch.float32)
-        v = self.variable_encoding.forward(u)
+        v = self.variable_encoding.forward(u.shape)
         self.assertEqual(torch.Size([self.n_channels, *big_modes]), v.shape)
 
 class VariableEncoding3DTest(unittest.TestCase):
