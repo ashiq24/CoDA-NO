@@ -167,7 +167,7 @@ def nonuniform_mesh_trainer(
             torch.save(model.state_dict(), weight_path_model)
             if variable_encoder is not None:
                 variable_path = weight_path + params.config + "_variable_encoder_"+str(ep)
-                variable_encoder.save_all_encoder(variable_path)
+                variable_encoder.save_all_encoders(variable_path)
 
     model.eval()
     test_l2 = 0.0
