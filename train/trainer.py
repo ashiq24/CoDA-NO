@@ -50,7 +50,6 @@ def nonuniform_mesh_trainer(
             factor=scheduler_gamma)
 
     loss_p = nn.MSELoss()
-    loss_p1 = nn.L1Loss()
     for ep in range(epochs):
         model.train()
         t1 = default_timer()
@@ -163,8 +162,11 @@ def nonuniform_mesh_trainer(
         if ep % params.weight_saving_interval == 0 or ep == epochs - 1:
             stage_string = 'ssl' if stage == StageEnum.RECONSTRUCTIVE else 'sl'
 
-            weight_path_model = weight_path + params.config + "_" + stage_string+'_'+str(ep)+'.pt'
-            torch.save(model.state_dict(), weight_path_model)
+            weight_path_model_encoder = weight_path + params.config + "_" + stage_string+'_encoder_'+str(ep)+'.pt'
+            weight_path_model_decoder = weight_path + params.config + "_" + stage_string+'_decoder_'+str(ep)+'.pt'
+            torch.save(model.encoder.state_dict(), weight_path_model_encoder)
+            torch.save(model.decoder.state_dict(), weight_path_model_decoder)
+            
             if variable_encoder is not None:
                 variable_path = weight_path + params.config + "_variable_encoder_"+str(ep)
                 variable_encoder.save_all_encoder(variable_path)
@@ -322,7 +324,7 @@ def multi_physics_trainer(
         # TODO could this be added to the scheduler?
         if (ep + 1) % gradient_threshold_step_interval == 0:
             gradient_threshold /= 10.0
-            logger.debug(f"{gradient_threshold=}")
+            logger.debug(f"gradient_threshold: {gradient_threshold}")
 
         if ep % log_interval == 0:
             t2 = default_timer()

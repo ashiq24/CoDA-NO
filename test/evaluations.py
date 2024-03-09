@@ -17,7 +17,8 @@ def missing_variable_testing(
         params,
         variable_encoder=None,
         token_expander=None,
-        initial_mesh=None,):
+        initial_mesh=None,
+        wandb_log=False):
     """
     This function is used to test the model on missing/maksed variable testing
     Masking or dropping the variable is done by augmenter

@@ -24,8 +24,8 @@ from models.codano_gino import CondnoGino
 from models.fno_gino import FnoGno
 from models.gnn import GNN
 from models.deeponet import DeepONet
-# from models.vit import VitGno
-# from models.unet import UnetGno
+from models.vit import VitGno
+from models.unet import UnetGno
 
 # TODO merge methods get_ssl_models_coda*()
 def get_ssl_models_codaNo(
@@ -58,7 +58,7 @@ def get_ssl_models_codaNo(
         )
     else:
         raise ValueError(
-            f'Invalid config: {params.tno_integral_operator=}. '
+            f'Invalid config: {params.tno_integral_operator}. '
             f'Expected either "fno" or "fino"')
 
     if logger is None:
@@ -445,8 +445,6 @@ def get_model_fno(params):
 
     return model
 
-    return model
-
 
 class StageEnum(enum.Enum):
     RECONSTRUCTIVE = "RECONSTRUCTIVE"
@@ -690,7 +688,7 @@ class SSLWrapper(nn.Module):
 
 
         raise ValueError(f'Expected stage to be one of {list(StageEnum)};\n'
-                         f'Got {self.stage=}')
+                         f'Got {self.stage}')
 
     def do_mask(self, x):
         if not self.masking:
