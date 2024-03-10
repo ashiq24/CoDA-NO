@@ -15,6 +15,20 @@ from torch.optim.lr_scheduler import StepLR, ReduceLROnPlateau
 
 from data_utils.hdf5_datasets import Equation
 
+def save_weights(model, variable_encoder ,weight_path, stage, ep):
+    stage_string = 'ssl' if stage == StageEnum.RECONSTRUCTIVE else 'sl'
+    weight_path_model_encoder = weight_path + stage_string+'_encoder_'+str(ep)+'.pt'
+    torch.save(model.encoder.state_dict(), weight_path_model_encoder)
+    if stage == StageEnum.RECONSTRUCTIVE:
+        weight_path_model_decoder = weight_path + stage_string+'_decoder_'+str(ep)+'.pt'
+        torch.save(model.decoder.state_dict(), weight_path_model_decoder)
+    elif stage == StageEnum.PREDICTIVE:
+        weight_path_model_predictor = weight_path + stage_string+'_predictor_'+str(ep)+'.pt'
+        torch.save(model.predictor.state_dict(), weight_path_model_predictor)
+    if variable_encoder is not None:
+        variable_path = weight_path + "_variable_encoder_"+str(ep)
+        variable_encoder.save_all_encoder(variable_path)
+
 
 def nonuniform_mesh_trainer(
     model,
@@ -71,43 +85,35 @@ def nonuniform_mesh_trainer(
             equation = [i[0] for i in data['equation']]
             x, y = x.cuda(), y.cuda()
             if stage == StageEnum.RECONSTRUCTIVE:
-
                 if params.masking:
                     x = model.do_mask(x)
-
             if variable_encoder is not None and token_expander is not None:
                 inp = token_expander(x, variable_encoder(
                     initial_mesh + data['d_grid_x'].cuda()[0], equation), static_features.cuda())
-
             elif params.n_static_channels > 0:
+                '''
+                this is required for baseline models those only have static feature.
+                '''
                 inp = torch.cat(
                     [x, static_features[:, :, :params.n_static_channels].cuda()], dim=-1)
             else:
                 inp = x
-
             batch_size = x.shape[0]
 
-            if params.grid_type == "non uniform":
-                '''
-                Assume non uniform grids requires
-                updating grid for every sample. We need to
-                suppy the grid.
+            '''
+            Assume non uniform grids requires
+            updating grid for every sample. We need to
+            suppy the grid.
 
-                last 3 channel is displacement, taking (x,y), z is 0
-                '''
-                with torch.no_grad():
-                    if stage == StageEnum.RECONSTRUCTIVE:
-                        out_grid_displacement = data['d_grid_x'].cuda()[0]
-                        in_grid_displacement = data['d_grid_x'].cuda()[0]
-                    else:
-                        out_grid_displacement = data['d_grid_y'].cuda()[0]
-                        in_grid_displacement = data['d_grid_x'].cuda()[0]
-
-                    # print("grid difference",torch.norm(out_grid_displacement -in_grid_displacement))
-            else:
-                out_grid_displacement = None
-                in_grid_displacement = None
-            
+            last 3 channel is displacement, taking (x,y), z is 0
+            '''
+            with torch.no_grad():
+                if stage == StageEnum.RECONSTRUCTIVE:
+                    out_grid_displacement = data['d_grid_x'].cuda()[0]
+                    in_grid_displacement = data['d_grid_x'].cuda()[0]
+                else:
+                    out_grid_displacement = data['d_grid_y'].cuda()[0]
+                    in_grid_displacement = data['d_grid_x'].cuda()[0]
 
             out = model(
                 inp,
@@ -119,22 +125,17 @@ def nonuniform_mesh_trainer(
 
             # print('Shapes', out.shape, x.shape)
             train_count += 1
-
             if stage == StageEnum.RECONSTRUCTIVE:
                 target = x.clone()
-                
             else:
                 target = y.clone()
-
             loss = loss_p(target.reshape(batch_size, -1),
                           out.reshape(batch_size, -1))
             loss.backward()
-
             # Clip gradients to prevent exploding gradients
             if params.clip_gradient:
                 nn.utils.clip_grad_value_(
                     model.parameters(), params.gradient_clip_value)
-
             optimizer.step()
             train_l2 += loss.item()
             del x, y, out, loss
@@ -159,30 +160,20 @@ def nonuniform_mesh_trainer(
             if params.wandb_log:
                 wandb.log(values_to_log, commit=True)
         # saving weights
-        if ep % params.weight_saving_interval == 0 or ep == epochs - 1:
-            stage_string = 'ssl' if stage == StageEnum.RECONSTRUCTIVE else 'sl'
+        if ep % params.weight_saving_interval == 0:
+            save_weights(model, variable_encoder, weight_path + params.config+" ", stage, ep)
 
-            weight_path_model_encoder = weight_path + params.config + "_" + stage_string+'_encoder_'+str(ep)+'.pt'
-            weight_path_model_decoder = weight_path + params.config + "_" + stage_string+'_decoder_'+str(ep)+'.pt'
-            torch.save(model.encoder.state_dict(), weight_path_model_encoder)
-            torch.save(model.decoder.state_dict(), weight_path_model_decoder)
-            
-            if variable_encoder is not None:
-                variable_path = weight_path + params.config + "_variable_encoder_"+str(ep)
-                variable_encoder.save_all_encoder(variable_path)
+    save_weights(model, variable_encoder, weight_path + params.config + " ", stage, '')
 
     model.eval()
     test_l2 = 0.0
     ntest = 0
     with torch.no_grad():
         for data in test_loader:
-
             x, y = data['x'], data['y']
             static_features = data['static_features']
             equation = [i[0] for i in data['equation']]
-            # print(x.shape, y.shape, static_features.shape, data['equation'])
             x, y = x.cuda(), y.cuda()
-            # print(initial_mesh.shape, data['d_grid_x'].cuda()[0].shape, equation)
             if variable_encoder is not None and token_expander is not None:
                 inp = token_expander(x, variable_encoder(
                     initial_mesh + data['d_grid_x'].cuda()[0], equation), static_features.cuda())
@@ -192,24 +183,13 @@ def nonuniform_mesh_trainer(
             else:
                 inp = x
 
-            if params.grid_type == "non uniform":
-                '''
-                Assume non uniform grids requires
-                updating grid for every sample. We need to
-                suppy the grid.
-
-                last 3 channel is displacement, taking (x,y), z is 0
-                '''
-                with torch.no_grad():
-                    if stage == StageEnum.RECONSTRUCTIVE:
-                        out_grid_displacement = data['d_grid_x'].cuda()[0]
-                        in_grid_displacement = data['d_grid_x'].cuda()[0]
-                    else:
-                        out_grid_displacement = data['d_grid_y'].cuda()[0]
-                        in_grid_displacement = data['d_grid_x'].cuda()[0]
-            else:
-                out_grid_displacement = None
-                in_grid_displacement = None
+            with torch.no_grad():
+                if stage == StageEnum.RECONSTRUCTIVE:
+                    out_grid_displacement = data['d_grid_x'].cuda()[0]
+                    in_grid_displacement = data['d_grid_x'].cuda()[0]
+                else:
+                    out_grid_displacement = data['d_grid_y'].cuda()[0]
+                    in_grid_displacement = data['d_grid_x'].cuda()[0]
 
             batch_size = x.shape[0]
             out = model(inp, in_grid_displacement=in_grid_displacement,
@@ -229,6 +209,7 @@ def nonuniform_mesh_trainer(
     test_l2 /= ntest
     t2 = default_timer()
 
+    stage_string = 'ssl' if stage == StageEnum.RECONSTRUCTIVE else 'sl'
     if wandb_log:
         wandb.log({'test_error_'+stage_string: test_l2}, commit=True)
     print("Test Error : "+stage_string, test_l2)
@@ -324,7 +305,7 @@ def multi_physics_trainer(
         # TODO could this be added to the scheduler?
         if (ep + 1) % gradient_threshold_step_interval == 0:
             gradient_threshold /= 10.0
-            logger.debug(f"gradient_threshold: {gradient_threshold}")
+            logger.debug(f"gradient_threshold: {gradient_threshold=}")
 
         if ep % log_interval == 0:
             t2 = default_timer()

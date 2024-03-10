@@ -212,7 +212,7 @@ codano_test: &CODANO_TEST
     lifting_token_codim_en: 100
     lifting_token_codim_pred: 80
     masking: !!bool True
-    epochs: 100
+    epochs: 25
     mu_list: [1.0]
     lr: 0.001
     weight_decay: 0.0000
@@ -727,12 +727,12 @@ codano_finetune_test:
     equation_dict: { "NS": 3 }
     input_mesh_location: "../Data/TF_cfd_results/mesh.h5"
     data_location: "../Data/TF_cfd_results"
-    pretrain_weight: "../weights/codano_test_ssl_encoder_99.pt"
+    pretrain_weight: "../weights/codano_testssl_encoder_.pt"
     mu_list: [10.0]
     dt: 2
     ntrain: 1
     ntest: 5
-    NS_variable_encoder_path: "../weights/codano_test_variable_encoder_99_NS.pt"
+    NS_variable_encoder_path: "../weights/codano_test_variable_encoder__NS.pt"
     ES_variable_encoder_path: None
 
 
