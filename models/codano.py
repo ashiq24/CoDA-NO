@@ -14,7 +14,6 @@ from layers.fino import SpectralConvKernel2d
 from layers.variable_encoding import VariableEncoding2D, FourierVariableEncoding3D
 
 
-# TODO replace with nerualop.MLP module
 class Projection(nn.Module):
     def __init__(
         self,
@@ -32,7 +31,7 @@ class Projection(nn.Module):
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
-        self.hidden_channels = (in_channels
+        self.hidden_channels = (self.in_channels
                                 if hidden_channels is None else
                                 hidden_channels)
         self.non_linearity = non_linearity
@@ -40,9 +39,9 @@ class Projection(nn.Module):
 
         self.permutation_invariant = permutation_invariant
 
-        self.fc1 = Conv(in_channels, hidden_channels, 1)
-        self.norm = nn.InstanceNorm2d(hidden_channels, affine=True)
-        self.fc2 = Conv(hidden_channels, out_channels, 1)
+        self.fc1 = Conv(self.in_channels, self.hidden_channels, 1)
+        self.norm = nn.InstanceNorm2d(self.hidden_channels, affine=True)
+        self.fc2 = Conv(self.hidden_channels, self.out_channels, 1)
 
     def forward(self, x):
         batch = x.shape[0]
@@ -60,14 +59,15 @@ class Projection(nn.Module):
         return x
 
 
-# TODO replace with nerualop.MLP module
-# This may take some thinking about how to add the permutation equivariance einop.
 class ProjectionT(Projection):
     """Time-aware projection MLP layer"""
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.norm = nn.InstanceNorm3d(kwargs["hidden_channels"], affine=True)
+        if "n_dim" in kwargs and kwargs["n_dim"] != 3:
+            print(f"Warning: overriding {kwargs['n_dim']=} to n_dim=3")
+        super().__init__(*args, **kwargs, n_dim=3)
+        # `self.hidden_channels` must be defined by now after `super()`:
+        self.norm = nn.InstanceNorm3d(self.hidden_channels, affine=True)
 
     def forward(self, x):
         batch_size = x.shape[0]
