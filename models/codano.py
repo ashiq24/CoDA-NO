@@ -59,7 +59,7 @@ class Projection(nn.Module):
         return x
 
 
-class ProjectionT(Projection):
+class Projection3D(Projection):
     """Time-aware projection MLP layer"""
 
     def __init__(self, *args, **kwargs):
@@ -525,7 +525,7 @@ class CoDANOTemporal(CodANO):
         hidden_token_codimension,
         lifting_token_codimension,
     ):
-        return ProjectionT(
+        return Projection3D(
             in_channels=n_lifted_channels,
             out_channels=hidden_token_codimension,
             hidden_channels=lifting_token_codimension,
@@ -540,7 +540,7 @@ class CoDANOTemporal(CodANO):
         lifting_token_codimension,
         non_linearity,
     ):
-        return ProjectionT(
+        return Projection3D(
             in_channels=hidden_token_codimension,
             out_channels=out_token_codimension,
             hidden_channels=lifting_token_codimension,

@@ -2,7 +2,7 @@ import unittest
 
 import torch
 
-from models.codano import Projection, ProjectionT
+from models.codano import Projection, Projection3D
 
 
 def permute(a: torch.Tensor, n_channels: int) -> torch.Tensor:
@@ -95,12 +95,12 @@ class ProjectionTest(unittest.TestCase):
             rtol=1.0e-9,
         )
 
-class ProjectionTTest(unittest.TestCase):
+class Projection3DTest(unittest.TestCase):
     def test_initialization(self):
         # Tests default when `hidden_channels=None`
         in_channels = 4
         out_channels = 8
-        projection1 = ProjectionT(
+        projection1 = Projection3D(
             in_channels,
             out_channels,
             permutation_invariant=False,
@@ -113,7 +113,7 @@ class ProjectionTTest(unittest.TestCase):
         self.assertFalse(projection1.permutation_invariant)
 
         hidden_channels = 12
-        projection2 = ProjectionT(
+        projection2 = Projection3D(
             in_channels,
             out_channels,
             hidden_channels=hidden_channels,
@@ -130,7 +130,7 @@ class ProjectionTTest(unittest.TestCase):
     def test_forward(self):
         in_channels = 2
         out_channels = 4
-        projection = ProjectionT(
+        projection = Projection3D(
             in_channels,
             out_channels,
             hidden_channels=out_channels,
@@ -150,7 +150,7 @@ class ProjectionTTest(unittest.TestCase):
     def test_forward_permutation_equivariant(self):
         in_channels = 2
         out_channels = 4
-        projection = ProjectionT(
+        projection = Projection3D(
             in_channels,
             out_channels,
             hidden_channels=out_channels,
