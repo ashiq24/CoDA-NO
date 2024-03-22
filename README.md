@@ -1,5 +1,5 @@
 # Pretraining  Codomain Attention Neural Operators for Solving Multiphysics PDEs
-<img align="left" src="https://github.com/ashiq24/CoDA-NO/blob/web_resources/images/input_output.png" alt="drawing" width="350" height="300"/>
+<img align="left" src="https://github.com/ashiq24/CoDA-NO/blob/web_resources/images/input_output.png" alt="drawing" width="350"/>
 
 **Abstract**: Existing neural operator architectures face
 challenges when solving multiphysics problems with coupled partial differential equations (PDEs), due to complex geometries, interactions between physical variables, and the lack of large amounts of high-resolution training data. To address these issues, we propose Codomain Attention Neural Operator (CoDA-NO), which tokenizes functions along the codomain or channel space, enabling self-supervised learning or pretraining of multiple PDE systems. Specifically, we extend positional encoding, self-attention, and normalization layers to the function space. CoDA-NO can learn representations of different PDE systems with a single model. We evaluate CoDA-NO's potential as a backbone for learning multiphysics PDEs over multiple systems by considering few-shot learning settings. On complex downstream tasks with limited data, such as fluid flow simulations and fluid-structure interactions, we found CoDA-NO to outperform existing methods on the few-shot learning task by over $36$%. [Paper Link](https://arxiv.org/pdf/2403.12553.pdf)
@@ -56,6 +56,7 @@ vit_baseline.sh
 
 ## Reference
 If you find this paper and code useful in your research, please consider citing:
+
 @article{rahman2024pretraining,
   title={Pretraining Codomain Attention Neural Operators for Solving Multiphysics PDEs},
   author={Rahman, Md Ashiqur and George, Robert Joseph and Elleithy, Mogab and Leibovici, Daniel and Li, Zongyi and Bonev, Boris and White, Colin and Berner, Julius and Yeh, Raymond A and Kossaifi, Jean and others},
