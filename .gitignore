@@ -1,0 +1,20 @@
+*.ipynb
+wandb/*
+*__pycache__/*
+*/__pycache__/*
+*.out
+.ipynb_cache/*
+.ipynb_checkpoints/*
+*.txt
+wandb/*
+*/.ipynb_cache/*
+*/.ipynb_checkpoints/*
+*/.ipynb_checkpoints/*
+.ipynb_checkpoints/*
+
+*__pycache__/*
+*/__pycache__/*
+*.out
+
+# Virtual environment(s):
+.venv/*
