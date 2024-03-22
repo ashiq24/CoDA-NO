@@ -1,0 +1,144 @@
+base_config: &BASE_CONFIG
+    ## SSL parameters
+    nettype: 'transformer'
+    evaluation_channel_drop: 1
+    drop_type : 'zeros'
+    grid_type: 'uniform'
+    time_axis: True
+
+    # The routine dropped pixel in rectangular block.
+    masking: True
+    # Maximum size of the one rectangular block (as a ratio of the full frame):
+    max_block: 0.25
+    drop_pix: 0.4 # Percentage of pixels (per channel) to be dropped
+    channel_per: 0.4 # Number of channels to be augmented
+    channel_drop_per: 0.0 # We are not dropping channels for now
+
+    validation_aug: False
+    max_block_val : 0.2
+    drop_pix_val: 0.15
+    channel_per_val: 0.5
+    channel_drop_per_val: 0.5
+
+    # This currently assumes no two equations share variables.
+    variables_per_equation:
+        0: 1  # SWE: depth
+        1: 2  # DIFF: activator, inhibitor 
+        2: 3  # NS: density, x-velocity, y-velocity
+
+    per_channel_attention: False
+
+    transform_type: 'fft'
+    tno_integral_operator: 'fno'
+
+    use_variable_encodings: True
+
+    n_encoding_channels: 5
+    encoding_modes_t: 10
+    encoding_modes_x: 20
+    encoding_modes_y: 20
+
+    reconstruction: True
+    enable_cls_token: False
+
+    add_static_feature: False
+
+    # If True we first pretrain the model in a self-supervised learning (SSL)
+    # scheme where it learns an embedding of input fields to a latent space.
+    pretrain_ssl: True
+
+    # If False, it will tune the encoder during SL.
+    # Otherwise, it will freeze the weight of the encoder trained by SSL.
+    freeze_encoder: False
+
+    lr: 0.0001
+    weight_decay: 0.00001
+    scheduler_step: 20
+    scheduler_gamma: 0.5
+    epochs: 50
+    weight_path: '' # Add weight paths
+    gradient:
+      clip: True
+      threshold: 0.1
+
+    # PDEBench datasets:
+    shallow_water:
+        filepath: "" # Add data paths
+        subsampling_rate: 1  # 128 x 128 resolution
+        sample_size: 10  # 10 samples * 5 a/u pairs per sample
+        # The initial condition is not representative of the rest of the sample
+        offset: 1
+
+    diffusion_reaction:
+        filepath: "" # Add data paths
+        subsampling_rate: 1  # 128 x 128 resolution
+        sample_size: 10  # 10 samples * 5 a/u pairs per sample
+        # The initial condition is not representative of the rest of the sample
+        offset: 1
+
+    navier_stokes:
+        filepaths: [] # Add data paths
+        subsampling_rate: 4  # 128 x 128 resolution
+        sample_size: 4  # 4 samples * 50 a/u pairs per sample
+
+    # Weights and biases
+    wandb:
+        log: False
+        name: ''
+        group: ''
+        project: ''
+        entity: ''
+        log_interval: 1
+
+# Example model architecture for PDEs on uniform grids
+codano: &CODANO
+    <<: *BASE_CONFIG
+    epochs: 50
+    batch_size: 5 
+    radius: 0.08
+    gno_mlp_layers: [6, 8]
+    grid_size: [251, 42]
+    grid_type: 'uniform'
+    
+    encoder:
+        input_token_codimension: 1
+        ### TUNE P1 ###
+        hidden_token_codimension: 8
+        lifting_token_codimension: 16
+        n_heads: [1, 1, 1]
+        n_modes: [[10, 20, 20], [10, 20, 20], [10, 20, 20]]
+        ### TUNE P1 ###
+        n_layers: 3
+        scalings: [[1, 1], [1, 1], [1, 1]]
+
+    decoder:
+        # Expected to be equal to encoder.hidden_token_codimension:
+        input_token_codimension: 8
+        output_token_codimension: 1
+        ### TUNE P1 ###
+        hidden_token_codimension: 8
+        lifting_token_codimension: 16
+        n_heads: [1, 1, 1]
+        n_modes: [[10, 20, 20], [10, 20, 20], [10, 20, 20]]
+        ### TUNE P1 ###
+        n_layers: 3
+        scalings: [[1, 1], [1, 1], [1, 1]]
+
+    predictor:
+        # Expected to be equal to encoder.hidden_token_codimension:
+        input_token_codimension: 8
+        output_token_codimension: 8
+        ### TUNE P1 ###
+        hidden_token_codimension: 8
+        lifting_token_codimension: 16
+        n_heads: [1, 1, 1]
+        n_modes: [
+            [10, 20, 20], 
+            [10, 20, 20], 
+            [10, 20, 20],
+        ]
+        ### TUNE P1 ###
+        n_layers: 3
+        scalings: [[1, 1], [1, 1], [1, 1]]
+
+    masking_radius: 0.08
