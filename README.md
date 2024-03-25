@@ -1,24 +1,19 @@
-# CoDA-NO
+### Table 1
 
-## NS+Elastic Dataset
-**dataset link** :https://drive.google.com/drive/u/0/folders/1dN5de1n0qVYLEWf6JwXjqbCNUXl4Z8Tj
+New result on $\mu = 0.1$
 
-config file: config/ssl_ns_elastic.yaml
+### Table 2
+L1 L2 and relative L2
 
-Update the wandb cradentials.
+Results on NS-EW dataset
+| models | Pre-training Dataset | ntrain = 5 (L1/Rel-L2) | ntrain=25 (L1/Rel-L2) | ntrain=100 (L1/Rel-L2) |
+|--------|----------------------|-------------------------|-------------------------|--------------------------|
+| GINO   |                      | 0.1852/0.2967           | 0.151/0.2216            | 0.1608/0.219             |
+| DeepO  |                      | 0.4534/0.687            | 0.2666/0.4312           | 0.1846/0.3254            |
+| GNN    |                      | 0.08388/0.1309          | 0.05631/0.08211         | 0.05927/0.08265          |
+| ViT    |                      | 0.2026/0.3663           | 0.1565/0.2762           | 0.07654/0.1242           |
+| U-net  |                      | 0.7937/1.186/           | 0.2845/0.4635           | 0.1746/0.291             |
+| Ours   |                      |                         |                         |                          |
+| Ours   | NS                   |                         |                         | 0.03093/0.05936          |
+| Ours   | NS-EW                |                         |                         | 0.03335/0.0578           |
 
-Update the "input_mesh_location" and "data_location" in the config file and run the following command.
-
-
-```
-python main.py --config "config name" --ntrain N
-```
-
-"--config" -> whihc configuration to use from the config file "ssl_ns_elastic.yaml"
-
-"--ntrain" -> Number of training data points.
-
-## Scripts
-codano.sh -> For training CoDA-NO architecture.
-
-**fno_baseline.sh and gnn_baseline.sh** are for baselines. Baselines will be trained on different number of training examples.
