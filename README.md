@@ -74,10 +74,11 @@ Results on NS Dataset
 
 ### Table 4 Ablation Study
 
+### Table 5 Super Resolution Table
 
-### Table 5 Inference Time
+### Table 6 Inference Time
 
-### Table 6 Parameters
+### Table 7 Parameters
 
 
 
