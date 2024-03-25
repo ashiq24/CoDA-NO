@@ -85,7 +85,8 @@ Results on NS Dataset
 | CoDA-No            | NS                   | 0.025 / 0.071           | 0.007 / 0.008            | 0.004 / 0.005             |
 | CoDA-No            | NS EW                | 0.024 / 0.040           | 0.006 / 0.005            | 0.005 / 0.003             |
 
-### Table 5 Super Resolution Table
+### Table 6 Inference Time
+Table 5 Super Resolution Table
 
 | Model    |Pretraining Dataset   |  mu = 5             |   mu = 1| mu =10  |
 |----------|----------------------|---------------------|---------|---------|
@@ -96,7 +97,7 @@ Results on NS Dataset
 | CoDA-NO  | NS-EW                | 0.03569             | 0.06672 | 0.04389 |  
 | CoDA-NO  | NS                   | 0.03409             | 0.05625 | 0.03749 |   
 
-### Table 6 Inference Time
+
 
 ### Table 7 Parameters
 
