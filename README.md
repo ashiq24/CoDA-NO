@@ -2,8 +2,19 @@
 
 New result on $\mu = 0.1$
 
-### Table 2
-L1 L2 and relative L2
+| models | Pre-training Dataset | ntrain = 5 (L1/Rel-L2) | ntrain=25 (L1/Rel-L2) | ntrain=100 (L1/Rel-L2) |
+|--------|----------------------|------------------------|-----------------------|------------------------|
+| GINO   |                      |                        |                       |                        |
+| DeepO  |                      |                        |                       |                        |
+| GNN    |                      |                        |                       |                        |
+| ViT    |                      |                        |                       |                        |
+| U-net  |                      |                        |                       |                        |
+| Ours   |                      |                        |                       |                        |
+| Ours   | NS                   |                        |                       |                        |
+| Ours   | NS-EW                |                        |                       |                        |
+
+### Table 2 New metric - L1 and relative L2
+
 
 Results on NS-EW dataset
 | models | Pre-training Dataset | ntrain = 5 (L1/Rel-L2) | ntrain=25 (L1/Rel-L2) | ntrain=100 (L1/Rel-L2) |
@@ -19,5 +30,56 @@ Results on NS-EW dataset
 -----------------------------------------------------------------------------------------------------------
 
 Results on NS Dataset
+
+| models | Pre-training Dataset | ntrain = 5 (L1/Rel-L2) | ntrain=25 (L1/Rel-L2) | ntrain=100 (L1/Rel-L2) |
+|--------|----------------------|------------------------|-----------------------|------------------------|
+| GINO   |                      |                        |                       |                        |
+| DeepO  |                      |                        |                       |                        |
+| GNN    |                      |                        |                       |                        |
+| ViT    |                      |                        |                       |                        |
+| U-net  |                      |                        |                       |                        |
+| Ours   |                      |                        |                       |                        |
+| Ours   | NS                   |                        |                       |                        |
+| Ours   | NS-EW                |                        |                       |                        |
+-----------------------------------------------------------------------------------------------------------
+
+### table 3 Error Bar
+ 
+Results on NS-EW dataset
+
+| models | Pre-training Dataset | ntrain = 5 (L1/Rel-L2) | ntrain=25 (L1/Rel-L2) | ntrain=100 (L1/Rel-L2) |
+|--------|----------------------|------------------------|-----------------------|------------------------|
+| GINO   |                      |                        |                       |                        |
+| DeepO  |                      |                        |                       |                        |
+| GNN    |                      |                        |                       |                        |
+| ViT    |                      |                        |                       |                        |
+| U-net  |                      |                        |                       |                        |
+| Ours   |                      |                        |                       |                        |
+| Ours   | NS                   |                        |                       |                        |
+| Ours   | NS-EW                |                        |                       |                        |
+-----------------------------------------------------------------------------------------------------------
+
+Results on NS Dataset
+
+| models | Pre-training Dataset | ntrain = 5 (L1/Rel-L2) | ntrain=25 (L1/Rel-L2) | ntrain=100 (L1/Rel-L2) |
+|--------|----------------------|------------------------|-----------------------|------------------------|
+| GINO   |                      |                        |                       |                        |
+| DeepO  |                      |                        |                       |                        |
+| GNN    |                      |                        |                       |                        |
+| ViT    |                      |                        |                       |                        |
+| U-net  |                      |                        |                       |                        |
+| Ours   |                      |                        |                       |                        |
+| Ours   | NS                   |                        |                       |                        |
+| Ours   | NS-EW                |                        |                       |                        |
+-----------------------------------------------------------------------------------------------------------
+
+### Table 4 Ablation Study
+
+
+### Table 5 Inference Time
+
+### Table 6 Parameters
+
+
 
 
