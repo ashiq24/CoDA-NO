@@ -100,6 +100,15 @@ Results on NS Dataset
 
 ### Table 7 Parameters
 
+Overfitting of basslines with higher parameters on NS-EW dataset.
+| models | ntrain = 5  (small / Big)  | ntrain=25  (small / Big) | ntrain=100  (small / Big) |
+|--------|----------------------------|--------------------------|---------------------------|
+| GINO   | 0.122 / 0.3423             | 0.053 / 0.06607          | 0.043 / 0.03688           |
+| DeepO  | 0.482 /                    | 0.198 /                  | 0.107 /                   |
+| GNN    | 0.045 / 0.2689             | 0.009 / 0.03174          | 0.009 / 0.06147           |
+| ViT    | 0.211 / 0.2663             | 0.113 / 0.1255           | 0.020 / 0.02178           |
+| U-net  | 3.579 / 4.632              | 0.842 / 1.614            | 0.203 / 0.2636            |
+
 
 
 
