@@ -1,8 +1,13 @@
- ### Table 1
+## General Response
+We thank the reviewers for reviewing and appreciating our work. We're going to address the common concern here, and in each reviewer's thread, we answer individual questions.
 
-New result on $\mu = 0.1$
+We agree with the reviewer that fluid dynamics is easier to model when the viscosity gets higher. However, the more relevant measure of the complexity of the fluid flow is the Reynolds number, which depends on the viscosity, velocity, and density of the fluid. For our setup, the fluid considered is water, with a density of 1000 kg.m-3 and a maximum inlet velocity of approximately $4 m.s^{-1}$, leading to Reynolds numbers in the range $200-2000$ for our experiments. Only when the flow becomes turbulent ample movements of the elastic strap (Figure 4) can be observed in the fluid-structure interaction case. Modeling fluid-solid interaction or only fluid motion with such a Reynolds number is quite challenging. Fluid-structure interactions at even higher Reynolds numbers could be performed with the TurtleFSI solver used in this paper; however, they would require a very high computational cost. It's worth noting that TurtleFSI's fluid solver, including its fluid-structure interaction solver, uses a direct numerical simulation (DNS) of fluid dynamics and does not take into account any turbulence models. This means that in order to accurately capture the small-scale energy-dissipating vortices that form when the flow interacts with the cylinder and strap at high Reynolds numbers, a very fine spatial domain discretization is required. Furthermore, an extremely small time step is necessary to ensure numerical stability. For these reasons, the contribution [1], which introduced the benchmark fluid-structure interaction problem studied here, only deals with flows that have Reynolds numbers less than or equal to 200. Previous studies have also focused on fluid flow with a similar or lower Reynolds number when modeling fluid dynamics [2-3].
 
-| models | Pre-training Dataset | ntrain = 5 (L1/Rel-L2) | ntrain=25 (L1/Rel-L2) | ntrain=100 (L1/Rel-L2) |
+Following the suggestion of the reviewers, we present the result of the fluid-solid interactions PDE at viscosity $\mu = 0.5$. We can observe that our CoDA-No model can adapt to even lower viscosities even when it is pre-trained on higher viscosities ($\mu \in \{1, 10\}$).
+
+### Table 1
+
+| models | Pre-training Dataset | ntrain = 5             | ntrain=25             | ntrain=100             |
 |--------|----------------------|------------------------|-----------------------|------------------------|
 | GINO   |                      |                        |                       |                        |
 | DeepO  |                      |                        |                       |                        |
@@ -13,8 +18,17 @@ New result on $\mu = 0.1$
 | Ours   | NS                   |                        |                       |                        |
 | Ours   | NS-EW                |                        |                       |                        |
 
-### Table 2 New metric - L1 and relative L2
+[1]  Turek, Stefan, and Jaroslav Hron. "Proposal for numerical benchmarking of fluid-structure interaction between an elastic object and laminar incompressible flow."
 
+[2]​​Tian, Yifeng, Michael Woodward, Mikhail Stepanov, Chris Fryer, Criston Hyett, Daniel Livescu, and Michael Chertkov. "Lagrangian large eddy simulations via physics-informed machine learning."
+
+[3]Lucas, Dan, and Rich Kerswell. "Spatiotemporal dynamics in two-dimensional Kolmogorov flow over large domains."
+
+
+## Reviewer 1yj2
+We thank reviewer 1yj2 for reviewing and appreciating our work as interesting and well-organized. Now we address the concerns raised by reviewer 1yj2.
+
+### Table 2 New metric - L1 and relative L2
 
 Results on NS-EW dataset
 | models | Pre-training Dataset | ntrain = 5 (L1/Rel-L2) | ntrain=25 (L1/Rel-L2) | ntrain=100 (L1/Rel-L2) |
