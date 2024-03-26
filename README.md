@@ -42,6 +42,9 @@ Results on NS Dataset
 | Ours   | NS                   | 0.08053/0.1483         | 0.04025/0.08173       | 0.02447/0.06076        |
 | Ours   | NS-EW                | 0.07556/0.1431         | 0.041/0.0692          | 0.02226/0.0579         |
 
+
+Figure For Energy spectrum
+![image](https://anonymous.4open.science/r/annonimous_support-0F53/energy_spectrum_plot.png)
 ### table 3 Error Bar
  
 Results on NS-EW dataset
