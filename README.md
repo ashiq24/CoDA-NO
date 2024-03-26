@@ -87,13 +87,10 @@ Results on NS Dataset
 
 ### Table 6 Inference Time
 
-| Model    | Infernec Time        |
-|----------|----------------------|
-| u-net    |                      |
-| Vit      |                      |  
-| GINO     |                      |  
-| GNN      |                      |  
-| CoDA-NO  |                      |  
+| models          | GNN   | GINO  | DeepO | ViT   | Unet  | CoDA-NO |
+|-----------------|-------|-------|-------|-------|-------|---------|
+| Inference Time  | 0.012 | 0.012 | 0.006 | 0.071 | 0.024 | 0.440   |
+| Training Time   | 0.136 | 0.136 | 0.131 | 0.273 | 0.268 | 1.25    | 
 
 Table 5 Super Resolution Table
 
