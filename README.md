@@ -38,13 +38,13 @@ Following the suggestion of the reviewers, we present the result of the fluid-so
 
 ## Reviewer 1yj2
 
-We thank reviewer 1yj2 for reviewing and appreciating our work as interesting and well-organized. Now we will address the concerns raised.
+We thank reviewer 1yj2 for reviewing and appreciating our work as interesting and well-organized. Now we will address the concerns.
 
-> Concern regarding experiment design
+> Experiment design
 
 Please see the general response.
 
-> Question regarding different matrices (like L1, relative L2, energy spectra)
+> Different matrices (like L1, relative L2, energy spectra)
 
 L2 and relative L2 are scaled versions of each other. L2 penalizes large errors more than L1  and is a common choice [1] as a metric across different tasks. We report the additional metrics (L1 and relative L2) here. We can see that our model performs better across different metrics.
 
@@ -86,7 +86,7 @@ Here, we show the energy spectrum for the NS-EW dataset for $\mu = 5$ calculated
 
 ![image](https://anonymous.4open.science/r/annonimous_support-0F53/energy_spectrum_plot.png)
 
-We plan to add these additional results to the manuscript. 
+We will add these additional results to the manuscript. 
 
 
 > Additional Implementation Details
@@ -104,7 +104,7 @@ The model is set in an auto-regressive way, and the input sequence length is 1. 
 ## Reviewer R8HL
 We appreciate the reviewer's positive feedback on our work. We are pleased that the reviewer finds the problem both interesting and challenging. We will now address the concerns here
 
-> Concern Regarding Limiting experiments and a single viscosity level
+> Experiments setup and a single viscosity level
 
 We tested our model on three different viscosity levels $\mu \in 1,5,10$ with different inlet conditions from the pre-training dataset, along with varying numbers of interacting variables (single and multiphysics). Please take a look at Table 1-2, Figure 5, Supplementary Sec A4 Table 3-4 for the detailed results.
 
@@ -165,7 +165,7 @@ We will report the inference and training time of the proposed model along with 
 ## Reviewer z3xS 
 We thank the reviewer z3xS for reviewing and appreciating the work. We will now address the concerns
 
-> Missing Reference on Traditional Solvers being Expensive
+> Reference on Traditional Solvers being Expensive
 
 We thank the reviewer for pointing this out. The obstacles in generating data using traditional solvers are discussed in [1,2]. We will add these citations in the revised manuscripts.
 
@@ -183,7 +183,7 @@ Also, compared to the fixed positional encoding in regular transformer - we use 
 
 To further clarify these motivations and differences, we will rewrite the revised manuscript highlighting these points.
 
-> Regarding Figure 5
+> Regarding Fig. 5
 
 We thank the reviewer for pointing this out. To reduce the clutter, we will divide the curves into baseline and ablation studies and report them separately.
 
