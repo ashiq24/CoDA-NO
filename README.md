@@ -127,7 +127,7 @@ Also, to emphasize the resolution-invariance nature of CoDA-No, a neural operato
 ###  Super Resolution Experiment on Fluid-Solid Interaction Dataset 
 NS-EW = Fluid-solid interaction dataset combining Navier-Stokes and Elastic wave equation.
 NS  = Fluid motion dataset governed by Navier-Stokes equation.
-| Model    |Pretraining Dataset   |  $ \mu = 5$         | $\mu = 1$| $\mu =10$|
+| Model    |Pretraining Dataset   |  $\mu = 5$         | $\mu = 1$| $\mu =10$|
 |----------|----------------------|---------------------|---------|---------|
 | u-net    |                      | 0.140              | 0.234  | 0.225  |
 | Vit      |                      | 0.051             | 0.184  | 0.046 |  
