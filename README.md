@@ -163,12 +163,39 @@ We will report the inference and training time of the proposed model along with 
 
 
 ## Reviewer z3xS 
+We thank the reviewer z3xS for reviewing and appreciating the work. We will now address the concerns
 
-### table 3 Error Bar
+> Missing Reference on Traditional Solvers being Expensive
+
+We thank the reviewer for pointing this out. The obstacles in generating data using traditional solvers are discussed in [1,2]. We will add these citations in the revised manuscripts.
+
+> On the Motivation of Each of the Model's Components and Difference with Existing Self-Attention
+
+The motivation of the CoDA-NO layer is discussed in the paragraph “Permutation Equivariant Neural Operator” [line 183]. We aim to develop a model that can seamlessly adapt from single-physics to multi-physics. For this, the model should be able to handle an arbitrary number of variables (codomain) and need to be equivariant with respect to the ordering variables (codomains). As the attention mechanism is a set operation, we design a new neural operator layer that employs the attention mechanism among all the co-domains (or variables), treating each PDE as a set of interacting variables.
+
+Variable-specific positional encoding (VSPE) is required to inform the model of each variable's identity. As the model is permutation equivariant, VSPE helps the model capture variable-dependent interactions (e.g., how the velocity variable interacts with displacement).
+
+The normalization layer is a very crucial component of the transformer architecture [3]. However, the designed normalization layer will break the resolution invariance nature of neural operator mapping between function spaces. So, we propose a normalization layer for function spaces, which can be seen as an extension of the instance norm [line 244].
+
+The patching done in the traditional transformer/attention mechanism is not applicable to function space data as they break resolution invariance. In CoDA-NO, we avoid patching and have designed a technique to compute attention over the entire variable. Here, the variables are functions; as an example, for our experiments, the variables are functions on the 2D domain (xy plane). As we are working with functions, we cannot utilize the key, query, and value matrix, as they are not designed to operate over infinite-dimensional (function) spaces. Consequently, we have redesigned the attention mechanism to work with infinite-dimensional vector spaces. And out technique is generalizable to functions on arbitray domains.
+
+Also, compared to the fixed positional encoding in regular transformer - we use learnable variable-specific positional encoding to convey variable-specific information to the model. Our proposed CoDA-NO layer, along with VSPE and normalization, offers, to the best of our knowledge, the first complete transformer architecture for function spaces.
+
+To further clarify these motivations and differences, we will rewrite the revised manuscript highlighting these points.
+
+> Regarding Figure 5
+
+We thank the reviewer for pointing this out. To reduce the clutter, we will divide the curves into baseline and ablation studies and report them separately.
+
+> Error Bar over multiple Runs
+
+Here we present the error bar for Table 1-2 over three runs. To avoid clutter, we report the number separately of the fluid-solid interaction (NS-EW) dataset and fluid flow (NS) dataset.
+
+### Table: Error Bar
  
-Results on NS-EW dataset
+Results on the NS-EW dataset
 
-| models | Pre-training Dataset | ntrain = 5                         | ntrain=25                            | ntrain=100                         |
+| Models | Pre-training Dataset | # Train = 5                         | # Train=25                            | # Train=100                         |
 |--------|----------------------|------------------------------------|--------------------------------------|-------------------------------------|
 | GINO   |                      | 0.121 $\pm$ 0.023                      |  0.0530 $\pm$ 0.0053                     | 0.0345$\pm$0.0086                       |
 | DeepO  |                      |  0.534 $\pm$ 0.005                      | 0.192 $\pm$ 0.0072                      |  0.1384$\pm$0.0293                      |
@@ -182,7 +209,7 @@ Results on NS-EW dataset
 
 Results on NS Dataset
 
-| models | Pre-training Dataset | ntrain = 5             | ntrain=25             | ntrain=100             |
+| Models | Pre-training Dataset | # Train = 5             | # Train=25             | # Train=100             |
 |--------|----------------------|------------------------|-----------------------|------------------------|
 | GINO   |                      | 0.1436 $\pm$ 0.02315         | 0.03714 $\pm$ 0.0044        |  0.0330 $\pm$ 0.0105                      |
 | DeepO  |                      | 1.621 $\pm$ 0.2417           | 0.3162 $\pm$ 0.1146         | 0.1978 $\pm$ 0.03452                       |
@@ -193,10 +220,17 @@ Results on NS Dataset
 | Ours   | NS                   |  0.0276 $\pm$ 0.00321        | 0.00572 $\pm$ 0.0005        |  0.00390 $\pm$ 0.0001                      |
 | Ours   | NS-EW                |  0.0273 $\pm$ 0.0054         | 0.005665 $\pm$ 0.0005       | 0.004023 $\pm$ 0.0001                      |
 
+> Ablation on Different Model Components
 
-### Table 4 Ablation Study
+Table 2 presents the ablation of our proposed CoDA-NO layer and pre-training mechanism. In the ViT model, we use the regular attention layer instead of our proposed CoDA-NO layer, which serves as an ablation of the newly proposed CoDA-NO layer. We also present the result where no pre-training is performed. 
+We present an ablation of other proposed components here. We will report their results in the revised manuscript.
 
-| models             | Pre-training Dataset | ntrain = 5 (NS / NS-EW) | ntrain = 25 (NS / NS-EW) | ntrain = 100 (NS / NS-EW) |
+### Table: Ablation Study
+
+"*" Symbol means the model fails to converge and has a very high train error.
+VSPE: Variable Specific Positional Encoding.
+  
+| Models             | Pre-training Dataset | # Train = 5 (NS / NS-EW) | # Train = 25 (NS / NS-EW) | # Train = 100 (NS / NS-EW) |
 |--------------------|----------------------|-------------------------|--------------------------|---------------------------|
 | No CoDA-NO layer   | -                    | 0.271 / 0.211           | 0.061 / 0.113            | 0.017 / 0.020             |
 | CoDA-NO            | -                    | 0.182 / 0.051           | 0.008 / 0.084            | 0.006 / 0.004             |
@@ -221,6 +255,11 @@ Overfitting of basslines with higher parameters on NS-EW dataset.
 | ViT     | 27/100                       | 0.211 / 0.2663           | 0.113 / 0.1255         | 0.020 / 0.022            |
 | U-net   | 30/48                        | 3.579 / 9.462            | 0.842 / 3.957          | 0.203 / 0.412            |
 
+[1].Schneider, T., Teixeira, J., Bretherton, C. S., Brient, F., Pressel, K. G., Sch  ̈ar, C., and Siebesma, A. P. Climate goals and computing the future of clouds.
+
+[2]. Keyes, D. E., McInnes, L. C., Woodward, C., Gropp, W., Myra, E., Pernice, M., ... & Wohlmuth, B. (2013). Multiphysics simulations: Challenges and opportunities.
+
+[3] Xiong, Ruibin, Yunchang Yang, Di He, Kai Zheng, Shuxin Zheng, Chen Xing, Huishuai Zhang, Yanyan Lan, Liwei Wang, and Tieyan Liu. "On layer normalization in the transformer architecture."
 
 
 
