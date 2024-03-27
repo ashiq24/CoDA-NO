@@ -1,5 +1,5 @@
 ## General Response
-We thank the reviewers for reviewing and appreciating our work. We're going to address the common concern here, and in each reviewer's thread, we answer individual questions.
+We thank the reviewers for reviewing and appreciating our work. We first address the common concern, and in each reviewer's thread, we answer individual questions.
 
 We agree with the reviewer that fluid dynamics is easier to model when the viscosity increases. However, the more relevant measure of the complexity of the fluid flow is the Reynolds number, which depends on the fluid's viscosity, velocity, and density. 
 
