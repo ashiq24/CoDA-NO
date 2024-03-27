@@ -52,7 +52,7 @@ The mesh used for the simulation is highly nonlinear, i.e., point density at som
 Here we provide the L1 and relative L2 errors. We also provide energy spectrum for different models.
 
 
-### Table: L1 and relative L2 Error
+#### Table: L1 and relative L2 Error
 
 Results on the fluid-solid interaction dataset combining Navier-Stokes and Elastic wave equation **(NS-EW dataset)**.
 
@@ -124,7 +124,7 @@ We agree with the reviewer that the proposed CoDA-NO has additional complexity. 
 
 Also, to emphasize the resolution-invariance nature of CoDA-No, a neural operator [1,2], and GNN, we present an additional experiment on zero-shot super-resolution. Here, all models are trained on a mesh with 1317 points (low resolution) and a given viscosity. We use 100 few-shot training examples. During inference, the model is queried directly on a denser and non-uniform target mesh consisting of 2193 points (high-resolution mesh). We can observe that CoDA-NO achieves higher performance compared to other baselines.
 
-###  Super Resolution Experiment on Fluid-Solid Interaction Dataset 
+####  Super Resolution Experiment on Fluid-Solid Interaction Dataset 
 NS-EW = Fluid-solid interaction dataset combining Navier-Stokes and Elastic wave equation.
 NS  = Fluid motion dataset governed by Navier-Stokes equation.
 | Model    |Pretraining Dataset   |  $\mu = 5$         | $\mu = 1$| $\mu =10$|
@@ -139,7 +139,7 @@ NS  = Fluid motion dataset governed by Navier-Stokes equation.
 
 The training and inference time of CoDA-NO and other baselines are listed in the following table. The time required by CoDA-NO is larger than that of the other baselines. 
 
-### Inference Time in Sec.
+#### Inference Time in Sec.
 
 | Models          | GNN   | GINO  | DeepO | ViT   | Unet  | CoDA-NO |
 |-----------------|-------|-------|-------|-------|-------|---------|
@@ -177,7 +177,7 @@ Variable-specific positional encoding (VSPE) is required to inform the model of 
 
 The normalization layer is a very crucial component of the transformer architecture [3]. However, the designed normalization layer will break the resolution invariance nature of neural operator mapping between function spaces. So, we propose a normalization layer for function spaces, which can be seen as an extension of the instance norm [line 244].
 
-The patching done in the traditional transformer/attention mechanism is not applicable to function space data as they break resolution invariance. In CoDA-NO, we avoid patching and have designed a technique to compute attention over the entire variable. Here, the variables are functions; as an example, for our experiments, the variables are functions on the 2D domain (xy plane). As we are working with functions, we cannot utilize the key, query, and value matrix, as they are not designed to operate over infinite-dimensional (function) spaces. Consequently, we have redesigned the attention mechanism to work with infinite-dimensional vector spaces. And out technique is generalizable to functions on arbitray domains.
+The patching done in the traditional transformer/attention mechanism is not applicable to function space data as they break resolution invariance. In CoDA-NO, we avoid patching and have designed a technique to compute attention over the entire variable. Here, the variables are functions; as an example, for our experiments, the variables are functions on the 2D domain (xy plane). As we are working with functions, we cannot utilize the key, query, and value matrix, as they are not designed to operate over infinite-dimensional (function) spaces. Consequently, we have redesigned the attention mechanism to work with infinite-dimensional vector spaces. Our technique is generalizable and can function in arbitray domains.
 
 Also, compared to the fixed positional encoding in regular transformer - we use learnable variable-specific positional encoding to convey variable-specific information to the model. Our proposed CoDA-NO layer, along with VSPE and normalization, offers, to the best of our knowledge, the first complete transformer architecture for function spaces.
 
@@ -191,7 +191,7 @@ We thank the reviewer for pointing this out. To reduce the clutter, we will divi
 
 Here we present the error bar for Table 1-2 over three runs. To avoid clutter, we report the number separately of the fluid-solid interaction (NS-EW) dataset and fluid flow (NS) dataset.
 
-### Table: Error Bar
+#### Table: Error Bar
  
 Results on the NS-EW dataset
 
@@ -223,9 +223,9 @@ Results on NS Dataset
 > Ablation on Different Model Components
 
 Table 2 presents the ablation of our proposed CoDA-NO layer and pre-training mechanism. In the ViT model, we use the regular attention layer instead of our proposed CoDA-NO layer, which serves as an ablation of the newly proposed CoDA-NO layer. We also present the result where no pre-training is performed. 
-We present an ablation of other proposed components here. We will report their results in the revised manuscript.
+We'd like to present an ablation of other proposed components here. We will report their results in the revised manuscript.
 
-### Table: Ablation Study
+#### Table: Ablation Study
 
 "*" Symbol means the model fails to converge and has a very high train error.
 VSPE: Variable Specific Positional Encoding.
@@ -244,15 +244,25 @@ VSPE: Variable Specific Positional Encoding.
  
 
 
-### Table 7 Parameters
+> Parameter Comparison among Different Models
 
-Overfitting of basslines with higher parameters on NS-EW dataset.
-| models  | # Parameter (Used/Big) x 1e6 | # train = 5  (Used / Big) | # train=25  (Used/ Big) | # train=100  (Used / Big) |
+We report the parameter count of different baselines in the following table. The architectures of the baselines are adapted from their publicly released implementations. For CoDA-NO, the Encoder contains $34 \times 1e6$ parameter, which is pretrained and reused for every experiment. And the predictor contains $9 \times 1e6$ parameters.
+#### Table: Models' Paramter
+| Models          | GNN   | GINO  | DeepO | ViT   | Unet  | CoDA-NO |
+|-----------------|-------|-------|-------|-------|-------|---------|
+| # Parameter x 1e6 | 0.6 | 60    | 6     | 27    | 30    |43       |
+
+It might seem that models are not compared fairly, as the CoDA-NO has a smaller parameter count. However, here, we test the model on a few shot learning problems. Increasing the model's parameter count worsens the overfitting problem.
+
+To prove this fact, we perform experiments on a fluid-solid interaction dataset with increased parameter count. We will observe that increasing the parameter count almost always hurts the performance, especially for very few hot learning scenarios.
+
+#### Table: Overfitting of basslines with higher parameters on NS-EW dataset.
+| models  | # Parameter (Used/Big) x 1e6 | # Train = 5  (Used / Big) | # Train=25  (Used/ Big) | # Train=100  (Used / Big) |
 |---------|------------------------------|--------------------------|------------------------|--------------------------|
-| GINO    | 60/200                       | 0.122 / 0.3423           | 0.053 / 0.06607        | 0.043 / 0.036            |
-| DeepO   | 6 / 25                       | 0.482 /  0.4958          | 0.198 /  0.3039        | 0.107 / 0.083            |
-| GNN     | 0.5/ 7                       | 0.045 / 0.2689           | 0.009 / 0.03174        | 0.009 / 0.061            |
-| ViT     | 27/100                       | 0.211 / 0.2663           | 0.113 / 0.1255         | 0.020 / 0.022            |
+| GINO    | 60/200                       | 0.122 / 0.342           | 0.053 / 0.066        | 0.043 / 0.036            |
+| DeepO   | 6 / 25                       | 0.482 /  0.495          | 0.198 /  0.303        | 0.107 / 0.083            |
+| GNN     | 0.6/ 7                       | 0.045 / 0.268           | 0.009 / 0.031        | 0.009 / 0.061            |
+| ViT     | 27/100                       | 0.211 / 0.266           | 0.113 / 0.125         | 0.020 / 0.022            |
 | U-net   | 30/48                        | 3.579 / 9.462            | 0.842 / 3.957          | 0.203 / 0.412            |
 
 [1].Schneider, T., Teixeira, J., Bretherton, C. S., Brient, F., Pressel, K. G., Sch  ̈ar, C., and Siebesma, A. P. Climate goals and computing the future of clouds.
