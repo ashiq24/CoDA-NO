@@ -1,13 +1,24 @@
 ## General Response
 We thank the reviewers for reviewing and appreciating our work. We're going to address the common concern here, and in each reviewer's thread, we answer individual questions.
 
-We agree with the reviewer that fluid dynamics is easier to model when the viscosity gets higher. However, the more relevant measure of the complexity of the fluid flow is the Reynolds number, which depends on the viscosity, velocity, and density of the fluid. For our setup, the fluid considered is water, with a density of 1000 kg.m-3 and a maximum inlet velocity of approximately $4 m.s^{-1}$, leading to Reynolds numbers in the range $200-2000$ for our experiments. Only when the flow becomes turbulent can ample movements of the elastic strap (Figure 4) be observed in the fluid-structure interaction case. Modeling fluid-solid interaction or only fluid motion with such a Reynolds number is quite challenging and used as a benchmark problem [2-3]. Modeling fluid-solid interaction with an even higher Reynolds number requires a very high computational cost. Because TurtleFSI's (used in this study) fluid solver, including its' fluid-structure interaction solver, uses a direct numerical simulation (DNS) of fluid dynamics and does not employ any turbulence models. This means that in order to accurately capture the small-scale energy-dissipating vortices that form when the flow interacts with the cylinder and strap at high Reynolds numbers, a very fine spatial domain discretization is required. Furthermore, an extremely small time step ($\Delta t$) is necessary to ensure numerical stability. For these reasons, the contribution [1], which introduced the benchmark fluid-structure interaction problem studied here, only deals with flows that have Reynolds numbers less than or equal to 200. 
+We agree with the reviewer that fluid dynamics is easier to model when the viscosity increases. However, the more relevant measure of the complexity of the fluid flow is the Reynolds number, which depends on the fluid's viscosity, velocity, and density. 
+
+For our setup, the fluid considered is water, with a density of 1000 kg.m-3 and a maximum inlet velocity of approximately $4 m.s^{-1}$, leading to Reynolds numbers in the range $200-2000$ for our experiments. Only when the flow becomes turbulent can ample movements of the elastic strap (Figure 4) be observed in the fluid-structure interaction case. Modeling fluid-solid interaction or only fluid motion with such a Reynolds number is quite challenging and used as a benchmark problem [2-3]. 
+
+Modeling fluid-solid interaction with an even higher Reynolds number requires a very high computational cost. Because TurtleFSI's (used in this study) fluid solver, including its' fluid-structure interaction solver, uses a direct numerical simulation (DNS) of fluid dynamics and does not employ any turbulence models. This means that in order to accurately capture the small-scale energy-dissipating vortices that form when the flow interacts with the cylinder and strap at high Reynolds numbers, a very fine spatial domain discretization is required. Furthermore, an extremely small time step ($\Delta t$) is necessary to ensure numerical stability. For these reasons, the contribution [1], which introduced the benchmark fluid-structure interaction problem studied here, only deals with flows that have Reynolds numbers less than or equal to 200. 
+
+In order to show the effectiveness of our proposed model, we pre-train the CoDA-NO model on PDEs with viscosity $\mu \in \{1, 10\}$. We finetune the pre-trained model with a different few shot training examples with viscosities $\mu \in \{1, 5, 10\}$ with $\mu = 5$ as unseen viscosity (Table 1-2, Figure 5, Supplementary Sec A4 Table 3-4). 
+
+It's crucial to highlight a significant disparity between the pre-training and fine-tuning stages, particularly concerning examples with viscosities 1 and 10. This disparity arises from the utilization of distinct inlet boundary conditions during pre-training and fine-tuning phases (see Section 5, Experiment Setup and Ablation Studies). Consequently, even though the viscosities align with the pre-training dataset during fine-tuning on PDEs featuring $\mu \in {1, 10}$, the model faces formidable challenges in adapting due to variations in inlet conditions. The finetuning dataset with viscosity=5 has different viscosity as well as intel conditions compared to the pre-training dataset, serving as an out-of-distribution PDE setup.
+
+Thus, our designed experiments serve as rigorous benchmarks, testing the model's adaptability across diverse PDEs.
+
 
 Following the suggestion of the reviewers, we present the result of the fluid-solid interactions PDE at viscosity $\mu = 0.5$. We can observe that our CoDA-No model can adapt to even lower viscosities even when it is pre-trained on higher viscosities ($\mu \in \{1, 10\}$).
 
-### Table 1
+### Table 
 
-| models | Pre-training Dataset | ntrain = 5             | ntrain=25             | ntrain=100             |
+| Models | Pre-training Dataset |  # Train = 5           | # Train=25            | # Train=100            |
 |--------|----------------------|------------------------|-----------------------|------------------------|
 | GINO   |                      |                        |                       |                        |
 | DeepO  |                      |                        |                       |                        |
@@ -26,12 +37,26 @@ Following the suggestion of the reviewers, we present the result of the fluid-so
 
 
 ## Reviewer 1yj2
-We thank reviewer 1yj2 for reviewing and appreciating our work as interesting and well-organized. Now we will address the concerns raised by reviewer 1yj2.
 
-### Table 2 New metric - L1 and relative L2
+We thank reviewer 1yj2 for reviewing and appreciating our work as interesting and well-organized. Now we will address the concerns raised.
 
-Results on NS-EW dataset
-| models | Pre-training Dataset | ntrain = 5 (L1/Rel-L2) | ntrain=25 (L1/Rel-L2) | ntrain=100 (L1/Rel-L2) |
+> Concern regarding experiment design
+
+Please see the general response.
+
+> Question regarding different matrices (like L1, relative L2, energy spectra)
+
+L2 and relative L2 are scaled versions of each other. L2 penalizes large errors more than L1  and is a common choice [1] as a metric across different tasks. We report the additional metrics (L1 and relative L2) here. We can see that our model performs better across different metrics.
+
+The mesh used for the simulation is highly nonlinear, i.e., point density at some location (near the sphere) is very high compared to the rest of the domain. Calculating other metrics like divergence on such a nonuniform mesh is highly prone to numerical errors, which may lead to wrong evaluations of the model. For example, calculating divergence from ground-truth fluid flow does give 0.
+Here we provide the L1 and relative L2 errors. We also provide energy spectrum for different models.
+
+
+### Table: L1 and relative L2 Error
+
+Results on the fluid-solid interaction dataset combining Navier-Stokes and Elastic wave equation **(NS-EW dataset)**.
+
+| Models | Pre-training Dataset | # Train = 5 (L1/Rel-L2)| # Train=25 (L1/Rel-L2)| # Train=100 (L1/Rel-L2)|
 |--------|----------------------|------------------------|-----------------------|------------------------|
 | GINO   |                      | 0.1852/0.2967          | 0.151/0.2216          | 0.1608/0.219           |
 | DeepO  |                      | 0.4534/0.687           | 0.2666/0.4312         | 0.1846/0.3254          |
@@ -42,10 +67,9 @@ Results on NS-EW dataset
 | Ours   | NS                   | 0.07482/0.1412         | 0.03243/0.07264       | 0.03093/0.05936        |
 | Ours   | NS-EW                | 0.06686/0.1281         | 0.04087/0.07727       | 0.03335/0.0578         |
 
+Results on fluid motion dataset govern by Navier-Stokes equation **(NS Dataset)**.
 
-Results on NS Dataset
-
-| models | Pre-training Dataset | ntrain = 5 (L1/Rel-L2) | ntrain=25 (L1/Rel-L2) | ntrain=100 (L1/Rel-L2) |
+| Models | Pre-training Dataset | # Train = 5 (L1/Rel-L2)| # Train=25 (L1/Rel-L2)| # Train=100 (L1/Rel-L2)|
 |--------|----------------------|------------------------|-----------------------|------------------------|
 | GINO   |                      | 0.2366/0.3652          | 0.1335/0.1991         | 0.1065/0.1555          |
 | DeepO  |                      | 0.441/0.695            | 0.3958/0.5615         | 0.2353/0.3375          |
@@ -57,8 +81,52 @@ Results on NS Dataset
 | Ours   | NS-EW                | 0.07556/0.1431         | 0.041/0.0692          | 0.02226/0.0579         |
 
 
-Figure For Energy spectrum
+###  Energy Spectrum
+Here, we show the energy spectrum for the NS-EW dataset for $\mu = 5$ calculated from the test set. All models are trained on 100 training examples. Due to numerical error, the measured spectral energy does not decay smoothly in the high-frequency region. However, our models' energy spectrum remains closest to the ground truth. 
+
 ![image](https://anonymous.4open.science/r/annonimous_support-0F53/energy_spectrum_plot.png)
+
+We plan to add these additional results to the manuscript. 
+
+
+> Additional Implementation Details
+
+We thank the reviewer for pointing it out. Following the maskedViT[2], we dropped ~75% of the points.
+
+The model is set in an auto-regressive way, and the input sequence length is 1. We plan to rewrite the relevant section to highlight these details.
+
+[1] Wang, Rui, et al. "Towards physics-informed deep learning for turbulent flow prediction." Proceedings of the 26th ACM SIGKDD international conference on knowledge discovery & data mining."
+
+[2] He, Kaiming, Xinlei Chen, Saining Xie, Yanghao Li, Piotr Dollár, and Ross Girshick. "Masked autoencoders are scalable vision learners."
+
+
+
+## Reviewer R8HL
+We appreciate the reviewer's positive feedback on our work. We are pleased that the reviewer finds the problem both interesting and challenging. We will now address the concerns here
+
+> Concern Regarding Limiting experiments and a single viscosity level
+
+We tested our model on three different viscosity levels $\mu \in 1,5,10$ with different inlet conditions from the pre-training dataset along with varying numbers of interacting variables (single and multiphysics). Please refer to Table 1-2, Figure 5, Supplementary Sec A4 Table 3-4 for the detailed results.
+
+For for elaborate discussion addressing the experient design - please see the general response.
+
+> Transfer to Real World Application
+
+In this work, we propose CoDA-NO, the first neural operator architecture that, to the best of our knowledge, allows the adaptation of a single-physics pre-trained model to a coupled multi-physics pde. To justify the effectiveness of our approach, we provide experiments of adaptation from only fluid dynamics to coupled multi-physics fluid-solid interaction problems.
+
+We agree with the perspective of the reviewer that it is very important to transfer from simulated single physics to real-world multi-physics. However, real-world multi-physics systems (e.g., weather data) are often noisy and incomplete, with incompatibility across different data sources (e.g., weather stations) and large scale. These challenges require a separate effort, and we plan to address these in future work where we extend the proposed CoDA-NO for simulation single physics to real-world multi-physics adaptation.
+
+> Models Performance Compared to Baseline GNN and Justification for Using CoDA-NO
+
+The proposed CoDA-NO uses a Graph neural Operator (GNO) as part of the backbone. Unlike GNNs, graph neural operators are resolution invariant [1,2]. To point out this difference, we present the model's performance when evaluating on a more dense mesh.
+
+
+
+[1] Kovachki, Nikola, et al. "Neural operator: Learning maps between function spaces with applications to pdes."
+
+[2] Li, Z., Kovachki, N., Azizzadenesheli, K., Liu, B., Bhattacharya, K., Stuart, A., & Anandkumar, A. (2020). "Neural operator: Graph kernel network for partial differential equations."
+
+
 ### table 3 Error Bar
  
 Results on NS-EW dataset
