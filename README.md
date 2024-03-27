@@ -58,27 +58,27 @@ Results on the fluid-solid interaction dataset combining Navier-Stokes and Elast
 
 | Models | Pre-training Dataset | # Train = 5 (L1/Rel-L2)| # Train=25 (L1/Rel-L2)| # Train=100 (L1/Rel-L2)|
 |--------|----------------------|------------------------|-----------------------|------------------------|
-| GINO   |                      | 0.1852/0.2967          | 0.151/0.2216          | 0.1608/0.219           |
-| DeepO  |                      | 0.4534/0.687           | 0.2666/0.4312         | 0.1846/0.3254          |
-| GNN    |                      | 0.08388/0.1309         | 0.05631/0.08211       | 0.05927/0.08265        |
-| ViT    |                      | 0.2026/0.3663          | 0.1565/0.2762         | 0.07654/0.1242         |
-| U-net  |                      | 0.7937/1.186           | 0.2845/0.4635         | 0.1746/0.291           |
-| Ours   |                      | 0.09283/0.1649         | 0.0463/0.09232        | 0.0321/0.0583          |
-| Ours   | NS                   | 0.07482/0.1412         | 0.03243/0.07264       | 0.03093/0.05936        |
-| Ours   | NS-EW                | 0.06686/0.1281         | 0.04087/0.07727       | 0.03335/0.0578         |
+| GINO   |                      | 0.185/0.296          | 0.151/0.221          | 0.160/0.219           |
+| DeepO  |                      | 0.453/0.687           | 0.266/0.431         | 0.184/0.325          |
+| GNN    |                      | 0.083/0.130        | 0.056/0.082       | 0.059/0.082        |
+| ViT    |                      | 0.202/0.366          | 0.156/0.276         | 0.076/0.124         |
+| U-net  |                      | 0.793/1.186           | 0.284/0.463         | 0.174/0.291           |
+| Ours   |                      | 0.092/0.164         | 0.046/0.092        | 0.032/0.058          |
+| Ours   | NS                   | 0.074/0.141         | 0.032/0.072       | 0.030/0.059        |
+| Ours   | NS-EW                | 0.066/0.128         | 0.040/0.077       | 0.033/0.057         |
 
-Results on fluid motion dataset govern by Navier-Stokes equation **(NS Dataset)**.
+Results on fluid motion dataset governed by Navier-Stokes equation **(NS Dataset)**.
 
 | Models | Pre-training Dataset | # Train = 5 (L1/Rel-L2)| # Train=25 (L1/Rel-L2)| # Train=100 (L1/Rel-L2)|
 |--------|----------------------|------------------------|-----------------------|------------------------|
-| GINO   |                      | 0.2366/0.3652          | 0.1335/0.1991         | 0.1065/0.1555          |
-| DeepO  |                      | 0.441/0.695            | 0.3958/0.5615         | 0.2353/0.3375          |
-| GNN    |                      | 0.1415/0.1876          | 0.07486/0.09653       | 0.04947/0.07095        |
-| ViT    |                      | 0.2791/0.4316          | 0.1582/0.2388         | 0.1377/0.188           |
-| U-net  |                      | 2.001/ 3.508           | 0.6839/1.178          | 0.2983/0.4225          |
-| Ours   |                      | 0.2464/0.3557          | 0.08393/0.1413        | 0.03373/0.07466        |
-| Ours   | NS                   | 0.08053/0.1483         | 0.04025/0.08173       | 0.02447/0.06076        |
-| Ours   | NS-EW                | 0.07556/0.1431         | 0.041/0.0692          | 0.02226/0.0579         |
+| GINO   |                      | 0.236/0.365          | 0.133/0.199         | 0.106/0.155          |
+| DeepO  |                      | 0.441/0.695            | 0.395/0.561         | 0.235/0.337          |
+| GNN    |                      | 0.141/0.187          | 0.074/0.096       | 0.049/0.071        |
+| ViT    |                      | 0.279/0.431          | 0.158/0.238         | 0.137/0.188           |
+| U-net  |                      | 2.001/ 3.508           | 0.683/1.178          | 0.298/0.422          |
+| Ours   |                      | 0.246/0.355          | 0.083/0.141        | 0.033/0.074        |
+| Ours   | NS                   | 0.080/0.148         | 0.040/0.081       | 0.024/0.0607        |
+| Ours   | NS-EW                | 0.075/0.143         | 0.041/0.069          | 0.022/0.057         |
 
 
 ###  Energy Spectrum
@@ -106,9 +106,9 @@ We appreciate the reviewer's positive feedback on our work. We are pleased that 
 
 > Concern Regarding Limiting experiments and a single viscosity level
 
-We tested our model on three different viscosity levels $\mu \in 1,5,10$ with different inlet conditions from the pre-training dataset along with varying numbers of interacting variables (single and multiphysics). Please refer to Table 1-2, Figure 5, Supplementary Sec A4 Table 3-4 for the detailed results.
+We tested our model on three different viscosity levels $\mu \in 1,5,10$ with different inlet conditions from the pre-training dataset, along with varying numbers of interacting variables (single and multiphysics). Please take a look at Table 1-2, Figure 5, Supplementary Sec A4 Table 3-4 for the detailed results.
 
-For for elaborate discussion addressing the experient design - please see the general response.
+For an elaborate discussion about the experiment design - please take a look at the general response.
 
 > Transfer to Real World Application
 
@@ -118,14 +118,51 @@ We agree with the perspective of the reviewer that it is very important to trans
 
 > Models Performance Compared to Baseline GNN and Justification for Using CoDA-NO
 
-The proposed CoDA-NO uses a Graph neural Operator (GNO) as part of the backbone. Unlike GNNs, graph neural operators are resolution invariant [1,2]. To point out this difference, we present the model's performance when evaluating on a more dense mesh.
+The proposed CoDA-NO uses a Graph neural Operator (GNO) as part of the backbone. Unlike GNNs, graph neural operators are resolution invariant [1,2]. With respect to the GNN baseline, our proposed model achieves a 36% better performance when modeling multi-physics PDE with unseen viscosity, which is a considerable margin. We should also note that the encoder module of CoDA-NO is pretrained once and used for different experiment setups. Only the predictor module is initialized from scratch for every experiment setup. On the other hand, each baseline is trained completely from scratch for every experiment.
 
+We agree with the reviewer that the proposed CoDA-NO has additional complexity. However, to adapt seamlessly to new PDEs using the same encoder module, the model needs to be expressive enough and need to be pre-trained on enough data. However, this pre-training only needs to be done once, after which the model can generalize to a variety of PDEs. This makes such architectures well-suited as foundation models for scientific computing.
+
+Also, to emphasize the resolution-invariance nature of CoDA-No, a neural operator [1,2], and GNN, we present an additional experiment on zero-shot super-resolution. Here, all models are trained on a mesh with 1317 points (low resolution) and a given viscosity. We use 100 few-shot training examples. During inference, the model is queried directly on a denser and non-uniform target mesh consisting of 2193 points (high-resolution mesh). We can observe that CoDA-NO achieves higher performance compared to other baselines.
+
+###  Super Resolution Experiment on Fluid-Solid Interaction Dataset 
+NS-EW = Fluid-solid interaction dataset combining Navier-Stokes and Elastic wave equation.
+NS  = Fluid motion dataset governed by Navier-Stokes equation.
+| Model    |Pretraining Dataset   |  $ \mu = 5$         | $\mu = 1$| $\mu =10$|
+|----------|----------------------|---------------------|---------|---------|
+| u-net    |                      | 0.140              | 0.234  | 0.225  |
+| Vit      |                      | 0.051             | 0.184  | 0.046 |  
+| GINO     |                      | 0.102               | 0.113  | 0.107  |
+| DeepO    |                      |  0.113              | 0.107   | 0.350   |
+| GNN      |                      | 0.013             | 0.100  | 0.017 |  
+| CoDA-NO  | NS-EW                | 0.035             | 0.066 | 0.043 |  
+| CoDA-NO  | NS                   | 0.034             | 0.056 | 0.037 | 
+
+The training and inference time of CoDA-NO and other baselines are listed in the following table. The time required by CoDA-NO is larger than that of the other baselines. 
+
+### Inference Time in Sec.
+
+| Models          | GNN   | GINO  | DeepO | ViT   | Unet  | CoDA-NO |
+|-----------------|-------|-------|-------|-------|-------|---------|
+| Inference Time  | 0.012 | 0.012 | 0.006 | 0.071 | 0.024 | 0.440   |
+| Training Time   | 0.136 | 0.136 | 0.131 | 0.273 | 0.268 | 1.250   | 
+
+CoDA-NO, despite its additional complexity, presents a compelling case for adoption. Its ability to adapt seamlessly to different PDEs with varying variables and physical coefficients, coupled with its remarkable performance gap of 32% and zero-shot super-resolution capability, marks it as a justifiable choice. Although the implementation of a complex system may seem daunting, the benefits it offers make it a worthwhile investment.
+
+> Choice of Self-Supervised Learning (SSL) Objective
+ 
+SSL via standard autoregressive prediction task requires the pertaining data to be recorded in a fixed time interval. To allow the proposed CoDA-NO model to be pretrained on data with irregular time intervals, we use self-supervised (masked—reconstruction) reconstruction to increase the model's applicability and ability to pre-train only on discrete span shot of the system.
+
+> Discussing on Time Complexity
+
+We will report the inference and training time of the proposed model along with the baselines in the revised manuscript.
 
 
 [1] Kovachki, Nikola, et al. "Neural operator: Learning maps between function spaces with applications to pdes."
 
 [2] Li, Z., Kovachki, N., Azizzadenesheli, K., Liu, B., Bhattacharya, K., Stuart, A., & Anandkumar, A. (2020). "Neural operator: Graph kernel network for partial differential equations."
 
+
+## Reviewer z3xS 
 
 ### table 3 Error Bar
  
@@ -170,25 +207,7 @@ Results on NS Dataset
 | CoDA-No            | NS                   | 0.025 / 0.071           | 0.007 / 0.008            | 0.004 / 0.005             |
 | CoDA-No            | NS EW                | 0.024 / 0.040           | 0.006 / 0.005            | 0.005 / 0.003             |
 
-### Table 6 Inference Time
-
-| models          | GNN   | GINO  | DeepO | ViT   | Unet  | CoDA-NO |
-|-----------------|-------|-------|-------|-------|-------|---------|
-| Inference Time  | 0.012 | 0.012 | 0.006 | 0.071 | 0.024 | 0.440   |
-| Training Time   | 0.136 | 0.136 | 0.131 | 0.273 | 0.268 | 1.25    | 
-
-Table 5 Super Resolution Table
-
-| Model    |Pretraining Dataset   |  mu = 5             |   mu = 1| mu =10  |
-|----------|----------------------|---------------------|---------|---------|
-| u-net    |                      | 0.1401              | 0.2345  | 0.2252  |
-| Vit      |                      | 0.05166             | 0.1844  | 0.04682 |  
-| GINO     |                      | 0.102               | 0.1139  | 0.1071  |
-| DeepO    |                      |  0.113              | 0.107   | 0.350   |
-| GNN      |                      | 0.01381             | 0.1008  | 0.01799 |  
-| CoDA-NO  | NS-EW                | 0.03569             | 0.06672 | 0.04389 |  
-| CoDA-NO  | NS                   | 0.03409             | 0.05625 | 0.03749 |   
-
+ 
 
 
 ### Table 7 Parameters
