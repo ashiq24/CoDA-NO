@@ -9,12 +9,12 @@ Modeling fluid-solid interaction with an even higher Reynolds number requires a 
 
 In order to show the effectiveness of our proposed model, we pre-train the CoDA-NO model on PDEs with viscosity $\mu \in \{1, 10\}$. We finetune the pre-trained model with a different few shot training examples with viscosities $\mu \in \{1, 5, 10\}$ with $\mu = 5$ (Raynolds number 400) as unseen viscosity (Tab. 1-2, Fig. 5, Supplementary Sec. A4 Tab. 3-4). 
 
-It's crucial to highlight a significant disparity between the pre-training and fine-tuning stages, particularly concerning examples with viscosities 1 and 10. This disparity arises from the utilization of distinct inlet boundary conditions during pre-training and fine-tuning phases (see Sec. 5, Experiment Setup and Ablation Studies). Consequently, even though the viscosities align with the pre-training dataset during fine-tuning on PDEs featuring $\mu \in \{1, 10\}$, the model faces formidable challenges in adapting due to variations in inlet conditions. The finetuning dataset with viscosity=5 has different viscosity as well as intel conditions compared to the pre-training dataset, serving as an out-of-distribution PDE setup.
+It's crucial to highlight a significant disparity between the pre-training and finetuning stages, particularly concerning examples with viscosities 1 and 10. This disparity arises from the utilization of distinct inlet boundary conditions during pre-training and finetuning phases (see Sec. 5, Experiment Setup and Ablation Studies). Consequently, even though the viscosities align with the pre-training dataset during finetuning on PDEs featuring $\mu \in \{1, 10\}$, the model faces formidable challenges in adapting due to variations in inlet conditions. The finetuning dataset with viscosity=5 has different viscosity as well as intel conditions compared to the pre-training dataset, serving as an out-of-distribution PDE setup.
 
 Thus, our designed experiments serve as rigorous benchmarks, testing the model's adaptability across diverse PDEs. We plan to include a discussion highlighting the justification and challenges in the designed experiment.
 
 
-Following the suggestion of the reviewers, we present the result of the fluid-solid interactions PDE at viscosity $\mu = 0.5$ to show its' adaptation to more turbulent multi-physics PDEs. We can observe that our CoDA-No model can adapt to even lower viscosities even when it is pre-trained on higher viscosities ($\mu \in \{1, 10\}$).
+Following the suggestion of the reviewers, we present the result of the fluid-solid interactions PDE at viscosity $\mu = 0.5$ to show its' adaptation to more turbulent multi-physics PDEs. We can observe that our CoDA-No model can adapt to even lower viscosities even though it is pre-trained on higher viscosities ($\mu \in \{1, 10\}$).
 
 We will include this additional analysis in the revised manuscript.
  
@@ -35,7 +35,7 @@ Pre-training Dataset: $\mu \in \{1, 10\}$
 | Ours   | NS                   | 0.366       | 0.161      | 0.079       |
 | Ours   | NS-EW                | 0.308       | 0.143      | 0.069       |
 
-[1]  Turek, Stefan, and Jaroslav Hron. "Proposal for numerical benchmarking of fluid-structure interaction between an elastic object and laminar incompressible flow."
+[1]  Turek, Stefan, and Jaroslav Hron. "Proposal for numerical benchmarking of fluid-structure interaction between an elastic object and laminar incompressible ,flow."
 
 [2]​​Tian, Yifeng, Michael Woodward, Mikhail Stepanov, Chris Fryer, Criston Hyett, Daniel Livescu, and Michael Chertkov. "Lagrangian large eddy simulations via physics-informed machine learning."
 
@@ -108,11 +108,11 @@ The model is set in an auto-regressive way, and the input sequence length is 1. 
 
 
 ## Reviewer R8HL
-We appreciate the reviewer's positive feedback on our work. We are pleased that the reviewer finds the problem both interesting and challenging. We will now address the concerns here
+We appreciate the reviewer's positive feedback on our work. We are pleased that the reviewer finds the problem both interesting and challenging. We will now address the concerns here.
 
 > Experiments setup and a single viscosity level
 
-We tested our model on three different viscosity levels $\mu \in 1,5,10$ with different inlet conditions from the pre-training dataset, along with varying numbers of interacting variables (single and multiphysics). Please take a look at Table 1-2, Figure 5, Supplementary Sec A4 Table 3-4 for the detailed results.
+We tested our model on three different viscosity levels $\mu \in 1,5,10$ with different inlet conditions from the pre-training dataset, along with varying numbers of interacting variables (single and multi-physics). Please take a look at Table 1-2, Figure 5, Supplementary Sec A4 Table 3-4 for the detailed results.
 
 For an elaborate discussion about the experiment design - please take a look at the general response.
 
@@ -156,20 +156,20 @@ CoDA-NO, despite its additional complexity, presents a compelling case for adopt
 
 > Choice of Self-Supervised Learning (SSL) Objective
  
-SSL via standard autoregressive prediction task requires the pertaining data to be recorded in a fixed time interval. To allow the proposed CoDA-NO model to be pretrained on data with irregular time intervals, we use self-supervised (masked—reconstruction) reconstruction to increase the model's applicability and ability to pre-train only on discrete span shot of the system.
+SSL via standard autoregressive prediction task requires the pertaining data to be recorded in a fixed time interval. To allow the proposed CoDA-NO model to be pretrained on data with irregular time intervals, we use self-supervised (masked—reconstruction) reconstruction to increase the model's applicability and ability to pre-train only on discrete snapshots of the system.
 
 > Discussing on Time Complexity
 
 We will report the inference and training time of the proposed model along with the baselines in the revised manuscript.
 
 
-[1] Kovachki, Nikola, et al. "Neural operator: Learning maps between function spaces with applications to pdes."
+[1] Kovachki, Nikola, et al. "Neural operator: Learning maps between function spaces with applications to PDEs."
 
 [2] Li, Z., Kovachki, N., Azizzadenesheli, K., Liu, B., Bhattacharya, K., Stuart, A., & Anandkumar, A. (2020). "Neural operator: Graph kernel network for partial differential equations."
 
 
 ## Reviewer z3xS 
-We thank the reviewer z3xS for reviewing and appreciating the work. We will now address the concerns
+We thank the reviewer z3xS for reviewing and appreciating the work. We will now address the concerns.
 
 > Reference on Traditional Solvers being Expensive
 
@@ -177,9 +177,9 @@ We thank the reviewer for pointing this out. The obstacles in generating data us
 
 > On the Motivation of Each of the Model's Components, Difference with Existing Self-Attention and Novelty
 
-The motivation of the CoDA-NO layer is discussed in the paragraph “Permutation Equivariant Neural Operator” [line 183]. We aim to develop a model that can seamlessly adapt from single-physics to multi-physics. For this, the model should be able to handle an arbitrary number of variables (codomain) and need to be equivariant with respect to the ordering variables (codomains). As the attention mechanism is a set operation, we design a new neural operator layer that employs the attention mechanism among all the co-domains (or variables), treating each PDE as a set of interacting variables.
+The motivation of the CoDA-NO layer is discussed in the paragraph “Permutation Equivariant Neural Operator” [line 183]. We aim to develop a model that can seamlessly adapt from single-physics to multi-physics. For this, the model should be able to handle an arbitrary number of variables (codomain) and need to be equivariant with respect to the ordering variables (codomains). As the attention mechanism is a set operation, we design a new neural operator layer that employs the attention mechanism among all the codomains (or variables), treating each PDE as a set of interacting variables.
 
-Variable-specific positional encoding (VSPE) is required to inform the model of each variable's identity. As the model is permutation equivariant, VSPE helps the model capture variable-dependent interactions (e.g., how the velocity variable interacts with displacement).
+Variable-specific positional encoding (VSPE) is required to inform the model of each variables' identity. As the model is permutation equivariant, VSPE helps the model capture variable-dependent interactions (e.g., how the velocity variable interacts with displacement).
 
 The normalization layer is a very crucial component of the transformer architecture [3]. However, the designed normalization layer will break the resolution invariance nature of neural operator mapping between function spaces. So, we propose a normalization layer for function spaces, which can be seen as an extension of the instance norm [line 244].
 
@@ -189,7 +189,7 @@ Also, compared to the fixed positional encoding in regular transformer - we use 
 
 Our proposed CoDA-NO layer, along with VSPE and normalization, offers, to the best of our knowledge, the first complete transformer architecture for function spaces that can handle data at any resolution and maintains resolution invariance.
 
-To clarify these motivations for each component and the differences between them and the traditional attention mechanism, we will rewrite the revised manuscript highlighting these points.
+We will rewrite the revised manuscript highlighting these points to clarify the motivations for each component and the differences between them and the traditional attention mechanism.
 
 > Regarding Fig. 5
 
@@ -197,7 +197,7 @@ We thank the reviewer for pointing this out. To reduce the clutter, we will divi
 
 > Error Bar over multiple Runs
 
-Here we present the error bar for Table 1-2 over three runs. To avoid clutter, we report the number separately of the fluid-solid interaction (NS-EW) dataset and fluid flow (NS) dataset.
+Here, we present the error bar for Table 1-2 over three runs. To avoid clutter, we report the number of the fluid-solid interaction (NS-EW) and fluid flow (NS) datasets separately.
 
 #### Table: Error Bar
  
