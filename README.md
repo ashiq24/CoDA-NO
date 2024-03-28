@@ -3,11 +3,11 @@ We thank the reviewers for reviewing and appreciating our work. We first address
 
 We agree with the reviewer that fluid dynamics is easier to model when the viscosity increases. However, the more relevant measure of the complexity of the fluid flow is the Reynolds number, which depends on the fluid's viscosity, velocity, and density. 
 
-For our setup, the fluid considered is water, with a density of 1000 kg.m-3 and a maximum inlet velocity of approximately $4 m.s^{-1}$, leading to Reynolds numbers in the range $200-2000$ for our experiments. Only when the flow becomes turbulent can ample movements of the elastic strap (Fig. 4) be observed in the fluid-structure interaction case. Modeling fluid-solid interaction or only fluid motion with such a Reynolds number is quite challenging and used as a benchmark problem [2-3]. 
+For our setup, the fluid considered is water, with a density of 1000 kg.m-3 and a maximum inlet velocity of approximately $4 m.s^{-1}$, leading to Reynolds numbers in the range $200-2000$ (from $\mu=10$ to $\mu=1$) for our experiments. Only when the flow becomes turbulent can ample movements of the elastic strap (Fig. 4) be observed in the fluid-structure interaction case. Modeling fluid-solid interaction or only fluid motion with such a Reynolds number is quite challenging and used as a benchmark problem [2-3]. 
 
 Modeling fluid-solid interaction with an even higher Reynolds number requires a very high computational cost. Because TurtleFSI's (used in this study) fluid solver, including its' fluid-structure interaction solver, uses a direct numerical simulation (DNS) of fluid dynamics and does not employ any turbulence models. This means that in order to accurately capture the small-scale energy-dissipating vortices that form when the flow interacts with the cylinder and strap at high Reynolds numbers, a very fine spatial domain discretization is required. Furthermore, an extremely small time step ($\Delta t$) is necessary to ensure numerical stability. For these reasons, the contribution [1], which introduced the benchmark fluid-structure interaction problem studied here, only deals with flows that have Reynolds numbers less than or equal to 200. 
 
-In order to show the effectiveness of our proposed model, we pre-train the CoDA-NO model on PDEs with viscosity $\mu \in \{1, 10\}$. We finetune the pre-trained model with a different few shot training examples with viscosities $\mu \in \{1, 5, 10\}$ with $\mu = 5$ as unseen viscosity (Tab. 1-2, Fig. 5, Supplementary Sec. A4 Tab. 3-4). 
+In order to show the effectiveness of our proposed model, we pre-train the CoDA-NO model on PDEs with viscosity $\mu \in \{1, 10\}$. We finetune the pre-trained model with a different few shot training examples with viscosities $\mu \in \{1, 5, 10\}$ with $\mu = 5$ (Raynolds number 400) as unseen viscosity (Tab. 1-2, Fig. 5, Supplementary Sec. A4 Tab. 3-4). 
 
 It's crucial to highlight a significant disparity between the pre-training and fine-tuning stages, particularly concerning examples with viscosities 1 and 10. This disparity arises from the utilization of distinct inlet boundary conditions during pre-training and fine-tuning phases (see Sec. 5, Experiment Setup and Ablation Studies). Consequently, even though the viscosities align with the pre-training dataset during fine-tuning on PDEs featuring $\mu \in \{1, 10\}$, the model faces formidable challenges in adapting due to variations in inlet conditions. The finetuning dataset with viscosity=5 has different viscosity as well as intel conditions compared to the pre-training dataset, serving as an out-of-distribution PDE setup.
 
@@ -18,7 +18,7 @@ Following the suggestion of the reviewers, we present the result of the fluid-so
 
 We will include this additional analysis in the revised manuscript.
  
-### Table for $\mu = 0.5$
+### Table for $\mu = 0.5$ (Raynolds number = 4000)
 
 NS-EW dataset: fluid-solid interaction dataset combining Navier-Stokes and Elastic wave equation.
 NS dataset: fluid motion dataset governed by Navier-Stokes equation.
@@ -263,7 +263,7 @@ We report the parameter count of different baselines in the following table. The
 
 It might seem that models are not compared fairly, as the CoDA-NO has a smaller parameter count. However, here, we test the model on a few shot learning problems. Increasing the model's parameter count worsens the overfitting problem.
 
-To prove this fact, we perform experiments on a fluid-solid interaction dataset with increased parameter count. We will observe that increasing the parameter count almost always hurts the performance, especially for very few hot learning scenarios.
+To prove this fact, we perform experiments on a fluid-solid interaction dataset with increased parameter count. We will observe that increasing the parameter count almost always hurts the performance, especially for very few hot learning scenarios. We will include this analysis in the revised manuscript.
 
 #### Table: Overfitting of basslines with higher parameters on NS-EW dataset.
 | models  | # Parameter (Used/Big) x 1e6 | # Train = 5  (Used / Big) | # Train=25  (Used/ Big) | # Train=100  (Used / Big) |
