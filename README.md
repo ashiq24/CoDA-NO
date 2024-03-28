@@ -133,15 +133,15 @@ Also, to emphasize the resolution-invariance nature of CoDA-No, a neural operato
 ####  Super Resolution Experiment on Fluid-Solid Interaction Dataset 
 NS-EW = Fluid-solid interaction dataset combining Navier-Stokes and Elastic wave equation.
 NS  = Fluid motion dataset governed by Navier-Stokes equation.
-| Model    |Pretraining Dataset   |  $\mu = 5$         | $\mu = 1$| $\mu =10$|
-|----------|----------------------|---------------------|---------|---------|
-| u-net    |                      | 0.140              | 0.234  | 0.225  |
-| Vit      |                      | 0.051             | 0.184  | 0.046 |  
-| GINO     |                      | 0.102               | 0.113  | 0.107  |
-| DeepO    |                      |  0.113              | 0.107   | 0.350   |
-| GNN      |                      | 0.013             | 0.100  | 0.017 |  
-| CoDA-NO  | NS-EW                | 0.035             | 0.066 | 0.043 |  
-| CoDA-NO  | NS                   | 0.034             | 0.056 | 0.037 | 
+| Model   | Pretraining Dataset | $\mu = 5$          | $\mu = 1$       | $\mu =10$ |
+|---------|---------------------|--------------------|-----------------|-----------|
+| u-net   |                     | 0.144              | 0.267           | 0.225     |
+| Vit     |                     | 0.052              | 0.175           | 0.046     |
+| GINO    |                     | 0.069              | 0.103           | 0.071     |
+| DeepO   |                     | 0.113              | 0.107           | 0.357     |
+| GNN     |                     | 0.223              | 0.211           | 0.247     |
+| CoDA-NO | NS-EW               | 0.041              | 0.063           | 0.048     |
+| CoDA-NO | NS                  | 0.032              | 0.049           | 0.035     |
 
 The training and inference time of CoDA-NO and other baselines are listed in the following table. The time required by CoDA-NO is larger than that of the other baselines. 
 
