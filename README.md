@@ -11,23 +11,29 @@ In order to show the effectiveness of our proposed model, we pre-train the CoDA-
 
 It's crucial to highlight a significant disparity between the pre-training and fine-tuning stages, particularly concerning examples with viscosities 1 and 10. This disparity arises from the utilization of distinct inlet boundary conditions during pre-training and fine-tuning phases (see Sec. 5, Experiment Setup and Ablation Studies). Consequently, even though the viscosities align with the pre-training dataset during fine-tuning on PDEs featuring $\mu \in \{1, 10\}$, the model faces formidable challenges in adapting due to variations in inlet conditions. The finetuning dataset with viscosity=5 has different viscosity as well as intel conditions compared to the pre-training dataset, serving as an out-of-distribution PDE setup.
 
-Thus, our designed experiments serve as rigorous benchmarks, testing the model's adaptability across diverse PDEs.
+Thus, our designed experiments serve as rigorous benchmarks, testing the model's adaptability across diverse PDEs. We plan to include a discussion highlighting the justification and challenges in the designed experiment.
 
 
-Following the suggestion of the reviewers, we present the result of the fluid-solid interactions PDE at viscosity $\mu = 0.5$. We can observe that our CoDA-No model can adapt to even lower viscosities even when it is pre-trained on higher viscosities ($\mu \in \{1, 10\}$).
+Following the suggestion of the reviewers, we present the result of the fluid-solid interactions PDE at viscosity $\mu = 0.5$ to show its' adaptation to more turbulent multi-physics PDEs. We can observe that our CoDA-No model can adapt to even lower viscosities even when it is pre-trained on higher viscosities ($\mu \in \{1, 10\}$).
 
-### Table 
+We will include this additional analysis in the revised manuscript.
+ 
+### Table for $\mu = 0.5$
 
-| Models | Pre-training Dataset |  # Train = 5           | # Train=25            | # Train=100            |
-|--------|----------------------|------------------------|-----------------------|------------------------|
-| GINO   |                      |                        |                       |                        |
-| DeepO  |                      |                        |                       |                        |
-| GNN    |                      |                        |                       |                        |
-| ViT    |                      |                        |                       |                        |
-| U-net  |                      |                        |                       |                        |
-| Ours   |                      |                        |                       |                        |
-| Ours   | NS                   |                        |                       |                        |
-| Ours   | NS-EW                |                        |                       |                        |
+NS-EW dataset: fluid-solid interaction dataset combining Navier-Stokes and Elastic wave equation.
+NS dataset: fluid motion dataset governed by Navier-Stokes equation.
+Pre-training Dataset: $\mu \in \{1, 10\}$ 
+
+| Models | Pre-training Dataset | # Train = 5 | # Train=25 | # Train=100 |
+|--------|----------------------|-------------|------------|-------------|
+| GINO   |                      | 0.717       | 0.292      | 0.136       |
+| DeepO  |                      | 0.889       | 0.545      | 0.259       |
+| GNN    |                      | 0.374       | 0.3103     | 0.132       |
+| ViT    |                      | 0.878       | 0.409      | 0.164       |
+| U-net  |                      | 3.256       | 0.563      | 0.292       |
+| Ours   |                      | 0.326       | 0.264      | 0.070       |
+| Ours   | NS                   | 0.366       | 0.161      | 0.079       |
+| Ours   | NS-EW                | 0.308       | 0.143      | 0.069       |
 
 [1]  Turek, Stefan, and Jaroslav Hron. "Proposal for numerical benchmarking of fluid-structure interaction between an elastic object and laminar incompressible flow."
 
@@ -247,6 +253,7 @@ VSPE: Variable Specific Positional Encoding.
 > Parameter Comparison among Different Models
 
 We report the parameter count of different baselines in the following table. The architectures of the baselines are adapted from their publicly released implementations. For CoDA-NO, the Encoder contains $34 \times 1e6$ parameter, which is pretrained and reused for every experiment. And the predictor contains $9 \times 1e6$ parameters.
+
 #### Table: Models' Paramter
 | Models          | GNN   | GINO  | DeepO | ViT   | Unet  | CoDA-NO |
 |-----------------|-------|-------|-------|-------|-------|---------|
@@ -265,9 +272,7 @@ To prove this fact, we perform experiments on a fluid-solid interaction dataset 
 | ViT     | 27/100                       | 0.211 / 0.266           | 0.113 / 0.125         | 0.020 / 0.022            |
 | U-net   | 30/48                        | 3.579 / 9.462            | 0.842 / 3.957          | 0.203 / 0.412            |
 
-> On Limitation
 
-The major limitation of the motivation and novelty of the proposed module is addressed above in the discussion.
 
 
 [1].Schneider, T., Teixeira, J., Bretherton, C. S., Brient, F., Pressel, K. G., Sch  ̈ar, C., and Siebesma, A. P. Climate goals and computing the future of clouds.
