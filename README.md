@@ -14,7 +14,7 @@ It's crucial to highlight a significant disparity between the pre-training and f
 Thus, our designed experiments serve as rigorous benchmarks, testing the model's adaptability across diverse PDEs. We plan to include a discussion highlighting the justification and challenges in the designed experiment.
 
 
-Following the suggestion of the reviewers, we present the result of the fluid-solid interactions PDE at viscosity $\mu = 0.5$ to show its' adaptation to more turbulent multi-physics PDEs. We can observe that our CoDA-No model can adapt to even lower viscosities even though it is pre-trained on higher viscosities ($\mu \in \{1, 10\}$).
+Following the suggestion of the reviewers, we present the result of the fluid-solid interactions PDE at viscosity $\mu = 0.5$ to show its' adaptation to more turbulent multi-physics PDEs. We can observe that our CoDA-No model can adapt to even lower viscosities even though it is pre-trained on higher viscosities ($\mu \in \{1, 10\}$). It is important to note that the baselines are trained from scratch, and they can not be pre-trained as they can not adapt to variations in the number of variables during the finetuning process.
 
 We will include this additional analysis in the revised manuscript.
  
