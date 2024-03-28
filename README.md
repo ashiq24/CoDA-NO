@@ -175,7 +175,7 @@ We thank the reviewer z3xS for reviewing and appreciating the work. We will now 
 
 We thank the reviewer for pointing this out. The obstacles in generating data using traditional solvers are discussed in [1,2]. We will add these citations in the revised manuscripts.
 
-> On the Motivation of Each of the Model's Components and Difference with Existing Self-Attention
+> On the Motivation of Each of the Model's Components, Difference with Existing Self-Attention and Novelty
 
 The motivation of the CoDA-NO layer is discussed in the paragraph “Permutation Equivariant Neural Operator” [line 183]. We aim to develop a model that can seamlessly adapt from single-physics to multi-physics. For this, the model should be able to handle an arbitrary number of variables (codomain) and need to be equivariant with respect to the ordering variables (codomains). As the attention mechanism is a set operation, we design a new neural operator layer that employs the attention mechanism among all the co-domains (or variables), treating each PDE as a set of interacting variables.
 
@@ -183,11 +183,13 @@ Variable-specific positional encoding (VSPE) is required to inform the model of 
 
 The normalization layer is a very crucial component of the transformer architecture [3]. However, the designed normalization layer will break the resolution invariance nature of neural operator mapping between function spaces. So, we propose a normalization layer for function spaces, which can be seen as an extension of the instance norm [line 244].
 
-The patching done in the traditional transformer/attention mechanism is not applicable to function space data as they break resolution invariance. In CoDA-NO, we avoid patching and have designed a technique to compute attention over the entire variable. Here, the variables are functions; as an example, for our experiments, the variables are functions on the 2D domain (xy plane). As we are working with functions, we cannot utilize the key, query, and value matrix, as they are not designed to operate over infinite-dimensional (function) spaces. Consequently, we have redesigned the attention mechanism to work with infinite-dimensional vector spaces. Our technique is generalizable and can function in arbitray domains.
+The patching done in the traditional transformer/attention mechanism is not applicable to function space data as they break resolution invariance. In CoDA-NO, we avoid patching and design the technique to compute attention over the entire variable. Here, the variables are functions; as an example, for our experiments, the variables are functions on the 2D domain (xy plane). As we are working with functions, we cannot utilize the key, query, and value matrix used in the regular attention mechanism, as they are not designed to operate over infinite-dimensional (function) spaces. Consequently, we have redesigned the attention mechanism to work with infinite-dimensional vector spaces. CoDA-NO is generalizable for functions on any arbitrary domain. 
 
-Also, compared to the fixed positional encoding in regular transformer - we use learnable variable-specific positional encoding to convey variable-specific information to the model. Our proposed CoDA-NO layer, along with VSPE and normalization, offers, to the best of our knowledge, the first complete transformer architecture for function spaces.
+Also, compared to the fixed positional encoding in regular transformer - we use learnable variable-specific positional encoding to convey variable-specific information to the model. 
 
-To further clarify these motivations and differences, we will rewrite the revised manuscript highlighting these points.
+Our proposed CoDA-NO layer, along with VSPE and normalization, offers, to the best of our knowledge, the first complete transformer architecture for function spaces that can handle data at any resolution and maintains resolution invariance.
+
+To clarify these motivations for each component and the differences between them and the traditional attention mechanism, we will rewrite the revised manuscript highlighting these points.
 
 > Regarding Fig. 5
 
