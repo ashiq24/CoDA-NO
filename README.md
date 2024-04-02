@@ -107,7 +107,7 @@ The model is set in an auto-regressive way, and the input sequence length is 1. 
 
 ## Reminder 1
 Thank you again for your thoughtful review and helpful suggestions. We made a significant effort to address each of your questions, including concerns regarding experiment design, other evaluation metrics, and a few implementation details.
-We respectfully ask that if you feel more positively about our paper, to please consider updating your score. 
+If, upon reevaluation, you think more positively about the paper, we kindly request you to reconsider your score accordingly.
 If not, please let us know what can be further improved; we are happy to continue the discussion any time until the end of the discussion period, April 4th; thanks!
 
 
@@ -167,6 +167,10 @@ SSL via standard autoregressive prediction task requires the pertaining data to 
 
 We will report the inference and training time of the proposed model along with the baselines in the revised manuscript.
 
+## Reminder 2
+We sincerely appreciate your insightful review and the valuable suggestions you provided. We made a significant effort to address each of your questions,
+including clarification on experiment design, justification for the proposed model, and self-supervised learning objective.
+We respectfully ask that if you feel more positively about our paper; if so to please consider updating your score. If not, please let us know what can be further improved; we are happy to continue the discussion any time until the end of the discussion period, April 4th; thanks!
 
 [1] Kovachki, Nikola, et al. "Neural operator: Learning maps between function spaces with applications to PDEs."
 
@@ -280,6 +284,11 @@ To prove this fact, we perform experiments on a fluid-solid interaction dataset 
 | U-net   | 30/48                        | 3.579 / 9.462            | 0.842 / 3.957          | 0.203 / 0.412            |
 
 
+## Reminder 3
+
+We sincerely appreciate your insightful review and the valuable suggestions you provided. We made a significant effort to address each of your questions,
+including motivation and novelty proposed CoDA-NO, ablation of different model components, and parameters of different baselines.
+We respectfully ask that if you feel more positively about our paper; if so to please consider updating your score. If not, please let us know what can be further improved; we are happy to continue the discussion any time until the end of the discussion period, April 4th; thanks!
 
 
 [1].Schneider, T., Teixeira, J., Bretherton, C. S., Brient, F., Pressel, K. G., Sch  ̈ar, C., and Siebesma, A. P. Climate goals and computing the future of clouds.
