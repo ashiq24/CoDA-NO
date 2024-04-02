@@ -105,6 +105,11 @@ The model is set in an auto-regressive way, and the input sequence length is 1. 
 
 [2] He, Kaiming, Xinlei Chen, Saining Xie, Yanghao Li, Piotr Dollár, and Ross Girshick. "Masked autoencoders are scalable vision learners."
 
+## Reminder 1
+Thank you again for your thoughtful review and helpful suggestions. We made a significant effort to address each of your questions, including concerns regarding experiment design, other evaluation metrics, and a few implementation details.
+We respectfully ask that if you feel more positively about our paper, to please consider updating your score. 
+If not, please let us know what can be further improved; we are happy to continue the discussion any time until the end of the discussion period, April 4th; thanks!
+
 
 
 ## Reviewer R8HL
