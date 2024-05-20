@@ -128,13 +128,15 @@ class CodANO(nn.Module):
     def __init__(
         self,
         input_token_codimension,
-        output_token_codimension=None,
-        hidden_token_codimension=None,
-        lifting_token_codimension=None,
-        n_layers=4,
-        n_modes=None,
+        output_token_codimension,
+        hidden_token_codimension,
+        lifting_token_codimension,
+        n_layers,
+        n_modes,
+        n_heads,
+        n_variables: int,
+        variable_encoding_args: VariableEncodingArgs,
         scalings=None,
-        n_heads=1,
         non_linearity=F.gelu,
         layer_kwargs=None,
         per_channel_attention=False,
@@ -149,8 +151,6 @@ class CodANO(nn.Module):
         domain_padding=None,
         domain_padding_mode='one-sided',
         use_variable_encodings=False,
-        n_variables=None,
-        variable_encoding_args: VariableEncodingArgs = None,
         enable_cls_token=False,
         n_static_channels=0,
         static_features=None,
@@ -286,7 +286,8 @@ class CodANO(nn.Module):
                     n_modes=self.n_modes[i],
                     n_head=self.n_heads[i],
                     token_codim=hidden_token_codimension,
-                    output_scaling_factor=[self.scalings[i]],
+                    # I don't think this is ever properly used.
+                    # output_scaling_factor=[self.scalings[i]],
                     SpectralConvolution=conv_op,
                     codim_size=self.codimension_size,
                     per_channel_attention=per_channel_attention,
@@ -432,9 +433,10 @@ class CodANO(nn.Module):
         # else:
         #     x = inp
 
+        self.logger.debug(f"{x.shape=} [RAW]")
         if self.lifting:
             x = self.lifting(x)
-            # self.logger.debug(f"{x.shape} (lifting)")
+            self.logger.debug(f"{x.shape=} [LIFTED]")
 
         if self.enable_cls_token:
             cls_token = self.cls_token(x).unsqueeze(0)
