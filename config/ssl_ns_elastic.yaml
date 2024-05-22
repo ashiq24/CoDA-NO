@@ -3,7 +3,7 @@ base_config: &BASE_CONFIG
     random_seed: 42
     config: " "
     nettype: 'transformer'
-    evaluation_channel_drop: 1 # number of varibales dropped for prediction task with partially observed data
+    evaluation_channel_drop: 1 # number of variables dropped for prediction task with partially observed data
     drop_type : 'zeros' # dropped values are replaced by zeros
     grid_type: 'uniform'
     max_block : 0.3         #Block size for dropping pixels during data augmentation
@@ -49,7 +49,6 @@ base_config: &BASE_CONFIG
     n_modes_pred:       [[100,100], [100,100],[100,100]]
 
     per_channel_attention: !!bool True
-    
 
     #fft_type: 'fft' #  Duplicate should be removed
     transform_type: 'fft' # might be also spherical harmonics transform or 'sht'
@@ -141,8 +140,7 @@ codano_gno: &CODANO_GNO
     hidden_token_codim_en: 64
     lifting_token_codim_en: 100
     lifting_token_codim_pred: 80
-    
-    
+
     n_static_channels: 4
     in_token_codim_en: 1
     out_token_codim_pred:  1
@@ -164,6 +162,7 @@ codano_gno: &CODANO_GNO
 codano_non_lin: &CODANO_NON_LIN
     <<: *CODANO_GNO
     kqv_non_linear: !!bool True
+
 codano_gno_NS_ES: &CODANO_GNO_NS_ES
     <<: *CODANO_GNO
     equation_dict: { "NS": 3 , "ES": 2}
@@ -173,7 +172,6 @@ codano_gno_NS_ES: &CODANO_GNO_NS_ES
     dt: 2
     radius: 0.05
     
-
 
 codano_gno_NS: &CODANO_GNO_NS
     <<: *CODANO_GNO
@@ -185,7 +183,6 @@ codano_gno_NS: &CODANO_GNO_NS
     radius: 0.05
     ntrain: 1
     ntest: 1
-
 
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
@@ -234,9 +231,8 @@ codano_test: &CODANO_TEST
     channel_drop_per: 0.5
     masking_radius: 0.09
 
-
     per_channel_attention: !!bool True
-    
+
 fno_gno: &FNO_GNO
     <<: *CODANO_GNO
     nettype: 'simple'
@@ -274,7 +270,6 @@ fno_gno: &FNO_GNO
     ntest: 100
     data_partition: "supervised"
 
-
 fno_NSES_.5: &FNO_NSES_.5
     <<: *FNO_GNO
     equation_dict: { "NS": 3 , "ES": 2}
@@ -286,15 +281,14 @@ fno_NSES_.5: &FNO_NSES_.5
     data_location: "../../Data/TF_fsi2_results"
     mu_list: [0.5]
 
-
-
-    
 fno_NSES_1: &FNO_NSES_1
     <<: *FNO_NSES_.5
     mu_list: [1.0]
+
 fno_NSES_5: &FNO_NSES_5
     <<: *FNO_NSES_.5
     mu_list: [5]
+
 fno_NSES_10: &FNO_NSES_10
     <<: *FNO_NSES_.5
     mu_list: [10.0]
@@ -308,13 +302,14 @@ fno_NS_1: &FNO_NS_1
     input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
     data_location: "../../Data/TF_cfd_results"
     mu_list: [1.0]
+
 fno_NS_5: &FNO_NS_5
     <<: *FNO_NS_1
     mu_list: [5]
+
 fno_NS_10: &FNO_NS_10
     <<: *FNO_NS_1
     mu_list: [10.0]
-
 
 fno_test: &FNO_TEST
     <<: *FNO_GNO
@@ -357,12 +352,15 @@ gnn_NSES_.5: &GNN_NSES_.5
     data_location: "../../Data/TF_fsi2_results"
     mu_list: [0.5]
     
+
 gnn_NSES_1: &gnn_NSES_1
     <<: *GNN_NSES_.5
     mu_list: [1.0]
+
 gnn_NSES_5: &GNN_NSES_5
     <<: *GNN_NSES_.5
     mu_list: [5]
+
 gnn_NSES_10: &GNN_NSES_10
     <<: *GNN_NSES_.5
     mu_list: [10.0]
@@ -376,13 +374,16 @@ gnn_NS_1: &GNN_NS_1
     input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
     data_location: "../../Data/TF_cfd_results"
     mu_list: [1.0]
+
 gnn_NS_5: &GNN_NS_5
     <<: *GNN_NS_1
     mu_list: [5]
+
 gnn_NS_10: &GNN_NS_10
     <<: *GNN_NS_1
     mu_list: [10.0]
-gnn_test: 
+
+gnn_test:
     <<: *GNN
     ntrain: 1
     ntest: 5
@@ -390,8 +391,8 @@ gnn_test:
     input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
     data_location: "../../Data/TF_fsi2_results"
 
-## DeepONet
 
+## DeepONet
 deeponet: &DEEPONET
     <<: *GNN
     nettype: 'deeponet'
@@ -414,12 +415,15 @@ deeponet_NSES_.5: &DEEPONET_NSES_.5
     data_location: "../../Data/TF_fsi2_results"
     mu_list: [0.5]
     
+
 deeponet_NSES_1: &DEEPONET_NSES_1
     <<: *DEEPONET_NSES_.5
     mu_list: [1.0]
+
 deeponet_NSES_5: &DEEPONET_NSES_5
     <<: *DEEPONET_NSES_.5
     mu_list: [5]
+
 deeponet_NSES_10: &DEEPONET_NSES_10
     <<: *DEEPONET_NSES_.5
     mu_list: [10.0]
@@ -433,9 +437,11 @@ deeponet_NS_1: &DEEPONET_NS_1
     input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
     data_location: "../../Data/TF_cfd_results"
     mu_list: [1.0]
+
 deeponet_NS_5: &DEEPONET_NS_5
     <<: *DEEPONET_NS_1
     mu_list: [5]
+
 deeponet_NS_10: &DEEPONET_NS_10
     <<: *DEEPONET_NS_1
     mu_list: [10.0]
@@ -450,7 +456,6 @@ deeponet_NS_10_10: &DEEPONET_NS_10_10
 ##########
 # Vit baseline
 #########
-
 vit: &VIT
     <<: *GNN
     nettype: 'vit'
@@ -469,12 +474,15 @@ vit_NSES_.5: &VIT_NSES_.5
     data_location: "../../Data/TF_fsi2_results"
     mu_list: [0.5]
     
+
 vit_NSES_1: &VIT_NSES_1
     <<: *VIT_NSES_.5
     mu_list: [1.0]
+
 vit_NSES_5: &VIT_NSES_5
     <<: *VIT_NSES_.5
     mu_list: [5]
+
 vit_NSES_10: &VIT_NSES_10
     <<: *VIT_NSES_.5
     mu_list: [10.0]
@@ -488,13 +496,14 @@ vit_NS_1: &VIT_NS_1
     input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
     data_location: "../../Data/TF_cfd_results"
     mu_list: [1.0]
+
 vit_NS_5: &VIT_NS_5
     <<: *VIT_NS_1
     mu_list: [5]
+
 vit_NS_10: &VIT_NS_10
     <<: *VIT_NS_1
     mu_list: [10.0]
-
 
 vit_testing: &VIT_TESTING
     <<: *VIT
@@ -508,7 +517,6 @@ vit_testing: &VIT_TESTING
 #########
 # unet baseline
 #########
-
 unet: &UNET
     <<: *GNN
     nettype: 'unet'
@@ -533,12 +541,15 @@ unet_NSES_.5: &UNET_NSES_.5
     data_location: "../../Data/TF_fsi2_results"
     mu_list: [0.5]
     
+
 unet_NSES_1: &UNET_NSES_1
     <<: *UNET_NSES_.5
     mu_list: [1.0]
+
 unet_NSES_5: &UNET_NSES_5
     <<: *UNET_NSES_.5
     mu_list: [5]
+
 unet_NSES_10: &UNET_NSES_10
     <<: *UNET_NSES_.5
     mu_list: [10.0]
@@ -552,9 +563,11 @@ unet_NS_1: &UNET_NS_1
     input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
     data_location: "../../Data/TF_cfd_results"
     mu_list: [1.0]
+
 unet_NS_5: &UNET_NS_5
     <<: *UNET_NS_1
     mu_list: [5]
+
 unet_NS_10: &UNET_NS_10
     <<: *UNET_NS_1
     mu_list: [10.0]
@@ -569,31 +582,12 @@ unet_test: &UNET_TEST
     input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
     data_location: "../../Data/TF_fsi2_results"
 
+
 ###########
 # Fine tuning
 ###########
 codano_finetune: &CODANO_FINETUNE
     <<: *CODANO_GNO
-    # epochs: 50
-    # training_stage: 'fine_tune'
-    # freeze_encoder : !!bool False
-    # pretrain_ssl : !!bool False
-    # lr: 0.0005
-    # scheduler_step: 10
-    # scheduler_gamma: 0.5
-    # scheduler_type: 'step'
-    # weight_decay: 0.0000
-    # data_partition: "supervised"
-
-    # #architecture
-
-    # n_layers_pred: 1
-    # n_heads_pred:    [10]
-
-    # n_modes_pred:       [[80, 15]]
-    # scalings_pred:     [[1,1]]
-
-
     #big model config
     epochs: 30
     training_stage: 'fine_tune'
@@ -613,13 +607,8 @@ codano_finetune: &CODANO_FINETUNE
     n_modes_pred:       [[80, 15]]
     scalings_pred:     [[1,1]]
 
-
-    
-    
-
 ### finetuning confing naming convention
 # ft_{ssl dataset}_{sl dataset}_{mu}
-
 ft_NSES_NSES_.5: &FT_NSES_NSES_.5
     <<: *CODANO_FINETUNE
 
@@ -633,6 +622,7 @@ ft_NSES_NSES_.5: &FT_NSES_NSES_.5
 
     mu_list: [0.5]
    
+
 ft_NSES_NSES_1: &FINETUNE_NSES_1
     <<: *FT_NSES_NSES_.5
     mu_list: [1.0]
@@ -640,11 +630,11 @@ ft_NSES_NSES_1: &FINETUNE_NSES_1
 ft_NSES_NSES_5: &FINETUNE_NSES_5
     <<: *FT_NSES_NSES_.5
     mu_list: [5]
+
 ft_NSES_NSES_10: &FINETUNE_NSES_10
     <<: *FT_NSES_NSES_.5
 
     mu_list: [10.0]
-
 
 ft_NS_NSES_.5: &FT_NS_NSES_.5
     <<: *CODANO_FINETUNE
@@ -660,18 +650,21 @@ ft_NS_NSES_.5: &FT_NS_NSES_.5
     mu_list: [0.5]
    
    
+
 ft_NS_NSES_1: &FINETUNE_NS_1
     <<: *FT_NS_NSES_.5
     mu_list: [1.0]
+
 ft_NS_NSES_5: &FINETUNE_NS_5
     <<: *FT_NS_NSES_.5
     mu_list: [5]
+
 ft_NS_NSES_10: &FINETUNE_NS_10
     <<: *FT_NS_NSES_.5
     mu_list: [10.0]
 
 #
-# Fine tuning on NS only dataset
+# Fine-tuning on NS only dataset
 #
 ft_NSES_NS_.5: &FT_NSES_NS_.5
     <<: *CODANO_FINETUNE
@@ -686,13 +679,16 @@ ft_NSES_NS_.5: &FT_NSES_NS_.5
 
     mu_list: [0.5]
    
-ft_NSES_NS_1: 
+
+ft_NSES_NS_1:
     <<: *FT_NSES_NS_.5
     mu_list: [1.0]
-ft_NSES_NS_5: 
+
+ft_NSES_NS_5:
     <<: *FT_NSES_NS_.5
     mu_list: [5]
-ft_NSES_NS_10: 
+
+ft_NSES_NS_10:
     <<: *FT_NSES_NS_.5
     mu_list: [10.0]
 
@@ -710,16 +706,18 @@ ft_NS_NS_.5: &FT_NS_NS_.5
     mu_list: [0.5]
    
    
-ft_NS_NS_1: 
+
+ft_NS_NS_1:
     <<: *FT_NS_NS_.5
     mu_list: [1.0]
-ft_NS_NS_5: 
+
+ft_NS_NS_5:
     <<: *FT_NS_NS_.5
     mu_list: [5]
-ft_NS_NS_10: 
+
+ft_NS_NS_10:
     <<: *FT_NS_NS_.5
     mu_list: [10.0]
-
 
 codano_finetune_test:
     <<: *FT_NS_NS_.5
@@ -735,9 +733,8 @@ codano_finetune_test:
     NS_variable_encoder_path: "../weights/codano_test_variable_encoder__NS.pt"
     ES_variable_encoder_path: None
 
-
 ######
-# CodA-NO without Finetuning
+# CodA-NO without Fine-tuning
 #####
 scratch_codano: &SCRATCH_CODANO
     <<: *CODANO_FINETUNE
@@ -759,19 +756,21 @@ scratch_codano: &SCRATCH_CODANO
     n_modes_pred:       [[80, 15]]
     scalings_pred:     [[1,1]]
 
-
 codano_NSES_.5: &CODANO_NSES_.5
     <<: *SCRATCH_CODANO
     equation_dict: { "NS": 3 , "ES": 2}
     input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
     data_location: "../../Data/TF_fsi2_results"
     mu_list: [0.5]
+
 codano_NSES_1: &codano_NSES_1
     <<: *CODANO_NSES_.5
     mu_list: [1.0]
+
 codano_NSES_5: &codano_NSES_5
     <<: *CODANO_NSES_.5
     mu_list: [5]
+
 codano_NSES_10: &codano_NSES_10
     <<: *CODANO_NSES_.5
     mu_list: [10.0]
@@ -786,10 +785,11 @@ codano_NS_.5: &codano_NS_.5
 codano_NS_1: 
     <<: *codano_NS_.5
     mu_list: [1.0]
-codano_NS_5: 
+
+codano_NS_5:
     <<: *codano_NS_.5
     mu_list: [5]
-codano_NS_10: 
+
+codano_NS_10:
     <<: *codano_NS_.5
     mu_list: [10.0]
-
