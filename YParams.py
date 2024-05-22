@@ -53,8 +53,8 @@ class ParamsBase:
             if val == 'None':
                 val = None
 
-            if type(val) == dict:
-                child = ParamsBase()
+
+if isinstance(val,             if )                child = ParamsBase()
                 child.update_params(val)
                 val = child
 

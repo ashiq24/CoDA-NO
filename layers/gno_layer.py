@@ -76,7 +76,7 @@ class GnoPremEq(nn.Module):
         self.projection = MLPLinear([self.var_encoding_channels + self.in_dim,
                                     projection_hidden_dim, out_dim],
                                     non_linearity=F.gelu)
- 
+
         # apply GNO to get  uniform grid
 
         self.neighbour = None
@@ -89,12 +89,11 @@ class GnoPremEq(nn.Module):
                 mlp_layers=self.mlp_layers,
                 transform_type='nonlinear',
                 mlp_non_linearity=F.gelu))
-        
+
         if self.end_projection:
             self.end_projector = MLPLinear([self.out_dim,
-                                    projection_hidden_dim, self.end_projection_outdim],
-                                    non_linearity=F.gelu)
-        
+                                            projection_hidden_dim, self.end_projection_outdim],
+                                           non_linearity=F.gelu)
 
     def update_grid(
         self,

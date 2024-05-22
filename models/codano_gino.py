@@ -13,6 +13,7 @@ import torch
 from layers.variable_encoding import VariableEncoding2d
 from .codano import Projection
 
+
 class CondnoGino(nn.Module):
     def __init__(self,
                  in_token_codim,
@@ -219,8 +220,6 @@ class CondnoGino(nn.Module):
                 var_encoding_channels=0,
                 end_projection=True,
                 end_projection_outdim=out_token_codim)
-            
-
 
         # Code for varibale encoding
 

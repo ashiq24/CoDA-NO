@@ -9,13 +9,14 @@ import signal
 from typing import List
 
 import h5py
-#import haikunator
+# import haikunator
 import numpy as np
 import psutil
 import torch
 import torch.nn as nn
 
-#HAIKU = haikunator.Haikunator()
+# HAIKU = haikunator.Haikunator()
+
 
 def get_wandb_api_key(api_key_file="config/wandb_api_key.txt"):
     try:
@@ -27,7 +28,8 @@ def get_wandb_api_key(api_key_file="config/wandb_api_key.txt"):
 
 
 class TokenExpansion(nn.Module):
-    def __init__(self, n_variables: int, n_encoding_channels, n_static_channels: int) -> None:
+    def __init__(self, n_variables: int, n_encoding_channels,
+                 n_static_channels: int) -> None:
         super().__init__()
         self.n_variables = n_variables
         self.n_encoding_channels = n_encoding_channels
@@ -54,7 +56,8 @@ class TokenExpansion(nn.Module):
         print(self.static_channels)
         print(self.encoding_channels)
 
-    def forward(self, inp: torch.Tensor, variable_encodings: torch.tensor, static_channels: torch.tensor) -> torch.Tensor:
+    def forward(self, inp: torch.Tensor, variable_encodings: torch.tensor,
+                static_channels: torch.tensor) -> torch.Tensor:
         """
         x: (batch_size, n_variables)
         """
@@ -68,7 +71,7 @@ class TokenExpansion(nn.Module):
                 x.shape[0], 1, 1)
         if self.n_encoding_channels != 0:
             x[:, :, self.encoding_channels] = variable_encodings.repeat(
-                
+
                 x.shape[0], 1, 1)
 
         return x
@@ -103,19 +106,20 @@ def save_model(model, directory: pathlib.Path, stage=None, sep='_'):
         infix = stage.value.lower()
     suffix = HAIKU.haikunate(token_length=0, delimiter=sep)
 
-    torch.save(model.state_dict(), directory / f"{prefix}{sep}{infix}{sep}{suffix}.pth")
+    torch.save(model.state_dict(), directory /
+               f"{prefix}{sep}{infix}{sep}{suffix}.pth")
 
 
 def extract_pids(message) -> List[int]:
     # Assume `message` has a preamble followed by a sequence of tokens like
     # "Process \d+" with extra characters in between such tokens.
-    
-    pattern = re.compile("(Process \d+)")
+
+    pattern = re.compile("(Process \\d+)")
     # Contains "Process" tokens and extra characters, interleaved:
     tokens = pattern.split(message)
     # print('\n'.join(map(repr, zip(split[1::2], split[2::2]))))
-    
-    pattern2 = re.compile("(\d+)")
+
+    pattern2 = re.compile("(\\d+)")
     # print('\n'.join([repr((s, pattern2.search(t)[0])) for t in tokens[1::2]]))
     pids = [int(pattern2.search(t)[0]) for t in tokens[1::2]]
 
@@ -132,7 +136,7 @@ def signal_process_tree(
     logger=None,
 ):
     """Kill a process tree (including grandchildren) with signal ``sig``
-    
+
     Return a (gone, still_alive) tuple.
 
     Parameters

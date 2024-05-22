@@ -61,7 +61,8 @@ class Projection(nn.Module):
 
 
 # TODO replace with nerualop.MLP module
-# This may take some thinking about how to add the permutation equivariance einop.
+# This may take some thinking about how to add the permutation
+# equivariance einop.
 class ProjectionT(Projection):
     """Time-aware projection MLP layer"""
 

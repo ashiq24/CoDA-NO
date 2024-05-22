@@ -15,11 +15,13 @@ class UNet2d(nn.Module):
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
         self.encoder2 = UNet2d._block(features, features * 2, name="enc2")
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.bottleneck = UNet2d._block(features * 2, features * 4, name="bottleneck")
+        self.bottleneck = UNet2d._block(
+            features * 2, features * 4, name="bottleneck")
         self.upconv2 = nn.ConvTranspose2d(
             features * 4, features * 2, kernel_size=2, stride=2
         )
-        self.decoder2 = UNet2d._block((features * 2) * 2, features * 2, name="dec2")
+        self.decoder2 = UNet2d._block(
+            (features * 2) * 2, features * 2, name="dec2")
         self.upconv1 = nn.ConvTranspose2d(
             features * 2, features, kernel_size=2, stride=2
         )

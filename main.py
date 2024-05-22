@@ -16,7 +16,7 @@ from train.trainer import nonuniform_mesh_trainer
 from utils import *
 from models.model_helpers import count_parameters
 from test.evaluations import missing_variable_testing
-#from torchsummary import summary
+# from torchsummary import summary
 import random
 
 if __name__ == "__main__":
@@ -121,7 +121,8 @@ if __name__ == "__main__":
     # train, test = get_dummy_dataloaders()
     if params.training_stage == 'fine_tune':
         print(f"Loading Pretrained weights from {params.pretrain_weight}")
-        model.encoder.load_state_dict(torch.load(params.pretrain_weight), strict=True)
+        model.encoder.load_state_dict(torch.load(
+            params.pretrain_weight), strict=True)
         # if not params.freeze_encoder:
         #     print("Doing partial Frezzing")
         #     for p in model.encoder.parameters():
@@ -129,7 +130,7 @@ if __name__ == "__main__":
         #     for p in model.encoder.lifting.parameters():
         #         p.requires_grad = False
         #     #pass
-                
+
         if params.use_variable_encoding:
             print(
                 f"Loading Pretrained weights from {params.NS_variable_encoder_path}")

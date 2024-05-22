@@ -13,7 +13,8 @@ from data_utils import get_mesh_displacement
 
 
 class IrregularMeshTensorDataset(TensorDataset):
-    def __init__(self, x, y, transform_x=None, transform_y=None, equation=None, x1=0, x2=0, mu=0.1, mesh=None):
+    def __init__(self, x, y, transform_x=None, transform_y=None,
+                 equation=None, x1=0, x2=0, mu=0.1, mesh=None):
         super().__init__(x, y, transform_x, transform_y)
         self.x1 = x1
         self.x2 = x2
@@ -25,7 +26,7 @@ class IrregularMeshTensorDataset(TensorDataset):
 
     def _creat_static_features(self, d_grid=None):
         '''
-        creating static channels for inlet and reynolds number 
+        creating static channels for inlet and reynolds number
         '''
         n_grid_points = self.x.shape[1]
         if len(self.equation) == 1:
@@ -39,8 +40,8 @@ class IrregularMeshTensorDataset(TensorDataset):
         else:
             positional_enco = self.mesh
 
-        raynolds = torch.ones(n_grid_points, 1)*self.mu
-        inlet = ((-self.x1/2+positional_enco[:, 1]) * (-self.x2/2+positional_enco[:, 1])
+        raynolds = torch.ones(n_grid_points, 1) * self.mu
+        inlet = ((-self.x1 / 2 + positional_enco[:, 1]) * (-self.x2 / 2 + positional_enco[:, 1])
                  )[:, None]**2
 
         self.static_features = torch.cat(
@@ -100,7 +101,7 @@ class NsElasticDataset():
         self.location = location
         self._x1 = [-4.0, -2.0, 0.0, 2.0, 4.0, 6.0]
         self._x2 = [-4.0, -2.0, 0, 2.0, 4.0, 6.0]
-        self._mu = [0.1, 0.01, 0.5,5, 1, 10]
+        self._mu = [0.1, 0.01, 0.5, 5, 1, 10]
         if params.data_partition == 'supervised':
             self._x1 = params.supervised_inlets_x1
             self._x2 = params.supervised_inlets_x2
@@ -108,7 +109,8 @@ class NsElasticDataset():
             self._x1 = list(set(self._x1) - set(params.supervised_inlets_x1))
             self._x2 = list(set(self._x2) - set(params.supervised_inlets_x2))
         else:
-            raise ValueError(f"Data partition {params.data_partition} not supported")
+            raise ValueError(
+                f"Data partition {params.data_partition} not supported")
 
         self.equation = equation
 
@@ -143,9 +145,9 @@ class NsElasticDataset():
                 f"Value of is must be one of {self._ivals3} and {self._ivals12} ")
         path = os.path.join(
             self.location,
-            'mu='+str(mu),
-            'x1='+str(x1),
-            'x2='+str(x2),
+            'mu=' + str(mu),
+            'x1=' + str(x1),
+            'x2=' + str(x2),
             'Visualization')
 
         filename = os.path.join(path, 'displacement.h5')
@@ -190,10 +192,10 @@ class NsElasticDataset():
         print("***Test dataset size***: ", len(test_dataset))
         if ntrain is not None:
             train_dataset = random_split(
-                train_dataset, [ntrain, len(train_dataset)-ntrain])[0]
+                train_dataset, [ntrain, len(train_dataset) - ntrain])[0]
         if ntest is not None:
             test_dataset = random_split(
-                test_dataset, [ntest, len(test_dataset)-ntest])[0]
+                test_dataset, [ntest, len(test_dataset) - ntest])[0]
 
         train_dataloader = DataLoader(
             train_dataset, batch_size=batch_size, **data_loader_kwargs)
@@ -238,7 +240,7 @@ class NsElasticDataset():
 
                 indexs = [i for i in range(step_t0.shape[0])]
 
-                ntrain = int((1-train_test_split) * len(indexs))
+                ntrain = int((1 - train_test_split) * len(indexs))
                 ntest = len(indexs) - ntrain
 
                 random.shuffle(indexs)

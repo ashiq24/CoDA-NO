@@ -39,7 +39,8 @@ class VariableEncoding2d(nn.Module):
         size_x, size_y = x.shape[-2], x.shape[-1]
         if self.basis == 'sht':
             if self.transform.nlat == size_x and self.transform.nlon == size_y:
-                return self.transform(self.coefficients_r + 1.0j * self.coefficients_i)
+                return self.transform(
+                    self.coefficients_r + 1.0j * self.coefficients_i)
 
             self.transform = th.InverseRealSHT(
                 size_x,
@@ -140,19 +141,20 @@ class VariableEncodingWrapper(nn.Module):
             )
 
     def load_encoder(self, equation: str, path: str):
-        self.model_dict[equation].load_state_dict(torch.load(path, map_location=torch.device('cpu')))
+        self.model_dict[equation].load_state_dict(
+            torch.load(path, map_location=torch.device('cpu')))
 
     def save_encoder(self, equation: str, path: str):
         torch.save(self.model_dict[equation].state_dict(), path)
 
     def save_all_encoder(self, path: str):
         for i in self.equation_dict.keys():
-            torch.save(self.model_dict[i].state_dict(), path + f"_{i}"+".pt")
+            torch.save(self.model_dict[i].state_dict(), path + f"_{i}" + ".pt")
 
     def freeze(self, equation: str):
         for param in self.model_dict[equation].parameters():
             param.requires_grad = False
-            
+
     def forward(self, grid_poits, equation: str = None):
         encoding_list = []
         if equation is None:

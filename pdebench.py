@@ -18,7 +18,11 @@ logging.basicConfig(level=logging.DEBUG, stream=sys.stdout, force=True)
 logger = logging.getLogger()  # get the root logger
 # -
 
-# While in development, don't use the `from ... import` syntax. Instead, import the modlue directly so that `importlib` can properly `reload()` it. This way, changes in the source file can propagate directly into this notebook without having to lose the _state_ of this notebook (chiefly, its trained model).
+# While in development, don't use the `from ... import` syntax. Instead,
+# import the modlue directly so that `importlib` can properly `reload()`
+# it. This way, changes in the source file can propagate directly into
+# this notebook without having to lose the _state_ of this notebook
+# (chiefly, its trained model).
 
 # +
 logger.setLevel(logging.INFO)  # importing from h5py is noisy
@@ -93,13 +97,13 @@ except NameError as err:
 
 try:
     importlib.reload(train)
-    multi_physics_trainer= train.multi_physics_trainer
-    test_single_physics= train.test_single_physics
+    multi_physics_trainer = train.multi_physics_trainer
+    test_single_physics = train.test_single_physics
 except NameError as err:
     logging.warning(err)
     import train
-    multi_physics_trainer= train.multi_physics_trainer
-    test_single_physics= train.test_single_physics
+    multi_physics_trainer = train.multi_physics_trainer
+    test_single_physics = train.test_single_physics
 
 
 # +
@@ -322,7 +326,7 @@ if params.pretrain_ssl:
         test_predictive_loader,
         nn.MSELoss(),  # training loss_fn
         params,
-        epochs=10, # XXX
+        epochs=10,  # XXX
         wandb_log=params.wandb['log'],
         log_interval=params.wandb['log_interval'],
     )

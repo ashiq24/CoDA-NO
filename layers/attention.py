@@ -215,7 +215,7 @@ class TNOBlock(nn.Module):
 
         self.attention_normalizer = Normalizer(self.token_codimension)
         """
-        NOTE: by default, ``self.attention_normalizer`` has parameters of 
+        NOTE: by default, ``self.attention_normalizer`` has parameters of
         ``dtype=float32`` and thus expects inputs to be of the same type.
         """
 
@@ -257,11 +257,12 @@ class TNOBlock(nn.Module):
             self.norm2 = Normalizer(self.mixer_token_codimension)
             """
             NOTE: by default, ``self.norm2`` has parameters of ``dtype=float32``
-            and thus expects inputs to be of the same type. 
+            and thus expects inputs to be of the same type.
             """
-            self.mixer_out_normalizer = Normalizer(self.mixer_token_codimension)
+            self.mixer_out_normalizer = Normalizer(
+                self.mixer_token_codimension)
             """
-            NOTE: by default, ``self.mixer_token_codimension`` has parameters of 
+            NOTE: by default, ``self.mixer_token_codimension`` has parameters of
             ``dtype=float32`` and thus expects inputs to be of the same type.
             """
 
@@ -355,7 +356,7 @@ class TnoBlock2d(TNOBlock):
         if self.proj is not None:
             attention = self.proj(attention)
 
-        attention = self.attention_normalizer(attention+xa)
+        attention = self.attention_normalizer(attention + xa)
         attention = rearrange(
             attention, '(b t) d h w -> b (t d) h w', b=batch_size)
         # print("{attention.shape=}")

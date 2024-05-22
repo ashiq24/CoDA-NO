@@ -14,6 +14,7 @@ from models.get_models import StageEnum
 
 N_ROWS = 3  # ground_truth, prediction, and error
 
+
 def show_data_diff(
     ground_truth: torch.Tensor(),
     prediction: torch.Tensor(),
@@ -91,7 +92,7 @@ def show_multi_physics_data_diffs(
         channel=0,
         logger=logger,
     )
-    
+
     (reaction_in, _), (reaction_out, _) = data_loader.dataset[diff_index]
     pred, *_ = model(
         reaction_in.unsqueeze(0).cuda(),
@@ -105,7 +106,7 @@ def show_multi_physics_data_diffs(
         channel=0,
         logger=logger,
     )
-    
+
     print("INHIBITOR (DIFFUSION-REACTION)")
     show_data_diff(
         reaction_out,
@@ -113,7 +114,7 @@ def show_multi_physics_data_diffs(
         channel=1,
         logger=logger,
     )
-    
+
     (ns_in, _), (ns_out, _) = data_loader.dataset[ns_index]
     pred, *_ = model(
         ns_in.unsqueeze(0).cuda(),
@@ -127,7 +128,7 @@ def show_multi_physics_data_diffs(
         channel=0,
         logger=logger,
     )
-    
+
     print("X-VELOCITY (NAVIER-STOKES)")
     show_data_diff(
         ns_out,
@@ -135,7 +136,7 @@ def show_multi_physics_data_diffs(
         channel=1,
         logger=logger,
     )
-    
+
     print("Y-VELOCITY (NAVIER-STOKES)")
     show_data_diff(
         ns_out,

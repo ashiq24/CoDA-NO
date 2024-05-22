@@ -8,8 +8,10 @@ from fino import SpectralConvKernel2d, SpectralConvolutionKernel3D
 
 DEVICE: torch.device = "cuda" if torch.cuda.is_available() else "cpu"
 
+
 class SpectralConvKernel2DWrapper(torch.nn.Module):
     """A simple wrapper to access Parameters during testing."""
+
     def __init__(self, convolution: SpectralConvKernel2d):
         super().__init__()
         self.convolution = convolution
@@ -26,8 +28,10 @@ class SpectralConvKernel2DWrapper(torch.nn.Module):
             output_shape=output_shape
         )
 
+
 class SpectralConvKernel3DWrapper(torch.nn.Module):
     """A simple wrapper to access Parameters during testing."""
+
     def __init__(self, convolution: SpectralConvolutionKernel3D):
         super().__init__()
         self.convolution = convolution
@@ -43,6 +47,7 @@ class SpectralConvKernel3DWrapper(torch.nn.Module):
             indices=indices,
             output_shape=output_shape
         )
+
 
 class SpectralConvKernel2DTest(unittest.TestCase):
     def test_initialization(self):
@@ -133,7 +138,8 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         # This size doesn't need to be equal to that of `modes` above:
         x = torch.randn((1, 16, 16), dtype=torch.float64)
         y = convolution.forward_transform(x)
-        # FFT takes the real frequency modes (i.e. the upper x.size(-1)//2 + 1 modes)
+        # FFT takes the real frequency modes (i.e. the upper x.size(-1)//2 + 1
+        # modes)
         self.assertEqual(tuple(y.shape), (1, 16, 9))
         self.assertEqual(y.dtype, torch.complex64)
 
@@ -213,7 +219,8 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         )
 
         # This size DOES need to be equal to that of `modes` above:
-        x = torch.randn((1, frequency_modes, frequency_modes), dtype=torch.complex64)
+        x = torch.randn((1, frequency_modes, frequency_modes),
+                        dtype=torch.complex64)
         y = convolution.inverse_transform(
             x,
             target_height=physical_resolution,
@@ -261,7 +268,8 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         )
         isht1 = convolution.inverse_sht
 
-        x = torch.randn((1, sht_nlat, sht_nlon // 2 + 1), dtype=torch.complex64)
+        x = torch.randn((1, sht_nlat, sht_nlon // 2 + 1),
+                        dtype=torch.complex64)
         y = convolution.inverse_transform(x, sht_nlat, sht_nlon)
         isht2 = convolution.inverse_sht
 
@@ -354,7 +362,8 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         self.assertEqual(tuple(y1.shape), (1, 8, 256, 256))
         self.assertEqual(y1.dtype, torch.float32)
 
-        # Explicitly passing in ``output_shape`` overrides ``scaling_factor`` state:
+        # Explicitly passing in ``output_shape`` overrides ``scaling_factor``
+        # state:
         y2 = convolution(x, output_shape=(128, 128))
         self.assertEqual(tuple(y2.shape), (1, 8, 128, 128))
         self.assertEqual(y2.dtype, torch.float32)
@@ -387,7 +396,8 @@ class SpectralConvKernel2DTest(unittest.TestCase):
             device=DEVICE,
         )
         displacement_out = torch.tensor(
-            np.sin(xx * np.sqrt(2.0) + phase) + np.sin(yy * np.sqrt(3.0) + phase),
+            np.sin(xx * np.sqrt(2.0) + phase) +
+            np.sin(yy * np.sqrt(3.0) + phase),
             device=DEVICE,
         )
         velocity_out = torch.tensor(
@@ -399,9 +409,11 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         loss_fn = torch.nn.MSELoss()
         optimizer = torch.optim.Adam(
             convolution_w.parameters(),
-            # XXX: At 0.05, loss below is no longer monotonic(-ally decreasing).
+            # XXX: At 0.05, loss below is no longer monotonic(-ally
+            # decreasing).
             lr=0.04,
-            # XXX: At 0.005, loss below is no longer monotonic(-ally decreasing).
+            # XXX: At 0.005, loss below is no longer monotonic(-ally
+            # decreasing).
             weight_decay=0.004,
         )
 
@@ -428,10 +440,12 @@ class SpectralConvKernel2DTest(unittest.TestCase):
             optimizer.step()
 
         self.assertTrue(
-            all(_next < _prev for _next, _prev in zip(losses[1:], losses[:-1])),
+            all(_next < _prev for _next, _prev in zip(
+                losses[1:], losses[:-1])),
             "Expected losses to be monotonically decreasing:\n"
             f"[{', '.join('{:.3f}'.format(loss) for loss in losses)}]"
         )
+
 
 class SpectralConvKernel3DTest(unittest.TestCase):
 
@@ -464,7 +478,8 @@ class SpectralConvKernel3DTest(unittest.TestCase):
         # This size doesn't need to be equal to that of `modes` above:
         x = torch.randn((1, 16, 16, 16), dtype=torch.float64)
         y = convolution.forward_transform(x)
-        # FFT takes the real frequency modes (i.e. the upper x.size(-1)//2 + 1 modes)
+        # FFT takes the real frequency modes (i.e. the upper x.size(-1)//2 + 1
+        # modes)
         self.assertEqual(tuple(y.shape), (1, 16, 16, 9))
         self.assertEqual(y.dtype, torch.complex64)
 
@@ -572,7 +587,8 @@ class SpectralConvKernel3DTest(unittest.TestCase):
         self.assertEqual(tuple(y1.shape), (1, 8, 32, 32, 32))
         self.assertEqual(y1.dtype, torch.float32)
 
-        # Explicitly passing in ``output_shape`` overrides ``scaling_factor`` state:
+        # Explicitly passing in ``output_shape`` overrides ``scaling_factor``
+        # state:
         y2 = convolution.forward(x, output_shape=(24, 24, 24))
         self.assertEqual(tuple(y2.shape), (1, 8, 24, 24, 24))
         self.assertEqual(y2.dtype, torch.float32)
@@ -613,9 +629,11 @@ class SpectralConvKernel3DTest(unittest.TestCase):
         # than "Is the loss monotonically decreasing?"
         optimizer = torch.optim.Adam(
             convolution_w.parameters(),
-            # XXX: At 1.0e-3, loss below is no longer monotonic(-ally decreasing).
+            # XXX: At 1.0e-3, loss below is no longer monotonic(-ally
+            # decreasing).
             lr=1.0e-4,
-            # XXX: At 1.0e-4, loss below is no longer monotonic(-ally decreasing).
+            # XXX: At 1.0e-4, loss below is no longer monotonic(-ally
+            # decreasing).
             weight_decay=1.0e-5,
         )
 
@@ -644,7 +662,8 @@ class SpectralConvKernel3DTest(unittest.TestCase):
             optimizer.step()
 
         self.assertTrue(
-            all(_next < _prev for _next, _prev in zip(losses[1:], losses[:-1])),
+            all(_next < _prev for _next, _prev in zip(
+                losses[1:], losses[:-1])),
             "Expected losses to be monotonically decreasing:\n"
             f"[{', '.join('{:.3f}'.format(loss) for loss in losses)}]"
         )

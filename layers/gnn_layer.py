@@ -51,7 +51,7 @@ class GnnLayer(nn.Module):
 
         self.it = IntegralTransform(
             mlp_layers=self.mlp_layers, transform_type='nonlinear')
-        
+
         self.normalize = nn.LayerNorm(out_dim)
 
     def update_grid(
@@ -82,7 +82,7 @@ class GnnLayer(nn.Module):
         '''
         inp : (batch_size, n_points, in_dims/Channels)
         '''
-        #print("Input Shape", inp.shape)
+        # print("Input Shape", inp.shape)
 
         x = inp
         x = self.projection(x)

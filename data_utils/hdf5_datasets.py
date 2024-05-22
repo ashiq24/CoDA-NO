@@ -96,7 +96,8 @@ class SWEDataset:
         # * trajectory_length=10
         # * stride_on, stride_off=1, 1
         # We want the class to recognize 3 "on" strides. We do not want the 3rd
-        # stride to be dropped because it couldn't fit the last "off" stride in.
+        # stride to be dropped because it couldn't fit the last "off" stride
+        # in.
 
         stride_length_on = CLS.TRAJECTORY_LENGTH * strides_on
         stride_length_off = CLS.TRAJECTORY_LENGTH * strides_off
@@ -183,7 +184,7 @@ class SWEDataset:
         sample_key = self.samples[sample_idx]
         norm = self.get_normalizer(sample_key, time_idx)
         datum = self.file[sample_key]['data'][
-            time_idx: time_idx+t_steps,
+            time_idx: time_idx + t_steps,
             ::self.subsampling_rate,
             ::self.subsampling_rate
         ]
@@ -284,7 +285,8 @@ class DiffusionReaction2DDataset:
         # * trajectory_length=10
         # * stride_on, stride_off=1, 1
         # We want the class to recognize 3 "on" strides. We do not want the 3rd
-        # stride to be dropped because it couldn't fit the last "off" stride in.
+        # stride to be dropped because it couldn't fit the last "off" stride
+        # in.
 
         CLS = self.__class__
         stride_length_on = CLS.TRAJECTORY_LENGTH * strides_on
@@ -370,7 +372,7 @@ class DiffusionReaction2DDataset:
         norm_activator = self.get_normalizer(sample_key, time_idx, 0)
         norm_inhibitor = self.get_normalizer(sample_key, time_idx, 1)
         data0 = self.file[sample_key]['data'][
-            time_idx: time_idx+t_steps,
+            time_idx: time_idx + t_steps,
             ::self.subsampling_rate,
             ::self.subsampling_rate
         ]
@@ -488,7 +490,8 @@ class NSIncompressibleDataset:
         # * trajectory_length=10
         # * stride_on, stride_off=1, 1
         # We want the class to recognize 3 "on" strides. We do not want the 3rd
-        # stride to be dropped because it couldn't fit the last "off" stride in.
+        # stride to be dropped because it couldn't fit the last "off" stride
+        # in.
 
         CLS = self.__class__
         stride_length_on = CLS.TRAJECTORY_LENGTH * strides_on
@@ -555,7 +558,8 @@ class NSIncompressibleDataset:
                 [sample.particles, sample.velocity], axis=-1)
 
             mid = CLS.TRAJECTORY_LENGTH // 2
-            return torch.as_tensor(trajectory[:mid]), torch.as_tensor(trajectory[mid:])
+            return torch.as_tensor(
+                trajectory[:mid]), torch.as_tensor(trajectory[mid:])
 
         else:
             sample = self._reconstruct_sample(
@@ -591,7 +595,7 @@ class NSIncompressibleDataset:
             file_idx, sample_idx, time_idx, 'particles')
         particles = h5_file['particles'][
             sample_idx,
-            time_idx: time_idx+t_steps,
+            time_idx: time_idx + t_steps,
             ::self.subsampling_rate,
             ::self.subsampling_rate,
         ]
@@ -600,7 +604,7 @@ class NSIncompressibleDataset:
             file_idx, sample_idx, time_idx, 'velocity')
         velocity = h5_file['velocity'][
             sample_idx,
-            time_idx: time_idx+t_steps,
+            time_idx: time_idx + t_steps,
             ::self.subsampling_rate,
             ::self.subsampling_rate,
         ]
@@ -619,7 +623,8 @@ class NSIncompressibleDataset:
             force,
         )
 
-    def get_normalizer(self, path_idx, sample_idx: int, time_idx: int, channel: str):
+    def get_normalizer(self, path_idx, sample_idx: int,
+                       time_idx: int, channel: str):
         filepath = self.paths[path_idx]
         key = (filepath, sample_idx, time_idx, channel)
         t_steps = self.__class__.TRAJECTORY_LENGTH // 2
@@ -627,7 +632,7 @@ class NSIncompressibleDataset:
         if self.normalizers.get(key) is None:
             datum = self.files[path_idx][channel][
                 sample_idx,
-                time_idx: time_idx+t_steps,
+                time_idx: time_idx + t_steps,
                 ::self.subsampling_rate,
                 ::self.subsampling_rate,
             ]
@@ -740,7 +745,8 @@ class MultiPhysicsDataset(data.Dataset):
         self.channel_dim = channel_dim
 
     def __len__(self):
-        return len(self.swe_dataset) + len(self.diff_dataset) + len(self.ns_dataset)
+        return len(self.swe_dataset) + \
+            len(self.diff_dataset) + len(self.ns_dataset)
 
     def get_sampler_weights(self):
         """Returns a sequence of weights such that each dataset has a uniform
@@ -752,7 +758,8 @@ class MultiPhysicsDataset(data.Dataset):
             ([1 / (3 * len(self.ns_dataset))] * len(self.ns_dataset))
 
     # TODO positional encoding
-    def __getitem__(self, idx) -> Tuple[Tuple[torch.Tensor, int], Tuple[torch.Tensor, int]]:
+    def __getitem__(
+            self, idx) -> Tuple[Tuple[torch.Tensor, int], Tuple[torch.Tensor, int]]:
         """
         Returns fields A(x), U(x) across 6 variables.
 

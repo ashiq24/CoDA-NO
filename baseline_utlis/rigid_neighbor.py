@@ -5,7 +5,8 @@ from torch import nn
 # Uses open3d by default which, as of 07/23/2023, requires torch 1.13.1
 
 
-def simple_neighbor_search(data: torch.Tensor, queries: torch.Tensor, n_neigbor: float):
+def simple_neighbor_search(
+        data: torch.Tensor, queries: torch.Tensor, n_neigbor: float):
     """
 
     Parameters
@@ -73,7 +74,7 @@ class FixedNeighborSearch(nn.Module):
                     Index of each neighbor in data for every point
                     in queries. Neighbors are ordered in the same orderings
                     as the points in queries. Open3d and torch_cluster
-                    implementations can differ by a permutation of the 
+                    implementations can differ by a permutation of the
                     neighbors for every point.
                 neighbors_row_splits: torch.Tensor of shape [m+1] with dtype=torch.int64
                     The value at index j is the sum of the number of

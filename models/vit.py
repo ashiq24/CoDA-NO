@@ -14,6 +14,7 @@ import torch
 from layers.variable_encoding import VariableEncoding2d
 from layers.regular_transformer import vision_transformer
 
+
 class VitGno(nn.Module):
     def __init__(self,
                  in_dim,
@@ -29,8 +30,8 @@ class VitGno(nn.Module):
                  n_layers=4,
                  initial_mesh=None,
                  non_linearity=F.gelu,
-                 patch_size = (10,5),
-                 heads = 10,
+                 patch_size=(10, 5),
+                 heads=10,
                  contraction_factor=128,
                  re_grid_input=False,
                  re_grid_output=False,
@@ -72,12 +73,12 @@ class VitGno(nn.Module):
         self.n_neigbor = n_neigbor
         self.gno_mlp_layers = gno_mlp_layers
 
-        #transformers parameters
+        # transformers parameters
         self.contraction_factor = contraction_factor
         self.grid_size = grid_size
         self.patch_size = patch_size
         self.heads = heads
-         
+
         self.register_buffer('initial_mesh', initial_mesh)
         # Code for varibale encoding
 
@@ -100,18 +101,27 @@ class VitGno(nn.Module):
                 n_neigbor=self.n_neigbor)
 
         self.base = vision_transformer(
-                image_size = self.grid_size,
-                patch_size = self.patch_size,
-                num_classes = 1,
-                dim = self.patch_size[0]*self.patch_size[1]*self.hidden_dim//self.contraction_factor,
-                depth = self.n_layers,
-                channels = hidden_dim,
-                heads = self.heads,
-                mlp_dim = self.patch_size[0]*self.patch_size[1]*hidden_dim//self.contraction_factor,
-                dropout = 0.0,
-                emb_dropout = 0.0
+            image_size=self.grid_size,
+            patch_size=self.patch_size,
+            num_classes=1,
+            dim=self.patch_size[0] * self.patch_size[1] *
+            self.hidden_dim // self.contraction_factor,
+            depth=self.n_layers,
+            channels=hidden_dim,
+            heads=self.heads,
+            mlp_dim=self.patch_size[0] * self.patch_size[1] *
+            hidden_dim // self.contraction_factor,
+            dropout=0.0,
+            emb_dropout=0.0
         )
-        self.expander = nn.Linear(self.patch_size[0]*self.patch_size[1]*hidden_dim//self.contraction_factor, self.grid_size[0]*self.grid_size[1]*hidden_dim)
+        self.expander = nn.Linear(
+            self.patch_size[0] *
+            self.patch_size[1] *
+            hidden_dim //
+            self.contraction_factor,
+            self.grid_size[0] *
+            self.grid_size[1] *
+            hidden_dim)
         if self.projection:
             # input and output grid is swapped
 
@@ -165,7 +175,10 @@ class VitGno(nn.Module):
 
         x = self.base(x)
         x = self.expander(x)
-        x = x.reshape(-1, self.hidden_dim, self.grid_size[0], self.grid_size[1])
+        x = x.reshape(-1,
+                      self.hidden_dim,
+                      self.grid_size[0],
+                      self.grid_size[1])
 
         if self.re_grid_output:
             x = self.output_regrider(x)

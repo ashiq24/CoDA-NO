@@ -10,4 +10,4 @@ def count_parameters(model):
             pcount = torch.tensor(p.numel())
             total_count += int(pcount.item())
 
-    return total_count/1e6
+    return total_count / 1e6

@@ -9,24 +9,28 @@ import torch
 from models.get_models import *
 from torch import nn
 from torch.utils import data
-#from torch.optim import Adam
+# from torch.optim import Adam
 from .new_adam import Adam
 from torch.optim.lr_scheduler import StepLR, ReduceLROnPlateau
 
 from data_utils.hdf5_datasets import Equation
 
-def save_weights(model, variable_encoder ,weight_path, stage, ep):
+
+def save_weights(model, variable_encoder, weight_path, stage, ep):
     stage_string = 'ssl' if stage == StageEnum.RECONSTRUCTIVE else 'sl'
-    weight_path_model_encoder = weight_path + stage_string+'_encoder_'+str(ep)+'.pt'
+    weight_path_model_encoder = weight_path + \
+        stage_string + '_encoder_' + str(ep) + '.pt'
     torch.save(model.encoder.state_dict(), weight_path_model_encoder)
     if stage == StageEnum.RECONSTRUCTIVE:
-        weight_path_model_decoder = weight_path + stage_string+'_decoder_'+str(ep)+'.pt'
+        weight_path_model_decoder = weight_path + \
+            stage_string + '_decoder_' + str(ep) + '.pt'
         torch.save(model.decoder.state_dict(), weight_path_model_decoder)
     elif stage == StageEnum.PREDICTIVE:
-        weight_path_model_predictor = weight_path + stage_string+'_predictor_'+str(ep)+'.pt'
+        weight_path_model_predictor = weight_path + \
+            stage_string + '_predictor_' + str(ep) + '.pt'
         torch.save(model.predictor.state_dict(), weight_path_model_predictor)
     if variable_encoder is not None:
-        variable_path = weight_path + "_variable_encoder_"+str(ep)
+        variable_path = weight_path + "_variable_encoder_" + str(ep)
         variable_encoder.save_all_encoder(variable_path)
 
 
@@ -161,9 +165,23 @@ def nonuniform_mesh_trainer(
                 wandb.log(values_to_log, commit=True)
         # saving weights
         if ep % params.weight_saving_interval == 0:
-            save_weights(model, variable_encoder, weight_path + params.config+" ", stage, ep)
+            save_weights(
+                model,
+                variable_encoder,
+                weight_path +
+                params.config +
+                " ",
+                stage,
+                ep)
 
-    save_weights(model, variable_encoder, weight_path + params.config + " ", stage, '')
+    save_weights(
+        model,
+        variable_encoder,
+        weight_path +
+        params.config +
+        " ",
+        stage,
+        '')
 
     model.eval()
     test_l2 = 0.0
@@ -211,8 +229,8 @@ def nonuniform_mesh_trainer(
 
     stage_string = 'ssl' if stage == StageEnum.RECONSTRUCTIVE else 'sl'
     if wandb_log:
-        wandb.log({'test_error_'+stage_string: test_l2}, commit=True)
-    print("Test Error : "+stage_string, test_l2)
+        wandb.log({'test_error_' + stage_string: test_l2}, commit=True)
+    print("Test Error : " + stage_string, test_l2)
 
 
 ############
@@ -241,7 +259,7 @@ def multi_physics_trainer(
     gradient_threshold = params.gradient['threshold']
     if logger is None:
         logger = logging.getLogger()
-    
+
     optimizer = Adam(
         model.parameters(),
         lr=params.lr,
@@ -383,7 +401,8 @@ def test_single_physics(
     n_test = 0
 
     with torch.no_grad():
-        # TODO TqdmDeprecationWarning: Please use `tqdm.notebook.trange` instead of `tqdm.tnrange`
+        # TODO TqdmDeprecationWarning: Please use `tqdm.notebook.trange`
+        # instead of `tqdm.tnrange`
         _trange = tqdm.trange if script else tqdm.tnrange
         test_loader_trange = _trange(
             start,

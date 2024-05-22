@@ -80,11 +80,19 @@ class AbstractTNOBlockTest(ConvolutionTestCase):
 
     @torch.no_grad()
     def _check_initialization(self, n_heads: int, kqv_non_linear: bool):
-        self.assertEqual(self.tno_block.variable_codimension, self.token_codimension)
-        self.assertEqual(self.tno_block.token_codimension, self.token_codimension)
+        self.assertEqual(
+            self.tno_block.variable_codimension,
+            self.token_codimension)
+        self.assertEqual(
+            self.tno_block.token_codimension,
+            self.token_codimension)
         expected_head_codimension = max(self.token_codimension // n_heads, 1)
-        self.assertEqual(self.tno_block.head_codimension, expected_head_codimension)
-        self.assertEqual(self.tno_block.mixer_token_codimension, self.token_codimension)
+        self.assertEqual(
+            self.tno_block.head_codimension,
+            expected_head_codimension)
+        self.assertEqual(
+            self.tno_block.mixer_token_codimension,
+            self.token_codimension)
 
         # The alternative to importing NO_OP below is to take each testable
         # convolution and check whether it does pointwise activation on its
@@ -323,7 +331,8 @@ class TNOBlock2DTest(AbstractTNOBlockTest):
             optimizer.step()
 
         self.assertTrue(
-            all(_next < _prev for _next, _prev in zip(losses[1:], losses[:-1])),
+            all(_next < _prev for _next, _prev in zip(
+                losses[1:], losses[:-1])),
             "Expected losses to be monotonically decreasing:\n"
             f"[{', '.join('{:.3f}'.format(loss) for loss in losses)}]"
         )
@@ -538,7 +547,8 @@ class TNOBlock3DTest(AbstractTNOBlockTest):
             optimizer.step()
 
         self.assertTrue(
-            all(_next < _prev for _next, _prev in zip(losses[1:], losses[:-1])),
+            all(_next < _prev for _next, _prev in zip(
+                losses[1:], losses[:-1])),
             "Expected losses to be monotonically decreasing:\n"
             f"[{', '.join('{:.3f}'.format(loss) for loss in losses)}]"
         )

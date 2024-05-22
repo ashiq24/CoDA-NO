@@ -3,18 +3,19 @@ from torch import nn
 from einops import rearrange, repeat
 from vit_pytorch import ViT
 
-class vision_transformer(ViT):    
+
+class vision_transformer(ViT):
     def forward(self, img):
         x = self.to_patch_embedding(img)
         b, n, _ = x.shape
 
-        cls_tokens = repeat(self.cls_token, '1 1 d -> b 1 d', b = b)
+        cls_tokens = repeat(self.cls_token, '1 1 d -> b 1 d', b=b)
         x = torch.cat((cls_tokens, x), dim=1)
         x += self.pos_embedding[:, :(n + 1)]
         x = self.dropout(x)
 
         x = self.transformer(x)
-        return x[:, 1:,:]
+        return x[:, 1:, :]
 # v = vision_transformer(
 #     image_size = (100,50),
 #     patch_size = (10,5),
@@ -33,4 +34,3 @@ class vision_transformer(ViT):
 # preds = v(img)
 # preds = preds.reshape(-1, 10, 100,50)
 # print(preds.shape)
-            

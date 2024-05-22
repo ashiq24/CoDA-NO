@@ -40,7 +40,7 @@ class GNN(nn.Module):
         self.n_dim = input_grid.shape[-1]
 
         self.in_dim = in_dim
-        
+
         if hidden_dim is None:
             hidden_dim = in_dim
         if lifting_dim is None:
@@ -106,14 +106,14 @@ class GNN(nn.Module):
                 for i in range(self.n_layers):
                     if i == self.n_layers - 1:
                         # print("Doing different mesh for last layer")
-                        in_grid = self.initial_mesh+in_grid_displacement
-                        out_grid = self.initial_mesh+out_grid_displacement
+                        in_grid = self.initial_mesh + in_grid_displacement
+                        out_grid = self.initial_mesh + out_grid_displacement
                         # print("in_grid", in_grid)
                         # print("out_grid", out_grid)
                         # print("=====================================")
                     else:
-                        in_grid = self.initial_mesh+in_grid_displacement
-                        out_grid = self.initial_mesh+in_grid_displacement
+                        in_grid = self.initial_mesh + in_grid_displacement
+                        out_grid = self.initial_mesh + in_grid_displacement
                     # print("in_grid", in_grid.shape)
                     # print("out_grid", out_grid.shape)
                     self.base[i].update_grid(

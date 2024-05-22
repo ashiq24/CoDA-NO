@@ -28,6 +28,8 @@ from models.vit import VitGno
 from models.unet import UnetGno
 
 # TODO merge methods get_ssl_models_coda*()
+
+
 def get_ssl_models_codaNo(
     params,
     module: Type[CodANO],
@@ -393,27 +395,27 @@ def get_model_fno(params):
                 hidden_dim=params.hidden_dim,
                 lifting_dim=params.lifting_dim,
                 n_layers=params.n_layers,
-                grid_size = tuple(params.grid_size),
-                patch_size = tuple(params.patch_size),
-                heads = params.heads,
+                grid_size=tuple(params.grid_size),
+                patch_size=tuple(params.patch_size),
+                heads=params.heads,
                 initial_mesh=input_mesh,
                 lifting=True,
                 projection=True,
                 re_grid_input=False,
             )
         elif params.nettype == 'unet':
-             model = UnetGno(
+            model = UnetGno(
                 in_dim,
                 params.out_dim,
                 input_grid=input_mesh,
                 output_grid=output_mesh,
-                grid_size = tuple(params.grid_size),
+                grid_size=tuple(params.grid_size),
                 radius=params.radius,
                 gno_mlp_layers=params.gno_mlp_layers,
                 hidden_dim=params.hidden_dim,
                 lifting_dim=params.lifting_dim,
                 n_layers=params.n_layers,
-                pad_to_size = params.pad_to_size,
+                pad_to_size=params.pad_to_size,
                 initial_mesh=input_mesh,
                 lifting=True,
                 projection=True,
@@ -679,13 +681,12 @@ class SSLWrapper(nn.Module):
             )
 
         if self.stage == StageEnum.PREDICTIVE:
-            #print(in_grid_displacement, out_grid_displacement)
+            # print(in_grid_displacement, out_grid_displacement)
             return self.forward_predictive(
                 x_embedded,
                 in_grid_displacement,
                 out_grid_displacement,
             )
-
 
         raise ValueError(f'Expected stage to be one of {list(StageEnum)};\n'
                          f'Got {self.stage}')
@@ -716,7 +717,8 @@ class SSLWrapper(nn.Module):
         # adjusting for chnage of mesh
         if self.grid_type != "uniform":
             with torch.no_grad():
-                # updating neigbors of GNO layers for the new mesh at each time step
+                # updating neigbors of GNO layers for the new mesh at each time
+                # step
                 self.encoder.lifting.update_grid(
                     self.initial_mesh + in_grid_displacement, None)
                 self.decoder.projection.update_grid(
@@ -782,7 +784,8 @@ class SSLWrapper(nn.Module):
     ):
         if self.grid_type != 'uniform':
             with torch.no_grad():
-                # updating neigbors of GNO layers for the new mesh at each time step
+                # updating neigbors of GNO layers for the new mesh at each time
+                # step
                 self.encoder.lifting.update_grid(
                     self.initial_mesh + in_grid_displacement, None)
                 self.predictor.projection.update_grid(

@@ -15,6 +15,7 @@ from layers.variable_encoding import VariableEncoding2d
 from layers.regular_transformer import vision_transformer
 from layers.unet_sublayer import UNet2d
 
+
 class UnetGno(nn.Module):
     def __init__(self,
                  in_dim,
@@ -71,7 +72,7 @@ class UnetGno(nn.Module):
         self.n_neigbor = n_neigbor
         self.gno_mlp_layers = gno_mlp_layers
         self.pad_to_size = pad_to_size
-         
+
         self.register_buffer('initial_mesh', initial_mesh)
         # Code for varibale encoding
 
@@ -93,7 +94,10 @@ class UnetGno(nn.Module):
                 fixed_neighbour=self.fixed_neighbour,
                 n_neigbor=self.n_neigbor)
 
-        self.base = UNet2d(in_channels=hidden_dim, out_channels=hidden_dim, init_features=hidden_dim)
+        self.base = UNet2d(
+            in_channels=hidden_dim,
+            out_channels=hidden_dim,
+            init_features=hidden_dim)
 
         if self.projection:
             # input and output grid is swapped
@@ -148,15 +152,23 @@ class UnetGno(nn.Module):
 
         pad_size_1 = self.pad_to_size[-2] - x.shape[-2]
         pad_size_2 = self.pad_to_size[-1] - x.shape[-1]
-        x = nn.functional.pad(x, (pad_size_2//2, pad_size_2 - pad_size_2//2, pad_size_1//2, pad_size_1 - pad_size_1//2))
-        #print(x.shape)
+        x = nn.functional.pad(
+            x,
+            (pad_size_2 // 2,
+             pad_size_2 - pad_size_2 // 2,
+             pad_size_1 // 2,
+             pad_size_1 - pad_size_1 // 2))
+        # print(x.shape)
         x = self.base(x)
 
-        #print(x.shape)
+        # print(x.shape)
 
-        x = x[:,:, pad_size_1//2: -(pad_size_1 - pad_size_1//2), pad_size_2//2 : -(pad_size_2 - pad_size_2//2)]
-        
-        #print(x.shape)
+        x = x[:,
+              :,
+              pad_size_1 // 2: -(pad_size_1 - pad_size_1 // 2),
+              pad_size_2 // 2: -(pad_size_2 - pad_size_2 // 2)]
+
+        # print(x.shape)
 
         if self.re_grid_output:
             x = self.output_regrider(x)

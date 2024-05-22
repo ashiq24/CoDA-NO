@@ -93,8 +93,14 @@ class SpectralConvKernel2d(SpectralConv):
             upper_modes = self.mk_slices()[0]
             modes = tuple([s.stop for s in upper_modes[-2:]])
             weights_shape = modes + modes  # concat
-            self.W1 = nn.Parameter(torch.empty(weights_shape, dtype=torch.cfloat))
-            self.W2 = nn.Parameter(torch.empty(weights_shape, dtype=torch.cfloat))
+            self.W1 = nn.Parameter(
+                torch.empty(
+                    weights_shape,
+                    dtype=torch.cfloat))
+            self.W2 = nn.Parameter(
+                torch.empty(
+                    weights_shape,
+                    dtype=torch.cfloat))
             self.reset_parameter()
             # self.logger.debug(f"Frequency mixer {self.W1.shape=}")
             # self.logger.debug(f"Frequency mixer {self.W2.shape=}")
@@ -256,9 +262,10 @@ class SpectralConvKernel2d(SpectralConv):
 
         x = self.forward_transform(x)
 
-        upper_modes , lower_modes = self.mk_slices()
+        upper_modes, lower_modes = self.mk_slices()
 
-        # Frequency mixing uses separate MLPs to mix modes along each co-dim/channels:
+        # Frequency mixing uses separate MLPs to mix modes along each
+        # co-dim/channels:
         if self.frequency_mixer:
             x[upper_modes] = self.mode_mixer(x[upper_modes].clone(), self.W1)
             x[lower_modes] = self.mode_mixer(x[lower_modes].clone(), self.W2)
@@ -433,7 +440,8 @@ class SpectralConvolutionKernel3D(SpectralConv):
     # We have the outer bounds given by ``self.n_modes``
     def forward_transform(self, x):
         if self.transform_type == "fft":
-            return torch.fft.rfftn(x.float(), norm=self.fft_norm, dim=(-3, -2, -1))
+            return torch.fft.rfftn(
+                x.float(), norm=self.fft_norm, dim=(-3, -2, -1))
 
         raise ValueError(
             f'Expected `transform_type` to be "fft"; Got {self.transform_type=}'
