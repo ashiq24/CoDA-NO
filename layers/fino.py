@@ -87,7 +87,6 @@ class SpectralConvKernel2d(SpectralConv):
         for w in self.weight:
             w.normal_(0, init_std)
 
-        # self.logger.debug(f"{self.n_modes=}")
         if frequency_mixer:
             # Initializing weights for frequency mixing:
             upper_modes = self.mk_slices()[0]
@@ -102,8 +101,6 @@ class SpectralConvKernel2d(SpectralConv):
                     weights_shape,
                     dtype=torch.cfloat))
             self.reset_parameter()
-            # self.logger.debug(f"Frequency mixer {self.W1.shape=}")
-            # self.logger.debug(f"Frequency mixer {self.W2.shape=}")
 
         self.sht_grid = sht_grid
         self.isht_grid = isht_grid
@@ -175,8 +172,6 @@ class SpectralConvKernel2d(SpectralConv):
 
         return upper_modes, lower_modes
 
-    # TODO This could be consolidated with a helper from ``neuralop``
-    # cf. neuralop::SpectralConv._contract
     @staticmethod
     def mode_mixer(x, weights):
         return torch.einsum("bimn,mnop->biop", x, weights)
@@ -435,9 +430,6 @@ class SpectralConvolutionKernel3D(SpectralConv):
     def mode_mixer(x, weights):
         return torch.einsum("bimno,mnopqr->bipqr", x, weights)
 
-    # TODO(mogab) Could we truncate the results in frequency space before returning?
-    # This would be exactly accomplished by kwarg ``fft.rfftn(s: Tuple[int])``
-    # We have the outer bounds given by ``self.n_modes``
     def forward_transform(self, x):
         if self.transform_type == "fft":
             return torch.fft.rfftn(
@@ -495,7 +487,6 @@ class SpectralConvolutionKernel3D(SpectralConv):
             dtype=x.dtype,
             device=x.device,
         )
-        # self.logger.debug(f"{out_fft.shape=}")
 
         for i, _slice in enumerate(slices):
             out_fft[_slice] = self._contract(

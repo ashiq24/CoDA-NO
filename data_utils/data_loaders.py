@@ -74,8 +74,6 @@ class IrregularMeshTensorDataset(TensorDataset):
 
 class Normalizer():
     def __init__(self, mean, std, eps=1e-6, persample=False):
-        # print("Means: ", mean)
-        # print("stds ", std)
         self.persample = persample  # if true, instance norm type normalizer
         self.mean = mean
         self.std = std
@@ -151,10 +149,8 @@ class NsElasticDataset():
             'Visualization')
 
         filename = os.path.join(path, 'displacement.h5')
-        # print(filename)
         h5f = h5py.File(filename, 'r')
         displacements_tensor = self._readh5(h5f)
-        # print("Displacement Tensor", displacements_tensor.shape, np.max(displacements_tensor.numpy()), np.min(displacements_tensor.numpy()))
 
         filename = os.path.join(path, 'pressure.h5')
         h5f = h5py.File(filename, 'r')
@@ -234,7 +230,6 @@ class NsElasticDataset():
                 combined = torch.cat(
                     [velocities, pressure, displacements], dim=-1)[:sample_per_inlet, :, varable_idices]
 
-                # print("sample data", combined[50,500,:])
                 step_t0 = combined[:-dt, ...]
                 step_t1 = combined[dt:, ...]
 

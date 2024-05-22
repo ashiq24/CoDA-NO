@@ -127,7 +127,6 @@ def nonuniform_mesh_trainer(
             if isinstance(out, (list, tuple)):
                 out = out[0]
 
-            # print('Shapes', out.shape, x.shape)
             train_count += 1
             if stage == StageEnum.RECONSTRUCTIVE:
                 target = x.clone()
@@ -320,7 +319,6 @@ def multi_physics_trainer(
         gc.collect()
         scheduler.step()
 
-        # TODO could this be added to the scheduler?
         if (ep + 1) % gradient_threshold_step_interval == 0:
             gradient_threshold /= 10.0
             logger.debug(f"gradient_threshold: {gradient_threshold=}")
@@ -329,21 +327,14 @@ def multi_physics_trainer(
             t2 = default_timer()
             epoch_train_time = t2 - t1
             avg_train_l2 = train_l2 / train_count
-            # print(f"{train_l2=}", f"{train_count=}", f"{avg_train_l2=}", sep='\n')
             print(f"Epoch {ep}: | "
                   f"Time: {epoch_train_time:.2f}s | "
                   f"Loss: {avg_train_l2:.4f}")
 
             if wandb_log:
-                # TODO help wb.log() handle multi-stage trainings
-                # With the current reconstructive/predictive training phases,
-                # W&B rejects logs from all epochs that are "out of order"
-                # (i.e. all phases after the first).
                 values_to_log = dict(
                     train_err=avg_train_l2, time=epoch_train_time)
                 wandb.log(values_to_log, step=ep, commit=True)
-
-    # torch.save(model.state_dict(), weight_path)
 
     model.eval()
     t1 = default_timer()
@@ -401,8 +392,6 @@ def test_single_physics(
     n_test = 0
 
     with torch.no_grad():
-        # TODO TqdmDeprecationWarning: Please use `tqdm.notebook.trange`
-        # instead of `tqdm.tnrange`
         _trange = tqdm.trange if script else tqdm.tnrange
         test_loader_trange = _trange(
             start,

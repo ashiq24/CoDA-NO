@@ -1,10 +1,7 @@
 import enum
 from functools import partial
-import logging
-from typing import Optional, Type, Union, Tuple, Dict, List
+from typing import Optional, Type, Union, Tuple, Dict
 import numpy as np
-import torch
-from torch import nn
 from utils import *
 from neuralop.layers.fno_block import FNOBlocks
 from neuralop.models import FNO
@@ -26,9 +23,6 @@ from models.gnn import GNN
 from models.deeponet import DeepONet
 from models.vit import VitGno
 from models.unet import UnetGno
-
-# TODO merge methods get_ssl_models_coda*()
-
 
 def get_ssl_models_codaNo(
     params,
@@ -70,22 +64,6 @@ def get_ssl_models_codaNo(
     static_features = None
     n_static_channels = 0
 
-    # if params.add_static_feature:
-    #     # Taking the static features from  which will be passed to the encoder
-    #     # to concatenated with each of the input variables.
-    #     static_features = None
-    #     n_static_channels = 0
-
-    logger.debug(
-        f"per variable token dimension="
-        f"{1 + params.n_encoding_channels + n_static_channels}")
-    # logger.debug(
-    #     # f"\n {params.n_variables=}"
-    #     f"\n {n_static_channels=}"
-    # )
-
-    # TODO(mogab): Is this variable count still necessary? Probably?
-    # TODO(mogab): Assumes no two equations share any variables.
     n_variables = sum(params.variables_per_equation.values())
     common_args = dict(
         operator_block=block,
@@ -179,7 +157,6 @@ def get_ssl_models_codano_gino(params):
     assert x.shape[0] == size_x
     assert x.shape[1] == size_y
 
-    # block = None
     block = TnoBlock2d
 
     if params.tno_integral_op == 'fno':
@@ -463,8 +440,6 @@ class SSLWrapper(nn.Module):
         decoder,
         contrastive,
         predictor,
-        # variables_per_equations: Dict[Equation, int] = None,
-        # n_encoding_channels: int = 1,
         n_static_channels: int = 0,
         stage=StageEnum.PREDICTIVE,
         logger=Optional[logging.Logger],
@@ -490,11 +465,11 @@ class SSLWrapper(nn.Module):
         self.freeze_encoder = params.freeze_encoder
         self.masking = params.masking
         self.grid_type = params.grid_type
-        # grid type is either uniform or non uniform
+        # grid type is either uniform or non-uniform
         # uniform == PDE bench dataset
-        # non uniform == NS Elastc dataset or archtectures with GNO layers
+        # non-uniform == NS Elastic dataset or architectures with GNO layers
 
-        if self.grid_type == 'uniform':  # TODO add a different option for this
+        if self.grid_type == 'uniform':
             variables_per_equation = params.variables_per_equation
             if params.variables_per_equation is None:
                 variables_per_equation = {}
@@ -508,7 +483,6 @@ class SSLWrapper(nn.Module):
             self.equation_to_encoders: Dict[Equation, Tuple[int, ...]] = \
                 {k: tuple(v) for k, v in equation_to_encoders.items()}
 
-            # TODO support multiple encoders (?)
             self.n_encoding_channels = params.n_encoding_channels
             self.variable_encoders = [
                 FourierVariableEncoding3D(
@@ -550,7 +524,6 @@ class SSLWrapper(nn.Module):
                 channel_drop_rate=params.channel_drop_per,
             )
 
-            # XXX unused in testing
             # If following augmenter is used by external method during testing
             self.validation_augmenter = MaskerNonuniformMesh(
                 grid_non_uni=encoder.input_grid.clone().detach(),
@@ -564,7 +537,6 @@ class SSLWrapper(nn.Module):
             )
 
     def reset_channels(self):
-        # TODO add a setting where `next_channels` have some persistence.
         self.next_channels = None
 
     def set_initial_mesh(self, mesh):
@@ -601,11 +573,9 @@ class SSLWrapper(nn.Module):
             device=x.device,
             dtype=x.dtype,
         )
-        # y[:, 0, ...] = x.unsqueeze(1)
         y[:, 0, ...] = x
 
         variable_encoding = encoder(x.shape).to(x.device)
-        # self.logger.debug(f"{variable_encoding.shape=}")
         # Unsqueeze variable encoding in 0th dimension (indexed by `None` below)
         # and repeat it until it matches the dimension of ``batch_size``
         r_size = [batch_size, 1] + [1 for _ in domain_size]
@@ -665,8 +635,7 @@ class SSLWrapper(nn.Module):
                     f"Received multiple different kinds in one batch: {_equations=}")
 
             equation: Equation = Equation(_equations.pop())
-            # TODO add support for arbitrary sets of variables.
-            # This would be especially useful for mixed-physics scenarios.
+            # Consider mixed-physics scenarios.
             encoders_idxs = self.equation_to_encoders[equation.value]
             encoders = [self.variable_encoders[idx] for idx in encoders_idxs]
             x_embedded = self.encode_variables(x, encoders)
@@ -681,7 +650,6 @@ class SSLWrapper(nn.Module):
             )
 
         if self.stage == StageEnum.PREDICTIVE:
-            # print(in_grid_displacement, out_grid_displacement)
             return self.forward_predictive(
                 x_embedded,
                 in_grid_displacement,
@@ -725,7 +693,6 @@ class SSLWrapper(nn.Module):
                     None, self.initial_mesh + out_grid_displacement)
 
         x_encoded = self.encoder(x)
-        # print("Feature Shape", x_encoded.shape)
 
         cls_offset = 1 if self.enable_cls_token else 0
         if self.reconstruction:
@@ -750,14 +717,11 @@ class SSLWrapper(nn.Module):
         else:
             reconstructed = None
 
-        # reconstructed, aug_contra  = self.model(x_masked, 'ssl')
-        # print("Model Forward done")
 
         # Placeholders for contrastive losses. Not used for now.
         clean_contra = None
         neg_contra = None
         aug_contra = None
-        # print(reconstructed.shape, _slice)
 
         return reconstructed, clean_contra, aug_contra, neg_contra
 
@@ -799,7 +763,7 @@ class SSLWrapper(nn.Module):
 
         cls_offset = 1 if self.enable_cls_token else 0
         # discarding CLS token and additional static channels if added.
-        # channel dimention is different for uniform and non uniform grids
+        # channel dimension is different for uniform and non uniform grids
         # i.e. channel first/last data format
         if self.grid_type == 'uniform':
             _slice = [

@@ -144,7 +144,6 @@ class UnetGno(nn.Module):
         if self.re_grid_input:
             inp = self.input_regrider(inp)
         if self.lifting:
-            # print("In Lifting")
             x = self.lifting(inp)
             x = rearrange(x, 'b (h w) c -> b c h w', h=self.grid_size[0])
         else:
@@ -158,22 +157,16 @@ class UnetGno(nn.Module):
              pad_size_2 - pad_size_2 // 2,
              pad_size_1 // 2,
              pad_size_1 - pad_size_1 // 2))
-        # print(x.shape)
         x = self.base(x)
-
-        # print(x.shape)
 
         x = x[:,
               :,
               pad_size_1 // 2: -(pad_size_1 - pad_size_1 // 2),
               pad_size_2 // 2: -(pad_size_2 - pad_size_2 // 2)]
 
-        # print(x.shape)
-
         if self.re_grid_output:
             x = self.output_regrider(x)
         if self.projection:
-            # print("projection")
             x = rearrange(x, 'b c h w -> b (h w) c')
             x = self.projection(x)
         return x

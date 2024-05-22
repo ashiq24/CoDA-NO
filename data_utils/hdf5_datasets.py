@@ -7,7 +7,7 @@ blob/45918d1ac2c50a876a3aa36d837e3c199dfc08ba/
 data_utils/hdf5_datasets.py#L259
 """
 import enum
-from typing import Dict, List, NamedTuple, Optional, Tuple
+from typing import Dict, List, NamedTuple, Tuple
 
 import h5py
 import numpy as np
@@ -139,7 +139,6 @@ class SWEDataset:
         time_idx = self.offset \
             + (stride_idx * self.items_per_stride) \
             + (local_idx * CLS.TRAJECTORY_LENGTH)
-        # TODO use logger
         if DEBUG:
             print(f"{sample_idx=}, {k=}, {stride_idx=}, {local_idx=}, {time_idx=}")
 
@@ -757,7 +756,6 @@ class MultiPhysicsDataset(data.Dataset):
             ([1 / (3 * len(self.diff_dataset))] * len(self.diff_dataset)) + \
             ([1 / (3 * len(self.ns_dataset))] * len(self.ns_dataset))
 
-    # TODO positional encoding
     def __getitem__(
             self, idx) -> Tuple[Tuple[torch.Tensor, int], Tuple[torch.Tensor, int]]:
         """
@@ -779,19 +777,6 @@ class MultiPhysicsDataset(data.Dataset):
             swe_x = torch.permute(swe_x, (3, 0, 1, 2))
             swe_y = torch.permute(swe_y, (3, 0, 1, 2))
 
-            # swe_x = pad_with_noise(
-            #     # new shapes will be like (C, T, W, H)
-            #     torch.permute(swe_x, (3, 0, 1, 2)),
-            #     channels_after=5,
-            #     channel_dim=self.channel_dim,
-            # )
-            # swe_y = pad_with_noise(
-            #     # new shapes will be like (C, T, W, H)
-            #     torch.permute(swe_y, (3, 0, 1, 2)),
-            #     channels_after=5,
-            #     channel_dim=self.channel_dim,
-            # )
-
             return (
                 # mark this datum as Shallow Water eqn
                 (swe_x, Equation.SWE.value),
@@ -805,21 +790,6 @@ class MultiPhysicsDataset(data.Dataset):
             # new shapes will be like (C, T, W, H)
             diff_x = torch.permute(diff_x, (3, 0, 1, 2))
             diff_y = torch.permute(diff_y, (3, 0, 1, 2))
-
-            # diff_x = pad_with_noise(
-            #     # new shape will be like (C, T, W, H)
-            #     torch.permute(diff_x, (3, 0, 1, 2)),
-            #     channels_before=1,
-            #     channels_after=3,
-            #     channel_dim=self.channel_dim,
-            # )
-            # diff_y = pad_with_noise(
-            #     # new shape will be like (C, T, W, H)
-            #     torch.permute(diff_y, (3, 0, 1, 2)),
-            #     channels_before=1,
-            #     channels_after=3,
-            #     channel_dim=self.channel_dim,
-            # )
 
             # mark this datum as Diffusion-Reaction eqn
             return (
@@ -835,22 +805,6 @@ class MultiPhysicsDataset(data.Dataset):
             ns_x = torch.permute(ns_x, (3, 0, 1, 2))
             ns_y = torch.permute(ns_y, (3, 0, 1, 2))
 
-            # ns_x = pad_with_noise(
-            #     # new shape will be like (C, T, W, H)
-            #     torch.permute(ns_x, (3, 0, 1, 2)),
-            #     channels_before=3,
-            #     channel_dim=self.channel_dim,
-            # )
-            # ns_y = pad_with_noise(
-            #     # new shape will be like (C, T, W, H)
-            #     torch.permute(ns_y, (3, 0, 1, 2)),
-            #     channels_before=3,
-            #     channel_dim=self.channel_dim,
-            # )
-
-            # TODO consider returning a triple
-            # instead of a nested 4-ple with redundancy.
-            # mark this datum as Navier-Stokes eqn:
             return (
                 (ns_x, Equation.NS.value),
                 (ns_y, Equation.NS.value),

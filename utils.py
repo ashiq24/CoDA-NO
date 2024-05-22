@@ -2,20 +2,18 @@ import datetime
 import logging
 import os
 import pathlib
-import psutil
 import re
 import signal
 
 from typing import List
 
 import h5py
-# import haikunator
-import numpy as np
+import haikunator
 import psutil
 import torch
 import torch.nn as nn
 
-# HAIKU = haikunator.Haikunator()
+HAIKU = haikunator.Haikunator()
 
 
 def get_wandb_api_key(api_key_file="config/wandb_api_key.txt"):
@@ -65,8 +63,6 @@ class TokenExpansion(nn.Module):
             self.variable_channels) + len(self.encoding_channels) + len(self.static_channels)), device=inp.device, dtype=inp.dtype)
         x[:, :, self.variable_channels] = inp
         if self.n_static_channels != 0:
-            # print(x[:, :, self.static_channels].shape, static_channels.repeat(
-            #     x.shape[0], 1, 1).shape)
             x[:, :, self.static_channels] = static_channels.repeat(
                 x.shape[0], 1, 1)
         if self.n_encoding_channels != 0:
@@ -84,8 +80,6 @@ def get_mesh(location):
     return mesh[:]
 
 
-# TODO add collision checks
-# TODO add opts to toggle haiku and date fixes
 def save_model(model, directory: pathlib.Path, stage=None, sep='_'):
     """Saves a model with a unique prefix/suffix
 
@@ -117,10 +111,8 @@ def extract_pids(message) -> List[int]:
     pattern = re.compile("(Process \\d+)")
     # Contains "Process" tokens and extra characters, interleaved:
     tokens = pattern.split(message)
-    # print('\n'.join(map(repr, zip(split[1::2], split[2::2]))))
 
     pattern2 = re.compile("(\\d+)")
-    # print('\n'.join([repr((s, pattern2.search(t)[0])) for t in tokens[1::2]]))
     pids = [int(pattern2.search(t)[0]) for t in tokens[1::2]]
 
     return pids
@@ -195,5 +187,5 @@ def signal_my_processes(
             logger.warning(f"Cannot signal process: {_p}")
 
     for my_pid in my_pids:
-        gone, alive = signal_process_tree(pid, sig, timeout=60, logger=logger)
+        gone, alive = signal_process_tree(my_pid, sig, timeout=60, logger=logger)
         logger.info(f"{gone=}, {alive=}")

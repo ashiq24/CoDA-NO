@@ -57,9 +57,6 @@ class TNOBlock(nn.Module):
         logger=None,
         **_kwargs,
     ):
-        # TODO Document under what conditions we expect to assign `n_heads=None`
-        # We call `min()` on n_heads, so do we never expect `n_heads=None` ?
-        # This renders kwarg head_codimension useless.
         super().__init__()
 
         # Co-dimension of each variable/token. The token embedding space is
@@ -297,7 +294,6 @@ class TnoBlock2d(TNOBlock):
 
         super().__init__(*args, **kwargs)
 
-    # XXX rewrite comments on TNO*3D
     def compute_attention(self, xa, batch_size):
         """Compute the key-query-value variant of the attention matrix.
 
@@ -359,18 +355,15 @@ class TnoBlock2d(TNOBlock):
         attention = self.attention_normalizer(attention + xa)
         attention = rearrange(
             attention, '(b t) d h w -> b (t d) h w', b=batch_size)
-        # print("{attention.shape=}")
         attention = rearrange(
             attention,
             'b (t d) h w -> (b t) d h w',
             d=self.mixer_token_codimension)
-        # print("{attention.shape=}")
 
         attention_normalized = self.norm2(attention)
         output = self.mixer(attention_normalized, output_shape=output_shape)
 
         output = self.mixer_out_normalizer(output) + attention
-        # print(f"{output.shape=}")
         output = rearrange(output, '(b t) d h w -> b (t d) h w', b=batch_size)
 
         return output
@@ -416,15 +409,11 @@ class TNOBlock3D(TNOBlock):
 
         Assumes input ``xa`` has been normalized.
         """
-        # You're better off stepping through forward() with `pdb`
         # `xa` was rearranged like:
         # rearrange(x, 'b (k d) t h w -> (b k) d t h w', d=self.token_codimension)
         k = self.K(xa)
-        # self.logger.debug(f"{k.shape=}")
         q = self.Q(xa)
-        # self.logger.debug(f"{q.shape=}")
         v = self.V(xa)
-        # self.logger.debug(f"{v.shape=}")
 
         v_duration, v_height, v_width = v.shape[-3:]
 
@@ -442,7 +431,6 @@ class TNOBlock3D(TNOBlock):
         dprod = (torch.matmul(q, k.transpose(-1, -2)) /
                  (self.temperature * np.sqrt(k.shape[-1])))
         dprod = F.softmax(dprod, dim=-1)
-        # self.logger.debug(f"{dprod.shape=}")
 
         attention = torch.matmul(dprod, v)
         attention = rearrange(
@@ -482,18 +470,15 @@ class TNOBlock3D(TNOBlock):
             '(b k) d t h w -> b (k d) t h w',
             b=batch_size,
         )
-        # self.logger.debug(f"{attention.shape=}")
         attention = rearrange(
             attention,
             'b (k d) t h w -> (b k) d t h w',
             d=self.mixer_token_codimension)
-        # self.logger.debug(f"{attention.shape=}")
 
         attention_normalized = self.norm2(attention)
         output = self.mixer(attention_normalized, output_shape=output_shape)
 
         output = self.mixer_out_normalizer(output) + attention
-        # self.logger.debug(f"{output.shape=}")
         output = rearrange(
             output, '(b k) d t h w -> b (k d) t h w', b=batch_size)
 

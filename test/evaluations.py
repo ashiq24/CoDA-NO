@@ -33,13 +33,10 @@ def missing_variable_testing(
 
             static_features = data['static_features']
             equation = [i[0] for i in data['equation']]
-            # print(x.shape, y.shape, static_features.shape, data['equation'])
             x, y = x.cuda(), y.cuda()
 
             if augmenter is not None:
                 x, _ = batched_masker(x, augmenter)
-
-            # print(initial_mesh.shape, data['d_grid_x'].cuda()[0].shape, equation)
 
             if variable_encoder is not None and token_expander is not None:
                 inp = token_expander(x, variable_encoder(
@@ -71,7 +68,6 @@ def missing_variable_testing(
                 in_grid_displacement = None
 
             batch_size = x.shape[0]
-            # print(in_grid_displacement, out_grid_displacement)
             out = model(inp, out_grid_displacement=out_grid_displacement,
                         in_grid_displacement=in_grid_displacement)
 
@@ -87,7 +83,6 @@ def missing_variable_testing(
     test_l2 /= ntest
     t2 = default_timer()
 
-    # XXX Consolidat all W&B logs in one file.
     if wandb_log:
         wandb.log({'Augmented test_error_' + stage: test_l2}, commit=True)
     print(f"Augmented Test Error  {stage}: ", test_l2)

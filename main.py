@@ -123,13 +123,6 @@ if __name__ == "__main__":
         print(f"Loading Pretrained weights from {params.pretrain_weight}")
         model.encoder.load_state_dict(torch.load(
             params.pretrain_weight), strict=True)
-        # if not params.freeze_encoder:
-        #     print("Doing partial Frezzing")
-        #     for p in model.encoder.parameters():
-        #         p.requires_grad = True
-        #     for p in model.encoder.lifting.parameters():
-        #         p.requires_grad = False
-        #     #pass
 
         if params.use_variable_encoding:
             print(

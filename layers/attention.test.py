@@ -59,16 +59,11 @@ class ConvolutionTestCase(unittest.TestCase):
         self.assertEqual(expected.in_channels, fno_block.in_channels)
         self.assertEqual(expected.out_channels, fno_block.out_channels)
         self.assertEqual(expected.n_layers, fno_block.n_layers)
-        # TODO n_modes (later max_n_modes) _should_ be an immutable tuple
         self.assertEqual(expected.n_modes, tuple(fno_block.n_modes))
         self.assertEqual(expected.non_linearity, fno_block.non_linearity)
 
 
 class AbstractTNOBlockTest(ConvolutionTestCase):
-    """
-    TODO :test_init: transformation shapes, parameter shapes
-    TODO :test_init: what about when equivariant=False
-    """
     tno_block: Optional[TNOBlock] = None
     token_codimension: Optional[int] = None
     n_modes: Optional[tuple[int]] = None
@@ -152,10 +147,6 @@ class AbstractTNOBlockTest(ConvolutionTestCase):
 
 class TNOBlock2DTest(AbstractTNOBlockTest):
     """
-    TODO
-        - tests w/out permutation equivariance
-        - test projection for if `n_heads % token_codim != 0`
-
     Optionally, to test intermediate shapes [ex. in ``forward()``]:
       *  add a ``verbose`` arg,
       *  gate intermediate shape logging behind ``verbose``
@@ -340,9 +331,6 @@ class TNOBlock2DTest(AbstractTNOBlockTest):
 
 class TNOBlock3DTest(AbstractTNOBlockTest):
     """
-    TODO tests w/out permutation equivariance
-    TODO test projection layer when `n_heads % token_codim != 0`
-
     Option for testing intermediate shapes (ex. in ``forward()``):
       *  add a ``verbose`` arg,
       *  gate intermediate shape logging behind ``verbose``

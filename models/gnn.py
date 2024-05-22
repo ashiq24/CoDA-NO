@@ -94,28 +94,15 @@ class GNN(nn.Module):
         inp = (batch_size, n_points, in_dims/Channels)
         currenly only batch_size = 1
         '''
-        # print("Input Shape", inp.shape)
-        # print("Input Grid Shape", self.input_grid.shape)
-        # print("Output Grid Shape", self.output_grid.shape)
-        # print("initial mesh shape", self.initial_mesh.shape)
-        # print(" in_grid_displacement", in_grid_displacement.shape)
-        # print(" out_grid_displacement", out_grid_displacement.shape)
-
         if out_grid_displacement is not None:
             with torch.no_grad():
                 for i in range(self.n_layers):
                     if i == self.n_layers - 1:
-                        # print("Doing different mesh for last layer")
                         in_grid = self.initial_mesh + in_grid_displacement
                         out_grid = self.initial_mesh + out_grid_displacement
-                        # print("in_grid", in_grid)
-                        # print("out_grid", out_grid)
-                        # print("=====================================")
                     else:
                         in_grid = self.initial_mesh + in_grid_displacement
                         out_grid = self.initial_mesh + in_grid_displacement
-                    # print("in_grid", in_grid.shape)
-                    # print("out_grid", out_grid.shape)
                     self.base[i].update_grid(
                         in_grid,
                         out_grid)
@@ -126,7 +113,6 @@ class GNN(nn.Module):
             x = inp
         x = x[0, ...]
         for layer_idx in range(self.n_layers):
-            # print(x.shape)
             x = self.base[layer_idx](x)
 
         if self.projection:

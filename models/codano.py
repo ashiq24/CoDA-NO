@@ -14,7 +14,6 @@ from layers.fino import SpectralConvKernel2d
 from layers.variable_encoding import VariableEncoding2d, FourierVariableEncoding3D
 
 
-# TODO replace with nerualop.MLP module
 class Projection(nn.Module):
     def __init__(
         self,
@@ -60,7 +59,6 @@ class Projection(nn.Module):
         return x
 
 
-# TODO replace with nerualop.MLP module
 # This may take some thinking about how to add the permutation
 # equivariance einop.
 class ProjectionT(Projection):
@@ -319,7 +317,6 @@ class CodANO(nn.Module):
                 n_channels=hidden_token_codimension)
             self.cls_token = self._mk_variable_encoder(cls_token_args)
 
-    # TODO(mogab) remove in favor of encoding at Adjoint level.
     def _initialize_variable_encoding_channels(
         self,
         n_variables,
@@ -425,17 +422,8 @@ class CodANO(nn.Module):
         return self.cls_token.coefficients_r.device
 
     def forward(self, x: torch.Tensor):
-        # You're better off stepping through forward() with `pdb`
-        # self.logger.debug(f"{x.shape} (raw)")
-        # if self.use_variable_encoding:
-        #     x = self.encode_variables(inp)
-        #     self.logger.debug(f"{x.shape} (embedded)")
-        # else:
-        #     x = inp
-
         if self.lifting:
             x = self.lifting(x)
-            # self.logger.debug(f"{x.shape} (lifting)")
 
         if self.enable_cls_token:
             cls_token = self.cls_token(x).unsqueeze(0)
@@ -460,11 +448,9 @@ class CodANO(nn.Module):
             if layer_idx == self.n_layers - 1:
                 cur_output_shape = output_shape_en
             x = self.base[layer_idx](x, output_shape=cur_output_shape)
-            # self.logger.debug(f"{x.shape} (block[{layer_idx}])")
 
         if self.projection:
             x = self.projection(x)
-            # self.logger.debug(f"{x.shape} (projection)")
 
         return x
 

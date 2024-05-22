@@ -59,18 +59,12 @@ class GnnLayer(nn.Module):
         input_grid=None,
         output_grid=None
     ):
-
-        # print("upadted input grid", input_grid.shape)
-        # print("upadted output grid", output_grid.shape)
-
         if input_grid is None:
             input_grid = self.input_grid
         if output_grid is None:
             output_grid = self.output_grid
 
         NS = FixedNeighborSearch(use_open3d=False)
-        # print("input grid", input_grid)
-        # print("output grid", output_grid)
         self.neighbour = NS(
             input_grid.clone(),
             output_grid.clone(),
@@ -82,14 +76,10 @@ class GnnLayer(nn.Module):
         '''
         inp : (batch_size, n_points, in_dims/Channels)
         '''
-        # print("Input Shape", inp.shape)
-
         x = inp
         x = self.projection(x)
-        # print("x shape", x.shape)
         out = self.it(self.input_grid, self.neighbour,
                       self.output_grid, x)
-        # print("out shape", out.shape)
 
         if out.shape == x.shape:
             out = out + x

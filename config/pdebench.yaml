@@ -20,8 +20,7 @@ base_config: &BASE_CONFIG
     channel_per_val: 0.5
     channel_drop_per_val: 0.5
 
-    # XXX(mogab): This currently assumes no two equations share variables.
-    # TODO(mogab): Generalize to handle shared variables.
+    # This currently assumes no two equations share variables.
     variables_per_equation:
         0: 1  # SWE: depth
         1: 2  # DIFF: activator, inhibitor 

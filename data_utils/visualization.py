@@ -1,11 +1,9 @@
-import gc
 import logging
-from typing import Optional, List, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 import torch
 from matplotlib import pyplot as plt
-from torch import nn
 from torch.utils import data
 
 from data_utils.hdf5_datasets import Equation
@@ -62,7 +60,6 @@ def show_data_diff(
         _error2 = error2[c].cpu().detach().numpy()
         im = ax.imshow(_error2, vmin=v_min, vmax=v_max)
     fig.colorbar(im, ax=axs[row, n_cols], location='left')
-    # TODO this makes the color last ax column be awkwardly half empty. fix.
 
     plt.tight_layout()
     plt.show()

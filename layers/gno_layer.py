@@ -146,7 +146,6 @@ class GnoPremEq(nn.Module):
         '''
         inp : (batch_size, n_points, in_dims/Channels)
         '''
-        # print("Input Shape", inp.shape)
         if self.var_encoding:
             x = torch.zeros((inp.shape[0], inp.shape[1], len(
                 self.variable_channels) + len(self.encoding_channels)), device=inp.device, dtype=inp.dtype)
@@ -160,7 +159,6 @@ class GnoPremEq(nn.Module):
                                                            :, :].repeat(x.shape[0], 1, 1)
         else:
             x = inp
-        # print("Input Shape after Var Encdoing", x.shape)
         # Currently GNO only works for batch_size = 1
 
         x = rearrange(
@@ -168,20 +166,16 @@ class GnoPremEq(nn.Module):
             'b n (v c) -> (b n) v c',
             c=self.in_dim +
             self.var_encoding_channels)
-        # print("Input Shape after Rearrange", x.shape)
         x = self.projection(x)
 
         out = None
 
         for i in range(x.shape[-2]):
-            # print(i)
-
             temp = self._intergral_transform(x[:, i, :])
             if out is None:
                 out = temp[None, ...]
             else:
                 out = torch.cat([out, temp[None, ...]], dim=2)
-        # print("Output Shape after Rearrange", out.shape)
 
         return out
 
@@ -260,8 +254,6 @@ class GNO(nn.Module):
         '''
         inp : (batch_size, n_points, in_dims/Channels)
         '''
-        # print("Input Shape", inp.shape)
-
         x = inp
         x = self.projection(x)
 

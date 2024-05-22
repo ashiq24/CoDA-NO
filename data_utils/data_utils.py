@@ -67,24 +67,16 @@ class MaskerUniform:
         Generates a binary mask of 0s and 1s to be point-wise multiplied into a
         data tensor to create a masked sample. By training on masked data, we
         expect the model to be resilient to missing data.
-
-        TODO arg ``max_block_sz`` is outdated
-        Parameters
-        ---
-        max_block_sz: percentage of the maximum block to be dropped
         """
 
         np.random.seed()
         C, H, W = size
         mask = torch.ones(size, device=self.device)
-        drop_t = self.drop_type
         augmented_channels = np.random.choice(
             C, math.ceil(C * self.channel_per))
-        # print(augmented_channels)
         drop_len = int(self.channel_drop_per * math.ceil(C * self.channel_per))
         mask[augmented_channels[:drop_len], :, :] = 0.0
         for i in augmented_channels[drop_len:]:
-            # print("Masking")
             n_drop_pix = self.drop_pix * H * W
             mx_blk_height = int(H * self.max_block)
             mx_blk_width = int(W * self.max_block)
@@ -103,7 +95,6 @@ class MaskerUniform:
                 )
                 mask[i, rnd_r:rnd_r + rnd_h, rnd_c:rnd_c + rnd_w] = 0
                 n_drop_pix -= rnd_h * rnd_c
-        # print("One data Done")
         return None, mask
 
 
@@ -156,11 +147,9 @@ class MaskerUniformTemporal:
         # which means a single channel could be masked multiple times.
         augmented_channels = np.random.choice(
             c, math.ceil(c * self.channel_per))
-        # print(augmented_channels)
         drop_len = int(self.channel_drop_per * math.ceil(c * self.channel_per))
         mask[augmented_channels[:drop_len], :, :, :] = 0.0
         for i in augmented_channels[drop_len:]:
-            # print("Masking")
             n_drop_pix = self.drop_pix * t * h * w
             mx_blk_height = int(h * self.max_block)
             mx_blk_width = int(w * self.max_block)
@@ -193,7 +182,6 @@ class MaskerUniformTemporal:
                 ]
                 mask[block] = 0
                 n_drop_pix -= mask_height * mask_width * mask_duration
-        # print("One data Done")
         return None, mask
 
 
@@ -258,10 +246,8 @@ class MaskerUniformIndependent:
                 replace=False,
             )
 
-        # print(augmented_channels)
         for i in augmented_channels:
             for t in range(time_duration):
-                # print("Masking")
                 n_drop_pix = self.drop_pix * height * width
                 max_block_height = int(height * self.max_block)
                 max_block_width = int(width * self.max_block)
@@ -289,7 +275,6 @@ class MaskerUniformIndependent:
                     ]
                     mask[block] = 0
                     n_drop_pix -= mask_height * mask_width
-        # print("One data Done")
         return None, mask
 
 
@@ -300,7 +285,6 @@ def batched_masker(
 ):
     mask = []
     aug.device = data.device
-    # print(data_i.device)
     if batched_channels is None:
         for i in range(data.shape[0]):
             _, m = aug(data[i].shape)
@@ -317,9 +301,7 @@ def batched_masker(
             _, m = aug(data[i].shape, channels)
             mask.append(m)
 
-    # print("loop done")
     masks = torch.stack(mask, dim=0)
-    # print("returning from augmenter")
     return data * masks, masks
 
 
@@ -364,12 +346,9 @@ class MaskerNonuniformMesh(object):
 
         L, C = size
         mask = torch.ones(size, device=self.device)
-        drop_t = self.drop_type  # no effect now
 
         augmented_channels = np.random.choice(
             C, math.ceil(C * self.channel_aug_rate))
-        # print('\n')
-        # print(augmented_channels)
         p = random.random()
         # with 50% probability, drop all pixels in very few channels
         # or doing masking to many channels
@@ -383,7 +362,6 @@ class MaskerNonuniformMesh(object):
             return None, mask
         else:
             drop_len = 0
-        # print('masking', augmented_channels[drop_len:])
         for i in augmented_channels[drop_len:]:
             n_drop_pix = self.drop_pix * L
             max_location = self.max_block

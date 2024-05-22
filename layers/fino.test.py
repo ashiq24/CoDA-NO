@@ -409,11 +409,7 @@ class SpectralConvKernel2DTest(unittest.TestCase):
         loss_fn = torch.nn.MSELoss()
         optimizer = torch.optim.Adam(
             convolution_w.parameters(),
-            # XXX: At 0.05, loss below is no longer monotonic(-ally
-            # decreasing).
             lr=0.04,
-            # XXX: At 0.005, loss below is no longer monotonic(-ally
-            # decreasing).
             weight_decay=0.004,
         )
 
@@ -571,8 +567,6 @@ class SpectralConvKernel3DTest(unittest.TestCase):
 
     @torch.no_grad()
     def test_forward_propagation_with_output_scaling(self):
-        # TODO(mogab) ``SpectralConv`` doesn't accept ``tuple``s
-        # for ``scaling_factor`` - FIXME
         convolution = SpectralConvolutionKernel3D(
             in_channels=4,
             out_channels=8,
@@ -622,18 +616,9 @@ class SpectralConvKernel3DTest(unittest.TestCase):
         )
 
         loss_fn = torch.nn.MSELoss()
-        # XXX: These training parameters nominally work, but the
-        # loss stays high (>7.0). I'd like to be able to test in a
-        # scenario when it gets low, so as a
-        # TODO(mogab) Tune LR/weight decay below, or find a better assertion
-        # than "Is the loss monotonically decreasing?"
         optimizer = torch.optim.Adam(
             convolution_w.parameters(),
-            # XXX: At 1.0e-3, loss below is no longer monotonic(-ally
-            # decreasing).
             lr=1.0e-4,
-            # XXX: At 1.0e-4, loss below is no longer monotonic(-ally
-            # decreasing).
             weight_decay=1.0e-5,
         )
 

@@ -3,13 +3,10 @@ import gc
 import importlib
 import logging
 import pathlib
-import pprint
 import sys
 
-import matplotlib.pyplot as plt
 import wandb
 
-import numpy as np
 import torch
 from torch import nn
 from torch.utils import data
@@ -17,12 +14,6 @@ from torch.utils import data
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout, force=True)
 logger = logging.getLogger()  # get the root logger
 # -
-
-# While in development, don't use the `from ... import` syntax. Instead,
-# import the modlue directly so that `importlib` can properly `reload()`
-# it. This way, changes in the source file can propagate directly into
-# this notebook without having to lose the _state_ of this notebook
-# (chiefly, its trained model).
 
 # +
 logger.setLevel(logging.INFO)  # importing from h5py is noisy
@@ -106,11 +97,6 @@ except NameError as err:
     test_single_physics = train.test_single_physics
 
 
-# +
-# import inspect
-# print(inspect.getsource(multi_physics_trainer))
-# -
-
 try:
     importlib.reload(utils)
     get_wandb_api_key = utils.get_wandb_api_key
@@ -128,8 +114,6 @@ except (ImportError, NameError) as err:
 
 
 # SSL model
-# params = YParams('./config/ssl.yaml', 'codano_gino', print_params=True)
-# params = YParams('./config/test.yaml', 'codano_gino', print_params=True)
 params = YParams.YParams(
     './config/pdebench.yaml',
     'codano_gino',
@@ -151,7 +135,6 @@ if params.wandb['log']:
 # +
 if verbose:
     logger.debug(f"{params.nettype=}")
-# import pdb; pdb.set_trace()
 if params.nettype == 'transformer':
     if verbose:
         logger.info(f"{params.grid_type=}")
@@ -182,10 +165,6 @@ elif params.nettype == 'simple':
     model = get_model_fno(params)
 
 model = model.cuda()
-
-
-# +
-# print(model)
 
 # Datasets to be used in reconstructive (i.e. SSL) learning:
 train_reconstructive = MultiPhysicsDataset(
@@ -221,11 +200,6 @@ train_reconstructive_loader = data.DataLoader(
     train_reconstructive,
     batch_size=params.batch_size,
     shuffle=False,
-    # sampler=data.WeightedRandomSampler(
-    #     train.get_sampler_weights(),
-    #     100,  # num_samples :TODO: parameterize in config
-    #     replacement=False,
-    # ),
 )
 test_reconstructive_loader = data.DataLoader(
     test_reconstructive,
@@ -237,11 +211,6 @@ train_predictive_loader = data.DataLoader(
     train_predictive,
     batch_size=params.batch_size,
     shuffle=False,
-    # sampler=data.WeightedRandomSampler(
-    #     train.get_sampler_weights(),
-    #     100,  # num_samples :TODO: parameterize in config
-    #     replacement=False,
-    # ),
 )
 test_predictive_loader = data.DataLoader(
     test_predictive,
@@ -253,29 +222,19 @@ test_predictive_loader = data.DataLoader(
 # Train/test for the reconstructive (i.e. SSL) task:
 model.train()
 model.stage = StageEnum.RECONSTRUCTIVE
-# import pdb; pdb.set_trace()
 multi_physics_trainer(
     model,
     train_reconstructive_loader,
     test_reconstructive_loader,
     nn.MSELoss(),  # training loss_fn
     params,
-    epochs=10,  # XXX
     wandb_log=params.wandb['log'],
-    # wandb_log=False,  # debug
     log_interval=params.wandb['log_interval'],
-    # log_interval=1,
     script=True,
 )
 
 # *Investigate and visualize performance of encoder/decoder reconstruction.*
 
-
-gc.collect()
-torch.cuda.empty_cache()
-
-# TODO add vis indexes to config file
-# import pdb; pdb.set_trace()
 show_multi_physics_data_diffs(
     model,
     train_reconstructive_loader,
@@ -303,14 +262,6 @@ save_model(
 )
 
 # +
-# torch.cuda.empty_cache()
-# gc.collect()
-
-# +
-# pids = extract_pids(msq)
-# signal_my_processes("mogab", pids) # , logger=logger)
-
-# +
 model.train()
 logger.setLevel(logging.DEBUG)
 params['gradient']['threshold'] = 0.1
@@ -319,20 +270,17 @@ print(f"{params.pretrain_ssl=}")
 if params.pretrain_ssl:
     # Now train/test for the predictive (i.e. SL) task:
     model.stage = StageEnum.PREDICTIVE
-    # import pdb; pdb.set_trace()
     multi_physics_trainer(
         model,
         train_predictive_loader,
         test_predictive_loader,
         nn.MSELoss(),  # training loss_fn
         params,
-        epochs=10,  # XXX
         wandb_log=params.wandb['log'],
         log_interval=params.wandb['log_interval'],
     )
 # -
 
-# import pdb; pdb.set_trace()
 test_single_physics(
     model,
     test_predictive_loader,
