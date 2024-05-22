@@ -96,10 +96,10 @@ base_config: &BASE_CONFIG
     # Weights and biases
     wandb:
         log: False
-        name: 'pdebench_coda'
-        group: 'neuraloperator'
-        project: 'codano-pdebench'
-        entity: 'm4e7'
+        name: 'XXXX'
+        group: 'XXXX'
+        project: 'XXXX'
+        entity: 'XXXX'
         log_interval: 1
 
 

@@ -84,9 +84,9 @@ base_config: &BASE_CONFIG
 
     # Weights and biases
     wandb_log: True
-    wandb_name: 'codano'
-    wandb_group: 'neuraloperator'
-    wandb_project: 'CoDA-NO'
+    wandb_name: 'XXXX'
+    wandb_group: 'XXXX'
+    wandb_project: 'XXXX'
     wandb_entity: 'XXXX'
     wandb_log_test_interval: 1
 
