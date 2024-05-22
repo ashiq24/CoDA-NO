@@ -257,7 +257,7 @@ show_multi_physics_data_diffs(
 
 save_model(
     model,
-    directory=pathlib.Path('/home/mogab/code/dev/CoDA-NO/weights'),
+    directory=pathlib.Path('/home/XXXX/code/dev/CoDA-NO/weights'),
     stage=StageEnum.RECONSTRUCTIVE,
 )
 
@@ -312,7 +312,7 @@ show_multi_physics_data_diffs(
 
 save_model(
     model,
-    directory=pathlib.Path('/home/mogab/code/dev/CoDA-NO/weights'),
+    directory=pathlib.Path('/home/XXXX/code/dev/CoDA-NO/weights'),
     stage=StageEnum.PREDICTIVE,
 )
 

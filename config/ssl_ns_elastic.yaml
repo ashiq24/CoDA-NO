@@ -87,7 +87,7 @@ base_config: &BASE_CONFIG
     wandb_name: 'codano'
     wandb_group: 'neuraloperator'
     wandb_project: 'CoDA-NO'
-    wandb_entity: 'ashiq24'
+    wandb_entity: 'XXXX'
     wandb_log_test_interval: 1
 
 codano_gno: &CODANO_GNO

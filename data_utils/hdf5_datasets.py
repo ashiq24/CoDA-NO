@@ -1,6 +1,4 @@
 """
-Author: Mogab Elleithy <github.com/m4e7>
-
 ``SWEDataset``, ``DiffusionReactionDataset``, and ``NSDataset`` inspired by:
 https://github.com/PolymathicAI/multiple_physics_pretraining/
 blob/45918d1ac2c50a876a3aa36d837e3c199dfc08ba/
