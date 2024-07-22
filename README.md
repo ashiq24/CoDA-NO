@@ -25,6 +25,10 @@ The fluid-solid interaction dataset is available at [**Dataset link**](https://d
 
 The configurations for all the experiments are at `config/ssl_ns_elastic.yaml`.
 
+To set up the environments and install the dependencies, please run the following command:
+```
+bash installation.sh
+```
 To run the experiments, download the datasets, update the "input_mesh_location" and "data_location" in the config file,  update the wandb cradentials and execute the following command
 
 ```
