@@ -5,7 +5,7 @@ wandb/*
 *.out
 .ipynb_cache/*
 .ipynb_checkpoints/*
-*.txt
+*key.txt
 wandb/*
 */.ipynb_cache/*
 */.ipynb_checkpoints/*
