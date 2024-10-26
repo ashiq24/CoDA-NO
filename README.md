@@ -64,8 +64,8 @@ python main.py --exp (FSI/RB) --config "config name" --ntrain N
 ## Scripts
 For training CoDA-NO architecture on NS and NS+EW datasets (both pre-training and fine-tuning) please execute the following scrips:
 ```
-codano_ns.sh
-codano_nses.sh
+exps_FSI.sh
+exps_RB.sh
 ```
 
 
