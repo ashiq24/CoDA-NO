@@ -32,15 +32,15 @@ The fluid-solid interaction dataset is available at (https://drive.google.com/dr
 
 ### Installations
 
-The configurations for all the experiments are at `config/ssl_ns_elastic.yaml` (for fluid structure interaction) and `config/RB_config.yaml` (For Releigh Bernerd system).
+The configurations for all the experiments are at `config/ssl_ns_elastic.yaml` (for fluid-structure interaction) and `config/RB_config.yaml` (For Releigh Bernard system).
 
 To set up the environments and install the dependencies, please run the following command:
 ```
 pip install -r requirements.txt
 ```
-It require `python>=3.11.9` and the `torch` installations be need to tailor to the specific cuda verion for your machine.
+It requires `python>=3.11.9`, and the `torch` installations need to be tailored to the specific Cuda version for your machine.
 
-**Short Cut** If you already use neuraloprator package, we already have most the packages installed. Then you just need to execuete the following line to roll back to comapatiable version.
+**Shortcut: ** If you already use the neuraloprator package, we already have most of the packages installed. Then, you just need to execute the following line to roll back to a compatible version.
 
 ```
 pip install -e git+https://github.com/ashiq24/neuraloperator.git@coda_support#egg=neuraloperator
@@ -49,13 +49,14 @@ pip install -e git+https://github.com/ashiq24/neuraloperator.git@coda_support#eg
 Very soom we are going to release the CoDA-NO layers and models as a part of the `neuraloperator` library. 
 
 ### Running Experiments
-To run the experiments, download the datasets, update the "input_mesh_location" and "data_location" in the config file,  update the wandb cradentials and execute the following command
+To run the experiments, download the datasets, update the "input_mesh_location" and "data_location" in the config file,  update the Wandb credentials and execute the following command
 
 ```
 python main.py --exp (FSI/RB) --config "config name" --ntrain N
 ```
 
-`--exp`  : Determinces which eperiment we want to run 'FSI' (fluid structure interaction) or 'RB' (Releigh Bernerd)
+`--exp`  : Determines which experiment we want to run, 'FSI' (fluid-structure interaction) or 'RB' (Releigh Bernard)
+
 `--config`: Determines which configuration to use from the config file 'config/ssl_ns_elastic.yaml/RB_config.yaml`.
 
 `--ntrain`: Determines Number of training data points.
