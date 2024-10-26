@@ -1,6 +1,9 @@
 # Pretraining  Codomain Attention Neural Operators for Solving Multiphysics PDEs
-<img align="left" src="https://github.com/ashiq24/CoDA-NO/blob/web_resources/images/input_output.png" alt="drawing" width="350"/>
-
+<p align="center">
+    <img src="https://github.com/ashiq24/CoDA-NO/blob/web_resources/images/banner.png" alt="">
+    <br>
+</p>
+**Coda-NO** is designed to adapt seamlessly to new multi-physics systems. Pre-trained on fluid dynamics data from the Navier-Stokes equations, which include variables $$u_x$$, $u_y$, and $p$, CoDA-NO can easily transition to multi-physics fluid-solid interaction systems that incorporate new variables \(d_x\) and \(d_y\), all without requiring any architectural changes.</em>
 **Abstract**: Existing neural operator architectures face
 challenges when solving multiphysics problems with coupled partial differential equations (PDEs), due to complex geometries, interactions between physical variables, and the lack of large amounts of high-resolution training data. To address these issues, we propose Codomain Attention Neural Operator (CoDA-NO), which tokenizes functions along the codomain or channel space, enabling self-supervised learning or pretraining of multiple PDE systems. Specifically, we extend positional encoding, self-attention, and normalization layers to the function space. CoDA-NO can learn representations of different PDE systems with a single model. We evaluate CoDA-NO's potential as a backbone for learning multiphysics PDEs over multiple systems by considering few-shot learning settings. On complex downstream tasks with limited data, such as fluid flow simulations and fluid-structure interactions, we found CoDA-NO to outperform existing methods on the few-shot learning task by over $36$%. [Paper Link](https://arxiv.org/pdf/2403.12553.pdf)
 
