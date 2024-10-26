@@ -40,7 +40,7 @@ pip install -r requirements.txt
 ```
 It requires `python>=3.11.9`, and the `torch` installations need to be tailored to the specific Cuda version for your machine.
 
-**Shortcut: ** If you already use the neuraloprator package, we already have most of the packages installed. Then, you just need to execute the following line to roll back to a compatible version.
+**Shortcut: ** If you already use the `neuraloprator` package, we have installed most of the packages. Then, you just need to execute the following line to roll back to a compatible version.
 
 ```
 pip install -e git+https://github.com/ashiq24/neuraloperator.git@coda_support#egg=neuraloperator
@@ -62,7 +62,7 @@ python main.py --exp (FSI/RB) --config "config name" --ntrain N
 `--ntrain`: Determines Number of training data points.
 
 ## Scripts
-For training CoDA-NO architecture on NS and NS+EW datasets (both pre-training and fine-tuning) please execute the following scrips:
+For training CoDA-NO architecture on NS/NS+EW (FSI) and Releigh Bernard convection datasets (both pre-training and fine-tuning), please execute the following scrips:
 ```
 exps_FSI.sh
 exps_RB.sh
