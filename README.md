@@ -14,13 +14,11 @@ challenges when solving multiphysics problems with coupled partial differential 
     <br>
     <em> <strong>Left:</strong> Architecture of the Codomain Attention Neural Operator</em>
 </p>
-Each physical variable (or co-domain) of the input function is concatenated with variable-specific positional encoding (VSPE). Each variable, along with the VSPE, is passed
-through a GNO layer, which maps from the given non-uniform geometry to a latent regular grid. Then, the output on a uniform grid
+Each physical variable (or co-domain) of the input function is concatenated with variable-specific positional encoding (VSPE). Each variable, along with the VSPE, is passed through a GNO layer, which maps from the given non-uniform geometry to a latent regular grid. Then, the output on a uniform grid
 is passed through a series of CoDA-NO layers. Lastly, the output of the stacked CoDA-NO layers is mapped onto the domain of the
 output geometry for each query point using another GNO layer.
 
-At each CoDA-NO layer, the input function is tokenized codomain-wise to generate token functions. Each token function is passed through the K, Q, and V operators to
-get key, query, and value functions. The output function is calculated by extending the self-attention mechanism to the function space.
+At each CoDA-NO layer, the input function is tokenized codomain-wise to generate token functions. Each token function is passed through the K, Q, and V operators to get key, query, and value functions. The output function is calculated by extending the self-attention mechanism to the function space.
 
 
 ## Navier Stokes+Elastic Wave and Navier Stokes Dataset
@@ -32,21 +30,35 @@ The fluid-solid interaction dataset is available at (https://drive.google.com/dr
 
 ## Experiments
 
-The configurations for all the experiments are at `config/ssl_ns_elastic.yaml`.
+### Installations
+
+The configurations for all the experiments are at `config/ssl_ns_elastic.yaml` (for fluid structure interaction) and `config/RB_config.yaml` (For Releigh Bernerd system).
 
 To set up the environments and install the dependencies, please run the following command:
 ```
-bash installation.sh
+pip install -r requirements.txt
 ```
+It require `python>=3.11.9` and the `torch` installations be need to tailor to the specific cuda verion for your machine.
+
+**Short Cut** If you already use neuraloprator package, we already have most the packages installed. Then you just need to execuete the following line to roll back to comapatiable version.
+
+```
+pip install -e git+https://github.com/ashiq24/neuraloperator.git@coda_support#egg=neuraloperator
+```
+
+Very soom we are going to release the CoDA-NO layers and models as a part of the `neuraloperator` library. 
+
+### Running Experiments
 To run the experiments, download the datasets, update the "input_mesh_location" and "data_location" in the config file,  update the wandb cradentials and execute the following command
 
 ```
-python main.py --config "config name" --ntrain N
+python main.py --exp (FSI/RB) --config "config name" --ntrain N
 ```
 
-`--config`: which configuration to use from the config file 'config/ssl_ns_elastic.yaml`.
+`--exp`  : Determinces which eperiment we want to run 'FSI' (fluid structure interaction) or 'RB' (Releigh Bernerd)
+`--config`: Determines which configuration to use from the config file 'config/ssl_ns_elastic.yaml/RB_config.yaml`.
 
-`--ntrain`: Number of training data points.
+`--ntrain`: Determines Number of training data points.
 
 ## Scripts
 For training CoDA-NO architecture on NS and NS+EW datasets (both pre-training and fine-tuning) please execute the following scrips:
@@ -54,18 +66,7 @@ For training CoDA-NO architecture on NS and NS+EW datasets (both pre-training an
 codano_ns.sh
 codano_nses.sh
 ```
-For training the baseline, execute the following scripts
-```
-fno_baseline.sh 
 
-gnn_baseline.sh
-
-deeponet_baseline.sh
-
-unet_baseline.sh
-
-vit_baseline.sh
-```
 
 ## Reference
 If you find this paper and code useful in your research, please consider citing:
