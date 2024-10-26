@@ -1,17 +1,18 @@
-# Pretraining  Codomain Attention Neural Operators for Solving Multiphysics PDEs
 <p align="center">
     <img src="https://github.com/ashiq24/CoDA-NO/blob/web_resources/images/banner.png" alt="">
-    <br>
 </p>
-**Coda-NO** is designed to adapt seamlessly to new multi-physics systems. Pre-trained on fluid dynamics data from the Navier-Stokes equations, which include variables $$u_x$$, $u_y$, and $p$, CoDA-NO can easily transition to multi-physics fluid-solid interaction systems that incorporate new variables \(d_x\) and \(d_y\), all without requiring any architectural changes.</em>
+
+**Coda-NO** *is designed to adapt seamlessly to new multi-physics systems. Pre-trained on fluid dynamics data from the Navier-Stokes equations, which include variables* $u_x$, $u_y$, and $p$, *CoDA-NO can easily transition to multi-physics fluid-solid interaction systems that incorporate new variables* $d_x$ and $d_y$, *all without requiring any architectural changes.*
+
+# Pretraining  Codomain Attention Neural Operators for Solving Multiphysics PDEs
 **Abstract**: Existing neural operator architectures face
 challenges when solving multiphysics problems with coupled partial differential equations (PDEs), due to complex geometries, interactions between physical variables, and the lack of large amounts of high-resolution training data. To address these issues, we propose Codomain Attention Neural Operator (CoDA-NO), which tokenizes functions along the codomain or channel space, enabling self-supervised learning or pretraining of multiple PDE systems. Specifically, we extend positional encoding, self-attention, and normalization layers to the function space. CoDA-NO can learn representations of different PDE systems with a single model. We evaluate CoDA-NO's potential as a backbone for learning multiphysics PDEs over multiple systems by considering few-shot learning settings. On complex downstream tasks with limited data, such as fluid flow simulations and fluid-structure interactions, we found CoDA-NO to outperform existing methods on the few-shot learning task by over $36$%. [Paper Link](https://arxiv.org/pdf/2403.12553.pdf)
 
 ## Model Architecture
 <p align="center">
-    <img src="https://github.com/ashiq24/CoDA-NO/blob/web_resources/images/pipeline.png" alt="">
+    <img src="https://github.com/ashiq24/CoDA-NO/blob/web_resources/images/pipe_line.png" alt="">
     <br>
-    <em> <strong>Left:</strong> Architecture of the Codomain Attention Neural Operator. <strong>Right:</strong> Mechanism of codomain attention.</em>
+    <em> <strong>Left:</strong> Architecture of the Codomain Attention Neural Operator</em>
 </p>
 Each physical variable (or co-domain) of the input function is concatenated with variable-specific positional encoding (VSPE). Each variable, along with the VSPE, is passed
 through a GNO layer, which maps from the given non-uniform geometry to a latent regular grid. Then, the output on a uniform grid
@@ -19,10 +20,15 @@ is passed through a series of CoDA-NO layers. Lastly, the output of the stacked 
 output geometry for each query point using another GNO layer.
 
 At each CoDA-NO layer, the input function is tokenized codomain-wise to generate token functions. Each token function is passed through the K, Q, and V operators to
-get key, query, and value functions. The output function is calculated via an extension of the self-attention mechanism to the function space.
+get key, query, and value functions. The output function is calculated by extending the self-attention mechanism to the function space.
+
 
 ## Navier Stokes+Elastic Wave and Navier Stokes Dataset
-The fluid-solid interaction dataset is available at [**Dataset link**](https://drive.google.com/drive/u/0/folders/1dN5de1n0qVYLEWf6JwXjqbCNUXl4Z8Tj).
+<p align="center">
+    <img src="https://github.com/ashiq24/CoDA-NO/blob/web_resources/images/data_vis.png" alt="">
+    <br>
+</p>
+The fluid-solid interaction dataset is available at (https://drive.google.com/drive/u/0/folders/1dN5de1n0qVYLEWf6JwXjqbCNUXl4Z8Tj).
 
 ## Experiments
 
