@@ -1,0 +1,368 @@
+base_config: &BASE_CONFIG
+    ## SSL parameters
+    random_seed: 42
+    config: " "
+    nettype: 'transformer'
+    evaluation_channel_drop: 1 # number of varibales dropped for prediction task with partially observed data
+    drop_type : 'zeros' # dropped values are replaced by zeros
+    grid_type: 'uniform'
+    max_block : 0.3         #Block size for dropping pixels during data augmentation
+    drop_pix: 0.5          #percentage of pixels dropped during data augmentation
+    channel_per: 0.5        # percentage of channels affected by data augmentation
+    channel_drop_per: 0.5   # percentage of affected channels to be dropped completly
+    validation_aug: !!bool False 
+    max_block_val : 0.3
+    drop_pix_val: 0.5
+    channel_per_val: 0.2
+    channel_drop_per_val: 1.0
+
+    
+
+    scheduler_type: 'step' # lr scheduler type
+    batch_size: 4
+    use_variable_encoding: !!bool True
+    n_variables: 5
+    masking: !!bool True  # if true, it will perform data augmentation for SSL
+    in_token_codim_en: 1
+    kqv_non_linear: !!bool False
+
+    hidden_token_codim_en: 6
+    lifting_token_codim_en: 12
+    lifting_token_codim_pred: 12
+    out_token_codim_pred:  1
+    n_layers_en: 2
+    n_heads_en:      [2,2]  
+    n_layers_dec: 2
+    n_heads_dec:      [2,2]
+    n_layers_pred: 3
+    n_heads_pred:    [2,2,2]
+    
+    scalings_pred:     [[1,1], [1,1], [1,1]]
+    scalings_en:     [[1,1], [1,1],[1,1]]
+    scalings_dec:     [[1,1],[1,1]]
+
+    n_modes_en:       [[100,100], [100,100]]
+    n_modes_dec:       [[100,100], [100,100]]
+    n_modes_pred:       [[100,100], [100,100],[100,100]]
+
+    per_channel_attention: !!bool True
+    
+
+    #fft_type: 'fft' #  Duplicate should be removed
+    transform_type: 'fft' # might be also spherical harmonics transform or 'sht'
+
+    tno_integral_op: 'fno'
+
+    var_encoding: !!bool True
+    n_encoding_channels: 3
+    reconstruction: !!bool True
+    enable_cls_token: !!bool True
+
+    # add_static_feature: !!bool False
+
+    pretrain_ssl : !!bool True #if true we pretrain the model by SSL
+
+    # if True, it will fine tune the encoder during SL
+    # otherwise it will freeze the weight of the encoder 
+    # which is trained by SSL
+
+    ## training Hyeper parameters
+    training_stage: 'regular'  # can be regular or fine_tune
+    freeze_encoder : !!bool False # if true, it will freeze the encoder during SL
+    lr: 0.03
+    weight_decay: 0.0000
+    scheduler_step: 50
+    scheduler_gamma: 0.5
+    epochs: 50
+    clip_gradient: !!bool True
+    gradient_clip_value: 0.1
+    ssl_only: !!bool False  # if true, it will only train the model by SSL and will not be followed by SL
+    weight_path: "./weights/" 
+    weight_saving_interval: 3
+
+    # Weights and biases
+    wandb_log: True
+    wandb_name: 'codano-RB'
+    wandb_group: 'neuraloperator'
+    wandb_project: 'CoDA-NO_neurips'
+    wandb_entity: 'ashiq24'
+    wandb_log_test_interval: 1
+
+    dataset: "NSEW"
+
+    ## incremental learning
+    incremental: False
+    buffer_modes: 5
+    grad_explained_ratio_threshold: 0.9999
+    max_iter: 1
+    grad_max_iter: 1
+
+    incremental_loss_gap: False
+    eps: 0.1
+
+    incremental_resolution: False
+    epoch_gap: 150
+    horizontal_skip: !!bool False
+    
+codano_NS2: &CODANO_NS2
+    <<: *BASE_CONFIG
+    # dataset hyper
+
+    n_train: 40
+    n_dim: 2
+    equation_dict: { "NS": 2}
+    n_test: 40
+
+    subsampling_rate: 2
+
+    ### 
+    dt: 2
+    skip_start: 250
+
+    data_location: ["../../../../../raid/ashiq/ns_vel/NS_data_re5000.pt", "../../../../../raid/ashiq/ns_vel/NS_data_re500.pt"]
+    dataset: "NS"
+
+    # training. hypers
+    epochs: 30
+    lr: 0.01
+    weight_decay: 0.0000
+    scheduler_type: 'rdp'
+    scheduler_step: 3
+    scheduler_gamma: 0.5
+    gradient_clip_value: 5.0
+    
+    enable_cls_token: !!bool True
+    n_encoding_channels: 16
+    
+    n_layers_en: 4
+    n_heads_en:      [2,2,2,2]  
+    n_layers_dec: 4
+    n_heads_dec:      [2,2,2,2]
+    n_layers_pred: 3
+    n_heads_pred:    [2,2,2]
+
+    scalings_en:     [[1,1], [1,1], [1,1], [1,1]]
+    scalings_dec:     [[1,1],[1,1],[1,1], [1,1]]
+    scalings_pred:     [[1,1], [1,1], [1,1]]
+
+    max_n_modes_en:        [[32,32], [32,32], [32,32], [32,32]]
+    max_n_modes_dec:         [[32,32], [32,32], [32,32], [32,32]]
+    max_n_modes_pred:          [[32,32], [32,32], [32,32]]
+
+    n_modes_en:        [[32,32], [32,32], [32,32], [32,32]]
+    n_modes_dec:         [[32,32], [32,32], [32,32], [32,32]]
+    n_modes_pred:          [[32,32], [32,32], [32,32]]
+
+    hidden_token_codim_en: 64
+    lifting_token_codim_en: 128
+    lifting_token_codim_pred: 128
+
+    ## varibale encoder
+    encoding_modes_x : 32
+    encoding_modes_y : 32
+    encoding_modes_t : 20
+    basis : 'fft'
+    
+    
+    n_static_channels: 2
+    in_token_codim_en: 1
+    out_token_codim_pred:  1
+    
+    
+    pretrain_ssl : !!bool True
+    freeze_encoder : !!bool False
+    ssl_only: !!bool True
+    positional_encoding_dim: 4
+
+    #data augmentation
+    channel_per: 1.0       
+    channel_drop_per: 0.0
+    max_block : 0.5
+    drop_pix: 0.5
+    masking: !!bool True
+
+codano_big: &CODANO_BIG
+    <<: *CODANO_NS2
+    n_train: 100
+    n_test: 100
+    max_block : 0.5
+    drop_pix: 0.6
+    batch_size: 8
+
+    n_encoding_channels: 4
+    
+    n_layers_en: 3
+    n_heads_en:      [32, 32, 32]  
+    n_layers_dec: 3
+    n_heads_dec:      [32,32,32]
+    n_layers_pred: 1
+    n_heads_pred:    [16]
+
+    scalings_en:     [[1,1], [1,1], [1,1]]
+    scalings_dec:     [[1,1],[1,1],[1,1]]
+    scalings_pred:     [[1,1]]
+
+    max_n_modes_en:        [[64,64], [64,64], [64,64]]
+    max_n_modes_dec:         [[64,64], [64,64], [64,64]]
+    max_n_modes_pred:          [[64,64]]
+
+    n_modes_en:        [[64,64], [64,64], [64,64]]
+    n_modes_dec:         [[64,64], [64,64], [64,64]]
+    n_modes_pred:          [[64,64]]
+
+    hidden_token_codim_en: 64
+    lifting_token_codim_en: 128
+    lifting_token_codim_pred: 128
+
+    ## varibale encoder
+    encoding_modes_x : 64
+    encoding_modes_y : 64
+    encoding_modes_t : 20
+    weight_saving_interval: 1
+    
+codano_RB: &CODANO_RB
+    <<: *CODANO_NS2
+    
+    n_train: 40
+    n_dim: 2
+    batch_size: 4
+    equation_dict: { "NS": 2, "T": 1}
+    n_test: 150
+    subsampling_rate: 2
+    data_location: "../../../RB_Data/RB_data/data_test_2500.npz"  
+    dataset: "RB"
+
+    pretrain_ssl : !!bool False
+    masking: !!bool False
+
+
+    n_encoding_channels: 16
+    
+    n_layers_en: 3
+    n_heads_en:      [16,16,16]  
+    n_layers_dec: 4
+    n_heads_dec:      [16,16,16,16]
+    n_layers_pred: 3
+    n_heads_pred:    [16,16,16]
+
+    scalings_en:     [[1,1], [1,1], [1,1]]
+    scalings_dec:     [[1,1],[1,1],[1,1], [1,1]]
+    scalings_pred:     [[1,1], [1,1], [1,1]]
+
+    max_n_modes_en:        [[64,64], [64,64], [64,64]]
+    max_n_modes_dec:         [[64,64], [64,64], [64,64], [64,64]]
+    max_n_modes_pred:          [[64,64], [64,64], [64,64]]
+
+    n_modes_en:        [[64,64], [64,64], [64,64]]
+    n_modes_dec:         [[64,64], [64,64], [64,64], [64,64]]
+    n_modes_pred:          [[64,64], [64,64], [64,64]]
+
+    hidden_token_codim_en: 64
+    lifting_token_codim_en: 128
+    lifting_token_codim_pred: 128
+
+    ## varibale encoder
+    encoding_modes_x : 32
+    encoding_modes_y : 32
+    encoding_modes_t : 20
+
+    scheduler_step: 10
+    scheduler_gamma: 0.5
+    lr: 0.01
+
+ft_codano_RB: &FT_CODANO_RB
+    <<: *CODANO_BIG
+
+    batch_size: 5
+    equation_dict: { "NS": 2, "T": 1}
+    n_test: 150
+    data_location: "../../../RB_Data/RB_data/data_test_2500.npz"
+    dataset: "RB"
+
+    training_stage: 'fine_tune'
+    pretrain_ssl : !!bool False
+    masking: !!bool False
+
+    n_layers_pred: 1
+    n_heads_pred:    [1] 
+    
+    scalings_pred:     [[1,1]]
+
+    n_modes_pred:       [[64,64]]
+    max_n_modes_pred:       [[64,64]]
+    pretrain_weight:  "../../../RB_weights/pre_trained_weights/codano_big_ssl_encoder_7.pt"  
+    NS_variable_encoder_path:  "../../../RB_weights/pre_trained_weights/codano_big_variable_encoder_7_NS.pt"
+    T_variable_encoder_path: None
+
+    scheduler_step: 2
+    freeze_encoder : !!bool False
+    clip_gradient: !!bool True
+    scheduler_gamma: 0.5
+    scheduler_type: 'rdp'
+    lr: 0.05
+    horizontal_skip: !!bool False
+    weight_decay: 0.000000
+
+ft_codano_RB_small: &FT_CODANO_RB_SMALL
+    <<: *CODANO_BIG
+    batch_size: 5
+    equation_dict: { "NS": 2, "T": 1}
+    n_test: 150
+    data_location: "../../RB_Data/RB_data/data_test_2500.npz"
+    dataset: "RB"
+
+    training_stage: 'fine_tune'
+    pretrain_ssl : !!bool False
+    masking: !!bool False
+
+    n_layers_pred: 3
+    n_heads_pred:    [16 ,16,32] #,2]
+    
+    scalings_pred:     [[1,1], [1,1], [1,1]] #, [1,1]]
+
+    n_modes_pred:       [[32,32], [32,32], [32,32]] #, [32,32]]
+    max_n_modes_pred:       [[32,32], [32,32], [32,32]] #,[32,32]]
+    pretrain_weight:  None
+    NS_variable_encoder_path: None
+    T_variable_encoder_path: None
+
+    scheduler_step: 5
+    freeze_encoder : !!bool False
+    scheduler_gamma: 0.5
+    lr: 0.005
+
+ft_codano_RB_test: &FT_CODANO_RB_TEST
+    <<: *CODANO_RB
+    n_train: 5
+    batc_size: 2
+    n_test: 5
+    epochs: 10
+
+
+unet: &UNET
+    <<: *CODANO_RB
+    batch_size: 5
+    nettype: 'unet'
+    n_test: 150
+    in_dim: 3
+    out_dim: 3
+    init_features: 64
+
+    lr: 0.01
+    scheduler_step: 5
+    scheduler_gamma: 0.5
+
+fno: &FNO
+    <<: *UNET
+    nettype: 'fno'
+    hidden_features: 32
+    lifting_features: 64
+
+    n_modes: [32,32]
+    max_n_modes: [32,32]
+    hidden_dim: 32
+    in_dim: 3
+    out_dim: 3
+    lifting_dim: 64
+    projection_dim: 64
+    n_layers: 4

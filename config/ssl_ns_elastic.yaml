@@ -1,0 +1,953 @@
+###############
+# Config
+# NSES --> Fluid Structure interaction dataset (combining Navier Stocks and Elastic wave equation)
+# NS    --> Only Fluid dynamics with a static solid (Navier Stocks)
+###############
+
+# Also the dataset locations need to be updated
+
+base_config: &BASE_CONFIG
+    ## SSL parameters
+    random_seed: 42
+    config: " "
+    nettype: 'transformer'
+    evaluation_channel_drop: 1 # number of varibales dropped for prediction task with partially observed data
+    drop_type : 'zeros' # dropped values are replaced by zeros
+    grid_type: 'uniform'
+    max_block : 0.3         #Block size for dropping pixels during data augmentation
+    drop_pix: 0.5          #percentage of pixels dropped during data augmentation
+    channel_per: 0.5        # percentage of channels affected by data augmentation
+    channel_drop_per: 0.5   # percentage of affected channels to be dropped completly
+    validation_aug: !!bool False 
+    max_block_val : 0.3
+    drop_pix_val: 0.5
+    channel_per_val: 0.2
+    channel_drop_per_val: 1.0
+    n_neigbor: 14
+    save_predictions: !!bool False
+    supervised_inlets_x1: [-2.0]
+    supervised_inlets_x2: [-2.0,0]
+    data_partition: "supervised"
+
+    scheduler_type: 'step' # lr scheduler type
+    batch_size: 4
+    use_variable_encoding: !!bool True
+    n_variables: 5
+    masking: !!bool True  # if true, it will perform data augmentation for SSL
+    in_token_codim_en: 1
+    kqv_non_linear: !!bool False
+
+    hidden_token_codim_en: 6
+    lifting_token_codim_en: 12
+    lifting_token_codim_pred: 12
+    out_token_codim_pred:  1
+    n_layers_en: 2
+    n_heads_en:      [2,2]  
+    n_layers_dec: 2
+    n_heads_dec:      [2,2]
+    n_layers_pred: 3
+    n_heads_pred:    [2,2,2]
+    
+    scalings_pred:     [[1,1], [1,1], [1,1]]
+    scalings_en:     [[1,1], [1,1],[1,1]]
+    scalings_dec:     [[1,1],[1,1]]
+
+    n_modes_en:       [[100,100], [100,100]]
+    n_modes_dec:       [[100,100], [100,100]]
+    n_modes_pred:       [[100,100], [100,100],[100,100]]
+
+    per_channel_attention: !!bool True
+    
+
+    transform_type: 'fft' 
+
+    tno_integral_op: 'fno'
+
+    var_encoding: !!bool True
+    n_encoding_channels: 3
+    reconstruction: !!bool True
+    enable_cls_token: !!bool True
+
+
+    pretrain_ssl : !!bool True #if true we pretrain the model by SSL
+    evaluate_only: !!bool False # if true, it will only evaluate the model
+    super_resolution: !!bool False # if true, it will perform super resolution test
+
+    # if True, it will fine tune the encoder during SL
+    # otherwise it will freeze the weight of the encoder 
+    # which is trained by SSL
+
+    ## training Hyeper parameters
+    training_stage: 'regular'  # can be regular or fine_tune
+    freeze_encoder : !!bool False # if true, it will freeze the encoder during SL
+    lr: 0.03
+    weight_decay: 0.0000
+    scheduler_step: 50
+    scheduler_gamma: 0.5
+    epochs: 50
+    clip_gradient: !!bool True
+    gradient_clip_value: 0.1
+    ssl_only: !!bool False  # if true, it will only train the model by SSL and will not be followed by SL
+    weight_path: '../../weights_temp/'
+    weight_saving_interval: 20
+
+    # Weights and biases
+    wandb_log: True
+    wandb_name: 'codano'
+    wandb_group: 'neuraloperator'
+    wandb_project: 'CoDA-NO_neurips'
+    wandb_entity: 'ashiq24'
+    wandb_log_test_interval: 1
+
+###############
+#   Self Supervised training config
+################
+
+codano_gno: &CODANO_GNO
+    <<: *BASE_CONFIG
+    # dataset hyper 
+    ntrain: None
+    n_dim: 2
+    equation_dict: { "NS": 3}
+    ntest: None
+    sample_per_inlet: 700
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
+    dt: 2 #dt in markovian model
+    mu_list: [1, 0.01]
+    fixed_neighbour: !!bool True
+    n_neigbor: 10
+    radius: 0.15
+    gno_mlp_layers: [10]
+    grid_size: [251, 42]
+    grid_type: 'non uniform'
+    
+    # training. hypers
+    epochs: 15
+    batch_size: 1
+    lr: 0.0005
+    weight_decay: 0.0000
+    scheduler_type: 'rdp'
+    scheduler_step: 3
+    scheduler_gamma: 0.8
+    gradient_clip_value: 0.01
+    
+    enable_cls_token: !!bool True
+    n_encoding_channels: 8
+    
+    n_layers_en: 3
+    n_heads_en:      [15,15,15]  
+    n_layers_dec: 3
+    n_heads_dec:      [15,15,15]
+    n_layers_pred: 2
+    n_heads_pred:    [10,10]
+
+    scalings_en:     [[1,1], [1,1], [1,1]]
+    scalings_dec:     [[1,1],[1,1],[1,1]]
+    scalings_pred:     [[1,1], [1,1]]
+
+    n_modes_en:       [[100, 15], [100, 15], [100, 15]]
+    n_modes_dec:       [[100, 15],[100, 15],[100, 15]]
+    n_modes_pred:       [[100, 15], [100, 15]]
+
+    hidden_token_codim_en: 64
+    lifting_token_codim_en: 100
+    lifting_token_codim_pred: 80
+    
+    
+    n_static_channels: 4
+    in_token_codim_en: 1
+    out_token_codim_pred:  1
+    
+    
+    pretrain_ssl : !!bool True
+    freeze_encoder : !!bool False
+    ssl_only: !!bool True
+    positional_encoding_dim: 4
+
+    #data augmentation
+    masking_radius: 0.09
+    channel_per: 0.6        
+    channel_drop_per: 0.5
+
+    data_partition: "self-supervised"
+codano_non_lin: &CODANO_NON_LIN
+    <<: *CODANO_GNO
+    kqv_non_linear: !!bool True
+codano_gno_NS_ES: &CODANO_GNO_NS_ES
+    <<: *CODANO_GNO
+    equation_dict: { "NS": 3 , "ES": 2}
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
+    mu_list: [1.0, 10.0]
+    dt: 2
+    radius: 0.05
+codano_gno_NS: &CODANO_GNO_NS
+    <<: *CODANO_GNO
+    equation_dict: { "NS": 3 }
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
+    mu_list: [1.0, 10.0]
+    dt: 2
+    radius: 0.05
+    ntrain: 1
+    ntest: 1
+codano_test: &CODANO_TEST
+    <<: *CODANO_GNO
+    equation_dict: { "NS": 3 , "ES": 2}
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
+
+    n_layers_en: 3
+    n_heads_en:      [15,15,15]  
+    n_layers_dec: 3
+    n_heads_dec:      [15,15,15]
+    n_layers_pred: 2
+    n_heads_pred:    [10,10]
+
+    scalings_en:     [[1,1], [1,1], [1,1]]
+    scalings_dec:     [[1,1],[1,1],[1,1]]
+    scalings_pred:     [[1,1], [1,1]]
+
+    n_modes_en:       [[100, 15], [100, 15], [100, 15]]
+    n_modes_dec:       [[100, 15],[100, 15],[100, 15]]
+    n_modes_pred:       [[100, 15], [100, 15]]
+
+    hidden_token_codim_en: 64
+    lifting_token_codim_en: 100
+    lifting_token_codim_pred: 80
+    masking: !!bool True
+    epochs: 2
+    mu_list: [1.0]
+    lr: 0.001
+    weight_decay: 0.0000
+    scheduler_type: 'step'
+    scheduler_step: 40
+    gradient_clip_value: 0.01
+    scheduler_gamma: 0.8
+    channel_per_val: 0.5  # channel dropping percentage during validation
+    ntrain: 3
+    radius: 1.0
+    n_neigbor: 20
+    ntest: 5
+    ssl_only: !!bool True
+    pretrain_ssl : !!bool True
+    kqv_non_linear: !!bool True
+
+    #data augmentation
+    channel_per: 0.6        
+    channel_drop_per: 0.5
+    masking_radius: 0.09
+    per_channel_attention: !!bool True
+
+
+##################
+# Baselines Config
+# Pattern : model_dataset_mu
+# For example: gnn_NSES_.5 implies
+# model: gnn, dataset: NSES, mu = 0.5
+#################
+
+fno_gno: &FNO_GNO
+    <<: *CODANO_GNO
+    nettype: 'simple'
+    # data config
+    equation_dict: { "NS": 3}
+    n_variables: 3
+    in_dim: 3
+    out_dim: 3
+    #architecture 
+    hidden_dim: 64
+    lifting_dim: 128
+    projection_dim: 128
+    n_modes:       [[150,20], [150,20],[150,20], [150,20], [150,20]]
+    scalings:      [[1,1],[1,1],[1,1],[1,1],[1,1]]
+    n_layers: 5
+    grid_size: [251, 42]
+    pretrain_ssl : !!bool False
+    freeze_encoder : !!bool False
+    
+    # training hyper
+    lr: 0.001
+    epochs: 75
+    scheduler_type: 'step'
+    weight_decay: 0.0000
+    scheduler_step: 10
+    scheduler_gamma: 0.8
+    clip_gradient: !!bool True
+    gradient_clip_value: 0.1
+    fixed_neighbour: !!bool True
+    n_neigbor: 10
+    # does not supporting turning on
+    n_encoding_channels: 0
+    enable_cls_token: !!bool False
+
+    ntest: 100
+    data_partition: "supervised"
+fno_NSES_.5: &FNO_NSES_.5
+    <<: *FNO_GNO
+    equation_dict: { "NS": 3 , "ES": 2}
+    n_variables: 5
+    in_dim: 5
+    out_dim: 5
+
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
+    mu_list: [0.5]
+   
+fno_NSES_1: &FNO_NSES_1
+    <<: *FNO_NSES_.5
+    mu_list: [1.0]
+fno_NSES_5: &FNO_NSES_5
+    <<: *FNO_NSES_.5
+    mu_list: [5]
+fno_NSES_0.5: &FNO_NSES_0.5
+    <<: *FNO_NSES_.5
+    mu_list: [0.5]
+    text_mesh: !!bool True
+    mesh_x: "../../Data/TF_FSI_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_x.txt"
+    mesh_y: "../../Data/TF_FSI_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_y.txt"
+    sub_sample_size: None
+    data_location: "../../Data/TF_FSI_FINE"
+fno_NSES_10: &FNO_NSES_10
+    <<: *FNO_NSES_.5
+    mu_list: [10.0]
+
+fno_NS_1: &FNO_NS_1 
+    <<: *FNO_GNO
+    equation_dict: { "NS": 3}
+    n_variables: 3
+    in_dim: 3
+    out_dim: 3
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
+    mu_list: [1.0]
+fno_NS_5: &FNO_NS_5
+    <<: *FNO_NS_1
+    mu_list: [5]
+
+fno_NS_0.5: &FNO_NS_0.5
+    <<: *FNO_NS_1
+    mu_list: [0.5]
+    data_location: "../../Data/TF_CFD_FINE"
+    text_mesh: !!bool True
+    mesh_x: "../../Data/TF_CFD_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_x.txt"
+    mesh_y: "../../Data/TF_CFD_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_y.txt"
+    sub_sample_size: None
+
+fno_NS_10: &FNO_NS_10
+    <<: *FNO_NS_1
+    mu_list: [10.0]
+
+
+fno_test: &FNO_TEST
+    <<: *FNO_GNO
+    mu_list: [1.0]
+    channel_per_val: 0.5
+    epochs: 20
+    scheduler_type: 'rdp'
+    ntrain: 1
+    ntest: 5
+
+# gnns
+gnn: &GNN
+    <<: *FNO_GNO
+    # data config
+    mu_list: [1.0]
+    equation_dict: { "NS": 3}
+    n_variables: 3
+    in_dim: 3
+    out_dim: 3
+    epochs: 75
+    nettype: 'gnn'
+    gradient_clip_value: 0.005
+
+    n_neigbor: 10
+    gno_mlp_layers: [128]
+    hidden_dim: 128
+    lifting_dim: 256
+    projection_dim: 256
+    dt: 2
+
+    data_partition: "supervised"
+
+gnn_NSES_.5: &GNN_NSES_.5
+    <<: *GNN
+    equation_dict: { "NS": 3 , "ES": 2}
+    n_variables: 5
+    in_dim: 5
+    out_dim: 5
+
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
+    mu_list: [0.5]
+    
+gnn_NSES_1: &gnn_NSES_1
+    <<: *GNN_NSES_.5
+    mu_list: [1.0]
+gnn_NSES_5: &GNN_NSES_5
+    <<: *GNN_NSES_.5
+    mu_list: [5]
+
+gnn_NSES_0.5: &GNN_NSES_0.5
+    <<: *GNN_NSES_.5
+    mu_list: [0.5]
+    text_mesh: !!bool True
+    mesh_x: "../../Data/TF_FSI_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_x.txt"
+    mesh_y: "../../Data/TF_FSI_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_y.txt"
+    sub_sample_size: None
+    data_location: "../../Data/TF_FSI_FINE"
+
+
+gnn_NSES_10: &GNN_NSES_10
+    <<: *GNN_NSES_.5
+    mu_list: [10.0]
+
+gnn_NS_1: &GNN_NS_1 
+    <<: *GNN
+    equation_dict: { "NS": 3}
+    n_variables: 3
+    in_dim: 3
+    out_dim: 3
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
+    mu_list: [1.0]
+gnn_NS_5: &GNN_NS_5
+    <<: *GNN_NS_1
+    mu_list: [5]
+
+gnn_NS_0.5: &GNN_NS_0.5
+    <<: *GNN_NS_1
+    mu_list: [0.5]
+    text_mesh: !!bool True
+    mesh_x: "../../Data/TF_CFD_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_x.txt"
+    mesh_y: "../../Data/TF_CFD_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_y.txt"
+    sub_sample_size: None
+    data_location: "../../Data/TF_CFD_FINE"
+
+gnn_NS_10: &GNN_NS_10
+    <<: *GNN_NS_1
+    mu_list: [10.0]
+gnn_test: 
+    <<: *GNN
+    ntrain: 1
+    ntest: 5
+    epochs: 300
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
+
+## DeepONet
+deeponet: &DEEPONET
+    <<: *GNN
+    nettype: 'deeponet'
+    # data config
+    branch_layers: [32,128]
+    trunk_layers: [128,128]
+    lr: 0.001
+    epochs: 75
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
+
+deeponet_NSES_.5: &DEEPONET_NSES_.5
+    <<: *DEEPONET
+    equation_dict: { "NS": 3 , "ES": 2}
+    n_variables: 5
+    in_dim: 5
+    out_dim: 5
+
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
+    mu_list: [0.5]
+
+deeponet_NSES_0.5: &DEEPONET_NSES_0.5
+    <<: *DEEPONET_NSES_.5
+    mu_list: [0.5]
+    text_mesh: !!bool True
+    mesh_x: "../../Data/TF_FSI_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_x.txt"
+    mesh_y: "../../Data/TF_FSI_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_y.txt"
+    sub_sample_size: None
+    data_location: "../../Data/TF_FSI_FINE"
+
+deeponet_NSES_1: &DEEPONET_NSES_1
+    <<: *DEEPONET_NSES_.5
+    mu_list: [1.0]
+deeponet_NSES_5: &DEEPONET_NSES_5
+    <<: *DEEPONET_NSES_.5
+    mu_list: [5]
+
+deeponet_NSES_10: &DEEPONET_NSES_10
+    <<: *DEEPONET_NSES_.5
+    mu_list: [10.0]
+
+deeponet_NS_1: &DEEPONET_NS_1
+    <<: *DEEPONET
+    equation_dict: { "NS": 3}
+    n_variables: 3
+    in_dim: 3
+    out_dim: 3
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
+    mu_list: [1.0]
+
+deeponet_NS_1_5: &DEEPONET_NS_1_5
+    <<: *DEEPONET_NS_1
+    lr: 0.0001
+    epochs: 150
+    mu_list: [1.0]
+
+deeponet_NS_5: &DEEPONET_NS_5
+    <<: *DEEPONET_NS_1
+    mu_list: [5]
+deeponet_NS_0.5: &DEEPONET_NS_0.5
+    <<: *DEEPONET_NS_1
+    mu_list: [0.5]
+    lr: 0.0001
+    epochs: 150
+    text_mesh: !!bool True
+    mesh_x: "../../Data/TF_CFD_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_x.txt"
+    mesh_y: "../../Data/TF_CFD_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_y.txt"
+    sub_sample_size: None
+    data_location: "../../Data/TF_CFD_FINE"
+
+deeponet_NS_5_5: &DEEPONET_NS_5_5
+    <<: *DEEPONET_NS_1
+    lr: 0.0001
+    epochs: 150
+    mu_list: [5]
+
+deeponet_NS_10: &DEEPONET_NS_10
+    <<: *DEEPONET_NS_1
+    mu_list: [10.0]
+
+deeponet_NS_10_10: &DEEPONET_NS_10_10
+    <<: *DEEPONET_NS_1
+    lr: 0.0007
+    epochs: 150
+    mu_list: [10.0]
+
+deeponet_NS_10_5: &DEEPONET_NS_10_10
+    <<: *DEEPONET_NS_1
+    lr: 0.0001
+    epochs: 150
+    mu_list: [10.0]
+
+
+##########
+# Vit baseline
+#########
+
+vit: &VIT
+    <<: *GNN
+    nettype: 'vit'
+    grid_size: [250, 40]
+    patch_size: [10,2]
+    heads: 1
+
+vit_NSES_.5: &VIT_NSES_.5
+    <<: *VIT
+    equation_dict: { "NS": 3 , "ES": 2}
+    n_variables: 5
+    in_dim: 5
+    out_dim: 5
+
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
+    mu_list: [0.5]
+    
+vit_NSES_1: &VIT_NSES_1
+    <<: *VIT_NSES_.5
+    mu_list: [1.0]
+vit_NSES_5: &VIT_NSES_5
+    <<: *VIT_NSES_.5
+    mu_list: [5]
+
+vit_NSES_0.5: &VIT_NSES_0.5
+    <<: *VIT_NSES_.5
+    mu_list: [0.5]
+    text_mesh: !!bool True
+    mesh_x: "../../Data/TF_FSI_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_x.txt"
+    mesh_y: "../../Data/TF_FSI_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_y.txt"
+    sub_sample_size: None
+    data_location: "../../Data/TF_FSI_FINE"
+
+vit_NSES_10: &VIT_NSES_10
+    <<: *VIT_NSES_.5
+    mu_list: [10.0]
+
+vit_NS_1: &VIT_NS_1
+    <<: *VIT
+    equation_dict: { "NS": 3}
+    n_variables: 3
+    in_dim: 3
+    out_dim: 3
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
+    mu_list: [1.0]
+vit_NS_5: &VIT_NS_5
+    <<: *VIT_NS_1
+    mu_list: [5]
+
+vit_NS_0.5: &VIT_NS_0.5
+    <<: *VIT_NS_1
+    mu_list: [0.5]
+    text_mesh: !!bool True
+    mesh_x: "../../Data/TF_CFD_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_x.txt"
+    mesh_y: "../../Data/TF_CFD_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_y.txt"
+    sub_sample_size: None
+    data_location: "../../Data/TF_CFD_FINE"
+
+vit_NS_10: &VIT_NS_10
+    <<: *VIT_NS_1
+    mu_list: [10.0]
+
+
+vit_testing: &VIT_TESTING
+    <<: *VIT
+    ntrain: 1
+    ntest: 5
+    epochs: 400
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
+
+
+#########
+# unet baseline
+#########
+
+unet: &UNET
+    <<: *GNN
+    nettype: 'unet'
+    grid_size: [251, 42]
+    pad_to_size: [256, 64]
+    hidden_dim: 256
+    lr: 0.001
+    gradient_clip_value: 0.01
+    scheduler_type: 'step'
+    weight_decay: 0.0000
+    scheduler_step: 10
+    scheduler_gamma: 0.8
+
+unet_NSES_.5: &UNET_NSES_.5
+    <<: *UNET
+    equation_dict: { "NS": 3 , "ES": 2}
+    n_variables: 5
+    in_dim: 5
+    out_dim: 5
+
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
+    mu_list: [0.5]
+    
+unet_NSES_1: &UNET_NSES_1
+    <<: *UNET_NSES_.5
+    mu_list: [1.0]
+unet_NSES_5: &UNET_NSES_5
+    <<: *UNET_NSES_.5
+    mu_list: [5]
+
+unet_NSES_0.5: &UNET_NSES_0.5
+    <<: *UNET_NSES_.5
+    mu_list: [0.5]
+    text_mesh: !!bool True
+    mesh_x: "../../Data/TF_FSI_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_x.txt"
+    mesh_y: "../../Data/TF_FSI_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_y.txt"
+    sub_sample_size: None
+    data_location: "../../Data/TF_FSI_FINE"
+
+unet_NSES_10: &UNET_NSES_10
+    <<: *UNET_NSES_.5
+    mu_list: [10.0]
+
+unet_NS_1: &UNET_NS_1
+    <<: *UNET
+    equation_dict: { "NS": 3}
+    n_variables: 3
+    in_dim: 3
+    out_dim: 3
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
+    mu_list: [1.0]
+unet_NS_5: &UNET_NS_5
+    <<: *UNET_NS_1
+    mu_list: [5]
+
+unet_NS_0.5: &UNET_NS_0.5
+    <<: *UNET_NS_1
+    mu_list: [0.5]
+    text_mesh: !!bool True
+    mesh_x: "../../Data/TF_CFD_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_x.txt"
+    mesh_y: "../../Data/TF_CFD_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_y.txt"
+    sub_sample_size: None
+    data_location: "../../Data/TF_CFD_FINE"
+
+unet_NS_10: &UNET_NS_10
+    <<: *UNET_NS_1
+    mu_list: [10.0]
+
+unet_test: &UNET_TEST
+    <<: *UNET
+    ntrain: 1
+    ntest: 5
+    epochs: 500
+    scheduler_step: 30
+    gradient_clip_value: 0.001
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
+
+###########
+# Fine tuning config for CodaNO
+###########
+codano_finetune: &CODANO_FINETUNE
+    <<: *CODANO_GNO
+    epochs: 35
+    training_stage: 'fine_tune'
+    freeze_encoder : !!bool True
+    pretrain_ssl : !!bool False
+    lr: 0.0005
+    scheduler_step: 5
+    scheduler_type: 'step'
+    weight_decay: 0.0000
+    data_partition: "supervised"
+
+    n_layers_pred: 1
+    n_heads_pred:    [1]
+
+    n_modes_pred:       [[80, 15]]
+    scalings_pred:     [[1,1]]
+
+
+    
+######################    
+### finetuning config naming convention
+# ft_{ssl dataset}_{sl dataset}_{mu}
+#################
+ft_NSES_NSES_.5: &FT_NSES_NSES_.5
+    <<: *CODANO_FINETUNE
+
+    equation_dict: { "NS": 3 , "ES": 2}
+    pretrain_weight: "../weights_/codano_gno_NS_ES_encoder_ssl_5.pt"
+    NS_variable_encoder_path: "../weights_/codano_gno_NS_ES_variable_encoder_5_NS.pt"
+    ES_variable_encoder_path: "../weights_/codano_gno_NS_ES_variable_encoder_5_ES.pt"
+
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
+
+    mu_list: [0.5]
+   
+ft_NSES_NSES_1: &FINETUNE_NSES_1
+    <<: *FT_NSES_NSES_.5
+    mu_list: [1.0]
+
+ft_NSES_NSES_5: &FINETUNE_NSES_5
+    <<: *FT_NSES_NSES_.5
+    mu_list: [5]
+
+ft_NSES_NSES_0.5: &FINETUNE_NSES_0.5
+    <<: *FT_NSES_NSES_.5
+    mu_list: [0.5]
+    text_mesh: !!bool True
+    mesh_x: "../../Data/TF_FSI_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_x.txt"
+    mesh_y: "../../Data/TF_FSI_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_y.txt"
+    sub_sample_size: None
+    data_location: "../../Data/TF_FSI_FINE"
+
+ft_NSES_NSES_10: &FINETUNE_NSES_10
+    <<: *FT_NSES_NSES_.5
+    mu_list: [10.0]
+
+
+ft_NS_NSES_.5: &FT_NS_NSES_.5
+    <<: *CODANO_FINETUNE
+
+    equation_dict: { "NS": 3 , "ES": 2}
+    pretrain_weight: "../weights_/codano_gno_NS_encoder_ssl_5.pt"
+    NS_variable_encoder_path: "../weights_/codano_gno_NS_variable_encoder_5_NS.pt"
+    ES_variable_encoder_path: None
+
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
+
+    mu_list: [0.5]
+   
+   
+ft_NS_NSES_1: &FINETUNE_NS_1
+    <<: *FT_NS_NSES_.5
+    mu_list: [1.0]
+ft_NS_NSES_5: &FINETUNE_NS_5
+    <<: *FT_NS_NSES_.5
+    mu_list: [5]
+ft_NS_NSES_0.5: &FINETUNE_NSES_0.5
+    <<: *FT_NS_NSES_.5
+    mu_list: [0.5]
+    text_mesh: !!bool True
+    mesh_x: "../../Data/TF_FSI_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_x.txt"
+    mesh_y: "../../Data/TF_FSI_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_y.txt"
+    sub_sample_size: None
+    data_location: "../../Data/TF_FSI_FINE"
+
+ft_NS_NSES_10: &FINETUNE_NS_10
+    <<: *FT_NS_NSES_.5
+    mu_list: [10.0]
+
+#################
+# Fine tuning on NS only dataset
+#################
+ft_NSES_NS_.5: &FT_NSES_NS_.5
+    <<: *CODANO_FINETUNE
+
+    equation_dict: { "NS": 3}
+    pretrain_weight: "../weights_/codano_gno_NS_ES_encoder_ssl_5.pt"
+    NS_variable_encoder_path: "../weights_/codano_gno_NS_ES_variable_encoder_5_NS.pt"
+    ES_variable_encoder_path: "../weights_/codano_gno_NS_ES_variable_encoder_5_ES.pt"
+
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
+
+    mu_list: [0.5]
+   
+ft_NSES_NS_1: 
+    <<: *FT_NSES_NS_.5
+    mu_list: [1.0]
+ft_NSES_NS_5: 
+    <<: *FT_NSES_NS_.5
+    mu_list: [5]
+
+ft_NSES_NS_0.5: 
+    <<: *FT_NSES_NS_.5
+    mu_list: [0.5]
+    lr: 0.001
+    text_mesh: !!bool True
+    mesh_x: "../../Data/TF_CFD_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_x.txt"
+    mesh_y: "../../Data/TF_CFD_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_y.txt"
+    sub_sample_size: None
+    data_location: "../../Data/TF_CFD_FINE"
+
+ft_NSES_NS_10: 
+    <<: *FT_NSES_NS_.5
+    mu_list: [10.0]
+
+
+ft_NS_NS_.5: &FT_NS_NS_.5
+    <<: *CODANO_FINETUNE
+    equation_dict: { "NS": 3}
+    pretrain_weight: "../weights_/codano_gno_NS_encoder_ssl_5.pt"
+    NS_variable_encoder_path: "../weights_/codano_gno_NS_variable_encoder_5_NS.pt"
+    ES_variable_encoder_path: None
+
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
+
+    mu_list: [0.5]
+   
+   
+ft_NS_NS_1: 
+    <<: *FT_NS_NS_.5
+    mu_list: [1.0]
+ft_NS_NS_5: 
+    <<: *FT_NS_NS_.5
+    mu_list: [5]
+ft_NS_NS_0.5:
+    <<: *FT_NS_NS_.5
+    mu_list: [0.5]
+    lr: 0.001
+    text_mesh: !!bool True
+    mesh_x: "../../Data/TF_CFD_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_x.txt"
+    mesh_y: "../../Data/TF_CFD_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_y.txt"
+    sub_sample_size: None
+    data_location: "../../Data/TF_CFD_FINE"
+
+ft_NS_NS_10: 
+    <<: *FT_NS_NS_.5
+    mu_list: [10.0]
+
+
+codano_finetune_test:
+    <<: *FT_NS_NS_.5
+    weight_saving_interval: 2
+    epochs: 5
+    equation_dict: { "NS": 3 }
+    input_mesh_location: "../../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../../Data/TF_cfd_results"
+    pretrain_weight: "../../weights__/codano_gno_NS_ES_encoder_ssl_5.pt"
+    mu_list: [10.0]
+    # dt: 2
+    ntrain: 1
+    ntest: 5
+    NS_variable_encoder_path: '../../weights__/codano_gno_NS_variable_encoder_5_NS.pt'
+    ES_variable_encoder_path: "../../weights__/codano_gno_NS_ES_variable_encoder_5_ES.pt"
+
+
+######
+# CodA-NO from scratch
+#####
+scratch_codano: &SCRATCH_CODANO
+    <<: *CODANO_FINETUNE
+    epochs: 75
+    training_stage: 'regular'
+    freeze_encoder : !!bool False
+    pretrain_ssl : !!bool False
+    lr: 0.001
+    scheduler_step: 10
+    scheduler_gamma: 0.5
+    scheduler_type: 'step'
+    weight_decay: 0.0000
+    data_partition: "supervised"
+    
+    # predictor architecture
+    n_layers_pred: 1
+    n_heads_pred:    [10]
+
+    n_modes_pred:       [[80, 15]]
+    scalings_pred:     [[1,1]]
+
+codano_NSES_.5: &CODANO_NSES_.5
+    <<: *SCRATCH_CODANO
+    equation_dict: { "NS": 3 , "ES": 2}
+    input_mesh_location: "../../Data/TF_fsi2_results/mesh.h5"
+    data_location: "../../Data/TF_fsi2_results"
+    mu_list: [0.5]
+codano_NSES_1: &codano_NSES_1
+    <<: *CODANO_NSES_.5
+    mu_list: [1.0]
+codano_NSES_5: &codano_NSES_5
+    <<: *CODANO_NSES_.5
+    mu_list: [5]
+
+codano_NSES_0.5: &codano_NSES_0.5
+    <<: *CODANO_NSES_.5
+    mu_list: [0.5]
+    text_mesh: !!bool True
+    mesh_x: "../../Data/TF_FSI_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_x.txt"
+    mesh_y: "../../Data/TF_FSI_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_y.txt"
+    sub_sample_size: None
+    data_location: "../../Data/TF_FSI_FINE"
+
+codano_NSES_10: &codano_NSES_10
+    <<: *CODANO_NSES_.5
+    mu_list: [10.0]
+
+codano_NS_.5: &codano_NS_.5
+    <<: *SCRATCH_CODANO
+    equation_dict: { "NS": 3}
+    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../Data/TF_cfd_results"
+    mu_list: [0.5]
+
+codano_NS_1: 
+    <<: *codano_NS_.5
+    mu_list: [1.0]
+codano_NS_5: 
+    <<: *codano_NS_.5
+    mu_list: [5]
+
+codano_NS_0.5:
+    <<: *codano_NS_.5
+    mu_list: [0.5]
+    text_mesh: !!bool True
+    mesh_x: "../../Data/TF_CFD_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_x.txt"
+    mesh_y: "../../Data/TF_CFD_FINE/mu=0.5/x1=-2.0/x2=-2.0/1/coord_y.txt"
+    sub_sample_size: None
+    data_location: "../../Data/TF_CFD_FINE"
+codano_NS_10: 
+    <<: *codano_NS_.5
+    mu_list: [10.0]
