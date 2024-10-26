@@ -88,7 +88,7 @@ base_config: &BASE_CONFIG
     wandb_entity: 'ashiq24'
     wandb_log_test_interval: 1
 
-    dataset: "NSEW"
+    dataset: ""
 
     ## incremental learning
     incremental: False
