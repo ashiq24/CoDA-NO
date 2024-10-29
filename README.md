@@ -28,6 +28,47 @@ At each CoDA-NO layer, the input function is tokenized codomain-wise to generate
 </p>
 The fluid-solid interaction dataset is available at (https://drive.google.com/drive/u/0/folders/1dN5de1n0qVYLEWf6JwXjqbCNUXl4Z8Tj).
 
+### Data Set Structure
+
+**Fluid Structure Interaction(NS +Elastic wave)**
+The `TF_fsi2_results` folder contains simulation data organized by various parameters (`mu`, `x1`, `x2`) where `mu` determines the viscosity and `x1` and `x2` are the parameters of the inlet condition. The dataset includes files for mesh, displacement, velocity, and pressure. 
+
+This dataset structure is detailed below:
+
+```plaintext
+TF_fsi2_results/
+├── mesh.h5                         # Initial mesh
+├── mu=1.0/                         # Simulation results for mu = 1.0
+│   ├── x1=-4/                      # Inlet parameter x1 = -4
+│   │   ├── x2=-4/                  # Inlet parameter for x2 = -4
+│   │   │   └── visualization/      
+│   │   │       ├── displacement.h5 # Displacements for mu=1.0, x1=-4, x2=-4
+│   │   │       ├── velocity.h5     # Velocity field for mu=1.0, x1=-4, x2=-4
+│   │   │       └── pressure.h5     # Pressure field for mu=1.0, x1=-4, x2=-4
+│   │   ├── x2=-2/
+│   │   │   └── visualization/
+│   │   │       ├── displacement.h5
+│   │   │       ├── velocity.h5
+│   │   │       └── pressure.h5
+│   │   └── ...                     # Other x2 values for x1 = -4
+│   ├── x1=-2/
+│   │   ├── x2=-4/
+│   │   │   └── visualization/
+│   │   │       ├── displacement.h5
+│   │   │       ├── velocity.h5
+│   │   │       └── pressure.h5
+│   │   └── ...                     # Other x2 values for x1 = -2
+│   └── ...                         # Other x1 values for mu = 1.0
+├── mu=5.0/                         # Simulation results for mu = 5.0
+│   └── ...                         # Similar structure as mu=1.0
+└── mu=10.0/                        # Simulation results for mu = 10.0
+    └── ...                         # Similar structure as mu=1.0
+```
+The dataset has `readData.py` and `readMesh.py` for loading the data. Also, the `NsElasticDataset` class in `data_utils/data_loaders.py` loads data automatically for all specified `mu`s and inlet conditions (`x1` and `x2`).
+
+**Fluid Motions with Non-deformable Solid(NS)**
+The data is in the folder `TF_cfd2_results`, and the organization is the same as above. 
+ 
 ## Experiments
 
 ### Installations
@@ -35,12 +76,12 @@ The fluid-solid interaction dataset is available at (https://drive.google.com/dr
 The configurations for all the experiments are at `config/ssl_ns_elastic.yaml` (for fluid-structure interaction) and `config/RB_config.yaml` (For Releigh Bernard system).
 
 To set up the environments and install the dependencies, please run the following command:
-```
+```bash
 pip install -r requirements.txt
 ```
 It requires `python>=3.11.9`, and the `torch` installations need to be tailored to the specific Cuda version for your machine.
 
-**Shortcut: ** If you already use the `neuraloprator` package, we have installed most of the packages. Then, you just need to execute the following line to roll back to a compatible version.
+**Shortcut:** If you already use the `neuraloprator` package, we have installed most of the packages. Then, you just need to execute the following line to roll back to a compatible version.
 
 ```
 pip install -e git+https://github.com/ashiq24/neuraloperator.git@coda_support#egg=neuraloperator
