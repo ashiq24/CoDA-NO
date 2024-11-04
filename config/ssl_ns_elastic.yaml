@@ -195,8 +195,8 @@ codano_gno_NS: &CODANO_GNO_NS
 codano_test: &CODANO_TEST
     <<: *CODANO_GNO
     equation_dict: { "NS": 3 , "ES": 2}
-    input_mesh_location: "../../Data/TF_cfd_results/mesh.h5"
-    data_location: "../../Data/TF_cfd_results"
+    input_mesh_location: "../../../Data/TF_cfd_results/mesh.h5"
+    data_location: "../../../Data/TF_cfd_results"
 
     n_layers_en: 3
     n_heads_en:      [15,15,15]  

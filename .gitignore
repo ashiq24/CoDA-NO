@@ -19,3 +19,4 @@ wandb/*
 # Virtual environment(s):
 .venv/*
 weights/*
+config/wandb_api_key.txt

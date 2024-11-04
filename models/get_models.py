@@ -607,6 +607,17 @@ class SSLWrapper(nn.Module):
         reconstructed = reconstructed[_slice]
 
         return reconstructed
+    def do_mask(self, x):
+        if not self.masking:
+            return x
+        with torch.no_grad():
+            x_masked, masks = batched_masker(
+                x,
+                self.augmenter_masker,
+                batched_channels=self.next_channels,
+            )
+
+        return x_masked
 
     def encode_input(self, x):
         if self.freeze_encoder:
