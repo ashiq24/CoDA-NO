@@ -84,7 +84,7 @@ It requires `python>=3.11.9`, and the `torch` installations need to be tailored 
 **Shortcut:** If you already use the `neuraloprator` package, we have installed most of the packages. Then, you just need to execute the following line to roll back to a compatible version.
 
 ```
-pip install -e git+https://github.com/ashiq24/neuraloperator.git@coda_support#egg=neuraloperator
+pip install -e git+https://github.com/ashiq24/neuraloperator.git@codano_rep#egg=neuraloperator
 ```
 
 Very soom we are going to release the CoDA-NO layers and models as a part of the `neuraloperator` library. 
