@@ -117,7 +117,7 @@ If you find this paper and code useful in your research, please consider citing:
   title={Pretraining Codomain Attention Neural Operators for Solving Multiphysics PDEs},
   author={Rahman, Md Ashiqur and George, Robert Joseph and Elleithy, Mogab and Leibovici, Daniel and Li, Zongyi and Bonev, Boris and White, Colin and Berner, Julius and Yeh, Raymond A and Kossaifi, Jean and Azizzadenesheli, Kamyar and Anandkumar, Anima},
   journal={Advances in Neural Information Processing Systems},
-  volume={36}
+  volume={37}
   year={2024}
 }
 ```
