@@ -8,7 +8,7 @@ joblib==1.4.2
 Jinja2==3.1.4
 matplotlib==3.9.1
 networkx
--e git+https://github.com/ashiq24/neuraloperator.git@coda_support#egg=neuraloperator
+-e git+https://github.com/ashiq24/neuraloperator.git@codano_rep#egg=neuraloperator
 numpy==2.0.0
 opt-einsum==3.3.0
 protobuf==5.27.2
