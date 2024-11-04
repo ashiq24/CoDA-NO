@@ -87,7 +87,7 @@ It requires `python>=3.11.9`, and the `torch` installations need to be tailored 
 pip install -e git+https://github.com/ashiq24/neuraloperator.git@codano_rep#egg=neuraloperator
 ```
 
-Very soom we are going to release the CoDA-NO layers and models as a part of the `neuraloperator` library. 
+We are going to release the CoDA-NO layers and models soon as part of the `neural operator` library. 
 
 ### Running Experiments
 To run the experiments, download the datasets, update the "input_mesh_location" and "data_location" in the config file,  update the Wandb credentials and execute the following command
