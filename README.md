@@ -20,7 +20,7 @@ output geometry for each query point using another GNO layer.
 
 At each CoDA-NO layer, the input function is tokenized codomain-wise to generate token functions. Each token function is passed through the K, Q, and V operators to get key, query, and value functions. The output function is calculated by extending the self-attention mechanism to the function space.
 
-The codomain attention layer is now available through the `neuraloperator` library ([implementation])(https://github.com/neuraloperator/neuraloperator/blob/main/neuralop/layers/coda_blocks.py).
+**The codomain attention layer is now available through the `neuraloperator` library** ([implementation](https://github.com/neuraloperator/neuraloperator/blob/main/neuralop/layers/coda_blocks.py)).
 
 
 ## Navier Stokes+Elastic Wave and Navier Stokes Dataset
