@@ -73,13 +73,13 @@ The data is in the folder `TF_cfd2_results`, and the organization is the same as
 
 ### Installations
 
-The configurations for all the experiments are at `config/ssl_ns_elastic.yaml` (for fluid-structure interaction) and `config/RB_config.yaml` (For Releigh Bernard system).
+The configurations for all the experiments are at `config/ssl_ns_elastic.yaml` (for fluid-structure interaction) and `config/RB_config.yaml` (For the Releigh Bernard system).
 
 To set up the environments and install the dependencies, please run the following command:
 ```bash
 pip install -r requirements.txt
 ```
-It requires `python>=3.11.9`, and the `torch` installations need to be tailored to the specific Cuda version for your machine.
+It requires `python>=3.11.9`, and the `torch` installations need to be tailored to your machine's specific Cuda version. Also, the installation of torch_geometric and torch_scatter should match the local machine's Cuda version. More at the [installation guide](https://pytorch-geometric.readthedocs.io/en/latest/). 
 
 **Shortcut:** If you already use the `neuraloprator` package, we have installed most of the packages. Then, you just need to execute the following line to roll back to a compatible version.
 
@@ -90,7 +90,7 @@ pip install -e git+https://github.com/ashiq24/neuraloperator.git@codano_rep#egg=
 We are going to release the CoDA-NO layers and models soon as part of the `neural operator` library. 
 
 ### Running Experiments
-To run the experiments, download the datasets, update the "input_mesh_location" and "data_location" in the config file,  update the Wandb credentials and execute the following command
+To run the experiments, download the datasets, update the "input_mesh_location" and "data_location" in the config file,  update the Wandb credentials, and execute the following command
 
 ```
 python main.py --exp (FSI/RB) --config "config name" --ntrain N
