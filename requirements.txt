@@ -1,4 +1,4 @@
-aiohttp==3.9.5
+aiohttp==3.10.11
 einops==0.8.0
 filelock==3.15.4
 fsspec==2024.6.1
