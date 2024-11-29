@@ -12,7 +12,7 @@ challenges when solving multiphysics problems with coupled partial differential 
 <p align="center">
     <img src="https://github.com/ashiq24/CoDA-NO/blob/web_resources/images/pipe_line.png" alt="">
     <br>
-    <em> <strong>Left:</strong> Architecture of the Codomain Attention Neural Operator</em>
+    <em>  Architecture of the Codomain Attention Neural Operator</em>
 </p>
 Each physical variable (or co-domain) of the input function is concatenated with variable-specific positional encoding (VSPE). Each variable, along with the VSPE, is passed through a GNO layer, which maps from the given non-uniform geometry to a latent regular grid. Then, the output on a uniform grid
 is passed through a series of CoDA-NO layers. Lastly, the output of the stacked CoDA-NO layers is mapped onto the domain of the
