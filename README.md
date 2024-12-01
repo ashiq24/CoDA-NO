@@ -9,10 +9,13 @@
 
 
 **Example:** [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1-reJuIh8jCW38EPGed75hkAOMR2wc7Gq?usp=sharing)
-[Paper Link](https://arxiv.org/pdf/2403.12553.pdf)
+
+**The codomain attention layer is now available through the `neuraloperator` library** ([implementation](https://github.com/neuraloperator/neuraloperator/blob/main/neuralop/layers/coda_blocks.py)).
 
 **Abstract**: Existing neural operator architectures face
 challenges when solving multiphysics problems with coupled partial differential equations (PDEs), due to complex geometries, interactions between physical variables, and the lack of large amounts of high-resolution training data. To address these issues, we propose Codomain Attention Neural Operator (CoDA-NO), which tokenizes functions along the codomain or channel space, enabling self-supervised learning or pretraining of multiple PDE systems. Specifically, we extend positional encoding, self-attention, and normalization layers to the function space. CoDA-NO can learn representations of different PDE systems with a single model. We evaluate CoDA-NO's potential as a backbone for learning multiphysics PDEs over multiple systems by considering few-shot learning settings. On complex downstream tasks with limited data, such as fluid flow simulations and fluid-structure interactions, we found CoDA-NO to outperform existing methods on the few-shot learning task by over $36$%. 
+
+[Paper Link](https://arxiv.org/pdf/2403.12553.pdf)
 
 ## Model Architecture
 <p align="center">
@@ -25,8 +28,6 @@ is passed through a series of CoDA-NO layers. Lastly, the output of the stacked 
 output geometry for each query point using another GNO layer.
 
 At each CoDA-NO layer, the input function is tokenized codomain-wise to generate token functions. Each token function is passed through the K, Q, and V operators to get key, query, and value functions. The output function is calculated by extending the self-attention mechanism to the function space.
-
-**The codomain attention layer is now available through the `neuraloperator` library** ([implementation](https://github.com/neuraloperator/neuraloperator/blob/main/neuralop/layers/coda_blocks.py)).
 
 
 ## Navier Stokes+Elastic Wave and Navier Stokes Dataset
